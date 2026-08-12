@@ -42,6 +42,7 @@ model AgentBlueprint {
   name              String
   taskDescription   String
   evalInputs        String          @default("[]")
+  isPublic          Boolean         @default(false)
   createdAt         DateTime        @default(now())
   versions          AgentVersion[]
   conversations     Conversation[]

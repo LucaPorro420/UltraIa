@@ -70,3 +70,7 @@ export async function createAgentBlueprint(
 export function parseBlueprintJson<T>(schema: z.ZodType<T>, raw: string): T {
   return schema.parse(JSON.parse(raw));
 }
+
+export async function setPublicAccess(db: Db, blueprintId: string, isPublic: boolean): Promise<void> {
+  await db.agentBlueprint.update({ where: { id: blueprintId }, data: { isPublic } });
+}

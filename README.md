@@ -38,7 +38,7 @@ Verification order: `typecheck → lint → test → build` (mirrored in CI).
 ## How it works
 
 1. **Generate** — `packages/core/src/domain/blueprint.ts` turns a task description into a validated blueprint via structured LLM output: system prompt, recommended model, tools, rubric (weighted criteria), guardrails, and regression eval inputs. Stored as `AgentBlueprint` + `AgentVersion` v1 (ACTIVE).
-2. **Run** — chat streams through `/api/chat` (`apps/web/src/app/api/chat/route.ts`) with the active version's prompt and tools (a safe arithmetic calculator is the only tool so far). External callers use `POST /api/v1/agents/:id/chat` with an `x-api-key` (scoped, hashed at rest, rate limited).
+2. **Run** — chat streams through `/api/chat` (`apps/web/src/app/api/chat/route.ts`) with the active version's prompt and tools (a safe arithmetic calculator is the only tool so far). External callers use `POST /api/v1/agents/:id/chat` with an `x-api-key` (scoped, hashed at rest, rate limited). Agents can also be made **public** (per-agent toggle in the UI): the same endpoint then works without a key, rate limited per IP instead.
 3. **Learn** — BAD feedback and failed eval cases feed the improvement pipeline (`packages/core/src/domain/improve.ts`): the LLM proposes a new system prompt → a PENDING version is created → approval runs **regression evals** (LLM-as-judge against the rubric; the new version must not regress vs the current one, per `regressionGate`) before promotion. Force-approve exists for overrides.
 
 ## Notes / limitations (MVP v0.1)

@@ -24,11 +24,23 @@ export async function POST(
 ) {
   const { blueprintId } = await params;
   const apiKey = req.headers.get('x-api-key');
-  if (rateLimited(apiKey ?? 'anon')) {
+  const clientIp = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown';
+  const rateKey = apiKey ?? `ip:${clientIp}`;
+  if (rateLimited(rateKey)) {
     return new Response('Rate limit exceeded', { status: 429 });
   }
-  const record = await verifyApiKey(prisma, apiKey, blueprintId);
-  if (!record) return new Response('Invalid API key', { status: 401 });
+
+  const blueprint = await prisma.agentBlueprint.findUnique({ where: { id: blueprintId } });
+  if (!blueprint) return new Response('Agent not found', { status: 404 });
+
+  let authorized = false;
+  if (apiKey) {
+    const record = await verifyApiKey(prisma, apiKey, blueprintId);
+    authorized = Boolean(record);
+  }
+  if (!authorized && !blueprint.isPublic) {
+    return new Response('Invalid API key (or enable public access for this agent)', { status: 401 });
+  }
 
   let parsed;
   try {

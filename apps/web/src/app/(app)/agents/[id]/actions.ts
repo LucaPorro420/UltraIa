@@ -12,6 +12,7 @@ import {
   runEvalRun,
 } from '@ultraia/core';
 import { requireUser } from '@/lib/server/context';
+import { setPublicAccess } from '@ultraia/core';
 
 const gateway = new OpenAICompatibleGateway();
 
@@ -92,5 +93,19 @@ export async function addEvalInputAction(
     return { ok: true };
   } catch (err) {
     return { ok: false, error: err instanceof Error ? err.message : 'Failed to add eval input' };
+  }
+}
+
+export async function setPublicAccessAction(
+  agentId: string,
+  isPublic: boolean,
+): Promise<{ ok: boolean; error?: string }> {
+  try {
+    await getBlueprint(agentId);
+    await setPublicAccess(prisma, agentId, isPublic);
+    revalidatePath(`/agents/${agentId}`);
+    return { ok: true };
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : 'Failed to update public access' };
   }
 }

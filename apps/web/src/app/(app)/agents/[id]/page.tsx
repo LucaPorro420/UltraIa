@@ -6,6 +6,7 @@ import { ApiKeyPanel } from './api-key-panel';
 import { EvalInputForm } from './eval-input-form';
 import { EvalRunner } from './eval-runner';
 import { ImproveButton } from './improve-button';
+import { PublicToggle } from './public-toggle';
 import { VersionActions } from './version-actions';
 
 const STATUS_STYLES: Record<string, string> = {
@@ -132,8 +133,19 @@ export default async function AgentDetailPage({ params }: { params: Promise<{ id
 
           <div className="rounded-2xl border border-neutral-800 bg-neutral-900/50 p-5">
             <h2 className="text-sm font-semibold text-neutral-300">API access</h2>
-            <div className="mt-3">
-              <ApiKeyPanel agentId={id} />
+            <div className="mt-3 flex flex-col gap-4">
+              <div>
+                <PublicToggle agentId={id} isPublic={blueprint.isPublic} />
+                {blueprint.isPublic && (
+                  <p className="mt-2 text-xs text-neutral-500">
+                    Anyone can call this agent without a key (rate limited per IP, 30 req/min). Calls
+                    are not authenticated — anything you expose is public.
+                  </p>
+                )}
+              </div>
+              <div className="border-t border-neutral-800 pt-3">
+                <ApiKeyPanel agentId={id} />
+              </div>
             </div>
           </div>
         </div>
