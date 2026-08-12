@@ -1,0 +1,35 @@
+{
+  "name": "ultraia",
+  "version": "0.1.0",
+  "private": true,
+  "description": "UltraIa — AI that creates AI and learns from AI. Generate purpose-built agents from a task description and improve them from usage feedback.",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev -w @ultraia/web",
+    "build": "npm run build -w @ultraia/web",
+    "start": "npm run start -w @ultraia/web",
+    "lint": "npm run lint -w @ultraia/web",
+    "typecheck": "npm run typecheck -w @ultraia/core && npm run typecheck -w @ultraia/web",
+    "test": "npm run test -w @ultraia/core",
+    "db:generate": "prisma generate --schema packages/core/prisma/schema.prisma",
+    "db:migrate": "prisma migrate dev --schema packages/core/prisma/schema.prisma",
+    "db:studio": "prisma studio --schema packages/core/prisma/schema.prisma"
+  },
+  "devDependencies": {
+    "prisma": "^6.7.0",
+    "typescript": "^5.8.2"
+  },
+  "allowScripts": {
+    "esbuild@0.28.2": true,
+    "prisma@6.19.3": true,
+    "sharp@0.34.5": true,
+    "unrs-resolver@1.12.2": true
+  },
+  "overrides": {
+    "react": "19.1.0",
+    "react-dom": "19.1.0"
+  }
+}

@@ -1,0 +1,137 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String      @id @default(cuid())
+  email         String      @unique
+  name          String?
+  passwordHash  String
+  createdAt     DateTime    @default(now())
+  sessions      Session[]
+  workspaces    Workspace[]
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+model Workspace {
+  id         String           @id @default(cuid())
+  name       String
+  ownerId    String
+  owner      User             @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  createdAt  DateTime         @default(now())
+  blueprints AgentBlueprint[]
+}
+
+model AgentBlueprint {
+  id                String          @id @default(cuid())
+  workspaceId       String
+  workspace         Workspace       @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  name              String
+  taskDescription   String
+  evalInputs        String          @default("[]")
+  createdAt         DateTime        @default(now())
+  versions          AgentVersion[]
+  conversations     Conversation[]
+  apiKeys           ApiKey[]
+}
+
+model AgentVersion {
+  id            String        @id @default(cuid())
+  blueprintId   String
+  blueprint     AgentBlueprint @relation(fields: [blueprintId], references: [id], onDelete: Cascade)
+  versionNumber Int
+  systemPrompt  String
+  model         String
+  tools         String
+  rubric        String
+  guardrails    String
+  status        String // ACTIVE | PENDING | REJECTED | SUPERSEDED
+  changeSummary String?
+  createdAt     DateTime      @default(now())
+  evalRuns      EvalRun[]
+  conversations Conversation[]
+
+  @@unique([blueprintId, versionNumber])
+}
+
+model Conversation {
+  id            String       @id @default(cuid())
+  blueprintId   String
+  blueprint     AgentBlueprint @relation(fields: [blueprintId], references: [id], onDelete: Cascade)
+  agentVersionId String
+  agentVersion  AgentVersion @relation(fields: [agentVersionId], references: [id])
+  title         String
+  createdAt     DateTime     @default(now())
+  messages      Message[]
+  feedbacks     Feedback[]
+}
+
+model Message {
+  id             String      @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sequence       Int
+  role           String // user | assistant | system
+  content        String
+  createdAt      DateTime    @default(now())
+
+  @@unique([conversationId, sequence])
+}
+
+model Feedback {
+  id             String      @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  messageSeq     Int
+  rating         String // GOOD | BAD
+  critique       String?
+  createdAt      DateTime    @default(now())
+
+  @@unique([conversationId, messageSeq])
+}
+
+model EvalRun {
+  id             String     @id @default(cuid())
+  agentVersionId String
+  agentVersion   AgentVersion @relation(fields: [agentVersionId], references: [id], onDelete: Cascade)
+  status         String // RUNNING | COMPLETED | FAILED
+  avgScore       Float      @default(0)
+  passRate       Float      @default(0)
+  createdAt      DateTime   @default(now())
+  cases          EvalCase[]
+}
+
+model EvalCase {
+  id               String  @id @default(cuid())
+  evalRunId        String
+  evalRun          EvalRun @relation(fields: [evalRunId], references: [id], onDelete: Cascade)
+  input            String
+  expectedBehavior String
+  actualOutput     String
+  score            Float
+  verdict          String // PASS | FAIL
+  notes            String
+}
+
+model ApiKey {
+  id          String    @id @default(cuid())
+  blueprintId String
+  blueprint   AgentBlueprint @relation(fields: [blueprintId], references: [id], onDelete: Cascade)
+  name        String
+  keyHash     String    @unique
+  lastUsedAt  DateTime?
+  createdAt   DateTime  @default(now())
+}
