@@ -1,6 +1,6 @@
 # UltraIa
 
-AI product under design (greenfield). The repository currently contains no code: no manifests, no build/test config, no CI. The only file besides this one is `AGENT.md` — the verbatim master prompt and the canonical source of the operating rules below.
+AI product under active development. The repository is a working monorepo (npm workspaces): `apps/web` (Next.js 15 App Router + Tailwind v4 + Vercel AI SDK) and `packages/core` (domain logic, Prisma, Vitest). It has manifests, build/test/lint config, and CI. `AGENT.md` is the verbatim master prompt and the canonical source of the operating rules below; this file (`AGENTS.md`) is the condensed agent instruction set.
 
 ## Operating mode (condensed from AGENT.md)
 
@@ -25,5 +25,52 @@ Act as a world-class, multidisciplinary expert entity — Senior Software Archit
 ## Repo facts / gotchas
 
 - Git repo root is this folder (`UltraIa`), not `C:/` — never run `git add .` from outside this folder.
-- No commits yet and no `.gitignore`; there are no tests, linters, or build commands to run yet.
+- Verified working project: run `npm run db:migrate`, then `npm run typecheck`, `npm run lint`, `npm run test`, `npm run build`. Verification order mirrors CI: `typecheck → lint → test → build`.
+- `.gitignore` exists and ignores `node_modules`, `.next`, `dev.db`, and env files.
 - `AGENT.md` is the full master prompt; treat it as canonical if in doubt about operating rules.
+
+## gstack (installed)
+
+gstack (github.com/garrytan/gstack) está instalado como suite de skills de opencode en `~/.config/opencode/skills/gstack-*` (runtime en `~/.claude/skills/gstack`). Actúa como un equipo virtual: ingeniero, CEO, designer, planificador, tester, y release engineer. Los skills son Markdown (SKILL.md) y se cargan con la herramienta `skill` usando su nombre (`gstack-plan-ceo-review`, `gstack-qa`, ...).
+
+Mapeo de roles → skills (usar según la fase):
+
+| Rol | Skill | Cuándo |
+|---|---|---|
+| CEO (dirige) | `gstack-office-hours`, `gstack-plan-ceo-review` | reframear el producto, retar alcance antes de construir |
+| Planificador | `gstack-autoplan`, `gstack-plan-eng-review`, `gstack-spec` | plan revisado (CEO→design→eng), arquitectura, diagramas |
+| DevelopDesign | `gstack-design-consultation`, `gstack-plan-design-review`, `gstack-design-shotgun`, `gstack-design-html` | sistema de diseño, mockups, HTML producible |
+| Ingeniero | `gstack-plan-eng-review`, `gstack-design-html`, `gstack-review` | arquitectura, implementación, revisión de código |
+| Tester | `gstack-qa`, `gstack-qa-only`, `gstack-browse` | QA en navegador real, bug reports |
+| Verifica | `gstack-review`, `gstack-benchmark`, `gstack-canary`, `gstack-devex-review` | review de PR, perf, post-deploy |
+| Corrige | `gstack-review` (auto-fix), `gstack-investigate` (root cause), `gstack-qa` (fix + regresión) | arreglar bugs con verificación |
+| Seguridad | `gstack-cso` | OWASP Top 10 + STRIDE |
+| Release | `gstack-ship`, `gstack-land-and-deploy` | PR, deploy, verificación en producción |
+
+Ciclo recomendado para features: `gstack-plan-ceo-review` → `gstack-plan-eng-review` → implementar → `gstack-review` → `gstack-qa` → `gstack-ship`. En modo no interactivo los skills corren con flags `-q`/`--no-prefix`; consultar el SKILL.md de cada uno para su invocation exacta.
+
+## Estado operativo (verificado 13/08/2026)
+
+- **Monorepo**: `npm run typecheck`, `npm run lint`, `npm run test` (61/61 PASS), `npm run build` — TODO verde. Arranque web: `npm run dev`.
+- **Pipeline árabe**: `python main.py --dry-run` end-to-end OK (ar-SA); validación `python main.py --validate`. Falta solo: claves API reales en `.env` y `ffmpeg` en PATH (`winget install Gyan.FFmpeg`) para render/assembly real.
+- **Todo en un comando**: `./run-all.ps1` (web + webhooks + validate).
+- **Sistema de aprendizaje**: `learning/` con verdad verificada aparte (`learning/truth/`), respuestas crudas (`learning/responses/`), verifier (`learning/scripts/verify.py`) y lecciones (`learning/LEARNINGS.md`). 16/16 casos PASS. Reglas: API directa > búsqueda web para datos numéricos; pedir campos crudos exactos; el tipo de comparación viene de la verdad.
+- **gstack**: 53 skills en `~/.config/opencode/skills/gstack-*` (se cargan al iniciar opencode). Runtime en `~/.claude/skills/gstack` (re-ejecutar `./setup` tras `git pull`).
+
+## Memoria de aprendizaje (learning/)
+
+Sistema de memoria verificada en `learning/`: la verdad se guarda APARTE de las respuestas del modelo (`learning/truth/`), se verifica contra ella (`verify.py`) y se empaqueta comprimida (`learning/memory/ultraia_memory.zip`, ~26 KB). Para cargarla en cualquier sesión usar la skill `learning-memory` o:
+
+```
+python learning/scripts/restore_memory.py summary   # esquemas verificados + lecciones
+```
+
+Reglas aprendidas (no romperlas): API directa > búsqueda web para datos numéricos; pedir campos crudos exactos; el tipo de comparación viene de la verdad; PowerShell 5.1 rompe JSON en argv (usar Write).
+
+## Health Stack
+
+- typecheck: npm run typecheck (tsc --noEmit core + web)
+- lint: npm run lint (next lint)
+- test: npm run test (vitest run, core)
+- build: npm run build (production build)
+- start: python start.py (setup + web + webhooks en un comando)

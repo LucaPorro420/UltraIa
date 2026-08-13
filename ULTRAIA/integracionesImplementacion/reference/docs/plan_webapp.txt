@@ -1,0 +1,87 @@
+
+## Plan de implementación
+
+**Sin migraciones de esquema** — todo aprovecha el modelo actual.
+
+### 1. Historial de chat persistente
+- Nuevo `GET /api/conversations?agentId=` → lista conversaciones (ordenadas por última actividad) + `GET /api/conversations/[id]/messages` → mensajes por `sequence`.
+- `agent-chat.tsx`: cargar historial al montar, selector/nueva conversación (resetea `conversationRef` + mensajes), feedback `messageSeq` sigue siendo `index+1` (consistente con cómo se persiste).
+- Título de conversación derivado del primer mensaje de usuario (reemplaza el `'Conversation'` fijo).
+
+### 2. Evaluación ponderada por criterio
+- `schemas.ts`: `judgeResultSchema` gana `criterionScores: [{criterion, score}]` (opcional, con fallback a `score`).
+- `eval.ts`: `JUDGE_SYSTEM` instruye puntuar por criterio; `weightedScore` computa promedio ponderado con los pesos de la rúbrica (matcheo por nombre de criterio); fallback al score único.
+- Tests actualizados en `eval.test.ts`.
+
+### 3. Gestión de API keys (listar + revocar)
+- `apikey.ts`: `listApiKeys` (id, name, prefix, lastUsedAt, createdAt) y `revokeApiKey`.
+- Route: `GET` + `DELETE` en `/api/agents/[id]/apikeys`.
+- `api-key-panel.tsx`: lista con prefijo (`ua_…`), último uso, botón revocar.
+
+### 4. Rollback de versión
+- `versions.ts`: `activateVersion(db, blueprintId, versionId)` — transacción que demueve ACTIVE→SUPERSEDED y promueve la elegida→ACTIVE.
+- `actions.ts`: `rollbackVersionAction`; `version-actions.tsx`: botón "Rollback" en versiones no-activas.
+- Tests nuevos.
+
+### 5. Rate limit endurecido (v1 chat)
+- Prune periódico del `Map` (evita fuga de memoria) + tope de tamaño.
+- Header `x-forwarded-for` solo se confía si `ULTRAIA_TRUST_PROXY=1` (evita spoofing directo); fallback a `x-real-ip`/`unknown`.
+
+### 6. Propuesta de mejora extendida
+- `improvementProposalSchema` acepta opcionales `suggestedModel` / `suggestedTools` / `suggestedGuardrails` / `suggestedRubric`.
+- `improve.ts` usa los valores propuestos cuando vienen; `proposeImprovement` pide cambios con evidencia.
+- Tests actualizados.
+
+### 7. Design system: Inter + primitivas UI
+- `lib/fonts.ts` con `Inter` de `next/font/google`, aplicado en `layout.tsx` (indicado como prioridad en `01-design-system.md`).
+- Primitivas `components/ui/`: `button.tsx`, `input.tsx`, `badge.tsx`, `card.tsx` (constantes de clases, sin dependencia nueva); se usan en los componentes nuevos y se migran los botones de mayor tráfico sin cambiar el look.
+
+### 8. Tests adicionales
+- `session.test.ts`, `apikey.test.ts`, `feedback.test.ts`, `versions.test.ts` (fake `Db` tipo objeto, mismo estilo que los existentes) + cobertura de weighted eval.
+
+### 9. Docs
+- Corregir `AGENTS.md` (dice "no hay código" — desactualizado) y `README.md` (nuevas features + estado de verificación).
+
+**Verificación final:** `db:generate` → `typecheck` → `lint` → `test` → `build` (mismo orden del CI).
+
+¿Procedo con esto? (Salgo de plan mode cuando me lo confirmes.)
+
+---
+
+## User
+
+Continua
+
+---
+
+## Assistant (Plan · Big Pickle · 13.3s)
+
+_Thinking:_
+
+The user says "Continua" (Continue), but the system reminder says plan mode is still ACTIVE and I must NOT make any edits. So I should not start implementing. The user wants me to continue — but plan mode is still active. I should continue refining/completing the plan, perhaps tie any loose ends.
+
+The plan is already well-formed. I should present the final plan clearly and note that I'm ready to implement once plan mode is exited. Maybe ask if they want to exit plan mode, or present the finalized plan.
+
+Actually "Continua" likely means "continue with the work/implementation". But plan mode is active, so I can't edit. I should tell them the plan is ready and ask them to switch out of plan mode (approve the plan) so I can execute.
+
+Let me present a concise final version of the plan, perhaps with a todo list, and explicitly note I need them to exit plan mode to proceed.
+
+I'll keep it brief since the plan was already detailed.
+
+El plan está completo y listo. Sigo en **modo plan (solo lectura)** — no puedo editar archivos hasta que salgas de este modo.
+
+Resumen final de lo que ejecutaré cuando me des luz verde (9 entregables, sin migraciones):
+
+1. **Historial de chat** — `GET /api/conversations` + `GET /api/conversations/[id]/messages`, carga en `agent-chat.tsx`, botón "Nueva conversación", título auto-derivado.
+2. **Eval ponderada por criterio** — `criterionScores` en juez LLM + `weightedScore` con pesos reales.
+3. **API keys** — listar (prefijo + último uso) y revocar, con UI.
+4. **Rollback de versión** — `activateVersion` + botón en historial.
+5. **Rate limit endurecido** — prune + header confiable solo con proxy.
+6. **Mejora extendida** — propuesta puede ajustar model/tools/guardrails/rubric.
+7. **Design system** — Inter (`next/font`) + primitivas UI (Button/Input/Badge/Card).
+8. **Tests** — session, apikey, feedback, versions, weighted eval.
+9. **Docs** — corregir `AGENTS.md` y actualizar `README.md`.
+
+Verificación final: `db:generate → typecheck → lint → test → build`.
+
+. Aprobado. Construir.

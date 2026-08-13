@@ -1,0 +1,93 @@
+{
+  "version": 1,
+  "description": "Mapeo agente UltraIa -> modelo Ollama tuneado (Modelfile) y parámetros de generación calibrados por rol.",
+  "defaultProvider": "ollama",
+  "baseModel": "llama3.1:8b",
+  "embeddingModel": "nomic-embed-text",
+  "setup": ".\ollama\setup-models.ps1",
+  "usage": {
+    "ULTRAIA_MODEL": "ultraia-orquestador",
+    "note": "Usa un solo modelo para toda la app (el del Orquestador), o fija el campo model de cada AgentVersion con el ollamaModel correspondiente para que cada rol use su tuneo."
+  },
+  "agents": [
+    {
+      "id": "bp-orquestador",
+      "name": "Orquestador",
+      "ollamaModel": "ultraia-orquestador",
+      "temperature": 0.5,
+      "num_ctx": 16384,
+      "num_predict": 4096,
+      "tools": ["web", "image", "video", "music", "design", "branding", "chat"]
+    },
+    {
+      "id": "bp-investigador",
+      "name": "Investigador",
+      "ollamaModel": "ultraia-investigador",
+      "temperature": 0.3,
+      "num_ctx": 16384,
+      "num_predict": 2048,
+      "tools": ["web", "chat"]
+    },
+    {
+      "id": "bp-redactor",
+      "name": "Redactor",
+      "ollamaModel": "ultraia-redactor",
+      "temperature": 0.7,
+      "num_ctx": 8192,
+      "num_predict": 4096,
+      "tools": ["web", "chat"]
+    },
+    {
+      "id": "bp-guionista",
+      "name": "Guionista",
+      "ollamaModel": "ultraia-guionista",
+      "temperature": 0.8,
+      "num_ctx": 8192,
+      "num_predict": 4096,
+      "tools": ["web", "video", "chat"]
+    },
+    {
+      "id": "bp-disenador",
+      "name": "Diseñador",
+      "ollamaModel": "ultraia-disenador",
+      "temperature": 0.9,
+      "num_ctx": 8192,
+      "num_predict": 2048,
+      "tools": ["design", "branding", "image", "chat"]
+    },
+    {
+      "id": "bp-analista",
+      "name": "Analista",
+      "ollamaModel": "ultraia-analista",
+      "temperature": 0.2,
+      "num_ctx": 16384,
+      "num_predict": 2048,
+      "tools": ["web", "chat"]
+    },
+    {
+      "id": "bp-gestor",
+      "name": "Gestor",
+      "ollamaModel": "ultraia-gestor",
+      "temperature": 0.4,
+      "num_ctx": 8192,
+      "num_predict": 2048,
+      "tools": ["web", "chat"]
+    },
+    {
+      "id": "bp-publicador",
+      "name": "Publicador",
+      "ollamaModel": "ultraia-publicador",
+      "temperature": 0.6,
+      "num_ctx": 8192,
+      "num_predict": 2048,
+      "tools": ["web", "image", "branding", "chat"]
+    }
+  ],
+  "paramsPerUseCase": {
+    "extraccion_clasificacion": { "temperature": 0.0, "seed": 42, "top_p": 0.8 },
+    "analisis_tecnico": { "temperature": 0.2, "top_p": 0.85, "repeat_penalty": 1.15 },
+    "conversacion": { "temperature": 0.5, "top_p": 0.9, "repeat_penalty": 1.1 },
+    "creativo_escritura": { "temperature": 0.7, "top_p": 0.95, "repeat_penalty": 1.05 },
+    "maximo_creativo": { "temperature": 0.9, "top_p": 0.95, "repeat_penalty": 1.05 }
+  }
+}

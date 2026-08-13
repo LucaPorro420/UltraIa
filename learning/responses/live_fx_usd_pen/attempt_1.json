@@ -1,0 +1,7 @@
+{
+  "case_id": "live_fx_usd_pen",
+  "attempt": 1,
+  "prompt": "Cual es el tipo de cambio actual de USD a PEN (soles peruanos)? (busca en la web)",
+  "answer": {"usd_to_pen": 3.37, "update_date": "2026-08-13"},
+  "ts": "2026-08-13T02:43:00Z"
+}

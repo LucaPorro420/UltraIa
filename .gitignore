@@ -31,3 +31,18 @@ npm-debug.log*
 Thumbs.db
 .vscode/
 .idea/
+
+# User documentation (not part of the app)
+STUDIES/
+.gstack/
+
+# Local dev artifacts
+dev.err
+dev.log
+session-ses_*.md
+__pycache__/
+*.pyc
+
+# Third-party cloned repos (keep out of this repo)
+FREE-openai-api-keys/
+headroom/

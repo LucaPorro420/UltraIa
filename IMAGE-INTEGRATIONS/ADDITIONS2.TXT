@@ -1,0 +1,152 @@
+## 1. Sistema de Design Tokens y Variables CSS (:root)
+
+A continuación se define la estructura de variables CSS optimizada para una interfaz estilo IDE de alta densidad, organizada por jerarquía de profundidades, acentos por modalidad de agente y estados telemétricos:
+
+```css
+:root {
+  /* --- PROFUNDIDAD Y SUPERFICIES (Dark Obsidian Theme) --- */
+  --bg-canvas: #08080a;           /* Fondo general del viewport */
+  --bg-panel-base: #111115;       /* Fondo de paneles primarios */
+  --bg-panel-header: #18181f;     /* Cabecera de pestañas y paneles */
+  --bg-card-hover: #22222c;       /* Tarjetas e ítems al pasar el cursor */
+  --bg-input-active: #0d0d11;      /* Inputs de prompt y editores */
+
+  /* --- BORDES Y SEPARADORES --- */
+  --border-subtle: #1f1f2a;       /* Divisiones estándar entre paneles */
+  --border-muted: #2e2e3d;        /* Bordes de inputs y contenedores */
+  --border-active: #6366f1;       /* Panel con foco / seleccionado */
+
+  /* --- PALETA POR MODALIDAD DE AGENTE --- */
+  --agent-video-accent: #a855f7;  /* Violeta Neón (Visión y Video) */
+  --agent-video-glow: rgba(168, 85, 247, 0.25);
+  
+  --agent-audio-accent: #06b6d4;  /* Cian Neón (Audio, DSP y Música) */
+  --agent-audio-glow: rgba(6, 182, 212, 0.25);
+
+  --agent-text-accent: #f59e0b;   /* Ámbar Warm (Transcripción y NLE) */
+  --agent-text-glow: rgba(245, 158, 11, 0.25);
+
+  --agent-code-accent: #10b981;   /* Esmeralda (Lógica, LLM y Sandbox) */
+  --agent-code-glow: rgba(16, 185, 129, 0.25);
+
+  /* --- ESTADOS DE PROCESAMIENTO (GLOW & ANIMATIONS) --- */
+  --status-idle: #6b7280;
+  --status-thinking: #3b82f6;
+  --status-streaming: #10b981;
+  --status-error: #ef4444;
+
+  /* --- SOMBRAS Y EFECTOS GLOW --- */
+  --shadow-panel-glow: 0 0 20px -5px var(--border-active);
+  --shadow-card-elevated: 0 10px 30px -10px rgba(0, 0, 0, 0.7);
+
+  /* --- DENSIDAD Y ESPACIADO IDE --- */
+  --ide-header-height: 38px;
+  --ide-activitybar-width: 48px;
+  --ide-sidebar-width: 280px;
+  --ide-panel-gap: 4px;
+  --ide-radius-sm: 4px;
+  --ide-radius-md: 8px;
+  --ide-radius-lg: 12px;
+}
+
+```
+
+---
+
+## 2. Estilos y Estéticas Alternativas de Tema
+
+### A. Dark Obsidian / Glassmorphism Hybrid (Predeterminado)
+
+* **Estética:** Fondos en negro profundo (`#08080a`) con paneles en acrílico semitransparente, desfoque de fondo (`backdrop-filter: blur(12px)`) y bordes refinados de `1px`.
+* **Ideal para:** Trabajo prolongado nocturno, concentración y resaltado de código/formas de onda de audio.
+
+```css
+.panel-obsidian {
+  background: rgba(17, 17, 21, 0.75);
+  backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+
+```
+
+### B. Cyber-Tactical / Matrix High Contrast
+
+* **Estética:** Sin transparencias. Negros puros (`#000000`), fuentes monoespaciadas rígidas, rejillas secundarias visibles (`grid pattern background`), y micro-indicadores tipo terminal o instrumental de aviación.
+* **Ideal para:** Telemetría intensiva, inspección de código y depuración de modelos en vivo.
+
+```css
+.panel-tactical {
+  background: #050505;
+  border: 1px solid #1a2332;
+  background-image: radial-gradient(#1e293b 1px, transparent 0);
+  background-size: 16px 16px;
+}
+
+```
+
+### C. Minimal Studio Light (Modo Claro de Alto Rendimiento)
+
+* **Estética:** Tonos blanco hueso (`#f8fafc`), gris zinc (`#f1f5f9`), tipografía oscura nítida y acentos saturados pero mates.
+* **Ideal para:** Entornos de oficina iluminados, edición de transcripciones largas y exportación de reportes.
+
+```css
+.theme-light {
+  --bg-canvas: #f8fafc;
+  --bg-panel-base: #ffffff;
+  --bg-panel-header: #f1f5f9;
+  --border-subtle: #e2e8f0;
+  --border-active: #4f46e5;
+}
+
+```
+
+---
+
+## 3. Sistema Tipográfico y Escala de Densidad
+
+Para mantener una alta cantidad de información sin saturar visualmente la pantalla:
+
+| Rol de UI | Fuente Recomendada | Tamaño | Peso | Interlineado |
+| --- | --- | --- | --- | --- |
+| **Código / Timestamps / Logs** | *JetBrains Mono / Geist Mono* | `11px` | 400 / Regular | `1.4` |
+| **Cabeceras de Paneles & Tabs** | *Inter / Geist Sans* | `12px` | 600 / SemiBold | `1.2` |
+| **Texto de Transcripción / Chat** | *Plus Jakarta Sans* | `13px` | 400 / Regular | `1.6` |
+| **Badges / Metadatos de Agente** | *JetBrains Mono* | `9px` | 700 / Bold | `1.0` |
+
+---
+
+## 4. Clases Útiles de Tailwind CSS v4 para Agentes Multimodales
+
+```html
+<!-- Ejemplo de Card de Agente Activo con Borde Luminoso según Estado -->
+<div class="relative rounded-lg bg-zinc-900/80 p-3 border border-zinc-800 transition-all duration-300 hover:border-violet-500/50 hover:shadow-[0_0_15px_rgba(168,85,247,0.15)]">
+  
+  <!-- Header de la ventana del agente -->
+  <div class="flex items-center justify-between border-b border-zinc-800/80 pb-2 mb-3">
+    <div class="flex items-center gap-2">
+      <span class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+      <span class="font-mono text-xs font-semibold text-zinc-200">Vision Agent v2</span>
+    </div>
+    <div class="flex gap-1 text-zinc-400">
+      <button class="p-1 hover:bg-zinc-800 rounded text-xs"> Split </button>
+      <button class="p-1 hover:bg-zinc-800 rounded text-xs"> Pop-out </button>
+    </div>
+  </div>
+
+  <!-- Contenido de transmisión en vivo -->
+  <div class="relative overflow-hidden rounded border border-zinc-800 bg-black aspect-video flex items-center justify-center">
+    <div class="absolute inset-0 bg-[radial-gradient(#27272a_1px,transparent_1px)] [background-size:8px_8px] opacity-40"></div>
+    <span class="font-mono text-xs text-violet-400"> [ Stream Video Sync Active ] </span>
+  </div>
+</div>
+
+```
+
+---
+
+## 5. Micro-Interacciones de UI / UX Recomendadas
+
+1. **Dropzone Drag Preview:** Al arrastrar un archivo de video, audio o código sobre cualquier panel, el borde del panel objetivo debe iluminarse con el color del acento de la modalidad correspondiente.
+2. **Focus Mode (Double-Click Header):** Hacer doble clic en el encabezado de un panel maximiza temporalmente ese panel ocupando todo el Canvas, ocultando los demás con una animación suave de 200ms.
+3. **Scrubbing Inter-Panel:** Arrastrar el cursor sobre la línea de tiempo del reproductor de video resalta simultáneamente el bloque de texto equivalente en el panel de transcripción y el pulso en la forma de onda de audio.

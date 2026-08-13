@@ -6,6 +6,7 @@ export interface ChatMessage {
 }
 
 export interface StructuredGenInput {
+  model?: string;
   system: string;
   prompt: string;
   schema: z.ZodType;

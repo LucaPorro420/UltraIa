@@ -1,0 +1,7 @@
+{
+  "case_id": "gstack_browse_goto",
+  "attempt": 1,
+  "prompt": "Que comando usa browse para navegar a una URL?",
+  "answer": "goto <url>",
+  "ts": "2026-08-13T14:41:35.139380+00:00"
+}

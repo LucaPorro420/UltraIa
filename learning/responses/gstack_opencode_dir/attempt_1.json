@@ -1,0 +1,7 @@
+{
+  "case_id": "gstack_opencode_dir",
+  "attempt": 1,
+  "prompt": "Donde instala gstack las skills para opencode?",
+  "answer": "~/.config/opencode/skills",
+  "ts": "2026-08-13T14:40:39.283204+00:00"
+}

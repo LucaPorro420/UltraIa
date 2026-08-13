@@ -136,3 +136,20 @@ model ApiKey {
   lastUsedAt  DateTime?
   createdAt   DateTime  @default(now())
 }
+
+//! TechRadar: tabla de inventario de tecnologias del proyecto (roadmap grafico).
+//! Campos de lista (connections, improvements) se guardan como JSON-string porque
+//! SQLite no soporta arrays escalares en Prisma.
+model TechRadar {
+  id           String   @id @default(cuid())
+  name         String   @unique // ej: "Next.js", "Prisma"
+  category     String // ej: "Framework", "Base de datos", "UI"
+  usagePercent Float    @default(0) // porcentaje aproximado de uso en el codigo
+  importance   Int      @default(3) // 1 (bajo) .. 5 (critico)
+  connections  String   @default("[]") // JSON: ["otra-tech", ...]
+  improvements String   @default("[]") // JSON: ["mejora sugerida", ...]
+  status       String   @default("active") // active | planned | deprecated
+  notes        String? // explicacion libre en español
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}

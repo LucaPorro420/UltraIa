@@ -28,3 +28,30 @@ export async function verifyApiKey(
   await db.apiKey.update({ where: { id: record.id }, data: { lastUsedAt: new Date() } });
   return { id: record.id, name: record.name };
 }
+
+export type ApiKeyInfo = {
+  id: string;
+  name: string;
+  prefix: string;
+  lastUsedAt: Date | null;
+  createdAt: Date;
+};
+
+export async function listApiKeys(db: Db, blueprintId: string): Promise<ApiKeyInfo[]> {
+  const rows = await db.apiKey.findMany({
+    where: { blueprintId },
+    orderBy: { createdAt: 'desc' },
+    select: { id: true, name: true, keyHash: true, lastUsedAt: true, createdAt: true },
+  });
+  return rows.map((r) => ({
+    id: r.id,
+    name: r.name,
+    prefix: `ua_${r.keyHash.slice(0, 8)}`,
+    lastUsedAt: r.lastUsedAt,
+    createdAt: r.createdAt,
+  }));
+}
+
+export async function revokeApiKey(db: Db, id: string): Promise<void> {
+  await db.apiKey.delete({ where: { id } });
+}

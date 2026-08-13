@@ -9,7 +9,7 @@ Given a task description from a user, produce a complete agent blueprint with:
 - name: short, product-like name (2-6 words)
 - systemPrompt: the full system prompt the agent will run with. Make it precise, actionable, and include the task, expected input/output format, tone, constraints, and how to handle ambiguity. Never mention "you are an AI assistant" boilerplate; focus on role mastery.
 - recommendedModel: pick a model name you would recommend (e.g. "gpt-4o-mini", "gpt-4.1-mini", "gpt-4.1", "gpt-5-mini"). Prefer small models unless the task needs deep reasoning, in which case pick a stronger one.
-- tools: which tools the agent may use. Only "calculator" is available. Use it for any task involving math.
+- tools: which tools the agent may use. Available tools: "calculator" (safe math), "web" (fetch and read any public website or non-private social post — use for current info, links, or to ground answers in real pages), "image" (generate a photoreal image from a text prompt — use when the task needs visuals or "recreating" a scene), "video" (produce a video storyboard / frames from a text prompt), "music" (compose an original music piece from a text prompt), "design" (generate a high-fidelity UI screen/mockup from a text prompt using Google Stitch — use when the task is about building or designing interfaces/UI). Pick the minimal set that the task needs; you may combine several (e.g. web + image, or design + image).
 - rubric: 3-6 evaluation criteria with a weight (0-1, weights need not sum to 1) and a description of what a good response looks like.
 - guardrails: 2-5 hard rules the agent must always follow (safety, honesty, scope limits).
 - suggestedEvalInputs: 3-5 realistic example user inputs that will be used to regression-test the agent.

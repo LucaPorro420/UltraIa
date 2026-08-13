@@ -1,5 +1,67 @@
 @import "tailwindcss";
 
+:root {
+  /* Multimodal IDE accents (IMAGE-INTEGRATIONS / ADDITIONS2) */
+  --agent-video: #a855f7;
+  --agent-audio: #06b6d4;
+  --agent-text: #f59e0b;
+  --agent-code: #10b981;
+  --agent-web: #6366f1;
+  --status-thinking: #3b82f6;
+  --status-streaming: #10b981;
+  --status-error: #ef4444;
+}
+
 body {
   @apply bg-neutral-950 text-neutral-100 antialiased;
+  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Glow border per agent modality */
+.glow-video {
+  border-color: color-mix(in srgb, var(--agent-video) 45%, transparent);
+  box-shadow: 0 0 18px -6px var(--agent-video);
+}
+.glow-audio {
+  border-color: color-mix(in srgb, var(--agent-audio) 45%, transparent);
+  box-shadow: 0 0 18px -6px var(--agent-audio);
+}
+.glow-text {
+  border-color: color-mix(in srgb, var(--agent-text) 45%, transparent);
+  box-shadow: 0 0 18px -6px var(--agent-text);
+}
+.glow-code {
+  border-color: color-mix(in srgb, var(--agent-code) 45%, transparent);
+  box-shadow: 0 0 18px -6px var(--agent-code);
+}
+.glow-web {
+  border-color: color-mix(in srgb, var(--agent-web) 45%, transparent);
+  box-shadow: 0 0 18px -6px var(--agent-web);
+}
+
+/* Resizable panel handles (react-resizable-panels) */
+.resize-handle {
+  position: relative;
+  width: 6px;
+  background: transparent;
+  transition: background 150ms ease;
+}
+.resize-handle:hover,
+.resize-handle[data-resize-handle-active] {
+  background: linear-gradient(180deg, transparent, rgba(139, 92, 246, 0.6), transparent);
+}
+.resize-handle-v {
+  width: 6px;
+}
+.resize-handle-h {
+  height: 6px;
+  width: 100%;
+}
+
+/* Calm UI: thin separators, subtle motion (prefers-reduced-motion respected) */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }

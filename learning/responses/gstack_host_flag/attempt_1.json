@@ -1,0 +1,7 @@
+{
+  "case_id": "gstack_host_flag",
+  "attempt": 1,
+  "prompt": "Que flag de setup instala para opencode?",
+  "answer": "--host opencode",
+  "ts": "2026-08-13T14:40:39.770420+00:00"
+}

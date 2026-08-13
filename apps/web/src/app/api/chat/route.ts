@@ -48,12 +48,19 @@ export async function POST(req: Request) {
     tools,
     onFinish: async ({ text }) => {
       const count = await prisma.message.count({ where: { conversationId } });
+      const userSeq = count + 1;
       await prisma.message.createMany({
         data: [
-          { conversationId, sequence: count + 1, role: 'user', content: lastUserText },
-          { conversationId, sequence: count + 2, role: 'assistant', content: text },
+          { conversationId, sequence: userSeq, role: 'user', content: lastUserText },
+          { conversationId, sequence: userSeq + 1, role: 'assistant', content: text },
         ],
       });
+      if (userSeq === 1) {
+        await prisma.conversation.update({
+          where: { id: conversationId },
+          data: { title: lastUserText.slice(0, 60) },
+        });
+      }
     },
   });
 

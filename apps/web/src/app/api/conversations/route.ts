@@ -24,7 +24,26 @@ export async function POST(req: Request) {
   if (!active) return new Response('No active version', { status: 409 });
 
   const conversation = await prisma.conversation.create({
-    data: { blueprintId: parsed.data.agentId, agentVersionId: active.id, title: 'Conversation' },
+    data: { blueprintId: parsed.data.agentId, agentVersionId: active.id, title: 'New conversation' },
   });
   return Response.json({ conversationId: conversation.id });
+}
+
+export async function GET(req: Request) {
+  const user = await getCurrentUser();
+  if (!user) return new Response('Unauthorized', { status: 401 });
+
+  const agentId = new URL(req.url).searchParams.get('agentId');
+  if (!agentId) return new Response('agentId query param required', { status: 400 });
+
+  const blueprint = await getBlueprintForUser(prisma, user.id, agentId);
+  if (!blueprint) return new Response('Agent not found', { status: 404 });
+
+  const conversations = await prisma.conversation.findMany({
+    where: { blueprintId: agentId },
+    orderBy: { createdAt: 'desc' },
+    take: 50,
+    select: { id: true, title: true, createdAt: true },
+  });
+  return Response.json(conversations);
 }

@@ -1,6 +1,10 @@
 'use client';
 
 import { useActionState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { createAgentAction } from '../actions';
 
 export function CreateAgentForm() {
@@ -12,37 +16,52 @@ export function CreateAgentForm() {
           {state.error}
         </p>
       )}
-      <label className="block text-sm font-medium text-neutral-300">
+      <Label className="block text-neutral-300">
         Agent name <span className="text-neutral-500">(optional)</span>
-        <input
-          type="text"
-          name="name"
-          maxLength={100}
-          placeholder="e.g. Sales Email Writer"
-          className="mt-1 w-full rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-2 text-sm text-white outline-none focus:border-violet-500"
-        />
-      </label>
-      <label className="block text-sm font-medium text-neutral-300">
+        <Input type="text" name="name" maxLength={100} placeholder="e.g. Sales Email Writer" className="mt-1" />
+      </Label>
+      <Label className="block text-neutral-300">
         What should the agent do? *
-        <textarea
+        <Textarea
           name="taskDescription"
           required
           rows={6}
           maxLength={4000}
           placeholder="e.g. Write persuasive sales emails for our SaaS product. Given a prospect's profile and company, produce a short email that gets a reply."
-          className="mt-1 w-full rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-2 text-sm text-white outline-none focus:border-violet-500"
+          className="mt-1"
         />
-      </label>
+      </Label>
+      <fieldset className="space-y-2">
+        <legend className="text-sm text-neutral-300">Allowed capabilities</legend>
+        <p className="text-xs text-neutral-500">
+          Choose which tools the agent can use. Unchecking a box disables that capability for this agent.
+        </p>
+        <div className="flex flex-wrap gap-2">
+          {(
+            [
+              { value: 'web', label: 'Web' },
+              { value: 'image', label: 'Image' },
+              { value: 'video', label: 'Video' },
+              { value: 'music', label: 'Music' },
+              { value: 'design', label: 'Design' },
+            ] as const
+          ).map((c) => (
+            <label
+              key={c.value}
+              className="flex items-center gap-2 rounded-full border border-neutral-800 bg-neutral-900/50 px-3 py-1.5 text-sm text-neutral-300"
+            >
+              <input type="checkbox" name="tools" value={c.value} defaultChecked className="accent-violet-500" />
+              {c.label}
+            </label>
+          ))}
+        </div>
+      </fieldset>
       <p className="text-xs text-neutral-500">
         UltraIa designs the system prompt, model, tools and evaluation rubric for this task.
       </p>
-      <button
-        type="submit"
-        disabled={pending}
-        className="w-full rounded-lg bg-violet-600 px-4 py-2.5 font-semibold text-white hover:bg-violet-500 disabled:opacity-50"
-      >
+      <Button type="submit" disabled={pending} className="w-full">
         {pending ? 'Designing your agent… (this can take ~15s)' : 'Design my agent'}
-      </button>
+      </Button>
     </form>
   );
 }

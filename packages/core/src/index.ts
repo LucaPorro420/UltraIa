@@ -1,5 +1,6 @@
 export * from './ai/gateway';
 export * from './ai/llm';
+export * from './ai/loop';
 export * from './ai/schemas';
 export * from './auth/apikey';
 export * from './auth/password';
@@ -12,3 +13,4 @@ export * from './domain/improve';
 export * from './domain/versions';
 export * from './domain/workspace';
 export * from './tools/calculator';
+export * from './tools';

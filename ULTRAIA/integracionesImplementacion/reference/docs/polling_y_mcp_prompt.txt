@@ -1,0 +1,199 @@
+Aquí tienes el **bucle de polling (loop) perfecto**, los **prompts optimizados**, la **documentación verificada** y el **código preprogramado** completo listo para ser ejecutado en producción con Node.js / Python.
+
+---
+
+### 1. Documentación Verificada y Endpoints Clave
+
+Para integrar **Fal.ai**, **Runway Gen-3** y **ElevenLabs** mediante un servidor MCP o script automatizado, la arquitectura requiere peticiones asíncronas basadas en *Polling*.
+
+* **RunwayML API Docs:** Usa el endpoint POST `/v1/image_to_video` o `/v1/text_to_video` para crear la tarea, y GET `/v1/tasks/{id}` para verificar el estado.
+* **Fal.ai API Docs:** Utiliza endpoints sincronizados/asíncronos como `[https://queue.fal.run/fal-ai/flux/dev](https://queue.fal.run/fal-ai/flux/dev)` o `[https://queue.fal.run/fal-ai/kling-video/v1/standard/text-to-video](https://queue.fal.run/fal-ai/kling-video/v1/standard/text-to-video)`.
+* **ElevenLabs API Docs:** Requiere llamadas POST directas al endpoint `/v1/text-to-speech/{voice_id}` usando la clave `xi-api-key`.
+
+---
+
+### 2. El Loop Perfecto de Polling Asíncrono (Python y Node.js)
+
+Un error común en las llamadas a la API de Runway o Fal.ai es abortar por *timeout* o saturar el servidor con demasiadas peticiones. El loop perfecto utiliza **Exponential Backoff** con límite máximo de retentos.
+
+#### Implementación en Python (`asyncio`):
+
+```python
+import asyncio
+import aiohttp
+import time
+
+async def poll_task_status(
+    task_id: str, 
+    api_key: str, 
+    base_url: str = "https://api.dev.runwayml.com/v1/tasks",
+    initial_delay: int = 10,
+    max_delay: int = 30,
+    max_retries: int = 20
+) -> dict:
+    """
+    Loop de Polling robusto con retardo adaptable para IAs de vídeo asíncronas.
+    """
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "X-Runway-Version": "2024-11-06"
+    }
+    
+    delay = initial_delay
+    
+    async with aiohttp.ClientSession() as session:
+        for attempt in range(max_retries):
+            print(f"[Intento {attempt + 1}/{max_retries}] Esperando {delay}s antes de consultar tarea: {task_id}...")
+            await asyncio.sleep(delay)
+            
+            async with session.get(f"{base_url}/{task_id}", headers=headers) as response:
+                if response.status != 200:
+                    print(f"Error en respuesta ({response.status}): {await response.text()}")
+                    continue
+                
+                data = await response.json()
+                status = data.get("status")
+                
+                print(f"Estado actual: {status}")
+                
+                if status == "SUCCEEDED":
+                    print("¡Generación completada con éxito!")
+                    return data
+                elif status in ["FAILED", "CANCELLED"]:
+                    raise RuntimeError(f"La tarea de vídeo falló con estado: {status}. Detalles: {data.get('failure')}")
+                
+                # Aumenta gradualmente el tiempo de espera hasta el máximo permitido
+                delay = min(delay + 5, max_delay)
+                
+    raise TimeoutError(f"Se alcanzó el límite máximo de intentos sin completar la tarea {task_id}.")
+
+```
+
+---
+
+### 3. Código Preprogramado: Script de Integración End-to-End
+
+Este script reúne todo el flujo: **Generación de Prompts (OpenAI JSON)** $\rightarrow$ **Voz (ElevenLabs)** $\rightarrow$ **Video (Runway/Fal.ai)** $\rightarrow$ **Loop de Verificación**.
+
+```python
+import os
+import json
+import asyncio
+import requests
+
+# 1. Configuración de Credenciales
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+ELEVENLABS_API_KEY = os.getenv("ELEVENLABS_API_KEY")
+RUNWAY_API_KEY = os.getenv("RUNWAY_API_KEY")
+
+# 2. Generación del Guion y Prompt Visual
+def generate_metadata_prompt(topic: str) -> dict:
+    url = "https://api.openai.com/v1/chat/completions"
+    headers = {
+        "Authorization": f"Bearer {OPENAI_API_KEY}",
+        "Content-Type": "application/json"
+    }
+    payload = {
+        "model": "gpt-4o",
+        "response_format": {"type": "json_object"},
+        "messages": [
+            {
+                "role": "system",
+                "content": (
+                    "Eres un director audiovisual. Genera un JSON estricto con las claves: "
+                    "'script_es' (guion en español con pausas dramáticas), "
+                    "'script_ar' (guion en árabe diacritizado), "
+                    "'video_prompt_en' (prompt cinemático en inglés para Runway/Kling)."
+                )
+            },
+            {"role": "user", "content": f"Tema: {topic}"}
+        ]
+    }
+    res = requests.post(url, headers=headers, json=payload)
+    return json.loads(res.json()['choices'][0]['message']['content'])
+
+# 3. Generación de Audio en ElevenLabs
+def generate_audio(text: str, voice_id: str = "21m00Tcm4TlvDq8ikWAM") -> bytes:
+    url = f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}"
+    headers = {
+        "xi-api-key": ELEVENLABS_API_KEY,
+        "Content-Type": "application/json"
+    }
+    payload = {
+        "text": text,
+        "model_id": "eleven_multilingual_v2",
+        "voice_settings": {"stability": 0.5, "similarity_boost": 0.75}
+    }
+    res = requests.post(url, headers=headers, json=payload)
+    if res.status_code == 200:
+        return res.content
+    raise Exception(f"Error ElevenLabs: {res.text}")
+
+# 4. Solicitud de Video a Runway
+def trigger_runway_video(prompt: str) -> str:
+    url = "https://api.dev.runwayml.com/v1/tasks"
+    headers = {
+        "Authorization": f"Bearer {RUNWAY_API_KEY}",
+        "X-Runway-Version": "2024-11-06",
+        "Content-Type": "application/json"
+    }
+    payload = {
+        "taskType": "gen3a_turbo",
+        "promptText": prompt,
+        "duration": 5,
+        "ratio": "16:9"
+    }
+    res = requests.post(url, headers=headers, json=payload)
+    data = res.json()
+    return data["id"]
+
+# 5. Ejecución Principal
+async def main():
+    print("--- 1. Generando Estructura de Guión y Prompts ---")
+    data = generate_metadata_prompt("Ciudades inteligentes del futuro")
+    print("Prompts Creados:", json.dumps(data, indent=2, ensure_ascii=False))
+
+    print("\n--- 2. Generando Audio Multilingüe en ElevenLabs ---")
+    audio_data = generate_audio(data["script_es"])
+    with open("output_audio.mp3", "wb") as f:
+        f.write(audio_data)
+    print("Audio guardado como 'output_audio.mp3'")
+
+    print("\n--- 3. Enviando tarea de Video a Runway ---")
+    task_id = trigger_runway_video(data["video_prompt_en"])
+    print(f"Tarea iniciada con ID: {task_id}")
+
+    print("\n--- 4. Iniciando Loop de Polling Perfecto ---")
+    result = await poll_task_status(task_id, RUNWAY_API_KEY)
+    
+    video_url = result.get("output", [None])[0]
+    print(f"\n¡Proceso Completado Exitosamente! URL del video final: {video_url}")
+
+if __name__ == "__main__":
+    asyncio.run(main())
+
+```
+
+---
+
+### 4. Prompt Específico para Armado de Integraciones y Servidores MCP
+
+Copia y pega este prompt especializado en ChatGPT o Claude para pedir arquitecturas completas sin respuestas superficiales:
+
+> **System & User Prompt:**
+> "Actúa como un Ingeniero Senior de Infraestructura e Inteligencia Artificial especializado en el protocolo MCP (Model Context Protocol).
+> Necesito que construyas un módulo completo de integración automatizada para la generación audiovisual (Texto, Audio, Imagen y Video).
+> **Requisitos de la entrega:**
+> 1. **Estructura del Proyecto:** Árbol de carpetas y archivos necesarios para un servidor Node.js/TypeScript o Python usando `@modelcontextprotocol/sdk` o `FastMCP`.
+> 2. **Código del Servidor MCP:** Implementación lista para producción con registro de herramientas (`tools`) para:
+> * `generate_script_json`: Llamada a LLM con Schema rígido.
+> * `generate_audio_elevenlabs`: Llamada a la API de síntesis de voz multilingüe.
+> * `trigger_video_generation`: Inicio de tarea asíncrona en Fal.ai o Runway.
+> * `poll_video_status`: Loop de polling no bloqueante con manejo de excepciones y backoff exponencial.
+> 
+> 
+> 3. **Configuración de Cliente:** Proporciona el fragmento de código JSON para registrar este servidor en los clientes MCP de entorno (Cursor, Claude Desktop, o VS Code `mcpServers`).
+> 4. **Tratamiento de Errores:** Incluye código explícito para límites de tasa (429 Rate Limits), reintentos automáticos e invalidación de claves API.
+> 
+> 
+> Genera el código completo en bloques claros y comenta cada función clave. Evita resúmenes o explicaciones genéricas; entrégame el código operativo."

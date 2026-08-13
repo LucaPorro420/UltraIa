@@ -1,0 +1,365 @@
+```python
+import os
+from weasyprint import HTML
+
+html_content = """<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Reporte UI/UX: Tendencias, Plantillas Más Vendidas y Recursos Frontend</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 15mm 12mm;
+            background-color: #0d1117;
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            color: #c9d1d9;
+            background-color: #0d1117;
+            font-size: 9.5pt;
+            line-height: 1.5;
+        }
+
+        /* Full Bleed Header */
+        .header-banner {
+            margin: -15mm -12mm 15px -12mm;
+            padding: 25px 15mm;
+            background: linear-gradient(135deg, #1f2937 0%, #111827 50%, #030712 100%);
+            border-bottom: 2px solid #3b82f6;
+            text-align: center;
+        }
+
+        .header-title {
+            color: #ffffff;
+            font-size: 20pt;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            margin: 0 0 6px 0;
+            text-transform: uppercase;
+        }
+
+        .header-subtitle {
+            color: #60a5fa;
+            font-size: 11pt;
+            margin: 0;
+            font-weight: 500;
+        }
+
+        .meta-bar {
+            margin-top: 10px;
+            font-size: 8pt;
+            color: #9ca3af;
+        }
+
+        h2 {
+            font-size: 13pt;
+            color: #f3f4f6;
+            margin-top: 18px;
+            margin-bottom: 10px;
+            border-left: 4px solid #3b82f6;
+            padding-left: 8px;
+            page-break-after: avoid;
+        }
+
+        h3 {
+            font-size: 10.5pt;
+            color: #60a5fa;
+            margin-top: 12px;
+            margin-bottom: 6px;
+            page-break-after: avoid;
+        }
+
+        p {
+            margin-top: 0;
+            margin-bottom: 8px;
+            text-align: justify;
+        }
+
+        ul, ol {
+            margin-top: 0;
+            margin-bottom: 10px;
+            padding-left: 18px;
+        }
+
+        li {
+            margin-bottom: 4px;
+        }
+
+        /* Card container */
+        .card {
+            background-color: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 10px 12px;
+            margin-bottom: 10px;
+        }
+
+        .card-title {
+            font-weight: bold;
+            color: #58a6ff;
+            font-size: 10pt;
+            margin-bottom: 4px;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 12px;
+            font-size: 8.5pt;
+            background-color: #161b22;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        th {
+            background-color: #21262d;
+            color: #f0f6fc;
+            text-align: left;
+            padding: 7px 10px;
+            font-weight: 600;
+            border-bottom: 1px solid #30363d;
+        }
+
+        td {
+            padding: 6px 10px;
+            border-bottom: 1px solid #21262d;
+            color: #c9d1d9;
+            vertical-align: top;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Tags and badges */
+        .badge {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 7.5pt;
+            font-weight: 600;
+            margin-right: 4px;
+        }
+
+        .badge-blue { background-color: rgba(56, 139, 253, 0.15); color: #58a6ff; border: 1px solid rgba(56, 139, 253, 0.4); }
+        .badge-green { background-color: rgba(46, 160, 67, 0.15); color: #3fb950; border: 1px solid rgba(46, 160, 67, 0.4); }
+        .badge-purple { background-color: rgba(163, 113, 247, 0.15); color: #bc8cff; border: 1px solid rgba(163, 113, 247, 0.4); }
+        .badge-amber { background-color: rgba(210, 153, 34, 0.15); color: #d29922; border: 1px solid rgba(210, 153, 34, 0.4); }
+
+        .url-link {
+            font-family: monospace;
+            color: #58a6ff;
+            font-size: 8pt;
+        }
+
+        .code-inline {
+            font-family: monospace;
+            background-color: rgba(110, 118, 129, 0.2);
+            padding: 1px 4px;
+            border-radius: 3px;
+            color: #f0f6fc;
+            font-size: 8.5pt;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header-banner">
+        <div class="header-title">Diseño UI/UX, Plantillas & Recursos Modernos</div>
+        <div class="header-subtitle">Guía Profesional de Tendencias, Directorio de Inspiración y Ecosistema Frontend</div>
+        <div class="meta-bar">Actualizado a Agosto 2026 | Documento Técnico de Referencia</div>
+    </div>
+
+    <h2>1. Tendencias Globales de Diseño UI/UX en la Era AI</h2>
+    <p>El diseño de interfaces modernas ha evolucionado de la simple estética estática a sistemas hiperfuncionales, adaptativos y optimizados para interacción multimodal con agentes de IA.</p>
+    
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 25%;">Tendencia UI/UX</th>
+                <th style="width: 45%;">Descripción & Aplicación</th>
+                <th style="width: 30%;">Impacto en UX</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><b>AI Copilot & Copilot Canvas</b></td>
+                <td>La IA deja de ser un chat flotante y se integra en el canvas (Split-panes, barras contextuales flotantes e inspectores laterales).</td>
+                <td>Reduce la carga cognitiva y mantiene al usuario dentro de la herramienta sin cambiar de contexto.</td>
+            </tr>
+            <tr>
+                <td><b>Calm UI & Visual Restraint</b></td>
+                <td>Líneas ultrafinas (<code class="code-inline">border-zinc-800</code>), paletas oscuras neutras (OLED/Zinc/Slate) y microinteracciones sutiles.</td>
+                <td>Evita la sobreestimulación visual cuando se manejan múltiples paneles complejos.</td>
+            </tr>
+            <tr>
+                <td><b>Bento Grids & Tiling IDE Layouts</b></td>
+                <td>Inspirado en IDEs (VS Code) y cuadros Bento. Paneles redimensionables, acoplables y personalizables por el usuario.</td>
+                <td>Máxima flexibilidad para flujos de trabajo multimodales (Video, Audio, Texto, Código).</td>
+            </tr>
+            <tr>
+                <td><b>Glow Accent & State Effects</b></td>
+                <td>Bordes con gradiente de neón suave (<code class="code-inline">drop-shadow glow</code>) para indicar estado de agentes en vivo (Active, Processing, Error).</td>
+                <td>Retroalimentación visual inmediata sobre el estado del backend/procesamiento.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>2. Directorio de Galerías e Inspiración UI/UX de Alto Nivel</h2>
+    <p>Sitios web de referencia donde los mejores diseñadores y desarrolladores analizan patrones reales e interfaces premiadas:</p>
+
+    <div class="card">
+        <div class="card-title">Awwwards — <span class="url-link">awwwards.com</span> <span class="badge badge-purple">Premios Globales</span></div>
+        <p>El estándar internacional para sitios web interactivos, animaciones 3D, microinteracciones experimentales y experiencias inmersivas de marca.</p>
+    </div>
+
+    <div class="card">
+        <div class="card-title">Mobbin — <span class="url-link">mobbin.com</span> <span class="badge badge-blue">Flujos Reales</span></div>
+        <p>La base de datos de capturas de pantalla y flujos de usuario reales (iOS, Android y Web App) más grande del mercado. Ideal para copiar patrones de retención y onboarding.</p>
+    </div>
+
+    <div class="card">
+        <div class="card-title">Godly Website — <span class="url-link">godly.website</span> <span class="badge badge-green">Diseño Moderno</span></div>
+        <p>Selección curada de los sitios web con mejor tipografía, animaciones fluidas y estética oscura moderna (SaaS, AI, Creative Portfolios).</p>
+    </div>
+
+    <div class="card">
+        <div class="card-title">Land-book & Saaspo — <span class="url-link">land-book.com</span> / <span class="url-link">saaspo.com</span> <span class="badge badge-amber">SaaS & Landing</span></div>
+        <p>Especializados exclusivamente en páginas de aterrizaje, tablas de precios, tableros de control (dashboards) y conversión B2B/SaaS.</p>
+    </div>
+
+    <h2>3. Plantillas y Kits Más Vendidos (React + Tailwind CSS + Next.js)</h2>
+    <p>Las arquitecturas y plantillas con mayor volumen de ventas y adopción en la comunidad de desarrollo profesional:</p>
+
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 25%;">Nombre / Kit</th>
+                <th style="width: 25%;">Stack Tecnológico</th>
+                <th style="width: 50%;">Dirección / Repositorio & Características</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><b>Untitled UI (React)</b></td>
+                <td>React, Tailwind CSS v4, React Aria</td>
+                <td><span class="url-link">untitledui.com/react</span><br>El kit de componentes más completo del mercado (10,000+ componentes/variantes, dashboards, modales).</td>
+            </tr>
+            <tr>
+                <td><b>Cruip Open React</b></td>
+                <td>Next.js App Router, Tailwind, Motion</td>
+                <td><span class="url-link">github.com/cruip/open-react-template</span><br>Plantilla para startups y herramientas SaaS, optimizada para rendimiento y SEO.</td>
+            </tr>
+            <tr>
+                <td><b>Velora UI</b></td>
+                <td>Next.js 16, Tailwind v4, Motion</td>
+                <td><span class="url-link">velora.colorlib.com</span><br>Plantilla MIT gratuita con componentes animados avanzados (aurora backgrounds, docks flotantes, border beams).</td>
+            </tr>
+            <tr>
+                <td><b>SuperProps</b></td>
+                <td>Next.js, Tailwind CSS, TypeScript</td>
+                <td><span class="url-link">themeforest.net (Bestseller)</span><br>El kit de landing pages más vendido en ThemeForest con más de 4,500 ventas verificadas.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>4. Ecosistema de Recursos Tecnológicos (Librerías de UI & Animaciones)</h2>
+    <p>Librerías de componentes <i>copy-paste</i> y utilidades para construir interfaces como el IDE Multimodal de Agentes:</p>
+
+    <h3>Librerías de Componentes Base:</h3>
+    <ul>
+        <li><b>shadcn/ui (<span class="url-link">ui.shadcn.com</span>):</b> El estándar de la industria. Componentes reusables basados en Radix UI y Tailwind CSS. Tu código es 100% tuyo.</li>
+        <li><b>Tailwind UI (<span class="url-link">tailwindui.com</span>):</b> Componentes oficiales del equipo de Tailwind CSS para aplicaciones web y marketing.</li>
+        <li><b>NextUI / HeroUI (<span class="url-link">heroui.com</span>):</b> Librería de componentes accesibles con animaciones nativas fluidas.</li>
+    </ul>
+
+    <h3>Efectos Visuales & Animaciones Avanzadas:</h3>
+    <ul>
+        <li><b>Magic UI (<span class="url-link">magicui.design</span>):</b> Componentes animados para landing pages y dashboards (Border Beams, Particle Effects, Marquees).</li>
+        <li><b>Aceternity UI (<span class="url-link">ui.aceternity.com</span>):</b> Componentes con efectos deslumbrantes basados en Framer Motion y Tailwind (Glow cards, Canvas reveal, 3D Pin).</li>
+        <li><b>Lucide Icons (<span class="url-link">lucide.dev</span>):</b> La librería de iconos vectoriales más limpia, consistente y modular para React.</li>
+    </ul>
+
+    <h3>Especiales para Layouts tipo IDE (Split Panes & Grids):</h3>
+    <ul>
+        <li><b>react-resizable-panels (<span class="url-link">github.com/bvaughn/react-resizable-panels</span>):</b> Componentes flexibles para crear distribuciones como VS Code con divisores arrastratorios.</li>
+        <li><b>DND Kit (<span class="url-link">dndkit.com</span>):</b> Modulos de drag and drop para reordenar paneles y tarjetas de agentes dinámicamente.</li>
+    </ul>
+
+</body>
+</html>
+"""
+
+output_pdf = "Reporte_Diseno_UIUX_Recursos_Modernos.pdf"
+HTML(string=html_content).write_pdf(output_pdf)
+print(f"PDF generado exitosamente: {output_pdf}")
+
+
+```
+
+```text
+PDF generado exitosamente: Reporte_Diseno_UIUX_Recursos_Modernos.pdf
+
+
+```
+
+Tu documento PDF interactivo de Diseño UI/UX, Plantillas Bestsellers y Recursos Frontend está listo.
+
+[file-tag: code-generated-file-fef1f7b1-6a09-4456-a03e-0b961aa18f30]
+
+---
+
+### Resumen del Contenido Incluido en el Documento
+
+#### 1. Tendencias UI/UX Modernas (Año 2026)
+
+* **AI Copilot & Canvas Integrado:** La IA deja de ser una ventana de chat aislada y pasa a formar parte activa del lienzo (Split-panes, inspectores laterales, quick prompts sobre medios).
+* **Calm UI & Visual Restraint:** Interfaces oscuras neutras (OLED, Zinc `#09090B`), bordes de 1px ultrafinos (`border-zinc-800`), y reducción de la sobrecarga visual para paneles complejos.
+* **Bento Grids & Layouts Flexibles Tiling:** Distribuciones inspiradas en IDEs profesionales (VS Code/Blender) con paneles redimensionables, acoplables y personalizables por el usuario.
+* **Glow State Accents:** Luces ambientales y bordes neón (`Drop-shadow glow`) para indicar en tiempo real cuando un agente de audio, video o texto está pensando, procesando o transmitiendo datos.
+
+---
+
+#### 2. Inspiración y Galerías de Diseño Top Global
+
+* **Awwwards** (`[https://awwwards.com](https://awwwards.com)`): El referente global para sitios web altamente interactivos, diseños 3D y experiencia de usuario inmersiva.
+* **Mobbin** (`[https://mobbin.com](https://mobbin.com)`): La base de datos más grande de capturas de pantalla y flujos UX reales (Onboarding, dashboards, checkout) de las mejores aplicaciones del mundo.
+* **Godly Website** (`[https://godly.website](https://godly.website)`): Curaduría de los mejores sitios web con estética oscura, tipografías audaces y microinteracciones.
+* **Land-book & Saaspo** (`[https://land-book.com](https://land-book.com)` / `[https://saaspo.com](https://saaspo.com)`): Inspiración enfocada en páginas de aterrizaje, componentes SaaS, tablas de precios y portafolios de alta conversión.
+
+---
+
+#### 3. Plantillas y Kits de Diseño Más Vendidos (React + Tailwind CSS + Next.js)
+
+* **Untitled UI (React):** `[https://untitledui.com/react](https://untitledui.com/react)` — El kit de componentes UI y UI-design system para Tailwind CSS v4 más vendido y completo del mercado.
+* **Cruip Open React:** `[https://github.com/cruip/open-react-template](https://github.com/cruip/open-react-template)` — Plantilla open-source optimizada para SaaS y productos de inteligencia artificial.
+* **Velora UI:** `[https://velora.colorlib.com](https://velora.colorlib.com)` — Plantilla moderna con React 19, Tailwind v4 y más de 30 componentes animados avanzados.
+* **SuperProps (ThemeForest):** `[https://themeforest.net](https://themeforest.net)` — El bestseller absoluto en ThemeForest con más de 4,500 ventas para landing pages en React/Next.js.
+
+---
+
+#### 4. Recursos de Código y Librerías (Frontend Stack)
+
+* **Sistemas de Componentes Base:**
+* **shadcn/ui** (`[https://ui.shadcn.com](https://ui.shadcn.com)`): Componentes accesibles y 100% personalizables con Tailwind CSS.
+* **Tailwind UI** (`[https://tailwindui.com](https://tailwindui.com)`): Componentes oficiales del equipo de Tailwind.
+
+
+* **Componentes Animados y Efectos Visuales:**
+* **Magic UI** (`[https://magicui.design](https://magicui.design)`): Componentes animados para landing pages de impacto.
+* **Aceternity UI** (`[https://ui.aceternity.com](https://ui.aceternity.com)`): Componentes con efectos de neón, canvas y animaciones complejas basadas en Framer Motion / Motion.
+* **Lucide Icons** (`[https://lucide.dev](https://lucide.dev)`): Librería de íconos vectoriales limpia y moderna.
+
+
+* **Especiales para Layout tipo IDE (Workspace Multimodal):**
+* **react-resizable-panels** (`[https://github.com/bvaughn/react-resizable-panels](https://github.com/bvaughn/react-resizable-panels)`): Para crear divisores de paneles arrastratorios estilo VS Code.
+* **DND Kit** (`[https://dndkit.com](https://dndkit.com)`): Sistema de drag and drop para reorganizar paneles de agentes al gusto del usuario.

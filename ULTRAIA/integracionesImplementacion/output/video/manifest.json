@@ -1,0 +1,14 @@
+{
+  "title": "مستقبل المدن الذكية",
+  "dry_run": true,
+  "audio": "C:\\Users\\UTEC-5695\\Desktop\\UltraIa\\ULTRAIA\\integracionesImplementacion\\output\\audio\\مستقبل_المدن_الذكية.mp3",
+  "images": {
+    "1": "C:\\Users\\UTEC-5695\\Desktop\\UltraIa\\ULTRAIA\\integracionesImplementacion\\output\\images\\shot_1.png",
+    "2": "C:\\Users\\UTEC-5695\\Desktop\\UltraIa\\ULTRAIA\\integracionesImplementacion\\output\\images\\shot_2.png"
+  },
+  "videos": {
+    "1": "https://mock.invalid/video/1",
+    "2": "https://mock.invalid/video/2"
+  },
+  "assembled": "C:\\Users\\UTEC-5695\\Desktop\\UltraIa\\ULTRAIA\\integracionesImplementacion\\output\\assembled\\مستقبل_المدن_الذكية_final.mp4"
+}

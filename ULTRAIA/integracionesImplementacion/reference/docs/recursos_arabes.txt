@@ -1,0 +1,3 @@
+4. Recursos Específicos y Portales en Árabe (أدوات ومصادر)
+
+RecursoTipoDescripción y EnlaceTashkeel / FarasaPreprocesamientoHerramientas NLP de la Qatar Computing Research Institute (QCRI) para diacritización automática de árabe.ElevenLabs Arabic VoicesAudio TTSModelos entrenados específicamente con voces nativas de Arabia Saudita, Egipto y Emiratos Árabes Unidos.Hugging Face Arabic LLMsModelosModelos como AceGPT o Jais optimizados para procesamiento del lenguaje natural en árabe.Make / n8n ModulesAutomatizaciónIntegraciones Webhook directas para orquestación sin servidor.

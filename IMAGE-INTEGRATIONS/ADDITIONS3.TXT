@@ -1,0 +1,244 @@
+Aquí tienes la implementación completa en **React + Tailwind CSS** de un componente de **Ventana Pequeña / Tile de Agente (`AgentTileWindow`)**, junto con el sistema de contenedor adaptativo que los agrupa automáticamente **de a 1, de a 2 (en parejas) o en retícula** según el espacio disponible, respetando siempre los límites mínimos.
+
+---
+
+### 1. Componente React: `AgentTileWindow.jsx`
+
+Esta es la ventana modular reutilizable para cada agente. Cuenta con límites mínimos (`min-w-[280px]`, `min-h-[220px]`), cabecera con estado en vivo y efectos visuales de neón según la modalidad.
+
+```jsx
+import React, { useState } from 'react';
+import { Maximize2, Minimize2, ExternalLink, X, Sparkles, Activity } from 'lucide-react';
+
+// Estilos de acento visual por tipo de agente
+const TYPE_ACCENTS = {
+  video: {
+    border: 'border-purple-500/30 focus-within:border-purple-500/70',
+    glow: 'hover:shadow-[0_0_20px_rgba(168,85,247,0.15)]',
+    badge: 'bg-purple-500/10 text-purple-400 border-purple-500/30',
+    dot: 'bg-purple-400'
+  },
+  audio: {
+    border: 'border-cyan-500/30 focus-within:border-cyan-500/70',
+    glow: 'hover:shadow-[0_0_20px_rgba(6,182,212,0.15)]',
+    badge: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30',
+    dot: 'bg-cyan-400'
+  },
+  text: {
+    border: 'border-amber-500/30 focus-within:border-amber-500/70',
+    glow: 'hover:shadow-[0_0_20px_rgba(245,158,11,0.15)]',
+    badge: 'bg-amber-500/10 text-amber-400 border-amber-500/30',
+    dot: 'bg-amber-400'
+  },
+  code: {
+    border: 'border-emerald-500/30 focus-within:border-emerald-500/70',
+    glow: 'hover:shadow-[0_0_20px_rgba(16,185,129,0.15)]',
+    badge: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30',
+    dot: 'bg-emerald-400'
+  }
+};
+
+export const AgentTileWindow = ({
+  id,
+  title = "Agente de Visión",
+  type = "video", // 'video' | 'audio' | 'text' | 'code'
+  status = "active", // 'active' | 'thinking' | 'idle'
+  onClose,
+  children
+}) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const accent = TYPE_ACCENTS[type] || TYPE_ACCENTS.text;
+
+  return (
+    <div
+      className={`
+        /* LÍMITES MÍNIMOS Y FLEXIBILIDAD */
+        min-w-[280px] min-h-[220px] w-full flex-1
+        ${isExpanded ? 'col-span-full row-span-2 h-[450px]' : 'h-[280px]'}
+        
+        /* ESTÉTICA Y CONTENEDOR */
+        flex flex-col bg-[#111116]/90 backdrop-blur-md
+        rounded-xl border ${accent.border} ${accent.glow}
+        transition-all duration-300 ease-out overflow-hidden relative group
+      `}
+    >
+      {/* 1. CABECERA DE LA VENTANA (36px) */}
+      <div className="h-9 px-3 bg-[#181820]/80 border-b border-zinc-800/60 flex items-center justify-between select-none shrink-0">
+        <div className="flex items-center gap-2 overflow-hidden">
+          {/* Indicador de estado animado */}
+          <span className="relative flex h-2 w-2">
+            {status === 'active' && (
+              <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${accent.dot}`}></span>
+            )}
+            <span className={`relative inline-flex rounded-full h-2 w-2 ${accent.dot}`}></span>
+          </span>
+
+          <span className="font-mono text-xs font-semibold text-zinc-200 truncate max-w-[140px]">
+            {title}
+          </span>
+
+          {/* Badge de Modalidad */}
+          <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded border ${accent.badge} uppercase hidden sm:inline-block`}>
+            {type}
+          </span>
+        </div>
+
+        {/* Botones de Control de Ventana */}
+        <div className="flex items-center gap-1 opacity-70 group-hover:opacity-100 transition-opacity">
+          <button
+            onClick={() => setIsExpanded(!isExpanded)}
+            className="p-1 hover:bg-zinc-800 text-zinc-400 hover:text-white rounded transition-colors"
+            title={isExpanded ? "Contraer" : "Maximizar en Grid"}
+          >
+            {isExpanded ? <Minimize2 size={13} /> : <Maximize2 size={13} />}
+          </button>
+          
+          <button
+            onClick={onClose}
+            className="p-1 hover:bg-red-500/20 text-zinc-400 hover:text-red-400 rounded transition-colors"
+            title="Cerrar Agente"
+          >
+            <X size={13} />
+          </button>
+        </div>
+      </div>
+
+      {/* 2. CUERPO INTERACTIVO / CANVAS DEL AGENTE */}
+      <div className="flex-1 p-3 overflow-y-auto custom-scrollbar flex flex-col justify-between">
+        {children ? children : (
+          /* Placeholder por defecto si no pasa contenido */
+          <div className="flex-1 flex flex-col items-center justify-center border border-dashed border-zinc-800/80 rounded-lg p-2 text-center bg-black/20">
+            <Sparkles size={20} className="text-zinc-600 mb-2 animate-pulse" />
+            <p className="font-mono text-[11px] text-zinc-500">Agente listo. Esperando stream de datos...</p>
+          </div>
+        )}
+      </div>
+
+      {/* 3. BARRA INFERIOR DE ACCIÓN RÁPIDA (QUICK PROMPT) */}
+      <div className="px-2 py-1.5 bg-[#0d0d11] border-t border-zinc-800/50 flex items-center gap-2 shrink-0">
+        <input 
+          type="text" 
+          placeholder={`Prompt para ${title}...`}
+          className="w-full bg-transparent text-xs text-zinc-200 placeholder-zinc-600 focus:outline-none font-mono"
+        />
+        <button className="text-[10px] font-mono bg-zinc-800 hover:bg-zinc-700 text-zinc-300 px-2 py-1 rounded transition-colors">
+          Enviar
+        </button>
+      </div>
+    </div>
+  );
+};
+
+```
+
+---
+
+### 2. Contenedor Grid Adaptativo Auto-Acomodable (Soporta 1, Parejas de 2 o Más)
+
+Este contenedor utiliza **CSS Grid con `auto-fit` y `minmax(280px, 1fr)**`.
+
+* **Si el espacio es amplio:** Acomoda 3 o 4 agentes en línea horizontal.
+* **Si el espacio se reduce:** Automáticamente se reagrupan **en parejas de 2**.
+* **Si el espacio es muy estrecho:** Se apilan de a 1 sin romper los límites mínimos.
+
+```jsx
+import React, { useState } from 'react';
+import { AgentTileWindow } from './AgentTileWindow';
+import { Plus } from 'lucide-react';
+
+export const AgentWorkspaceGrid = () => {
+  const [agents, setAgents] = useState([
+    { id: '1', title: 'Vision Agent', type: 'video', status: 'active' },
+    { id: '2', title: 'Audio Stems', type: 'audio', status: 'active' },
+    { id: '3', title: 'Live Transcript', type: 'text', status: 'thinking' },
+    { id: '4', title: 'LLM Copilot', type: 'code', status: 'idle' }
+  ]);
+
+  const removeAgent = (id) => {
+    setAgents(agents.filter(a => a.id !== id));
+  };
+
+  return (
+    <div className="w-full h-full bg-[#08080a] p-4 flex flex-col gap-3">
+      {/* Barra Superior del Workspace */}
+      <div className="flex items-center justify-between border-b border-zinc-800 pb-2">
+        <h2 className="text-xs font-mono font-bold text-zinc-400 uppercase tracking-wider">
+          Workspace Activo ({agents.length} Agentes)
+        </h2>
+        <button 
+          onClick={() => setAgents([...agents, { id: Date.now().toString(), title: `Agente ${agents.length + 1}`, type: 'text', status: 'active' }])}
+          className="flex items-center gap-1 text-xs font-mono bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-400 border border-indigo-500/30 px-2.5 py-1 rounded-md transition-all"
+        >
+          <Plus size={12} /> Nuevo Agente
+        </button>
+      </div>
+
+      {/* RETÍCULA ADAPTATIVA (AUTO-PAIRING GRID) */}
+      <div className="
+        grid 
+        grid-cols-[repeat(auto-fit,minmax(280px,1fr))] 
+        gap-3 
+        w-full 
+        max-h-[calc(100vh-100px)] 
+        overflow-y-auto 
+        p-1
+      ">
+        {agents.map((agent) => (
+          <AgentTileWindow
+            key={agent.id}
+            id={agent.id}
+            title={agent.title}
+            type={agent.type}
+            status={agent.status}
+            onClose={() => removeAgent(agent.id)}
+          >
+            {/* Ejemplo de contenido interno según el tipo de agente */}
+            {agent.type === 'video' && (
+              <div className="w-full h-full bg-black rounded border border-zinc-800 flex items-center justify-center relative overflow-hidden">
+                <span className="font-mono text-[10px] text-purple-400 bg-purple-950/40 px-2 py-1 rounded border border-purple-800/50">
+                  [ Live Video Feed 1080p ]
+                </span>
+              </div>
+            )}
+
+            {agent.type === 'audio' && (
+              <div className="w-full h-full flex items-center justify-center gap-1 bg-zinc-950 rounded p-2 border border-zinc-900">
+                <div className="w-1 bg-cyan-400 h-12 rounded animate-pulse"></div>
+                <div className="w-1 bg-cyan-500 h-8 rounded"></div>
+                <div className="w-1 bg-cyan-400 h-16 rounded animate-pulse"></div>
+                <div className="w-1 bg-cyan-600 h-6 rounded"></div>
+              </div>
+            )}
+
+            {agent.type === 'text' && (
+              <div className="font-mono text-[11px] text-amber-200/80 space-y-1">
+                <p><span className="text-amber-500">[00:12]</span> Iniciando análisis de audio...</p>
+                <p><span className="text-amber-500">[00:14]</span> Transcripción sincronizada activa.</p>
+              </div>
+            )}
+
+            {agent.type === 'code' && (
+              <div className="font-mono text-[11px] text-emerald-400/90 bg-black/50 p-2 rounded">
+                <code>const agent = new Agent({ mode: "auto" });</code>
+              </div>
+            )}
+          </AgentTileWindow>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+```
+
+---
+
+### 3. Reglas de Dimensiones Mínimas Explicadas
+
+Para asegurar que las ventanas no se rompan ni pierdan funcionalidad al achicarse, el diseño establece estos límites:
+
+| Propiedad CSS | Valor Recomendado | Razón de UX |
+| --- | --- | --- |
+| `min-width` | **`280px`** | Permite mostrar el título completo del agente, los botones de maximizar/cerrar y un input de prompt legible. |
+| `min-height` | **`220px`** | Otorga espacio para la cabecera (36px), el canvas visual (140px) y el input inferior de comandos (34px). |
+| `grid-template-columns` | `repeat(auto-fit, minmax(280px, 1fr))` | Forza a que, al achicar la pantalla, los agentes **se reordenen automáticamente de 2 en 2** antes de bajar a 1 columna. |

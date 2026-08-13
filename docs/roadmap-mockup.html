@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>UltraIa — Roadmap técnico (mockup)</title>
+    <style>
+      :root {
+        color-scheme: light;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        font-family: ui-sans-serif, system-ui, Segoe UI, Roboto, Arial, sans-serif;
+        margin: 0;
+        padding: 32px;
+        color: #0f172a;
+        background: #f8fafc;
+      }
+      h1 {
+        font-size: 26px;
+        margin: 0 0 4px;
+      }
+      h2 {
+        font-size: 18px;
+        margin: 28px 0 8px;
+        border-bottom: 2px solid #7c3aed;
+        padding-bottom: 4px;
+      }
+      p.sub {
+        color: #475569;
+        font-size: 13px;
+        margin: 0 0 8px;
+      }
+      .cats {
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+      }
+      .cat {
+        flex: 1 1 200px;
+        min-width: 180px;
+      }
+      .cat h3 {
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: #7c3aed;
+        margin: 0 0 6px;
+      }
+      .node {
+        border: 1.5px solid #7c3aed;
+        border-radius: 8px;
+        background: #fff;
+        padding: 6px 8px;
+        margin-bottom: 8px;
+        font-size: 12px;
+      }
+      .node small {
+        color: #64748b;
+      }
+      .bar {
+        height: 10px;
+        border-radius: 999px;
+        background: #e2e8f0;
+        overflow: hidden;
+        margin: 2px 0;
+      }
+      .bar > span {
+        display: block;
+        height: 100%;
+        background: #7c3aed;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 12px;
+      }
+      th,
+      td {
+        border: 1px solid #cbd5e1;
+        padding: 6px 8px;
+        text-align: left;
+        vertical-align: top;
+      }
+      th {
+        background: #ede9fe;
+      }
+      .tag {
+        display: inline-block;
+        border-radius: 999px;
+        padding: 1px 8px;
+        font-size: 10px;
+        background: #dcfce7;
+        color: #166534;
+      }
+      @media print {
+        body {
+          background: #fff;
+        }
+        .cats {
+          page-break-inside: avoid;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <h1>UltraIa — Roadmap técnico</h1>
+    <p class="sub">
+      Mockup imprimible del inventario tecnológico. Para PDF: <b>Imprimir → Guardar como PDF</b>. Los datos
+      reales están en <code>src/data/tech-radar.ts</code> y en la tabla <code>TechRadar</code> (SQLite).
+    </p>
+
+    <h2>1) Diagrama de tecnologías por categoría</h2>
+    <div class="cats">
+      <div class="cat">
+        <h3>Framework web</h3>
+        <div class="node">Next.js <br /><small>imp 5/5</small></div>
+      </div>
+      <div class="cat">
+        <h3>UI</h3>
+        <div class="node">React <br /><small>imp 5/5</small></div>
+        <div class="node">Tailwind CSS <br /><small>imp 4/5</small></div>
+        <div class="node">lucide-react <br /><small>imp 3/5</small></div>
+        <div class="node">react-resizable-panels <br /><small>imp 3/5</small></div>
+        <div class="node">sonner <br /><small>imp 2/5</small></div>
+      </div>
+      <div class="cat">
+        <h3>IA</h3>
+        <div class="node">Vercel AI SDK <br /><small>imp 5/5</small></div>
+        <div class="node">OpenAICompatibleGateway <br /><small>imp 5/5</small></div>
+      </div>
+      <div class="cat">
+        <h3>IA / Diseño</h3>
+        <div class="node">@google/stitch-sdk <br /><small>imp 3/5</small></div>
+      </div>
+      <div class="cat">
+        <h3>Base de datos</h3>
+        <div class="node">Prisma <br /><small>imp 5/5</small></div>
+        <div class="node">SQLite <br /><small>imp 4/5</small></div>
+      </div>
+      <div class="cat">
+        <h3>Auth</h3>
+        <div class="node">bcryptjs <br /><small>imp 4/5</small></div>
+      </div>
+      <div class="cat">
+        <h3>Validación</h3>
+        <div class="node">zod <br /><small>imp 4/5</small></div>
+      </div>
+      <div class="cat">
+        <h3>Utilidades</h3>
+        <div class="node">clsx / tailwind-merge <br /><small>imp 2/5</small></div>
+        <div class="node">date-fns <br /><small>imp 2/5</small></div>
+      </div>
+    </div>
+
+    <h2>2) Uso e importancia</h2>
+    <table>
+      <thead>
+        <tr><th>Tecnología</th><th>Uso %</th><th>Importancia</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Next.js</td><td>30%</td><td>5</td></tr>
+        <tr><td>React</td><td>35%</td><td>5</td></tr>
+        <tr><td>Tailwind CSS</td><td>8%</td><td>4</td></tr>
+        <tr><td>Vercel AI SDK</td><td>6%</td><td>5</td></tr>
+        <tr><td>OpenAICompatibleGateway</td><td>4%</td><td>5</td></tr>
+        <tr><td>Prisma</td><td>10%</td><td>5</td></tr>
+        <tr><td>SQLite</td><td>2%</td><td>4</td></tr>
+        <tr><td>@google/stitch-sdk</td><td>2%</td><td>3</td></tr>
+        <tr><td>lucide-react</td><td>3%</td><td>3</td></tr>
+        <tr><td>react-resizable-panels</td><td>2%</td><td>3</td></tr>
+        <tr><td>sonner</td><td>1%</td><td>2</td></tr>
+        <tr><td>bcryptjs</td><td>1%</td><td>4</td></tr>
+        <tr><td>zod</td><td>3%</td><td>4</td></tr>
+        <tr><td>clsx / tailwind-merge</td><td>2%</td><td>2</td></tr>
+        <tr><td>date-fns</td><td>1%</td><td>2</td></tr>
+      </tbody>
+    </table>
+
+    <h2>3) Mejoras posibles (backlog)</h2>
+    <table>
+      <thead>
+        <tr><th>Tecnología</th><th>Estado</th><th>Mejoras</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Next.js</td><td><span class="tag">active</span></td><td>Separar rutas públicas con middleware de auth; añadir /roadmap al sitemap.</td></tr>
+        <tr><td>React</td><td><span class="tag">active</span></td><td>Componentizar más los paneles del Studio.</td></tr>
+        <tr><td>Prisma</td><td><span class="tag">active</span></td><td>Añadir tabla TechRadar a un panel admin editable.</td></tr>
+        <tr><td>SQLite</td><td><span class="tag">active</span></td><td>Evaluar Postgres para multi-usuario real.</td></tr>
+        <tr><td>@google/stitch-sdk</td><td><span class="tag">active</span></td><td>Fallback a Figma si no hay STITCH_API_KEY; cachear HTML.</td></tr>
+        <tr><td>Vercel AI SDK</td><td><span class="tag">active</span></td><td>Soportar más proveedores de chat.</td></tr>
+      </tbody>
+    </table>
+  </body>
+</html>

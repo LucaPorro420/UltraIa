@@ -1,16 +1,18 @@
 'use client';
 
 import { useState } from 'react';
-import { approveVersionAction, rejectVersionAction } from './actions';
+import { approveVersionAction, rejectVersionAction, rollbackVersionAction } from './actions';
 
 export function VersionActions({
   versionId,
   agentId,
   isPending,
+  status,
 }: {
   versionId: string;
   agentId: string;
   isPending: boolean;
+  status: string;
 }) {
   const [message, setMessage] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -39,33 +41,57 @@ export function VersionActions({
     setMessage('Version rejected.');
   }
 
-  if (!isPending) return null;
+  async function rollback() {
+    setBusy(true);
+    setMessage(null);
+    const result = await rollbackVersionAction(versionId, agentId);
+    setBusy(false);
+    setMessage(result.ok ? 'Rolled back to this version (now ACTIVE).' : (result.error ?? 'Rollback failed'));
+  }
+
+  if (status === 'ACTIVE') return null;
+
+  if (isPending) {
+    return (
+      <div className="mt-2 flex flex-wrap items-center gap-2">
+        <button
+          type="button"
+          disabled={busy}
+          onClick={() => approve(false)}
+          className="rounded bg-emerald-700 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-600 disabled:opacity-50"
+        >
+          Approve (eval-gated)
+        </button>
+        <button
+          type="button"
+          disabled={busy}
+          onClick={() => approve(true)}
+          className="rounded bg-emerald-900 px-3 py-1.5 text-xs font-semibold text-emerald-200 hover:bg-emerald-800 disabled:opacity-50"
+        >
+          Force approve
+        </button>
+        <button
+          type="button"
+          disabled={busy}
+          onClick={reject}
+          className="rounded bg-neutral-800 px-3 py-1.5 text-xs font-semibold text-neutral-300 hover:bg-neutral-700 disabled:opacity-50"
+        >
+          Reject
+        </button>
+        {message && <span className="text-xs text-neutral-400">{message}</span>}
+      </div>
+    );
+  }
 
   return (
-    <div className="mt-2 flex flex-wrap items-center gap-2">
+    <div className="mt-2 flex items-center gap-2">
       <button
         type="button"
         disabled={busy}
-        onClick={() => approve(false)}
-        className="rounded bg-emerald-700 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-600 disabled:opacity-50"
+        onClick={rollback}
+        className="rounded bg-neutral-800 px-3 py-1.5 text-xs font-semibold text-neutral-200 hover:bg-neutral-700 disabled:opacity-50"
       >
-        Approve (eval-gated)
-      </button>
-      <button
-        type="button"
-        disabled={busy}
-        onClick={() => approve(true)}
-        className="rounded bg-emerald-900 px-3 py-1.5 text-xs font-semibold text-emerald-200 hover:bg-emerald-800 disabled:opacity-50"
-      >
-        Force approve
-      </button>
-      <button
-        type="button"
-        disabled={busy}
-        onClick={reject}
-        className="rounded bg-neutral-800 px-3 py-1.5 text-xs font-semibold text-neutral-300 hover:bg-neutral-700 disabled:opacity-50"
-      >
-        Reject
+        Rollback to this version
       </button>
       {message && <span className="text-xs text-neutral-400">{message}</span>}
     </div>

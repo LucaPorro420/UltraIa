@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { guardrailsBlock } from '../ai/llm';
 import { judgeResponse, regressionGate, weightedScore } from './eval';
 import type { AiGateway } from '../ai/gateway';
 
@@ -33,6 +34,23 @@ describe('weightedScore', () => {
     expect(weightedScore(rubric, { score: -0.1, notes: '' })).toBe(0);
     expect(weightedScore(rubric, { score: 0.5, notes: '' })).toBe(0.5);
   });
+
+  it('computes the weight-weighted average from criterion scores', () => {
+    const judgment = {
+      score: 0.5,
+      notes: '',
+      criterionScores: [
+        { criterion: 'Correctness', score: 1 },
+        { criterion: 'Usefulness', score: 0 },
+      ],
+    };
+    // (1*0.6 + 0*0.4) / (0.6 + 0.4) = 0.6
+    expect(weightedScore(rubric, judgment)).toBeCloseTo(0.6);
+  });
+
+  it('falls back to the overall score when no criterion scores are provided', () => {
+    expect(weightedScore(rubric, { score: 0.42, notes: '' })).toBeCloseTo(0.42);
+  });
 });
 
 describe('regressionGate', () => {
@@ -61,5 +79,37 @@ describe('regressionGate', () => {
   it('rejects scores below the minimum even when equal', () => {
     const d = regressionGate({ currentAvgScore: 0.5, proposedAvgScore: 0.5, ...base, minScore: 0.6 });
     expect(d.pass).toBe(false);
+  });
+
+  it('rejects pass-rate regressions beyond tolerance', () => {
+    const d = regressionGate({
+      currentAvgScore: 0.8,
+      proposedAvgScore: 0.8,
+      currentPassRate: 1,
+      proposedPassRate: 0.8,
+    });
+    expect(d.pass).toBe(false);
+  });
+
+  it('accepts pass-rate drops within tolerance', () => {
+    const d = regressionGate({
+      currentAvgScore: 0.8,
+      proposedAvgScore: 0.8,
+      currentPassRate: 1,
+      proposedPassRate: 0.97,
+    });
+    expect(d.pass).toBe(true);
+  });
+});
+
+describe('guardrailsBlock', () => {
+  it('returns empty string when there are no guardrails', () => {
+    expect(guardrailsBlock([])).toBe('');
+  });
+
+  it('formats a numbered guardrails section', () => {
+    expect(guardrailsBlock(['Be honest', 'Stay on topic'])).toBe(
+      '\n\n## Guardrails\n1. Be honest\n2. Stay on topic',
+    );
   });
 });

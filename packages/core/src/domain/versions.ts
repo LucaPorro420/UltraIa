@@ -38,3 +38,16 @@ export async function rejectVersion(db: Db, versionId: string): Promise<void> {
     data: { status: 'REJECTED' },
   });
 }
+
+export async function activateVersion(db: Db, blueprintId: string, versionId: string): Promise<void> {
+  await db.$transaction(async (tx) => {
+    const version = await tx.agentVersion.findFirst({ where: { id: versionId, blueprintId } });
+    if (!version) throw new Error('Version not found');
+    if (version.status === 'ACTIVE') return;
+    await tx.agentVersion.updateMany({
+      where: { blueprintId, status: 'ACTIVE' },
+      data: { status: 'SUPERSEDED' },
+    });
+    await tx.agentVersion.update({ where: { id: versionId }, data: { status: 'ACTIVE' } });
+  });
+}

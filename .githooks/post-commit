@@ -1,0 +1,3 @@
+#!/bin/sh
+# Hook post-commit: corre el aviso de documentacion tras cada commit.
+node "$(git rev-parse --show-toplevel)/scripts/doc-reminder.mjs"

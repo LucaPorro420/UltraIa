@@ -1,0 +1,7 @@
+{
+  "case_id": "gstack_prefix_flag",
+  "attempt": 1,
+  "prompt": "Que flag hace que las skills se llamen gstack-qa en vez de qa?",
+  "answer": "--prefix",
+  "ts": "2026-08-13T14:41:34.495861+00:00"
+}

@@ -1,0 +1,136 @@
+ai-generative-suite-arabic
+Guía integral de ingeniería de prompts, integración API y automatizaciones multimedia con IA en idioma árabe.
+
+Instructions
+AI Generative Suite & Arabic Integration Framework
+Este documento técnico reúne arquitecturas, prompts estructurados y código avanzado para proyectos de IA generativa con soporte especializado en idioma árabe e integración multimedia.
+
+1. Schema JSON para Pipelines Audiovisuales (pipeline_config.json)
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AIGenerativePipelineConfig",
+  "version": "2.0.0",
+  "pipeline": {
+    "language_target": "ar-SA",
+    "dialects_supported": ["msa", "egyptian", "gulf", "levantine"],
+    "text_generation": {
+      "provider": "openai",
+      "model": "gpt-4o",
+      "temperature": 0.7,
+      "response_format": { "type": "json_object" }
+    },
+    "voice_synthesis": {
+      "provider": "elevenlabs",
+      "model_id": "eleven_multilingual_v2",
+      "arabic_settings": {
+        "stability": 0.45,
+        "similarity_boost": 0.85,
+        "style_exaggeration": 0.15,
+        "speaker_boost": true
+      }
+    },
+    "video_generation": {
+      "provider": "runwayml",
+      "model": "gen3a_turbo",
+      "aspect_ratio": "16:9",
+      "duration_sec": 10
+    }
+  }
+}
+2. Prompts Estructurados Avanzados (Árabe - Multimodal)
+A. Prompt de Sistema para Guiones y Prompts visuales en JSON
+System Prompt:
+Eres un Director Audiovisual Senior especializado en contenido para Oriente Medio.
+Debes procesar la idea inicial y devolver un JSON estricto con la siguiente estructura:
+
+{
+  "title": "Título del proyecto",
+  "script_arabic_diacritized": "Texto en árabe con diacríticos (تَشْكِيل) para garantizar una pronunciación perfecta en TTS.",
+  "script_arabic_plain": "Texto en árabe sin diacríticos para subtítulos en pantalla.",
+  "shot_list": [
+    {
+      "shot_id": 1,
+      "duration_sec": 5,
+      "visual_prompt_en": "Cinematic 8k shot, wide angle...",
+      "camera_movement": "Pan Right / Zoom In"
+    }
+  ]
+}
+B. Ejemplo de Entrada y Salida JSON Generada
+Input / Concepto: Ciudad inteligente en el desierto al atardecer.
+Output / Salida esperada:
+{
+  "title": "مستقبل المدن الذكية",
+  "script_arabic_diacritized": "فِي قَلْبِ الصَّحْرَاءِ، تَنَهَضُ مَدِينَةُ الْمُسْتَقْبَلِ لِتَرْسُمَ آَفَاقاً جَدِيدَةً لِلإِنْسَانِيَّةِ.",
+  "script_arabic_plain": "في قلب الصحراء، تنهض مدينة المستقبل لترسم آفاقاً جديدة للإنسانية.",
+  "shot_list": [
+    {
+      "shot_id": 1,
+      "duration_sec": 5,
+      "visual_prompt_en": "Cinematic ultra-wide aerial shot of a futuristic sustainable desert city with glowing solar architecture, golden hour lighting, 8k resolution, photorealistic.",
+      "camera_movement": "Slow continuous forward movement"
+    }
+  ]
+}
+3. Implementaciones de Código Poco Frecuentes
+A. Preprocesamiento de Árabe y Diacritización Automática (Python)
+Para mejorar la calidad de sintetización de voz en ElevenLabs o Coqui TTS, es recomendable normalizar e insertar diacríticos (Tashkeel) antes del envío:
+
+import re
+
+def preprocess_arabic_for_tts(text: str) -> str:
+    """
+    Limpia y prepara texto en árabe para motores de Text-to-Speech,
+    asegurando pausas correctas en signos de puntuación.
+    """
+    # Eliminar caracteres no árabes no deseados manteniendo puntuación básica
+    text = re.sub(r'[^\u0600-\u06FF\s\.\,\؟\!]', '', text)
+    
+    # Reemplazar comas occidentales por comas árabes para pausas naturales en TTS
+    text = text.replace(',', '،')
+    
+    # Asegurar espacios después de puntos y comas
+    text = re.sub(r'([،\.\؟\!])(?=[^\s])', r'\1 ', text)
+    
+    return text.strip()
+
+# Ejemplo de uso
+raw_text = "مرحبا بكم, في este video سنشرح الذكاء الاصطناعي."
+clean_text = preprocess_arabic_for_tts(raw_text)
+print("Texto procesado para TTS:", clean_text)
+# Resultado: "مرحبا بكم، في video سنشرح الذكاء الاصطناعي."
+B. Generación Asíncrona de Video con Webhooks en Python (Runway / Custom API)
+import asyncio
+import aiohttp
+
+async def generate_runway_video(api_key: str, prompt: str) -> str:
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json",
+        "X-Runway-Version": "2024-11-06"
+    }
+    
+    # 1. Solicitar generación
+    async with aiohttp.ClientSession() as session:
+        async with session.post(
+            "https://api.dev.runwayml.com/v1/tasks",
+            headers=headers,
+            json={"taskType": "gen3a_turbo", "promptText": prompt, "duration": 5}
+        ) as resp:
+            data = await resp.json()
+            task_id = data.get("id")
+
+        # 2. Polling eficiente
+        while True:
+            await asyncio.sleep(10)
+            async with session.get(
+                f"https://api.dev.runwayml.com/v1/tasks/{task_id}",
+                headers=headers
+            ) as check_resp:
+                status_data = await check_resp.json()
+                status = status_data.get("status")
+                
+                if status == "SUCCEEDED":
+                    return status_data["output"][0]
+                elif status in ["FAILED", "CANCELLED"]:
+                    raise Exception(f"Generación fallida: {status_data}")x

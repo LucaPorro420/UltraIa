@@ -1,0 +1,58 @@
+{
+  "platformName": "SynapseFlow",
+  "meta": {
+    "description": "Plataforma centralizada de recursos, agentes y orquestadores de Inteligencia Artificial.",
+    "theme": "dark",
+    "colors": {
+      "background": "#0B0F19",
+      "primary": "#3B82F6",
+      "accent": "#10B981"
+    }
+  },
+  "zipStructure": [
+    {
+      "id": "01_fundamentos",
+      "title": "01_Fundamentos_IA",
+      "subfolders": ["/Documentacion", "/Tutoriales", "/Papers"],
+      "resources": ["Introducción a ML (PDF)", "Attention Is All You Need (Paper)", "Guía PyTorch"]
+    },
+    {
+      "id": "02_agentes",
+      "title": "02_Agentes_IA",
+      "subfolders": ["/Frameworks", "/Casos_Uso", "/Snippets_Codigo"],
+      "resources": ["LangChain Docs", "Scripts AutoGPT", "Ejemplos LlamaIndex"]
+    },
+    {
+      "id": "03_orquestadores",
+      "title": "03_Orquestadores",
+      "subfolders": ["/Plataformas", "/Pipelines", "/MLOps"],
+      "resources": ["Kubeflow Guide", "Airflow DAGs", "MLflow Tutorial"]
+    },
+    {
+      "id": "04_implementacion",
+      "title": "04_Implementacion",
+      "subfolders": ["/Estudios_Caso", "/Etica_Riesgos"],
+      "resources": ["Mitigación de Sesgos", "Casos B2B", "Gobernanza de Datos"]
+    }
+  ],
+  "webDesignConcepts": [
+    {
+      "name": "SynapseFlow",
+      "type": "Principal",
+      "stack": ["Next.js", "Tailwind CSS", "Framer Motion"],
+      "target": "SaaS / General"
+    },
+    {
+      "name": "DataDriven Elegance",
+      "type": "Alternativa A",
+      "stack": ["React", "Material-UI", "Strapi CMS"],
+      "target": "B2B Corporativo"
+    },
+    {
+      "name": "AI Playground",
+      "type": "Alternativa B",
+      "stack": ["SvelteKit", "WebAssembly", "FastAPI"],
+      "target": "Developers & Open Source"
+    }
+  ]
+}

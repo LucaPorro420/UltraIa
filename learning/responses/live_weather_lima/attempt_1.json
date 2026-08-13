@@ -1,0 +1,7 @@
+{
+  "case_id": "live_weather_lima",
+  "attempt": 1,
+  "prompt": "Cual es la temperatura actual, humedad y velocidad del viento en Lima, Peru? (busca en la web)",
+  "answer": {"temperature_c": 23.0, "humidity_pct": 69, "wind_kmh": 20},
+  "ts": "2026-08-13T02:40:00Z"
+}

@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import { toast } from 'sonner';
+import { ThumbsDown, ThumbsUp } from 'lucide-react';
 
 export function FeedbackControl({
   conversationId,
@@ -30,19 +32,16 @@ export function FeedbackControl({
       if (res.ok) {
         setRating(r);
         setSaved(true);
+        toast.success('Feedback recorded — this improves the agent.');
+      } else {
+        toast.error('Could not save feedback. Please try again.');
       }
     } finally {
       setBusy(false);
     }
   }
 
-  if (saved) {
-    return (
-      <p className="mt-2 text-xs text-neutral-500">
-        Thanks — feedback recorded. This improves the agent.
-      </p>
-    );
-  }
+  if (saved) return null;
 
   return (
     <div className="mt-2 flex flex-col gap-2 border-t border-neutral-800 pt-2">
@@ -52,21 +51,21 @@ export function FeedbackControl({
           type="button"
           disabled={busy}
           onClick={() => submit('GOOD')}
-          className={`rounded px-2 py-0.5 text-xs ${
+          className={`flex items-center gap-1 rounded px-2 py-0.5 text-xs ${
             rating === 'GOOD' ? 'bg-emerald-700 text-white' : 'bg-neutral-800 text-neutral-300 hover:bg-neutral-700'
           }`}
         >
-          Good
+          <ThumbsUp className="h-3.5 w-3.5" /> Good
         </button>
         <button
           type="button"
           disabled={busy}
           onClick={() => submit('BAD')}
-          className={`rounded px-2 py-0.5 text-xs ${
+          className={`flex items-center gap-1 rounded px-2 py-0.5 text-xs ${
             rating === 'BAD' ? 'bg-red-700 text-white' : 'bg-neutral-800 text-neutral-300 hover:bg-neutral-700'
           }`}
         >
-          Bad
+          <ThumbsDown className="h-3.5 w-3.5" /> Bad
         </button>
       </div>
       {rating === 'BAD' && (

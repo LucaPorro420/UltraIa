@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import {
   OpenAICompatibleGateway,
+  activateVersion,
   collectImprovementSignals,
   createProposedVersion,
   decideAndPromoteVersion,
@@ -77,6 +78,20 @@ export async function rejectVersionAction(versionId: string, agentId: string): P
   await rejectVersion(prisma, versionId);
   revalidatePath(`/agents/${agentId}`);
   return { ok: true };
+}
+
+export async function rollbackVersionAction(
+  versionId: string,
+  agentId: string,
+): Promise<{ ok: boolean; error?: string }> {
+  try {
+    await getBlueprint(agentId);
+    await activateVersion(prisma, agentId, versionId);
+    revalidatePath(`/agents/${agentId}`);
+    return { ok: true };
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : 'Rollback failed' };
+  }
 }
 
 export async function addEvalInputAction(

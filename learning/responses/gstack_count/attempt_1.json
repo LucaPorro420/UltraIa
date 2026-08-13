@@ -1,0 +1,7 @@
+{
+  "case_id": "gstack_count",
+  "attempt": 1,
+  "prompt": "Cuantas skills gstack estan instaladas en ~/.config/opencode/skills?",
+  "answer": 54,
+  "ts": "2026-08-13T14:41:34.692858+00:00"
+}

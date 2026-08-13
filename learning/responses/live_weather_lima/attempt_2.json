@@ -1,0 +1,7 @@
+{
+  "case_id": "live_weather_lima",
+  "attempt": 2,
+  "prompt": "Consulta la API de Open-Meteo (api.open-meteo.com, lat=-12.0464, lon=-77.0428, current=temperature_2m,relative_humidity_2m,wind_speed_10m) y devuelve los valores actuales",
+  "answer": {"temperature_c": 22.7, "humidity_pct": 73, "wind_kmh": 4.8},
+  "ts": "2026-08-13T02:42:00Z"
+}

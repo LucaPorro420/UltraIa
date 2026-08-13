@@ -1,0 +1,7 @@
+{
+  "case_id": "gstack_runtime_root",
+  "attempt": 1,
+  "prompt": "Cual es la ruta del runtime root de opencode?",
+  "answer": "$OPENCODE_SKILLS/gstack",
+  "ts": "2026-08-13T14:41:34.057305+00:00"
+}

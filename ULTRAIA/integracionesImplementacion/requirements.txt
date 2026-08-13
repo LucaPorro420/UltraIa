@@ -1,0 +1,20 @@
+# Dependencias de runtime para el pipeline audiovisual ar-Árabe
+# Instalación: pip install -r requirements.txt
+# Python >= 3.10 recomendado (uso de type hints modernos)
+
+requests>=2.31.0        # Llamadas HTTP síncronas (OpenAI, ElevenLabs, Runway, Fal.ai, TikTok)
+aiohttp>=3.9.0          # Llamadas HTTP asíncronas (polling de tareas de video)
+python-dotenv>=1.0.0    # Carga de .env (claves API nunca en código)
+beautifulsoup4>=4.12.0  # Solución 2 (RF-15): extracción de contenido web (scraping)
+
+# --- Webhook server (RF-13): alternativa al polling ---
+fastapi>=0.110.0
+uvicorn>=0.29.0
+
+# --- Publicación YouTube Shorts (RF-12) ---
+google-api-python-client>=2.120.0
+google-auth-oauthlib>=1.2.0
+google-auth-httplib2>=0.2.0
+
+# --- Opcional (no requerido para el núcleo) ---
+# ffmpeg en el PATH  → Solución 4 (RF-17) y ensamblado (RF-11): https://www.gyan.dev/ffmpeg/builds/

@@ -1,7 +1,11 @@
 import Link from 'next/link';
+import { format } from 'date-fns';
 import { getFeedbackStats, listVersions, prisma } from '@ultraia/core';
 import { requireUser } from '@/lib/server/context';
 import { AgentChat } from '@/components/agent-chat';
+import { Badge } from '@/components/ui/badge';
+import { CloneAgentButton } from '@/components/clone-agent-button';
+import { DeleteAgentButton } from '@/components/delete-agent-button';
 import { ApiKeyPanel } from './api-key-panel';
 import { EvalInputForm } from './eval-input-form';
 import { EvalRunner } from './eval-runner';
@@ -38,7 +42,6 @@ export default async function AgentDetailPage({ params }: { params: Promise<{ id
   const active = versions.find((v) => v.status === 'ACTIVE');
   const stats = await getFeedbackStats(prisma, id);
   const evalInputs = JSON.parse(blueprint.evalInputs || '[]') as string[];
-  const lastRun = active?.evalRuns[0] ?? null;
 
   return (
     <div className="flex flex-col gap-8">
@@ -51,14 +54,16 @@ export default async function AgentDetailPage({ params }: { params: Promise<{ id
         <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-neutral-500">
           {active && (
             <>
-              <span className="rounded-full bg-neutral-800 px-2.5 py-0.5 text-neutral-300">
-                v{active.versionNumber} · {active.model}
-              </span>
+              <Badge>v{active.versionNumber} · {active.model}</Badge>
               <span>Tools: {(JSON.parse(active.tools) as string[]).join(', ') || 'none'}</span>
             </>
           )}
           <span>
             Feedback: {stats.good} good / {stats.bad} bad
+          </span>
+          <span className="ml-auto flex items-center gap-2">
+            <CloneAgentButton agentId={id} />
+            <DeleteAgentButton agentId={id} />
           </span>
         </div>
       </div>
@@ -88,31 +93,30 @@ export default async function AgentDetailPage({ params }: { params: Promise<{ id
               <h2 className="text-sm font-semibold text-neutral-300">Evaluations</h2>
               {active && <EvalRunner versionId={active.id} agentId={id} />}
             </div>
-            {lastRun ? (
-              <div className="mt-3 text-xs text-neutral-400">
-                <p>
-                  Last run: avg score{' '}
-                  <span className="font-semibold text-neutral-200">{lastRun.avgScore.toFixed(2)}</span> · pass rate{' '}
-                  <span className="font-semibold text-neutral-200">
-                    {Math.round(lastRun.passRate * 100)}%
-                  </span>{' '}
-                  ({lastRun.cases.length} cases)
-                </p>
-                <ul className="mt-2 space-y-1">
-                  {lastRun.cases.slice(0, 4).map((c) => (
-                    <li key={c.id} className="flex items-center justify-between gap-2">
-                      <span className="truncate">{c.input}</span>
-                      <span
-                        className={
-                          c.verdict === 'PASS' ? 'text-emerald-400' : 'text-red-400'
-                        }
-                      >
-                        {c.score.toFixed(2)}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+            {active && active.evalRuns.length > 0 ? (
+              <ul className="mt-3 space-y-3">
+                {active.evalRuns.map((run) => (
+                  <li key={run.id} className="rounded-lg border border-neutral-800 bg-neutral-950/40 p-3">
+                    <div className="flex flex-wrap items-center gap-2 text-xs text-neutral-400">
+                      <span>{format(run.createdAt, 'PP p')}</span>
+                      <Badge className={run.avgScore >= 0.6 ? 'bg-emerald-900/60 text-emerald-300' : 'bg-amber-900/60 text-amber-300'}>
+                        {run.avgScore.toFixed(2)}
+                      </Badge>
+                      <span>· {Math.round(run.passRate * 100)}% pass · {run.cases.length} cases</span>
+                    </div>
+                    <ul className="mt-2 space-y-1">
+                      {run.cases.slice(0, 4).map((c) => (
+                        <li key={c.id} className="flex items-center justify-between gap-2 text-xs text-neutral-400">
+                          <span className="truncate">{c.input}</span>
+                          <span className={c.verdict === 'PASS' ? 'text-emerald-400' : 'text-red-400'}>
+                            {c.score.toFixed(2)}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  </li>
+                ))}
+              </ul>
             ) : (
               <p className="mt-3 text-xs text-neutral-500">No evaluation runs yet.</p>
             )}
@@ -158,11 +162,9 @@ export default async function AgentDetailPage({ params }: { params: Promise<{ id
             <li key={v.id} className="rounded-xl border border-neutral-800 p-4">
               <div className="flex flex-wrap items-center gap-2">
                 <span className="font-semibold">v{v.versionNumber}</span>
-                <span className={`rounded-full px-2.5 py-0.5 text-xs ${STATUS_STYLES[v.status] ?? 'bg-neutral-800 text-neutral-400'}`}>
-                  {v.status}
-                </span>
+                <Badge className={STATUS_STYLES[v.status] ?? 'bg-neutral-800 text-neutral-400'}>{v.status}</Badge>
                 <span className="text-xs text-neutral-500">
-                  {v.createdAt.toLocaleString()} · {v.model}
+                  {format(v.createdAt, 'PP p')} · {v.model}
                 </span>
                 {v.evalRuns[0] && (
                   <span className="text-xs text-neutral-400">
@@ -179,7 +181,7 @@ export default async function AgentDetailPage({ params }: { params: Promise<{ id
                   {v.systemPrompt}
                 </pre>
               </details>
-              <VersionActions versionId={v.id} agentId={id} isPending={v.status === 'PENDING'} />
+              <VersionActions versionId={v.id} agentId={id} isPending={v.status === 'PENDING'} status={v.status} />
             </li>
           ))}
         </ul>

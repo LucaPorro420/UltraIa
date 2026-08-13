@@ -1,0 +1,7 @@
+{
+  "case_id": "live_fx_usd_pen",
+  "attempt": 2,
+  "prompt": "Consulta open.er-api.com/v6/latest/USD y devuelve el rate de PEN y el time_last_update_utc exacto",
+  "answer": {"usd_to_pen": 3.371041, "update_date": "Thu, 13 Aug 2026 00:02:31 +0000"},
+  "ts": "2026-08-13T02:44:00Z"
+}

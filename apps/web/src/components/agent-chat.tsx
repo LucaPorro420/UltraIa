@@ -1,15 +1,51 @@
 'use client';
 
 import { useChat } from 'ai/react';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { Plus, SendHorizontal } from 'lucide-react';
 import { FeedbackControl } from './feedback-control';
 
+type ConversationMeta = { id: string; title: string; createdAt: string };
+type StoredMessage = { id: string; role: 'user' | 'assistant' | 'system'; content: string; sequence: number };
+
 export function AgentChat({ agentId }: { agentId: string }) {
-  const [conversationId, setConversationId] = useState<string | null>(null);
+  const [conversations, setConversations] = useState<ConversationMeta[]>([]);
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const [loadingHistory, setLoadingHistory] = useState(false);
   const conversationRef = useRef<string | null>(null);
-  const { messages, input, handleInputChange, handleSubmit, isLoading, error } = useChat({
+  const { messages, input, handleInputChange, handleSubmit, setMessages, isLoading, error } = useChat({
     api: '/api/chat',
   });
+
+  async function loadConversations(id: string) {
+    const res = await fetch(`/api/conversations?agentId=${encodeURIComponent(id)}`);
+    if (res.ok) setConversations((await res.json()) as ConversationMeta[]);
+  }
+
+  useEffect(() => {
+    loadConversations(agentId);
+  }, [agentId]);
+
+  async function selectConversation(id: string) {
+    setLoadingHistory(true);
+    setActiveId(id);
+    conversationRef.current = id;
+    try {
+      const res = await fetch(`/api/conversations/${id}/messages`);
+      if (res.ok) {
+        const msgs = (await res.json()) as StoredMessage[];
+        setMessages(msgs.map((m) => ({ id: m.id, role: m.role, content: m.content })));
+      }
+    } finally {
+      setLoadingHistory(false);
+    }
+  }
+
+  function startNew() {
+    conversationRef.current = null;
+    setActiveId(null);
+    setMessages([]);
+  }
 
   async function ensureConversation(): Promise<string> {
     if (conversationRef.current) return conversationRef.current;
@@ -21,7 +57,8 @@ export function AgentChat({ agentId }: { agentId: string }) {
     if (!res.ok) throw new Error('Could not start conversation');
     const data = (await res.json()) as { conversationId: string };
     conversationRef.current = data.conversationId;
-    setConversationId(data.conversationId);
+    setActiveId(data.conversationId);
+    loadConversations(agentId);
     return data.conversationId;
   }
 
@@ -43,8 +80,38 @@ export function AgentChat({ agentId }: { agentId: string }) {
 
   return (
     <div className="flex flex-col gap-4">
+      <div className="flex flex-wrap items-center gap-2">
+        <button
+          type="button"
+          onClick={startNew}
+          className={`rounded-full px-3 py-1 text-xs font-medium ${
+            activeId === null
+              ? 'bg-violet-700 text-white'
+              : 'border border-neutral-700 text-neutral-300 hover:bg-neutral-800'
+          }`}
+        >
+          <Plus className="h-3.5 w-3.5" /> New chat
+        </button>
+        {conversations.map((c) => (
+          <button
+            key={c.id}
+            type="button"
+            onClick={() => selectConversation(c.id)}
+            title={c.title}
+            className={`max-w-[12rem] truncate rounded-full px-3 py-1 text-xs font-medium ${
+              activeId === c.id
+                ? 'bg-violet-700 text-white'
+                : 'border border-neutral-700 text-neutral-300 hover:bg-neutral-800'
+            }`}
+          >
+            {c.title}
+          </button>
+        ))}
+      </div>
+
       <div className="flex flex-col gap-3">
-        {messages.length === 0 && (
+        {loadingHistory && <p className="text-xs text-neutral-500">Loading conversation…</p>}
+        {messages.length === 0 && !loadingHistory && (
           <p className="rounded-xl border border-dashed border-neutral-700 px-4 py-8 text-center text-sm text-neutral-500">
             Start a conversation to test your agent.
           </p>
@@ -61,9 +128,9 @@ export function AgentChat({ agentId }: { agentId: string }) {
             {m.content}
             {m.role === 'assistant' &&
               !isLoading &&
-              conversationId &&
+              activeId &&
               i === lastAssistantIndex && (
-                <FeedbackControl conversationId={conversationId} messageSeq={i + 1} />
+                <FeedbackControl conversationId={activeId} messageSeq={i + 1} />
               )}
           </div>
         ))}
@@ -78,6 +145,7 @@ export function AgentChat({ agentId }: { agentId: string }) {
           </p>
         )}
       </div>
+
       <form onSubmit={onSubmit} className="flex gap-2">
         <input
           value={input}
@@ -90,7 +158,7 @@ export function AgentChat({ agentId }: { agentId: string }) {
           disabled={isLoading || !input.trim()}
           className="rounded-lg bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-violet-500 disabled:opacity-50"
         >
-          Send
+          <SendHorizontal className="h-4 w-4" /> Send
         </button>
       </form>
     </div>

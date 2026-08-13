@@ -1,0 +1,7 @@
+{
+  "case_id": "gstack_qa_role",
+  "attempt": 1,
+  "prompt": "Que hace la skill /qa?",
+  "answer": "QA Lead - testea, encuentra bugs, los arregla con commits atomicos, re-verifica y genera tests de regresion",
+  "ts": "2026-08-13T14:41:34.914859+00:00"
+}

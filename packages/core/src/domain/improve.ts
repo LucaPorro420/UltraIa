@@ -11,7 +11,13 @@ Rules:
 - Fix concrete, recurring problems the evidence shows. Do not invent problems.
 - Preserve what works. Change only what the evidence justifies.
 - The new prompt must remain self-contained (it replaces the old one entirely).
-- Summarize changes clearly: what you changed and why.`;
+- Summarize changes clearly: what you changed and why.
+Optionally, when the evidence clearly justifies it, also propose:
+- suggestedModel: a better-fitting model name (only if the current one is wrong for the task)
+- suggestedTools: the tool set to use (e.g. ["calculator"]); only change if evidence shows the current set is wrong
+- suggestedGuardrails: revised hard rules (same shape as before); only change what the evidence justifies
+- suggestedRubric: revised evaluation criteria with weights; only change what the evidence justifies
+Leave any of these fields out unless you have concrete evidence to change them.`;
 
 export interface ImprovementSignal {
   critiques: string[];
@@ -80,6 +86,10 @@ export async function proposeImprovement(
   return improvementProposalSchema.parse(proposal);
 }
 
+function orCurrent<T>(proposed: T | undefined, current: T): T {
+  return proposed === undefined ? current : proposed;
+}
+
 export async function createProposedVersion(
   db: Db,
   blueprintId: string,
@@ -96,10 +106,10 @@ export async function createProposedVersion(
       blueprintId,
       versionNumber,
       systemPrompt: proposal.suggestedSystemPrompt,
-      model: active.model,
-      tools: active.tools,
-      rubric: active.rubric,
-      guardrails: active.guardrails,
+      model: orCurrent(proposal.suggestedModel, active.model),
+      tools: JSON.stringify(orCurrent(proposal.suggestedTools, JSON.parse(active.tools))),
+      rubric: JSON.stringify(orCurrent(proposal.suggestedRubric, JSON.parse(active.rubric))),
+      guardrails: JSON.stringify(orCurrent(proposal.suggestedGuardrails, JSON.parse(active.guardrails))),
       status: 'PENDING',
       changeSummary: proposal.changeSummary,
     },

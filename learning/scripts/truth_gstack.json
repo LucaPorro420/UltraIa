@@ -1,0 +1,54 @@
+{
+  "generated_at": "2026-08-13T14:35:32.226777+00:00",
+  "method": "Verdad extraida directamente de los archivos fuente de gstack (setup, SKILL.md, README, filesystem)",
+  "cases": [
+    {
+      "id": "gstack_opencode_dir",
+      "prompt": "Donde instala gstack las skills para opencode?",
+      "answer": "$HOME/.config/opencode/skills",
+      "source": "setup"
+    },
+    {
+      "id": "gstack_runtime_root",
+      "prompt": "Cual es la ruta del runtime root de opencode?",
+      "answer": "$OPENCODE_SKILLS/gstack",
+      "source": "setup"
+    },
+    {
+      "id": "gstack_host_flag",
+      "prompt": "Que flag de setup instala para opencode?",
+      "answer": "--host opencode",
+      "source": "README tabla"
+    },
+    {
+      "id": "gstack_root_skill",
+      "prompt": "Cual es el name del skill raiz gstack?",
+      "answer": "gstack",
+      "source": "SKILL.md"
+    },
+    {
+      "id": "gstack_prefix_flag",
+      "prompt": "Que flag hace que las skills se llamen gstack-qa en vez de qa?",
+      "answer": "--prefix",
+      "source": "setup flags"
+    },
+    {
+      "id": "gstack_count",
+      "prompt": "Cuantas skills gstack estan instaladas en ~/.config/opencode/skills?",
+      "answer": "54",
+      "source": "filesystem"
+    },
+    {
+      "id": "gstack_qa_role",
+      "prompt": "Que hace la skill /qa?",
+      "answer": "QA Lead - testea, encuentra bugs, los arregla con commits atomicos, re-verifica y genera tests de regresion",
+      "source": "README tabla"
+    },
+    {
+      "id": "gstack_browse_goto",
+      "prompt": "Que comando usa browse para navegar a una URL?",
+      "answer": "goto <url>",
+      "source": "browse --help"
+    }
+  ]
+}

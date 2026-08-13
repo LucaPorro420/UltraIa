@@ -1,37 +1,12 @@
-import Link from 'next/link';
+import Link from 'next/link'; 
 import { optionalUser } from '@/lib/server/context';
+import { MarketingHeader } from '@/components/marketing-header';
 
 export default async function LandingPage() {
   const user = await optionalUser();
   return (
     <main className="mx-auto max-w-5xl px-6 py-24">
-      <header className="flex items-center justify-between">
-        <div className="text-lg font-bold tracking-tight">
-          Ultra<span className="text-violet-400">Ia</span>
-        </div>
-        <nav className="flex items-center gap-4 text-sm">
-          {user ? (
-            <Link
-              href="/dashboard"
-              className="rounded-lg bg-violet-600 px-4 py-2 font-medium text-white hover:bg-violet-500"
-            >
-              Open dashboard
-            </Link>
-          ) : (
-            <>
-              <Link href="/login" className="text-neutral-300 hover:text-white">
-                Log in
-              </Link>
-              <Link
-                href="/register"
-                className="rounded-lg bg-violet-600 px-4 py-2 font-medium text-white hover:bg-violet-500"
-              >
-                Get started
-              </Link>
-            </>
-          )}
-        </nav>
-      </header>
+      <MarketingHeader user={user} />
 
       <section className="mt-28 text-center">
         <h1 className="mx-auto max-w-3xl text-5xl font-bold leading-tight tracking-tight">
@@ -46,7 +21,7 @@ export default async function LandingPage() {
         <div className="mt-10">
           {user ? (
             <Link
-              href="/dashboard"
+              href="/agents/new"
               className="rounded-xl bg-violet-600 px-8 py-3 font-semibold text-white hover:bg-violet-500"
             >
               Create your first agent

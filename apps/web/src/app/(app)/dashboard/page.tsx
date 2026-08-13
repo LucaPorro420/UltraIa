@@ -1,6 +1,8 @@
 import Link from 'next/link';
+import { Bot } from 'lucide-react';
 import { prisma } from '@ultraia/core';
 import { requireUser } from '@/lib/server/context';
+import { Badge } from '@/components/ui/badge';
 
 export default async function DashboardPage() {
   const user = await requireUser();
@@ -8,7 +10,18 @@ export default async function DashboardPage() {
     where: { workspaceId: user.workspaceId },
     orderBy: { createdAt: 'desc' },
     include: {
-      versions: { where: { status: 'ACTIVE' }, orderBy: { versionNumber: 'desc' } },
+      versions: {
+        where: { status: 'ACTIVE' },
+        orderBy: { versionNumber: 'desc' },
+        include: {
+          evalRuns: {
+            where: { status: 'COMPLETED' },
+            orderBy: { createdAt: 'desc' },
+            take: 1,
+            select: { avgScore: true },
+          },
+        },
+      },
     },
   });
 
@@ -30,7 +43,8 @@ export default async function DashboardPage() {
       </div>
 
       {blueprints.length === 0 ? (
-        <div className="mt-16 rounded-2xl border border-dashed border-neutral-700 p-12 text-center">
+        <div className="mt-16 flex flex-col items-center rounded-2xl border border-dashed border-neutral-700 p-12 text-center">
+          <Bot className="mb-4 h-10 w-10 text-neutral-600" />
           <p className="text-neutral-300">No agents yet.</p>
           <p className="mt-2 text-sm text-neutral-500">
             Describe a task and UltraIa will design a purpose-built agent for it.
@@ -46,6 +60,7 @@ export default async function DashboardPage() {
         <ul className="mt-8 grid gap-4 md:grid-cols-2">
           {blueprints.map((bp) => {
             const active = bp.versions[0];
+            const score = active?.evalRuns[0]?.avgScore;
             return (
               <li key={bp.id}>
                 <Link
@@ -54,9 +69,16 @@ export default async function DashboardPage() {
                 >
                   <div className="flex items-center justify-between">
                     <h2 className="font-semibold">{bp.name}</h2>
-                    <span className="rounded-full bg-neutral-800 px-2.5 py-0.5 text-xs text-neutral-300">
-                      v{active?.versionNumber ?? '?'}
-                    </span>
+                    <Badge>v{active?.versionNumber ?? '?'}</Badge>
+                    {typeof score === 'number' && (
+                      <Badge
+                        className={
+                          score >= 0.6 ? 'bg-emerald-900/60 text-emerald-300' : 'bg-amber-900/60 text-amber-300'
+                        }
+                      >
+                        eval {score.toFixed(2)}
+                      </Badge>
+                    )}
                   </div>
                   <p className="mt-2 line-clamp-2 text-sm text-neutral-400">{bp.taskDescription}</p>
                 </Link>

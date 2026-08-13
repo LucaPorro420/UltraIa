@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { requireUser } from '@/lib/server/context';
+import { Button } from '@/components/ui/button';
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const user = await requireUser();
@@ -26,9 +27,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
                 redirect('/login');
               }}
             >
-              <button type="submit" className="text-neutral-500 hover:text-white">
+              <Button type="submit" variant="ghost" className="text-neutral-300">
                 Log out
-              </button>
+              </Button>
             </form>
           </nav>
         </div>
