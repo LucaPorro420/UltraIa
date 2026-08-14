@@ -1,6 +1,7 @@
 'use client';
 
 import { Copy, ExternalLink, Zap } from 'lucide-react';
+import Image from 'next/image';
 import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -47,10 +48,10 @@ export function DetailDialog({
       <div className="space-y-4">
         {item.imageUrl && (
           <div
-            className="overflow-hidden rounded-xl border border-border-muted shadow-[0_10px_36px_-18px_rgba(0,0,0,0.9)]"
+            className="relative overflow-hidden rounded-xl border border-border-muted shadow-[0_10px_36px_-18px_rgba(0,0,0,0.9)]"
             style={aspectStyle(item.aspectRatio)}
           >
-            <img src={item.imageUrl} alt={item.prompt} className="h-full w-full object-cover" />
+            <Image src={item.imageUrl} alt={item.prompt} fill sizes="(max-width: 768px) 100vw, 480px" unoptimized className="object-cover" />
           </div>
         )}
 

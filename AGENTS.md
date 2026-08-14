@@ -57,6 +57,16 @@ Ciclo recomendado para features: `gstack-plan-ceo-review` → `gstack-plan-eng-r
   `--web`, `--hooks`, `--validate`, `--install`, `--skip-setup`, `--check-connections`).
   Preflight de puertos + health-check "UP" tras arranque; en Windows usa `npm_exec()` (npm.cmd).
   Alternativa: `./run-all.ps1` (web + webhooks + validate).
+- **start.py robustecido (14/08/2026)**: `python_exec()` prefiere `python` sobre `py` (el launcher
+  `py` apunta a Python 3.14 donde NO está fastapi/uvicorn). `http_ok()` trata 404 como "servidor
+  vivo" (el webhook server no tiene ruta `/` — antes el health-check de :8000 fallaba siempre).
+  `wait_healthy(url, service, proc)` distingue "proceso murió antes de responder" vs "no responde".
+  `terminate()` mata el ÁRBOL completo en Windows (`taskkill /T /F`) — clave para no dejar `next dev`
+  huérfano (el `terminate()` antiguo solo mataba npm.cmd y dejaba 2 dev servers duplicados).
+  `deps_outdated()` corre `npm install` si node_modules falta o si package-lock es más nuevo que
+  `node_modules/.package-lock.json` (ya no instala solo si node_modules no existe → refleja deps nuevas
+  como `three`). `check_prereqs()` valida VERSIONES (node >= 20, python >= 3.10), no solo existencia.
+  Fallo en health-check o muerte de un servicio → `sys.exit(1)` (fail-hard) + shutdown limpio.
 - **Sistema de aprendizaje**: `learning/` con verdad verificada aparte (`learning/truth/`), respuestas crudas (`learning/responses/`), verifier (`learning/scripts/verify.py`) y lecciones (`learning/LEARNINGS.md`). 16/16 casos PASS. Reglas: API directa > búsqueda web para datos numéricos; pedir campos crudos exactos; el tipo de comparación viene de la verdad.
 - **gstack**: 53 skills en `~/.config/opencode/skills/gstack-*` (se cargan al iniciar opencode). Runtime en `~/.claude/skills/gstack` (re-ejecutar `./setup` tras `git pull`).
 - **MeiGEN + librería (14/08/2026)**: seed `seed-library.mjs` cargó 1379 prompts (fuente remota jau123/nanobanana-trending-prompts; fallback embebido ~38 si raw.githubusercontent da 503; SQLite NO soporta `skipDuplicates` en createMany — filtrar slugs existentes antes). API MeiGEN: `POST /api/generate/v2` (Bearer `meigen_sk_*`, polling `GET /api/generate/v2/status/:id` con `pollHintSeconds`), `GET /api/models` público (no hardcodear IDs). `tools/image.ts` multi-provider (pollinations keyless / meigen si `MEIGEN_API_TOKEN`).

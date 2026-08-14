@@ -193,7 +193,7 @@ export async function searchWeb(input: ReachSearchInput): Promise<ReachSearchRes
           results: (data.results || []).slice(0, maxResults).map((r) => ({
             title: r.title || r.url || '',
             url: r.url || '',
-            snippet: truncate((r.text || '').replace(/\s+/g, ' '), 300),
+            snippet: truncate((r.text || '').replace(/\s+/g, ' ').trim(), 300),
             source: 'exa' as const,
           })),
         };
@@ -305,7 +305,9 @@ export async function parseRss(input: ReachRssInput): Promise<ReachRssResult> {
       ? [channel.item]
       : Array.isArray(channel.entry)
         ? (channel.entry as unknown[])
-        : [];
+        : channel.entry
+          ? [channel.entry]
+          : [];
   const rawTitle = channel.title;
   const feedTitle = typeof rawTitle === 'string' ? rawTitle : ((rawTitle as { '#text'?: string }) || {})['#text'] || null;
 

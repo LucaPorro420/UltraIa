@@ -1,6 +1,7 @@
 'use client';
 
 import type { ComponentType, ReactNode } from 'react';
+import Image from 'next/image';
 import {
   AlignLeft,
   Image as ImageIcon,
@@ -148,9 +149,10 @@ export function BlockBody({ element, children }: { element: BuilderElement; chil
     }
     case 'image':
       return (
-        <img
+        <Image
           src={p.src}
           alt={p.alt}
+          unoptimized
           className={cn('block max-w-full', radiusClass(p.radius, 'image'))}
           style={{ width: `${p.width}%` }}
         />

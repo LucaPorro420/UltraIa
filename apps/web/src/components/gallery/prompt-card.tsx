@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { Eye, Heart, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { aspectStyle, type PromptItem } from './types';
@@ -19,11 +20,13 @@ export function PromptCard({
     <div className="card-glow-hover group overflow-hidden rounded-xl border border-border-subtle bg-panel">
       <div className="relative overflow-hidden" style={aspectStyle(item.aspectRatio)}>
         {item.imageUrl ? (
-          <img
+          <Image
             src={item.imageUrl}
             alt={item.prompt}
-            loading="lazy"
-            className="h-full w-full object-cover transition-transform duration-300 ease-out group-hover:scale-[1.02]"
+            fill
+            sizes="(max-width: 768px) 50vw, 25vw"
+            unoptimized
+            className="object-cover transition-transform duration-300 ease-out group-hover:scale-[1.02]"
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-panel-header via-panel to-panel-hover">

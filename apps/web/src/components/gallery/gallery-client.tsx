@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Heart, Images, Plus, RefreshCw, Search, Star, Zap } from 'lucide-react';
 import { toast } from 'sonner';
@@ -436,11 +437,13 @@ export function GalleryClient() {
                     className="card-glow-hover group block w-full overflow-hidden rounded-xl border border-border-subtle bg-panel text-left"
                   >
                     <div className="relative overflow-hidden" style={aspectStyle(`${a.width}:${a.height}`)}>
-                      <img
+                      <Image
                         src={a.url}
                         alt={a.prompt}
-                        loading="lazy"
-                        className="h-full w-full object-cover transition-transform duration-300 ease-out group-hover:scale-[1.02]"
+                        fill
+                        sizes="(max-width: 768px) 50vw, 25vw"
+                        unoptimized
+                        className="object-cover transition-transform duration-300 ease-out group-hover:scale-[1.02]"
                       />
                     </div>
                     <div className="space-y-1.5 p-3">

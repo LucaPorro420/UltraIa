@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { Copy, Download, Save, Sparkles, X, Zap } from 'lucide-react';
+import Image from 'next/image';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -330,10 +331,10 @@ export function GenerateDrawer({
           {result && !generating && (
             <div className="space-y-3">
               <div
-                className="overflow-hidden rounded-xl border border-border-muted shadow-[0_0_32px_-12px_rgba(139,92,246,0.4)]"
+                className="relative overflow-hidden rounded-xl border border-border-muted shadow-[0_0_32px_-12px_rgba(139,92,246,0.4)]"
                 style={aspectStyle(result.aspectRatio)}
               >
-                <img src={result.url} alt={result.prompt} className="h-full w-full object-cover" />
+                <Image src={result.url} alt={result.prompt} fill sizes="(max-width: 768px) 100vw, 420px" unoptimized className="object-cover" />
               </div>
               <div className="flex items-center justify-between font-mono text-[10px] uppercase tracking-widest text-neutral-500">
                 <span>

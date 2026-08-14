@@ -40,6 +40,11 @@ const MODEL_CACHE_TTL_MS = 60 * 60_000;
 
 let modelCache: { at: number; models: MeigenModelInfo[] } | null = null;
 
+/** Reset the in-memory model cache (used by tests). */
+export function resetMeigenModelCache(): void {
+  modelCache = null;
+}
+
 function apiKey(): string {
   const key = process.env.MEIGEN_API_TOKEN || '';
   if (!key) throw new Error('MEIGEN_API_TOKEN is not set — MeiGen cloud provider is disabled');

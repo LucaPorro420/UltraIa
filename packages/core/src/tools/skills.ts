@@ -37,9 +37,11 @@ Use Markdown. Prioritize the highest-impact 3-5 changes.`,
  * the full agent-development pipeline inside a conversation.
  */
 export async function runSkill(kind: SkillKind, input: SkillRunInput): Promise<string> {
+  const task = input.task.trim();
+  if (!task) throw new Error('Task is required');
   const system = SKILL_SYSTEM[kind];
   const prompt = [
-    `Task:\n${input.task.trim()}`,
+    `Task:\n${task}`,
     input.context?.trim() ? `\nContext:\n${input.context.trim()}` : '',
     `\nProduce the ${kind} artifact now.`,
   ].join('\n');

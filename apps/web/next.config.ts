@@ -3,6 +3,15 @@ import type { NextConfig } from 'next';
 const nextConfig: NextConfig = {
   transpilePackages: ['@ultraia/core'],
   serverExternalPackages: ['@prisma/client'],
+  images: {
+    remotePatterns: [
+      { protocol: 'https', hostname: 'image.pollinations.ai' },
+      { protocol: 'https', hostname: '*.pollinations.ai' },
+      { protocol: 'https', hostname: 'images.meigen.ai' },
+      { protocol: 'https', hostname: 'www.meigen.ai' },
+      { protocol: 'https', hostname: 'i.ytimg.com' },
+    ],
+  },
   async headers() {
     return [
       {
