@@ -53,9 +53,19 @@ Ciclo recomendado para features: `gstack-plan-ceo-review` → `gstack-plan-eng-r
 
 - **Monorepo**: `npm run typecheck`, `npm run lint`, `npm run test` (61/61 PASS), `npm run build` — TODO verde. Arranque web: `npm run dev`.
 - **Pipeline árabe**: `python main.py --dry-run` end-to-end OK (ar-SA); validación `python main.py --validate`. Falta solo: claves API reales en `.env` y `ffmpeg` en PATH (`winget install Gyan.FFmpeg`) para render/assembly real.
-- **Todo en un comando**: `./run-all.ps1` (web + webhooks + validate).
+- **Todo en un comando**: `python start.py` (setup + web :3000 + webhooks :8000; flags
+  `--web`, `--hooks`, `--validate`, `--install`, `--skip-setup`, `--check-connections`).
+  Preflight de puertos + health-check "UP" tras arranque; en Windows usa `npm_exec()` (npm.cmd).
+  Alternativa: `./run-all.ps1` (web + webhooks + validate).
 - **Sistema de aprendizaje**: `learning/` con verdad verificada aparte (`learning/truth/`), respuestas crudas (`learning/responses/`), verifier (`learning/scripts/verify.py`) y lecciones (`learning/LEARNINGS.md`). 16/16 casos PASS. Reglas: API directa > búsqueda web para datos numéricos; pedir campos crudos exactos; el tipo de comparación viene de la verdad.
 - **gstack**: 53 skills en `~/.config/opencode/skills/gstack-*` (se cargan al iniciar opencode). Runtime en `~/.claude/skills/gstack` (re-ejecutar `./setup` tras `git pull`).
+- **MeiGEN + librería (14/08/2026)**: seed `seed-library.mjs` cargó 1379 prompts (fuente remota jau123/nanobanana-trending-prompts; fallback embebido ~38 si raw.githubusercontent da 503; SQLite NO soporta `skipDuplicates` en createMany — filtrar slugs existentes antes). API MeiGEN: `POST /api/generate/v2` (Bearer `meigen_sk_*`, polling `GET /api/generate/v2/status/:id` con `pollHintSeconds`), `GET /api/models` público (no hardcodear IDs). `tools/image.ts` multi-provider (pollinations keyless / meigen si `MEIGEN_API_TOKEN`).
+- **AgentReach (14/08/2026)**: `packages/core/src/tools/reach.ts` (readWeb vía r.jina.ai + fallback directo, searchWeb DuckDuckGo IA + Exa opcional con `EXA_API_KEY`, searchGitHub, parseRss con fast-xml-parser, videoInfo oEmbed). Registrada como tools `reach_*` en `ai/llm.ts` + ruta `/api/tools/reach`.
+- **Admin**: `user: admin` / `psw: admin` (email `admin@ultraia.local`, rol ADMIN, 8 agentes `bp-admin-*` públicos). Login acepta username sin `@` (busca por `name`). Login/registro con zod: register usa `registerSchema` estricto (email válido).
+- **UI (14/08/2026)**: shell IDE en `(app)/layout.tsx` (sidebar 280px, nav client en `components/app-shell/nav.tsx`, logout en `(app)/actions.ts`), UI kit ampliado (`tabs, dialog, switch, skeleton, tooltip, stat-card, empty-state, kbd`), `/gallery` (gallery-client + prompt-card + generate-drawer + detail-dialog + contribute-dialog; infinite scroll cursor-based, drawer 420px, enhance local fallback — `/api/chat` requiere agentId y no sirve para prompts sueltos), `/builder` (builder-client + blocks + codegen + property-panel + export-modal; DnD nativo HTML5, localStorage `ultraia-builder-v1`, genera HTML/CSS/JS + React+Tailwind). Todas las páginas restyleadas a Dark Obsidian.
+- **CSP (14/08/2026)**: img-src permite image.pollinations.ai, images.meigen.ai, i.ytimg.com; connect-src permite pollinations, meigen, r.jina.ai, duckduckgo, exa, github, youtube.
+- **Rediseño 2026 + skills (14/08/2026)**: pase híbrido (Dark Obsidian + glass/glow 2026) sobre TODO el app shell. Nuevas utilidades en globals.css: `.glass-panel` (blur 12px + hairline top), `.card-glow-hover` (lift 2px + glow primary 150ms `--ease-ultra`), `.gradient-neo-frame-strong`, focus-visible ring global. Hero landing con WebGL aurora real: `components/aurora/aurora-canvas.tsx` (Three.js + ShaderMaterial simplex noise; importado con `next/dynamic` ssr:false en landing-hero para no inflar el bundle — el shader respeta prefers-reduced-motion con render estático). Pipeline de agente: `components/app-shell/skill-pipeline.tsx` (Plan→Build→Test→Review→Ship→Simplify, stagger GSAP) integrado en dashboard. Skills reales: `packages/core/src/tools/skills.ts` (`runSkill(kind, {task, context})` llama al modelo configurado; kinds plan/build/test/review/ship/simplify), registradas como tools `skill_*` en `ai/llm.ts` bajo capability `skills` (ya activa en los 8 agentes admin vía seed-admin.mjs). Deps nuevas: `three` + `@types/three` en apps/web. Login/register: form con `name="email"` (acepta username); `input[name="identifier"]` ya NO existe.
+- **Smoke test (14/08/2026)**: driver propio patchright (createRequire + `page.locator('body').innerText()`) — 13/13 PASS con dev server limpio. IMPORTANTE: NO correr `npm run build` mientras el dev server corre (rompe chunks `_next/static` con 404/MIME errors; matar TODOS los procesos node `next dev` antes — hubo 2 servers duplicados). `waitUntil: 'load'` en vez de 'networkidle' (dev server recompila en caliente). Sesión logueada redirige `/register` y `/login` → dashboard (esperado).
 
 ## Memoria de aprendizaje (learning/)
 
@@ -81,6 +91,8 @@ Reglas aprendidas (no romperlas): API directa > búsqueda web para datos numéri
   (motion, stack-aware) y skill `.opencode/skills/ultraia-design-system/`.
 - Tokens "Dark Obsidian" en `@theme` (globals.css): canvas `#08080a`, panel `#111115`, primary
   `#8b5cf6`, border-subtle `#1f1f2a`; acentos de modalidad inmutables (video/audio/text/code/web).
+  Paleta Neo Violet (uxintace) como `--color-neo-100..700` + utilidades `.gradient-neo-text`,
+  `.gradient-neo-frame`, `.glow-neo`, `.neo-aura` (aplicadas en landing y `/recursos`).
 - Tipografía: Inter (funcional) + Plus Jakarta Sans (display/chat) + JetBrains Mono (mono) —
   NO usar Inter para display (anti AI-slop).
 - Motion: GSAP 3.15 + lottie-react en apps/web. Reglas: `gsap.context()` en `useLayoutEffect`,

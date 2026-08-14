@@ -84,3 +84,24 @@ Producto: SaaS — generación de agentes de IA con human-in-the-loop. Stack: Ne
 3. Motion: preferir CSS puro para micro-interacciones; GSAP solo cuando hay secuencia/scroll; Lottie para loaders de proceso.
 4. Todo componente nuevo respeta densidad IDE (38px headers, 4px gaps) y espaciado base 4px.
 5. Después de cambios visuales: verificar con `npm run typecheck` y revisión visual en navegador.
+
+## 7. Workflow "Claude Design" (sistemas visuales completos)
+
+Fuente: TikTok @migue.baena (https://www.tiktok.com/@migue.baena/video/7662739519938006294).
+Aplica al diseñar con cualquier agente de diseño (Claude, GPT, gemini): el potencial real no está
+en generar páginas sueltas sino **sistemas visuales completos**. Proceso de 4 pasos:
+
+1. **No le pidas solo aplicaciones** — pide el sistema: tokens, componentes, patrones, densidades,
+   estados (hover/active/disabled), no una página.
+2. **Entrénalo con tu identidad visual** — dale el DNA: paleta, tipografía, radios, espaciados,
+   referencias de marca (en UltraIa: `docs/design-dna.json` + `DESIGN.md` + este skill).
+3. **Usa referencias visuales** — adjunta ejemplos del look deseado (screenshots, imágenes) y exige
+   fidelidad a la referencia, no descripción textual.
+4. **Activa el modo de Alta Fidelidad** — fuerza iteración detallada (medidas exactas, tokens
+   reales, contraste WCAG) hasta que el resultado sea producible, no un mockup aproximado.
+
+Clave: la diferencia no está en prompts más largos, sino en **dar contexto adecuado** (DNA +
+referencias + criterio de calidad). Enlace del autor: https://monumental-design-docs-flow.base44.app
+
+Fuentes adicionales adicionadas: `docs/CONTENIDO-ADICIONADO.md` (3 posts), `docs/recursos-ia.md`
+(7 YouTubers IA), paleta "Neo Violet" en DESIGN.md §2.

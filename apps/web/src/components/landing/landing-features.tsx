@@ -12,22 +12,22 @@ const FEATURES = [
   {
     step: '01',
     title: 'Generate',
-    accent: 'text-violet-300',
-    border: 'hover:border-violet-500/40 hover:shadow-[0_0_24px_-10px_var(--agent-video)]',
+    accent: 'text-neo-200',
+    blob: 'var(--color-neo-400)',
     body: 'Tell us the job. Our Agent Architect produces a precise system prompt, model choice, tools and a measurable rubric.',
   },
   {
     step: '02',
     title: 'Run',
     accent: 'text-cyan-300',
-    border: 'hover:border-cyan-500/40 hover:shadow-[0_0_24px_-10px_var(--agent-audio)]',
+    blob: 'var(--agent-audio)',
     body: 'Chat with your agent or call it over a scoped API key. Every exchange is stored and available for evaluation.',
   },
   {
     step: '03',
     title: 'Improve',
     accent: 'text-emerald-300',
-    border: 'hover:border-emerald-500/40 hover:shadow-[0_0_24px_-10px_var(--agent-code)]',
+    blob: 'var(--agent-code)',
     body: 'Negative feedback and failed evaluations feed an improvement pipeline. New versions must pass regression evals before they go live.',
   },
 ];
@@ -60,7 +60,7 @@ export function LandingFeatures() {
   }, []);
 
   return (
-    <section id="how-it-works" ref={root} className="relative mx-auto max-w-5xl px-6 pt-28">
+    <section id="how-it-works" ref={root} className="neo-aura relative mx-auto max-w-5xl px-6 pt-28">
       <div className="mb-10 flex items-end justify-between">
         <div>
           <p className="font-mono text-[11px] uppercase tracking-widest text-neutral-500">
@@ -79,7 +79,7 @@ export function LandingFeatures() {
         {FEATURES.map((f) => (
           <div
             key={f.title}
-            className={`feature-card group relative overflow-hidden rounded-2xl border border-border-subtle bg-panel p-6 transition-all duration-300 ease-out ${f.border}`}
+            className={`feature-card group card-glow-hover relative overflow-hidden rounded-2xl border border-border-subtle bg-panel p-6`}
           >
             <span className="font-mono text-[11px] font-bold tracking-widest text-neutral-600">
               {f.step}
@@ -89,7 +89,7 @@ export function LandingFeatures() {
             <div
               aria-hidden
               className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full opacity-0 blur-2xl transition-opacity duration-300 group-hover:opacity-25"
-              style={{ background: 'var(--color-primary)' }}
+              style={{ background: f.blob }}
             />
           </div>
         ))}

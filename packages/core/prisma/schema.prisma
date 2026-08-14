@@ -8,13 +8,17 @@ datasource db {
 }
 
 model User {
-  id            String      @id @default(cuid())
-  email         String      @unique
+  id            String             @id @default(cuid())
+  email         String             @unique
   name          String?
   passwordHash  String
-  createdAt     DateTime    @default(now())
+  role          String             @default("USER") // USER | ADMIN
+  createdAt     DateTime           @default(now())
   sessions      Session[]
   workspaces    Workspace[]
+  favorites     FavoritePrompt[]
+  generated     GeneratedAsset[]
+  prompts       PromptLibrary[]    @relation("SubmittedPrompts")
 }
 
 model Session {
@@ -152,4 +156,52 @@ model TechRadar {
   notes        String? // explicacion libre en español
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+}
+
+//! Libreria de prompts de imagen/video (MeiGEN style). Seed desde
+//! jau123/nanobanana-trending-prompts; los usuarios pueden aportar los propios.
+model PromptLibrary {
+  id              String             @id @default(cuid())
+  slug            String             @unique
+  prompt          String
+  category        String // Portrait | Ads & Product | Poster | Illustration & 3D | UI Design | Video | Wallpaper | Branding | Custom
+  tags            String             @default("[]") // JSON string[]
+  models          String             @default("[]") // JSON string[] (gpt-image-2, nanobanana, midjourney...)
+  aspectRatio     String             @default("1:1")
+  imageUrl        String? // imagen de referencia / resultado
+  sourceUrl       String? // post original (X/Twitter) o fuente
+  engagementRank  Int                @default(0) // ranking por engagement (0 = sin ranking)
+  isUserSubmitted Boolean            @default(false)
+  submitter       User?              @relation("SubmittedPrompts", fields: [submitterId], references: [id], onDelete: SetNull)
+  submitterId     String?
+  useCount        Int                @default(0)
+  createdAt       DateTime           @default(now())
+  favorites       FavoritePrompt[]
+}
+
+model FavoritePrompt {
+  id        String        @id @default(cuid())
+  userId    String
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  promptId  String
+  prompt    PromptLibrary @relation(fields: [promptId], references: [id], onDelete: Cascade)
+  createdAt DateTime      @default(now())
+
+  @@unique([userId, promptId])
+}
+
+//! Historial de generaciones de imagen del usuario (galeria "Mis creaciones").
+model GeneratedAsset {
+  id             String   @id @default(cuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  prompt         String
+  provider       String // pollinations | meigen
+  model          String
+  seed           Int?
+  url            String
+  width          Int      @default(1024)
+  height         Int      @default(1024)
+  sourcePromptId String? // si vino de "Usar idea" en la libreria
+  createdAt      DateTime @default(now())
 }

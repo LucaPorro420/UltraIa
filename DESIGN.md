@@ -33,6 +33,25 @@ el violeta es acento de estado, no decoración.
 text `#f59e0b` · code `#10b981` · web `#6366f1`. Estados: thinking `#3b82f6` · streaming `#10b981` ·
 error `#ef4444` · PASS `#4ade80` · PENDING `#fbbf24` · FAIL `#f87171`.
 
+### Paleta adicionada — "Neo Violet" (referencia externa, @uxintace)
+
+Extraída por muestreo (cuantización) de la portada del post "Best Color Palette"
+(https://www.instagram.com/p/Db8YpwEDBKl/). Hex aproximados — verificar antes de usar en producción.
+
+| Rol | Hex (muestra) |
+|---|---|
+| Magenta claro | `#EE9CED` |
+| Magenta | `#F69DEE` |
+| Orquídea | `#D09AE6` |
+| Lavanda | `#988CDB` |
+| Púrpura | `#7578D3` |
+| Índigo | `#5167CB` |
+| Azul profundo | `#1854A1` |
+
+Uso: acentos display y gradientes de marca (ej. hero landing) — NO reemplaza los tokens dark del
+`@theme`. Ejemplos de aplicación sobre fondo blanco (slides 1-2 del mismo post): púrpura `#493394`/
+`#241852` como texto/primario, azul `#5283AB`/`#A9CCD9` como secundario.
+
 ## 3. Tipografía
 
 | Rol | Fuente | Notas |

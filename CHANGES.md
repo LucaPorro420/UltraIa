@@ -72,3 +72,43 @@ por el alcance "Landing + polish").
 - QA visual de páginas autenticadas (dashboard, agent, roadmap, studio) con sesión real.
 - `ffmpeg` en PATH y claves API reales en `.env` para render/assembly completo.
 - Revisar skills nuevas tras reiniciar opencode (indexación de `available_skills`).
+
+---
+
+# CHANGES 2 — Paleta Neo Violet, página /recursos y start.py terminado (13/08/2026)
+
+## Contenido de los 3 posts implementado
+
+- **@uxintace "Best Color Palette"** (instagram.com/p/Db8YpwEDBKl): paleta **Neo Violet** añadida
+  como tokens reales en `globals.css` (`--color-neo-100..700`: `#f69dee` → `#1854a1`, fuente
+  DESIGN.md §2) + utilidades `.gradient-neo-text`, `.gradient-neo-frame`, `.glow-neo`, `.neo-aura`.
+  Aplicado en la landing: título "creates AI" con gradiente Neo Violet (reemplaza el degradado
+  violeta/índigo/cyan), mockup de consola con marco degradado hairline de 1px, card "Generate"
+  con acento/hover/blur neo.
+- **@web_development_legend "7 YouTubers para aprender IA"** (instagram.com/p/Db_y-RmjBsP):
+  nueva página pública **`/recursos`** (marketing header + grid de cards con gradiente neo),
+  datos en `apps/web/src/data/recursos-ia.ts` con URLs reales de canal/sitio, subs y workflows
+  que enseña cada uno. Link "Recursos" en `marketing-header.tsx`. `docs/recursos-ia.md`
+  actualizado con la tabla completa.
+- **@migue.baena workflow Claude Design** (tiktok.com/oembed 7662739519938006294): ya integrado
+  en `.opencode/skills/ultraia-design-system/SKILL.md` §7 y registrado en
+  `docs/CONTENIDO-ADICIONADO.md`.
+
+## start.py terminado
+
+- **Bug real corregido**: en Windows `npm` es `npm.cmd` y `subprocess.Popen` fallaba con
+  `FileNotFoundError` — nuevo helper `npm_exec()` usado en install/migrate/dev (start.py no
+  arrancaba el web en Windows).
+- `preflight_ports()`: aborta antes de arrancar si el puerto objetivo ya está en uso.
+- `wait_healthy()`: tras arrancar cada servicio, hace polling hasta que responde (timeout 90s)
+  y loguea "web UP en http://localhost:3000".
+- Flag `--install`: solo setup (deps, .env, migrate) sin servidores.
+
+## Verificación
+
+- `npm run typecheck` ✓ · `npm run lint` ✓ · `npm run test` ✓ (61/61) · `npm run build` ✓
+  (ruta `/recursos` registrada).
+- QA navegador: landing HTTP 200 con `gradient-neo-text` y `gradient-neo-frame` presentes,
+  3 feature cards, 0 console errors; `/recursos` HTTP 200 con 7 cards, 7 links a YouTube,
+  títulos correctos, 0 console errors.
+- `python start.py --web` real: prerequisitos → dev server → "web UP en http://localhost:3000".

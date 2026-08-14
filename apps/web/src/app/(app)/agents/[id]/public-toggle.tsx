@@ -29,13 +29,13 @@ export function PublicToggle({ agentId, isPublic }: { agentId: string; isPublic:
           disabled={busy}
           onClick={toggle}
           aria-pressed={enabled}
-          className={`relative h-6 w-11 rounded-full transition ${enabled ? 'bg-violet-600' : 'bg-neutral-700'} disabled:opacity-50`}
+          className={`relative h-6 w-11 rounded-full transition-all duration-200 ${enabled ? 'bg-violet-600 shadow-[0_0_14px_-2px_rgba(139,92,246,0.7)]' : 'bg-neutral-700'} disabled:opacity-50`}
         >
           <span
-            className={`absolute top-0.5 h-5 w-5 rounded-full bg-white transition-all ${enabled ? 'left-[22px]' : 'left-0.5'}`}
+            className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-all duration-200 ${enabled ? 'left-[22px]' : 'left-0.5'}`}
           />
         </button>
-        <span className="text-xs text-neutral-300">
+        <span className={`text-xs ${enabled ? 'text-violet-300' : 'text-neutral-300'}`}>
           Public access {enabled ? 'enabled' : 'disabled'}
         </span>
       </div>

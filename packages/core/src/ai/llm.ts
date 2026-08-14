@@ -10,6 +10,8 @@ import { generateImage } from '../tools/image';
 import { generateVideo } from '../tools/video';
 import { generateMusic } from '../tools/music';
 import { generateUiScreen } from '../tools/stitch';
+import { readWeb, searchWeb, searchGitHub, parseRss, videoInfo } from '../tools/reach';
+import { runSkill } from '../tools/skills';
 
 const modelCache = new Map<string, LanguageModel>();
 
@@ -186,6 +188,53 @@ export function chatStream(opts: {
       parameters: z.object({ prompt: z.string().min(1).max(2000) }),
       execute: async ({ prompt }) => generateUiScreen(prompt),
     });
+  }
+  if (opts.tools?.includes('reach')) {
+    tools.reach_read = tool({
+      description:
+        'Read any public web page as clean text (Jina Reader). Use for current info, docs, articles, or grounding answers in real sources. Returns title, description and readable text.',
+      parameters: z.object({ url: z.string().url(), maxLength: z.number().int().min(500).max(50000).optional() }),
+      execute: async ({ url, maxLength }) => readWeb({ url, maxLength }),
+    });
+    tools.reach_search = tool({
+      description:
+        'Search the live web in real time (DuckDuckGo or Exa). Returns recent, factual results with titles, URLs and snippets. Use for anything current: news, prices, events, docs, or verifying facts from this year.',
+      parameters: z.object({ query: z.string().min(1).max(200), maxResults: z.number().int().min(1).max(10).optional() }),
+      execute: async ({ query, maxResults }) => searchWeb({ query, maxResults }),
+    });
+    tools.reach_github = tool({
+      description:
+        'Search public GitHub repositories by keyword (sorted by stars). Returns repo names, descriptions, star counts and languages.',
+      parameters: z.object({ query: z.string().min(1).max(200), maxResults: z.number().int().min(1).max(10).optional() }),
+      execute: async ({ query, maxResults }) => searchGitHub({ query, maxResults }),
+    });
+    tools.reach_rss = tool({
+      description: 'Fetch and parse any RSS/Atom feed. Returns the feed title and recent items with links and descriptions.',
+      parameters: z.object({ url: z.string().url(), maxItems: z.number().int().min(1).max(20).optional() }),
+      execute: async ({ url, maxItems }) => parseRss({ url, maxItems }),
+    });
+    tools.reach_video = tool({
+      description: 'Get YouTube video metadata (title, author, thumbnail) from a video URL via oEmbed.',
+      parameters: z.object({ url: z.string().url() }),
+      execute: async ({ url }) => videoInfo({ url }),
+    });
+  }
+  if (opts.tools?.includes('skills')) {
+    const skill = (kind: 'plan' | 'build' | 'test' | 'review' | 'ship' | 'simplify', label: string) =>
+      tool({
+        description: `${label}. Runs a step of the agent-development pipeline using the configured model and returns a structured Markdown artifact. Use when the task maps to ${label.toLowerCase()}.`,
+        parameters: z.object({
+          task: z.string().min(1).max(2000),
+          context: z.string().max(4000).optional(),
+        }),
+        execute: async ({ task, context }) => runSkill(kind, { task, context }),
+      });
+    tools.skill_plan = skill('plan', 'Plan');
+    tools.skill_build = skill('build', 'Build');
+    tools.skill_test = skill('test', 'Test');
+    tools.skill_review = skill('review', 'Review');
+    tools.skill_ship = skill('ship', 'Ship');
+    tools.skill_simplify = skill('simplify', 'Simplify');
   }
   return streamText({
     model: resolveModel(opts.model),

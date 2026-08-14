@@ -8,6 +8,8 @@ const bodySchema = z.object({
   height: z.number().int().min(128).max(1792).optional(),
   model: z.string().max(50).optional(),
   imageUrl: z.string().url().optional(),
+  provider: z.enum(['pollinations', 'meigen']).optional(),
+  aspectRatio: z.string().max(20).optional(),
 });
 
 export async function POST(req: Request) {

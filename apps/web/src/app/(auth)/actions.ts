@@ -14,6 +14,12 @@ import {
 import { z } from 'zod';
 
 const credentialsSchema = z.object({
+  email: z.string().trim().min(1, 'Email or username is required'),
+  password: z.string().min(1, 'Password is required'),
+});
+
+const registerSchema = z.object({
+  name: z.string().trim().max(100).optional(),
   email: z.string().trim().email('Enter a valid email'),
   password: z.string().min(1, 'Password is required'),
 });
@@ -42,9 +48,12 @@ export async function loginAction(
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? 'Invalid input' };
   }
-  const user = await prisma.user.findUnique({ where: { email: parsed.data.email } });
+  const identifier = parsed.data.email;
+  const user = identifier.includes('@')
+    ? await prisma.user.findUnique({ where: { email: identifier } })
+    : await prisma.user.findFirst({ where: { name: identifier } });
   if (!user || !(await verifyPassword(parsed.data.password, user.passwordHash))) {
-    return { error: 'Invalid email or password' };
+    return { error: 'Invalid email/username or password' };
   }
   await issueSession(user.id);
   return null;
@@ -54,7 +63,7 @@ export async function registerAction(
   _prev: { error?: string } | null,
   formData: FormData,
 ): Promise<{ error?: string } | null> {
-  const parsed = credentialsSchema.extend({ name: z.string().trim().max(100).optional() }).safeParse({
+  const parsed = registerSchema.safeParse({
     name: formData.get('name'),
     email: formData.get('email'),
     password: formData.get('password'),

@@ -1,6 +1,9 @@
 export * from './calculator';
 export * from './web';
 export * from './image';
+export * from './meigen';
+export * from './reach';
+export * from './skills';
 export * from './video';
 export * from './music';
 export * from './stitch';
@@ -10,8 +13,10 @@ import * as image from './image';
 import * as video from './video';
 import * as music from './music';
 import * as stitch from './stitch';
+import { reach } from './reach';
+import { runSkill } from './skills';
 
-export const tools = { web, image, video, music, stitch };
+export const tools = { web, image, video, music, stitch, reach, skills: { runSkill } };
 
 export const TOOL_DESCRIPTIONS: Record<string, string> = {
   calculator: 'Safely evaluate a mathematical expression (math only).',
@@ -20,6 +25,9 @@ export const TOOL_DESCRIPTIONS: Record<string, string> = {
   video: 'Produce a video storyboard (sequence of photoreal frames) from a text prompt. Keyless; real video when a provider is configured.',
   music: 'Compose an original music piece (structured composition) from a text prompt. Keyless; rendered audio when a provider is configured.',
   design: 'Generate a high-fidelity UI screen from a text prompt using Google Stitch (free Google Labs). Returns a screenshot + HTML.',
+  reach: 'Real-time internet access: read any web page as clean text, search the live web, search GitHub repos, parse RSS feeds, and fetch YouTube metadata. Use for anything current (news, prices, docs, repos).',
+  skills:
+    'Run a step of the agent-development pipeline: plan → build → test → review → ship → simplify. Each skill produces a structured Markdown artifact for the given task using the configured model. Use to design, implement, QA, review, release or refactor.',
 };
 
-export type Capability = 'calculator' | 'web' | 'image' | 'video' | 'music' | 'design';
+export type Capability = 'calculator' | 'web' | 'image' | 'video' | 'music' | 'design' | 'reach' | 'skills';

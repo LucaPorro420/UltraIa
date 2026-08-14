@@ -77,7 +77,7 @@ export function RoadmapDiagram() {
   }, []);
 
   return (
-    <div ref={root} className="overflow-auto rounded-xl border border-neutral-800 bg-neutral-950/40 p-2">
+    <div ref={root} className="glass-panel overflow-auto rounded-xl p-2">
       <svg width={width} height={height} className="min-w-full">
         {lines.map((l) => (
           <line
@@ -86,7 +86,7 @@ export function RoadmapDiagram() {
             y1={l.y1}
             x2={l.x2}
             y2={l.y2}
-            stroke="#7c3aed"
+            stroke="#8b5cf6"
             strokeWidth={1.5}
             opacity={0}
             className="rm-line"
@@ -94,7 +94,7 @@ export function RoadmapDiagram() {
         ))}
         {cats.map(([cat, items], ci) => (
           <g key={cat}>
-            <text x={ci * COL_W + NODE_W / 2} y={16} textAnchor="middle" className="fill-neutral-400 text-[11px]">
+            <text x={ci * COL_W + NODE_W / 2} y={16} textAnchor="middle" className="fill-neutral-400 font-mono text-[10px] uppercase tracking-widest">
               {cat}
             </text>
             {items.map((it) => {
@@ -107,8 +107,8 @@ export function RoadmapDiagram() {
                     width={NODE_W}
                     height={NODE_H}
                     rx={8}
-                    className="fill-neutral-900 stroke-violet-600"
-                    strokeWidth={1.5}
+                    className="fill-neutral-900 stroke-violet-500/60"
+                    strokeWidth={1.25}
                   />
                   <text
                     x={p.x + NODE_W / 2}

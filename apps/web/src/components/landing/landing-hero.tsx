@@ -2,7 +2,13 @@
 
 import { useEffect, useLayoutEffect, useRef } from 'react';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import gsap from 'gsap';
+
+const AuroraCanvas = dynamic(() => import('@/components/aurora/aurora-canvas').then((m) => m.AuroraCanvas), {
+  ssr: false,
+  loading: () => <div className="h-full w-full bg-canvas" />,
+});
 
 const TERMINAL_LINES = [
   { prefix: '$', text: 'ultraia design "summarize support tickets"', color: 'text-neutral-300' },
@@ -77,11 +83,20 @@ export function LandingHero({ user }: { user: { name?: string | null; email: str
   }, []);
 
   return (
-    <section ref={root} className="aurora-bg relative overflow-hidden">
+    <section ref={root} className="relative overflow-hidden">
+      {/* WebGL aurora (live shader) behind the content */}
+      <div className="pointer-events-none absolute inset-0">
+        <AuroraCanvas className="h-full w-full" />
+      </div>
       {/* IDE grid-dot backdrop, masked to the top area */}
       <div
         aria-hidden
         className="grid-dots pointer-events-none absolute inset-x-0 top-0 h-[560px] [mask-image:radial-gradient(ellipse_70%_60%_at_50%_0%,black_35%,transparent_75%)] opacity-40"
+      />
+      {/* Soft radial vignette to seat text on the canvas */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_30%,transparent_0%,transparent_55%,rgba(8,8,10,0.7)_100%)]"
       />
 
       <div className="relative mx-auto max-w-5xl px-6 pb-24 pt-20 text-center sm:pt-28">
@@ -95,7 +110,7 @@ export function LandingHero({ user }: { user: { name?: string | null; email: str
 
         <h1 className="hero-anim hero-title mx-auto mt-8 max-w-3xl font-display text-5xl font-bold leading-[1.05] tracking-tight sm:text-6xl">
           AI that{' '}
-          <span className="bg-gradient-to-r from-violet-400 via-indigo-300 to-cyan-300 bg-clip-text text-transparent">
+          <span className="gradient-neo-text">
             creates AI
           </span>{' '}
           — and learns from every conversation.
@@ -110,13 +125,13 @@ export function LandingHero({ user }: { user: { name?: string | null; email: str
         <div className="hero-anim hero-cta mt-10 flex flex-wrap items-center justify-center gap-4">
           <Link
             href={user ? '/agents/new' : '/register'}
-            className="rounded-xl bg-primary px-8 py-3 font-semibold text-white shadow-[0_0_24px_-8px_var(--color-primary)] transition-all duration-200 ease-out hover:bg-violet-500 hover:shadow-[0_0_32px_-6px_var(--color-primary)]"
+            className="rounded-xl bg-primary px-8 py-3 font-semibold text-white shadow-[0_0_24px_-8px_var(--color-primary)] transition-all duration-200 ease-out hover:bg-primary/85 hover:shadow-[0_0_32px_-6px_var(--color-primary)]"
           >
             Create your first agent
           </Link>
           <Link
             href="#how-it-works"
-            className="rounded-xl border border-border-muted bg-panel px-8 py-3 font-medium text-neutral-200 transition-colors duration-200 hover:border-neutral-600 hover:text-white"
+            className="rounded-xl border border-border-muted bg-panel px-8 py-3 font-medium text-neutral-200 transition-colors duration-200 hover:border-border-active hover:text-white"
           >
             See it work
           </Link>
@@ -124,7 +139,8 @@ export function LandingHero({ user }: { user: { name?: string | null; email: str
 
         {/* Agent console mockup (AgentTileWindow pattern, DESIGN.md §7) */}
         <div className="hero-anim hero-mock mx-auto mt-16 max-w-2xl text-left">
-          <div className="rounded-xl border border-border-muted bg-panel/80 shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] backdrop-blur-md transition-shadow duration-300 hover:shadow-[0_0_28px_-10px_var(--color-primary)]">
+          <div className="gradient-neo-frame rounded-2xl p-px shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] transition-shadow duration-300 hover:shadow-[0_0_28px_-10px_var(--color-neo-400)]">
+            <div className="overflow-hidden rounded-[15px] bg-panel/80 backdrop-blur-md">
             <div className="flex items-center justify-between border-b border-border-subtle bg-panel-header px-4 py-2.5">
               <div className="flex items-center gap-2.5">
                 <span className="relative flex h-2 w-2">
@@ -162,6 +178,7 @@ export function LandingHero({ user }: { user: { name?: string | null; email: str
                 className="w-full bg-transparent font-mono text-xs text-neutral-300 focus:outline-none"
               />
             </div>
+</div>
           </div>
         </div>
       </div>

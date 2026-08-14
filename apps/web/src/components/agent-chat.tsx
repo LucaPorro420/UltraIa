@@ -2,7 +2,7 @@
 
 import { useChat } from 'ai/react';
 import { useEffect, useRef, useState } from 'react';
-import { Plus, SendHorizontal } from 'lucide-react';
+import { Plus, SendHorizontal, Sparkles } from 'lucide-react';
 import { FeedbackControl } from './feedback-control';
 
 type ConversationMeta = { id: string; title: string; createdAt: string };
@@ -84,24 +84,25 @@ export function AgentChat({ agentId }: { agentId: string }) {
         <button
           type="button"
           onClick={startNew}
-          className={`rounded-full px-3 py-1 text-xs font-medium ${
+          className={`flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition-all duration-150 ${
             activeId === null
-              ? 'bg-violet-700 text-white'
-              : 'border border-neutral-700 text-neutral-300 transition-colors duration-200 hover:bg-neutral-800'
+              ? 'border-primary/60 bg-primary text-white shadow-[0_0_14px_-6px_rgba(139,92,246,0.6)]'
+              : 'border-border-muted bg-panel text-neutral-300 hover:border-primary/50 hover:bg-panel-hover hover:text-neutral-100'
           }`}
         >
           <Plus className="h-3.5 w-3.5" /> New chat
         </button>
-        {conversations.map((c) => (
+        {conversations.map((c, i) => (
           <button
             key={c.id}
             type="button"
             onClick={() => selectConversation(c.id)}
             title={c.title}
-            className={`max-w-[12rem] truncate rounded-full px-3 py-1 text-xs font-medium ${
+            style={{ animationDelay: `${Math.min(i * 40, 240)}ms` }}
+            className={`max-w-[12rem] truncate rounded-full border px-3 py-1 text-xs font-medium transition-all duration-150 [animation:var(--animate-chat-enter)] ${
               activeId === c.id
-                ? 'bg-violet-700 text-white'
-                : 'border border-neutral-700 text-neutral-300 transition-colors duration-200 hover:bg-neutral-800'
+                ? 'border-primary/60 bg-primary text-white shadow-[0_0_14px_-6px_rgba(139,92,246,0.6)]'
+                : 'border-border-muted bg-panel text-neutral-300 hover:border-primary/50 hover:bg-panel-hover hover:text-neutral-100'
             }`}
           >
             {c.title}
@@ -110,11 +111,16 @@ export function AgentChat({ agentId }: { agentId: string }) {
       </div>
 
       <div className="flex flex-col gap-3">
-        {loadingHistory && <p className="text-xs text-neutral-500">Loading conversation…</p>}
+        {loadingHistory && (
+          <div className="flex items-center gap-2 text-xs text-neutral-500">
+            <span className="shimmer h-2.5 w-28 rounded" /> Loading conversation…
+          </div>
+        )}
         {messages.length === 0 && !loadingHistory && (
-          <p className="rounded-xl border border-dashed border-neutral-700 px-4 py-8 text-center text-sm text-neutral-500">
-            Start a conversation to test your agent.
-          </p>
+          <div className="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-border-muted bg-panel/40 px-4 py-10 text-center">
+            <Sparkles className="h-5 w-5 text-neutral-600" />
+            <p className="text-sm text-neutral-500">Start a conversation to test your agent.</p>
+          </div>
         )}
         {messages.map((m, i) => (
           <div
@@ -122,8 +128,8 @@ export function AgentChat({ agentId }: { agentId: string }) {
             style={{ animationDelay: `${Math.min(i * 30, 240)}ms` }}
             className={`chat-enter max-w-[85%] whitespace-pre-wrap rounded-2xl px-4 py-3 text-sm [animation:var(--animate-chat-enter)] ${
               m.role === 'user'
-                ? 'self-end bg-violet-700/80 text-white'
-                : 'self-start border border-neutral-800 bg-neutral-900 text-neutral-100'
+                ? 'self-end bg-primary text-white shadow-[0_6px_24px_-10px_rgba(139,92,246,0.55)]'
+                : 'self-start border border-border-subtle bg-panel text-neutral-100 shadow-[0_0_18px_-10px_rgba(139,92,246,0.25)]'
             }`}
           >
             {m.content}
@@ -147,7 +153,7 @@ export function AgentChat({ agentId }: { agentId: string }) {
           </div>
         )}
         {error && (
-          <p className="rounded-lg border border-red-800 bg-red-950/50 px-3 py-2 text-xs text-red-300">
+          <p className="rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-2 text-xs text-red-300">
             {error.message}
           </p>
         )}
@@ -158,12 +164,12 @@ export function AgentChat({ agentId }: { agentId: string }) {
           value={input}
           onChange={handleInputChange}
           placeholder="Ask your agent something…"
-          className="flex-1 rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-2.5 text-sm text-white outline-none focus:border-violet-500"
+          className="flex-1 rounded-lg border border-border-muted bg-input-active px-3 py-2.5 text-sm text-neutral-100 outline-none transition-colors duration-150 placeholder:text-neutral-600 focus:border-border-active focus:ring-1 focus:ring-border-active"
         />
         <button
           type="submit"
           disabled={isLoading || !input.trim()}
-          className="rounded-lg bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-violet-500 disabled:opacity-50"
+          className="rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white transition-colors duration-150 hover:bg-primary/85 disabled:opacity-50"
         >
           <SendHorizontal className="h-4 w-4" /> Send
         </button>

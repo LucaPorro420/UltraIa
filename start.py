@@ -6,11 +6,13 @@ Usage:
     python start.py --web      # only the Next.js app (http://localhost:3000)
     python start.py --hooks    # only the webhook server (http://localhost:8000)
     python start.py --validate # only validate the Arabic pipeline (no servers)
+    python start.py --install  # only setup (deps, .env, migrate) — no servers
     python start.py --skip-setup   # skip install/.env/migrate, just start services
 
 Checks prerequisites (node, npm, python, ffmpeg), installs deps if missing,
 creates .env files from .env.example, runs the DB migration if needed, then
-starts the services. Ctrl+C stops everything.
+starts the services. Aborts early if a target port is already in use, and
+polls each service until it responds (or times out). Ctrl+C stops everything.
 """
 
 from __future__ import annotations
@@ -36,6 +38,13 @@ ENV_TARGETS = [ROOT / ".env", ROOT / "apps" / "web" / ".env", PIPE_DIR / ".env"]
 
 def log(msg: str) -> None:
     print(f"[ultraia] {msg}", flush=True)
+
+
+def npm_exec() -> str:
+    """'npm' is npm.cmd on Windows; Popen needs the real executable."""
+    if os.name == "nt":
+        return shutil.which("npm.cmd") or "npm"
+    return "npm"
 
 
 def run(cmd: list[str], cwd: Path = ROOT, check: bool = True) -> int:
@@ -83,7 +92,7 @@ def setup() -> None:
     check_prereqs()
     if not (ROOT / "node_modules").exists():
         log("node_modules ausente — npm install...")
-        run(["npm", "install"])
+        run([npm_exec(), "install"])
     else:
         log("node_modules presente — omitiendo npm install")
     setup_env()
@@ -91,7 +100,7 @@ def setup() -> None:
         log(f"DB ya existe ({DB_FILE.relative_to(ROOT)}) — omitiendo migrate")
     else:
         log("DB ausente — npm run db:migrate...")
-        run(["npm", "run", "db:migrate"])
+        run([npm_exec(), "run", "db:migrate"])
 
 
 def http_ok(url: str, timeout: float = 2.0) -> bool:
@@ -106,6 +115,35 @@ def port_free(port: int) -> bool:
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.settimeout(0.5)
         return s.connect_ex(("127.0.0.1", port)) != 0
+
+
+def preflight_ports(ports: list[tuple[int, str]]) -> None:
+    busy = [(p, s) for p, s in ports if not port_free(p)]
+    if busy:
+        for port, svc in busy:
+            print(
+                f"[ultraia] ERROR: puerto {port} ya está en uso ({svc}). "
+                f"Ciérralo, o usa --skip-setup si el servicio ya está corriendo.",
+                file=sys.stderr,
+            )
+        sys.exit(1)
+
+
+def wait_healthy(url: str, service: str, timeout: float = 90.0) -> None:
+    import time
+
+    log(f"Esperando a que {service} responda ({url})...")
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        if http_ok(url):
+            log(f"{service} UP en {url}")
+            return
+        time.sleep(2)
+    print(
+        f"[ultraia] AVISO: {service} no respondió en {int(timeout)}s ({url}). "
+        f"Revisa los logs arriba.",
+        file=sys.stderr,
+    )
 
 
 def env_keys_with_values(path: Path) -> dict[str, str | None]:
@@ -160,7 +198,7 @@ def validate_pipeline() -> None:
 
 def start_web() -> subprocess.Popen:
     log("Next.js web app -> http://localhost:3000")
-    return subprocess.Popen(["npm", "run", "dev"], cwd=ROOT)
+    return subprocess.Popen([npm_exec(), "run", "dev"], cwd=ROOT)
 
 
 def start_hooks() -> subprocess.Popen:
@@ -185,6 +223,7 @@ def main() -> None:
     parser.add_argument("--web", action="store_true", help="solo web app")
     parser.add_argument("--hooks", action="store_true", help="solo webhooks")
     parser.add_argument("--validate", action="store_true", help="solo validar pipeline ar-SA")
+    parser.add_argument("--install", action="store_true", help="solo setup (deps, .env, migrate)")
     parser.add_argument("--check-connections", action="store_true", help="reporte de claves, herramientas y puertos")
     parser.add_argument("--skip-setup", action="store_true", help="no instalar/migrar; solo arrancar")
     args = parser.parse_args()
@@ -198,18 +237,29 @@ def main() -> None:
         log("Validación OK")
         return
 
+    if args.install:
+        setup()
+        log("Setup completo. Arranca con: python start.py")
+        return
+
     if not args.skip_setup:
         setup()
 
     if args.web:
-        start_web().wait()
+        preflight_ports([(3000, "web (Next.js)")])
+        web = start_web()
+        wait_healthy("http://localhost:3000", "web")
+        web.wait()
         return
     if args.hooks:
-        proc = start_hooks()
-        if proc:
-            proc.wait()
+        preflight_ports([(8000, "webhooks (FastAPI)")])
+        hooks = start_hooks()
+        if hooks:
+            wait_healthy("http://localhost:8000", "webhooks")
+            hooks.wait()
         return
 
+    preflight_ports([(3000, "web (Next.js)"), (8000, "webhooks (FastAPI)")])
     procs = []
     web = start_web()
     procs.append((web, "[web]    "))
@@ -222,6 +272,15 @@ def main() -> None:
         for p, prefix in procs
         if p.stdout
     ]
+    health = threading.Thread(
+        target=wait_healthy, args=("http://localhost:3000", "web"), daemon=True
+    )
+    threads.append(health)
+    if hooks:
+        hooks_health = threading.Thread(
+            target=wait_healthy, args=("http://localhost:8000", "webhooks"), daemon=True
+        )
+        threads.append(hooks_health)
     for t in threads:
         t.start()
 

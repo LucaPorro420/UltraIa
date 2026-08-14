@@ -24,12 +24,12 @@ export function EvalInputForm({ agentId }: { agentId: string }) {
         value={input}
         onChange={(e) => setInput(e.target.value)}
         placeholder="Add an eval input for the regression set"
-        className="flex-1 rounded border border-neutral-700 bg-neutral-900 px-2 py-1.5 text-xs text-white outline-none focus:border-violet-500"
+        className="flex-1 rounded-lg border border-neutral-700 bg-input-active px-2 py-1.5 text-xs text-white outline-none transition-colors duration-150 focus:border-violet-500"
       />
       <button
         type="submit"
         disabled={busy || !input.trim()}
-        className="rounded bg-neutral-800 px-3 py-1.5 text-xs font-semibold text-neutral-200 hover:bg-neutral-700 transition-colors duration-200 disabled:opacity-50"
+        className="rounded-lg bg-neutral-800 px-3 py-1.5 text-xs font-semibold text-neutral-200 transition-all duration-150 hover:bg-violet-600 hover:text-white hover:shadow-[0_8px_22px_-10px_rgba(139,92,246,0.6)] disabled:opacity-50"
       >
         Add
       </button>

@@ -58,7 +58,7 @@ export function VersionActions({
           type="button"
           disabled={busy}
           onClick={() => approve(false)}
-          className="rounded bg-emerald-700 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-600 transition-colors duration-200 disabled:opacity-50"
+          className="rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white shadow-[0_6px_18px_-10px_rgba(16,185,129,0.5)] transition-all duration-150 hover:bg-emerald-500 hover:shadow-[0_8px_22px_-10px_rgba(16,185,129,0.7)] disabled:opacity-50"
         >
           Approve (eval-gated)
         </button>
@@ -66,7 +66,7 @@ export function VersionActions({
           type="button"
           disabled={busy}
           onClick={() => approve(true)}
-          className="rounded bg-emerald-900 px-3 py-1.5 text-xs font-semibold text-emerald-200 hover:bg-emerald-800 transition-colors duration-200 disabled:opacity-50"
+          className="rounded-lg bg-emerald-900/70 px-3 py-1.5 text-xs font-semibold text-emerald-200 transition-colors duration-150 hover:bg-emerald-800 disabled:opacity-50"
         >
           Force approve
         </button>
@@ -74,7 +74,7 @@ export function VersionActions({
           type="button"
           disabled={busy}
           onClick={reject}
-          className="rounded bg-neutral-800 px-3 py-1.5 text-xs font-semibold text-neutral-300 hover:bg-neutral-700 transition-colors duration-200 disabled:opacity-50"
+          className="rounded-lg bg-neutral-800 px-3 py-1.5 text-xs font-semibold text-neutral-300 transition-colors duration-150 hover:bg-red-700 hover:text-white disabled:opacity-50"
         >
           Reject
         </button>
@@ -89,7 +89,7 @@ export function VersionActions({
         type="button"
         disabled={busy}
         onClick={rollback}
-        className="rounded bg-neutral-800 px-3 py-1.5 text-xs font-semibold text-neutral-200 hover:bg-neutral-700 transition-colors duration-200 disabled:opacity-50"
+        className="rounded-lg bg-neutral-800 px-3 py-1.5 text-xs font-semibold text-neutral-200 transition-all duration-150 hover:bg-neutral-700 hover:shadow-[0_8px_22px_-10px_rgba(139,92,246,0.5)] disabled:opacity-50"
       >
         Rollback to this version
       </button>
