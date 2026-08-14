@@ -1,0 +1,15 @@
+# Gen-Engine: runtime y dependencias opcionales por modalidad.
+# Núcleo (siempre): FastAPI + providers keyless.
+fastapi>=0.110.0
+uvicorn>=0.29.0
+pydantic>=2.5.0
+python-dotenv>=1.0.0
+requests>=2.31.0
+
+# Audio: TTS keyless multilingüe (100+ voces) y postproceso con ffmpeg.
+edge-tts>=6.1.0
+
+# GPU (opcional, solo para modelos locales open-weights):
+#   pip install torch torchvision --index-url https://download.pytorch.org/whl/cu124
+#   pip install diffusers accelerate soundfile transformers
+# FLUX.2 klein (imagen) | ACE-Step 1.5 (música) | LTX-2.3 (video+audio)

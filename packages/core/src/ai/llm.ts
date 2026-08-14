@@ -11,6 +11,7 @@ import { generateVideo } from '../tools/video';
 import { generateMusic } from '../tools/music';
 import { generateUiScreen } from '../tools/stitch';
 import { readWeb, searchWeb, searchGitHub, parseRss, videoInfo } from '../tools/reach';
+import { searchMusic, searchSfx, mixkit } from '../tools/content';
 import { runSkill } from '../tools/skills';
 
 const modelCache = new Map<string, LanguageModel>();
@@ -235,6 +236,38 @@ export function chatStream(opts: {
     tools.skill_review = skill('review', 'Review');
     tools.skill_ship = skill('ship', 'Ship');
     tools.skill_simplify = skill('simplify', 'Simplify');
+  }
+  if (opts.tools?.includes('content')) {
+    tools.content_music = tool({
+      description:
+        'Search royalty-free music tracks (Tunetank, free, keyless). Returns tracks with artist, duration, BPM, genres/moods/themes and a preview URL. Use when the task needs background music for a video, podcast, reel or ad.',
+      parameters: z.object({
+        query: z.string().min(1).max(200),
+        duration: z.number().int().min(1).max(1800).optional(),
+        tolerance: z.number().int().min(1).max(120).optional(),
+        maxResults: z.number().int().min(1).max(20).optional(),
+      }),
+      execute: async ({ query, duration, tolerance, maxResults }) => searchMusic({ query, duration, tolerance, maxResults }),
+    });
+    tools.content_sfx = tool({
+      description:
+        'Search royalty-free sound effects (Tunetank, free, keyless). Returns SFX with duration and preview URL. Use when the task needs sound effects (whoosh, rain, ui click, transitions, ambience).',
+      parameters: z.object({
+        query: z.string().min(1).max(200),
+        category: z.string().max(100).optional(),
+        maxResults: z.number().int().min(1).max(30).optional(),
+      }),
+      execute: async ({ query, category, maxResults }) => searchSfx({ query, category, maxResults }),
+    });
+    tools.content_mixkit = tool({
+      description:
+        'Read a Mixkit page (free stock video, music, sound effects, templates, illustrations — no signup, no attribution). Pass a type like "free-music", "free-sound-effects" or "free-stock-video" (or a full URL) and get the assets listed on it. Use to discover downloadable assets for a content project.',
+      parameters: z.object({
+        type: z.string().min(1).max(200),
+        maxLength: z.number().int().min(500).max(50000).optional(),
+      }),
+      execute: async ({ type, maxLength }) => mixkit({ type, maxLength }),
+    });
   }
   return streamText({
     model: resolveModel(opts.model),

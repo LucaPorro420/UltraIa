@@ -22,8 +22,8 @@
       }
     },
     "image_generation": {
-      "provider": "openai",
-      "model": "dall-e-3",
+      "provider": "pollinations",
+      "model": "flux",
       "size": "1024x1792"
     },
     "video_generation": {

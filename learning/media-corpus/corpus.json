@@ -1,0 +1,181 @@
+{
+  "schema_version": "1.0",
+  "modalidades": ["image", "audio", "video", "tts", "music"],
+  "idiomas_soportados": ["es", "en", "fr", "pt", "de", "it", "ar", "hi", "ja", "zh", "ru", "nl", "tr", "ko"],
+  "casos": [
+    {
+      "id": "img-001",
+      "modalidad": "image",
+      "idioma": "es",
+      "prompt": "una ciudad futurista en el desierto, hora dorada, cinematografica",
+      "provider_esperado": "pollinations",
+      "resultado": {
+        "tipo_url": "https",
+        "dominio": "image.pollinations.ai",
+        "modelo": "flux",
+        "nologo": true
+      }
+    },
+    {
+      "id": "img-002",
+      "modalidad": "image",
+      "idioma": "en",
+      "prompt": "aurora borealis over mountains, cinematic, night sky",
+      "provider_esperado": "pollinations",
+      "resultado": {
+        "tipo_url": "https",
+        "dominio": "image.pollinations.ai",
+        "modelo": "flux",
+        "nologo": true
+      }
+    },
+    {
+      "id": "img-003",
+      "modalidad": "image",
+      "idioma": "ar",
+      "prompt": "قطة تمشي في مدينة قديمة",
+      "provider_esperado": "pollinations",
+      "resultado": {
+        "tipo_url": "https",
+        "dominio": "image.pollinations.ai",
+        "modelo": "flux",
+        "nologo": true
+      }
+    },
+    {
+      "id": "tts-001",
+      "modalidad": "tts",
+      "idioma": "es",
+      "prompt": "hola mundo, prueba del Gen-Engine",
+      "provider_esperado": "edge-tts",
+      "resultado": {
+        "formato": "mp3",
+        "loudnorm_target_lufs": -16,
+        "fade_in_sec": 0.4,
+        "fade_out_sec": 0.6
+      }
+    },
+    {
+      "id": "tts-002",
+      "modalidad": "tts",
+      "idioma": "ar",
+      "prompt": "مرحبا بالعالم",
+      "provider_esperado": "edge-tts",
+      "resultado": {
+        "voz": "ar-SA-ZariyahNeural",
+        "formato": "mp3",
+        "rtl": true
+      }
+    },
+    {
+      "id": "tts-003",
+      "modalidad": "tts",
+      "idioma": "ja",
+      "prompt": "こんにちは世界",
+      "provider_esperado": "edge-tts",
+      "resultado": {
+        "voz": "ja-JP-NanamiNeural",
+        "formato": "mp3"
+      }
+    },
+    {
+      "id": "vid-001",
+      "modalidad": "video",
+      "idioma": "es",
+      "prompt": "un perro corriendo en el parque",
+      "provider_esperado": "storyboard",
+      "resultado": {
+        "frames": 3,
+        "tipo_url": "https",
+        "motion": "zoom-in"
+      }
+    },
+    {
+      "id": "vid-002",
+      "modalidad": "video",
+      "idioma": "en",
+      "prompt": "a car driving through a neon city at night",
+      "provider_esperado": "storyboard",
+      "resultado": {
+        "frames": 3,
+        "tipo_url": "https",
+        "motion": "pan-left"
+      }
+    },
+    {
+      "id": "vid-003",
+      "modalidad": "video",
+      "idioma": "hi",
+      "prompt": "बच्चे समुद्र तट पर खेल रहे हैं",
+      "provider_esperado": "storyboard",
+      "resultado": {
+        "frames": 3,
+        "tipo_url": "https",
+        "motion": "zoom-out"
+      }
+    },
+    {
+      "id": "aud-001",
+      "modalidad": "music",
+      "idioma": "es",
+      "prompt": "melodia calmada de piano para meditacion",
+      "provider_esperado": "composition",
+      "resultado": {
+        "estructurado": true,
+        "duracion_sec": 30
+      }
+    },
+    {
+      "id": "aud-002",
+      "modalidad": "music",
+      "idioma": "en",
+      "prompt": "upbeat electronic track for a product launch",
+      "provider_esperado": "composition",
+      "resultado": {
+        "estructurado": true,
+        "duracion_sec": 30
+      }
+    },
+    {
+      "id": "aud-003",
+      "modalidad": "audio",
+      "idioma": "fr",
+      "prompt": "une voix française qui raconte une histoire",
+      "provider_esperado": "edge-tts",
+      "resultado": {
+        "formato": "mp3",
+        "voz": "fr-FR-DeniseNeural"
+      }
+    },
+    {
+      "id": "dir-001",
+      "modalidad": "director",
+      "idioma": "multi",
+      "prompt": "Crea un video sobre el mar en frances",
+      "provider_esperado": "llm",
+      "resultado": {
+        "plan": {
+          "language": "fr",
+          "images": ["string"],
+          "shots": 1,
+          "motion": "string"
+        }
+      }
+    },
+    {
+      "id": "dir-002",
+      "modalidad": "director",
+      "idioma": "multi",
+      "prompt": "أنشئ فيديو عن الصحراء",
+      "provider_esperado": "llm",
+      "resultado": {
+        "plan": {
+          "language": "ar",
+          "images": ["string"],
+          "shots": 1,
+          "motion": "string"
+        }
+      }
+    }
+  ]
+}

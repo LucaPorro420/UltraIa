@@ -1,0 +1,23 @@
+# Orquestación del Gen-Engine con soporte GPU.
+# Uso:  docker compose -f docker-compose.gpu.yml up -d
+services:
+  gen-engine:
+    build: .
+    image: ultraia/gen-engine:latest
+    container_name: ultraia-gen-engine
+    ports:
+      - "8000:8000"
+    environment:
+      - FLUX_MODEL=black-forest-labs/FLUX.2-klein
+      - ACESTEP_MODEL=ACE-Step/ACE-Step-v1-3.5B
+      - LTX_MODEL=Lightricks/LTX-2.3
+    volumes:
+      - ./media:/app/media
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    restart: unless-stopped

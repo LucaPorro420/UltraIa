@@ -28,6 +28,13 @@ from . import video as video_mod
 from .config import OUTPUT_DIR, Settings, ensure_output_dirs, get_settings, require_key
 
 
+def has_paid_video(settings: Settings) -> bool:
+    """True si hay clave de video premium configurada (Runway o Fal.ai)."""
+    if settings.video_provider == "fal":
+        return bool(settings.fal_key_id and settings.fal_key_secret)
+    return bool(settings.runway_api_key)
+
+
 @dataclass
 class PipelineResult:
     """Resumen estructurado de una ejecución completa del pipeline."""
@@ -109,7 +116,8 @@ class Pipeline:
     def _step_script(self, topic: str) -> dict:
         """Guion JSON con caché de prompts (RF-10): evita créditos duplicados."""
         if self.dry_run:
-            return self._mock_script(topic)
+            lang = audio_mod.lang_code(self.settings.language_target)
+            return self._mock_script(topic, language=lang)
         prompt_key = f"topic::{topic}::model::{self.settings.llm_model}"
         return cache_mod.cached_call(
             prompt_key,
@@ -120,20 +128,26 @@ class Pipeline:
         )
 
     def _step_audio(self, script: dict) -> Path | None:
-        diacritized = script["script_arabic_diacritized"]
+        text = _script_text(script)
         if self.dry_run:
-            print(f"  [simulado] TTS de: {diacritized[:80]}...")
+            print(f"  [simulado] TTS de: {text[:80]}...")
             path = self.dirs["audio"] / f"{_safe(script['title'])}.mp3"
             path.write_bytes(b"")  # placeholder
             return path
         if self.settings.elevenlabs_api_key:
-            audio_bytes = audio_mod.generate_audio(diacritized, self.settings)
+            audio_bytes = audio_mod.generate_audio(text, self.settings)
         else:
-            audio_bytes = audio_mod.generate_audio_free(diacritized)
-        return audio_mod.save_audio(audio_bytes, self.dirs["audio"], script["title"])
+            audio_bytes = audio_mod.generate_audio_free(
+                text, self.settings.language_target
+            )
+        path = audio_mod.save_audio(audio_bytes, self.dirs["audio"], script["title"])
+        audio_mod.postprocess_audio(path)
+        return path
 
     def _step_images(self, script: dict) -> dict[int, Path]:
-        provider = "fal" if self.settings.image_provider == "fal" else "openai"
+        provider = self.settings.image_provider
+        if provider not in {"openai", "fal", "pollinations"}:
+            provider = "pollinations"
         images: dict[int, Path] = {}
         for shot in script["shot_list"]:
             shot_id = shot["shot_id"]
@@ -179,7 +193,10 @@ class Pipeline:
                 "ejecuta primero el paso images."
             )
         out = self.dirs["video"] / f"shot_{shot_id}.mp4"
-        return video_mod.generate_slideshow(image, out, duration_sec=int(duration_sec or 5))
+        motion = _MOTIONS_BY_SHOT[shot_id % len(_MOTIONS_BY_SHOT)]
+        return video_mod.generate_slideshow(
+            image, out, duration_sec=int(duration_sec or 5), motion=motion
+        )
 
     async def _generate_one_video(self, prompt: str) -> str:
         s = self.settings
@@ -238,16 +255,18 @@ class Pipeline:
             print("  No hay videos locales para ensamblar.")
             return None
 
-        # 2) Concatenación de shots (mismo códec -> -c copy)
+        # 2) Concatenación de shots (mismo códec -> -c copy; crossfade si son
+        #    clips locales keyless generados por el mismo ffmpeg)
         joined = self.dirs["video"] / "shots_joined.mp4"
         if not self.dry_run:
-            assembly_mod.concat_videos(local_videos, joined)
+            crossfade = 0.5 if not has_paid_video(self.settings) else 0.0
+            assembly_mod.concat_videos(local_videos, joined, crossfade_sec=crossfade)
         else:
             joined.write_bytes(b"")
 
-        # 3) Subtítulos SRT desde el guion plano (árabe sin diacríticos)
+        # 3) Subtítulos SRT desde el guion plano (sin diacríticos)
         srt_path = self.dirs["video"] / "subtitles.srt"
-        assembly_mod.generate_srt(script["script_arabic_plain"], shots, srt_path)
+        assembly_mod.generate_srt(_script_text(script), shots, srt_path)
         print(f"  SRT generado: {srt_path}")
 
         # 4) Merge final con audio (si existe)
@@ -274,14 +293,48 @@ class Pipeline:
         return path
 
     @staticmethod
-    def _mock_script(topic: str) -> dict:
-        """Guion de ejemplo para --dry-run (misma estructura que el JSON real)."""
+    def _mock_script(topic: str, language: str = "ar") -> dict:
+        """Guion de ejemplo para --dry-run (misma estructura que el JSON real).
+
+        Se adapta al idioma configurado: para árabe incluye diacríticos; para el
+        resto usa el mismo texto en los campos plano y diacritizado.
+        """
+        if language == "ar":
+            plain = "في قلب الصحراء، تنهض مدينة المستقبل لترسم آفاقاً جديدة."
+            diacritized = (
+                "فِي قَلْبِ الصَّحْرَاءِ، تَنَهَضُ مَدِينَةُ الْمُسْتَقْبَلِ "
+                "لِتَرْسُمَ آفَاقاً جَدِيدَةً."
+            )
+            title = "مستقبل المدن الذكية"
+        else:
+            names = {
+                "es": ("El futuro de las ciudades inteligentes",
+                       "En el corazón del desierto, la ciudad del futuro se alza para dibujar nuevos horizontes."),
+                "en": ("The Future of Smart Cities",
+                       "In the heart of the desert, the city of the future rises to chart new horizons."),
+                "fr": ("L'avenir des villes intelligentes",
+                       "Au cœur du désert, la ville du futur se dresse pour dessiner de nouveaux horizons."),
+                "pt": ("O futuro das cidades inteligentes",
+                       "No coração do deserto, a cidade do futuro ergue-se para traçar novos horizontes."),
+                "de": ("Die Zukunft intelligenter Städte",
+                       "Mitten in der Wüste erhebt sich die Stadt der Zukunft, um neue Horizonte zu ziehen."),
+                "it": ("Il futuro delle città intelligenti",
+                       "Nel cuore del deserto, la città del futuro si erge per tracciare nuovi orizzonti."),
+                "ja": ("スマートシティの未来", "砂漠の中心で、未来の都市が新たな地平を描くために立ち上がる。"),
+                "zh": ("智慧城市的未来", "在沙漠中心，未来的城市拔地而起，绘制新的地平线。"),
+                "hi": ("स्मार्ट शहरों का भविष्य", "रेगिस्तान के दिल में, भविष्य का शहर नए क्षितिज बनाने के लिए उभरता है।"),
+                "ru": ("Будущее умных городов", "В сердце пустыни город будущего возвышается, чтобы начертать новые горизонты."),
+            }
+            title, plain = names.get(language, names["en"])
+            diacritized = plain
+
         return {
-            "title": "مستقبل المدن الذكية",
-            "script_arabic_diacritized": (
-                "فِي قَلْبِ الصَّحْرَاءِ، تَنَهَضُ مَدِينَةُ الْمُسْتَقْبَلِ لِتَرْسُمَ آفَاقاً جَدِيدَةً."
-            ),
-            "script_arabic_plain": "في قلب الصحراء، تنهض مدينة المستقبل لترسم آفاقاً جديدة.",
+            "title": title,
+            "language": language,
+            "script_diacritized": diacritized,
+            "script_plain": plain,
+            "script_arabic_diacritized": diacritized,
+            "script_arabic_plain": plain,
             "shot_list": [
                 {
                     "shot_id": 1,
@@ -297,7 +350,7 @@ class Pipeline:
                     "shot_id": 2,
                     "duration_sec": 5,
                     "visual_prompt_en": (
-                        "Close-up of holographic Arabic calligraphy UI in a smart city control "
+                        "Close-up of holographic interface in a smart city control "
                         "room, cinematic lighting, 8k, photorealistic."
                     ),
                     "camera_movement": "Zoom In",
@@ -309,3 +362,21 @@ class Pipeline:
 def _safe(title: str) -> str:
     """Sanitiza un título para usarlo como nombre de archivo."""
     return "".join(c if c.isalnum() else "_" for c in title).strip("_") or "audio"
+
+
+_MOTIONS_BY_SHOT = ["zoom-in", "zoom-out", "pan-right", "pan-left"]
+
+
+def _script_text(script: dict) -> str:
+    """Devuelve el texto plano del guion, con retrocompatibilidad de claves.
+
+    El director multilingüe (v2) produce `script_plain`/`script_diacritized`;
+    los guiones legacy usan `script_arabic_plain`/`script_arabic_diacritized`.
+    """
+    return str(
+        script.get("script_plain")
+        or script.get("script_arabic_plain")
+        or script.get("script_diacritized")
+        or script.get("script_arabic_diacritized")
+        or ""
+    ).strip()

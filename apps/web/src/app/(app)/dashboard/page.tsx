@@ -5,6 +5,7 @@ import { requireUser } from '@/lib/server/context';
 import { Badge } from '@/components/ui/badge';
 import { EmptyState } from '@/components/ui/empty-state';
 import { SkillPipeline } from '@/components/app-shell/skill-pipeline';
+import { AssistantChat } from '@/components/assistant-chat';
 
 export default async function DashboardPage() {
   const user = await requireUser();
@@ -43,6 +44,17 @@ export default async function DashboardPage() {
           + New agent
         </Link>
       </div>
+
+      {/* General assistant — Claude/ChatGPT-style chat */}
+      <section className="mt-8">
+        <div className="mb-3 flex items-center justify-between">
+          <h2 className="font-display text-[15px] font-semibold text-neutral-200">Asistente</h2>
+          <span className="font-mono text-[10px] uppercase tracking-widest text-neutral-500">
+            chat general
+          </span>
+        </div>
+        <AssistantChat />
+      </section>
 
       {/* Agent-development pipeline: Plan → Build → Test → Review → Ship → Simplify */}
       <section className="mt-8 rounded-lg border border-border-subtle bg-panel/60 p-4">

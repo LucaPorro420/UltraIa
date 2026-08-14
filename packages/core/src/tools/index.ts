@@ -4,19 +4,22 @@ export * from './image';
 export * from './meigen';
 export * from './reach';
 export * from './skills';
+export * from './content';
 export * from './video';
 export * from './music';
 export * from './stitch';
+export * from './gen-engine';
 
 import * as web from './web';
 import * as image from './image';
+import * as content from './content';
 import * as video from './video';
 import * as music from './music';
 import * as stitch from './stitch';
 import { reach } from './reach';
 import { runSkill } from './skills';
 
-export const tools = { web, image, video, music, stitch, reach, skills: { runSkill } };
+export const tools = { web, image, video, music, stitch, reach, skills: { runSkill }, content };
 
 export const TOOL_DESCRIPTIONS: Record<string, string> = {
   calculator: 'Safely evaluate a mathematical expression (math only).',
@@ -28,6 +31,17 @@ export const TOOL_DESCRIPTIONS: Record<string, string> = {
   reach: 'Real-time internet access: read any web page as clean text, search the live web, search GitHub repos, parse RSS feeds, and fetch YouTube metadata. Use for anything current (news, prices, docs, repos).',
   skills:
     'Run a step of the agent-development pipeline: plan → build → test → review → ship → simplify. Each skill produces a structured Markdown artifact for the given task using the configured model. Use to design, implement, QA, review, release or refactor.',
+  content:
+    'Royalty-free content assets for video/audio projects: searchMusic (music tracks with previews), searchSfx (sound effects with previews) via Tunetank (free, keyless), and mixkit (stock video/music/SFX/templates pages). Use when the task needs background music, sound effects, stock footage or video templates.',
 };
 
-export type Capability = 'calculator' | 'web' | 'image' | 'video' | 'music' | 'design' | 'reach' | 'skills';
+export type Capability =
+  | 'calculator'
+  | 'web'
+  | 'image'
+  | 'video'
+  | 'music'
+  | 'design'
+  | 'reach'
+  | 'skills'
+  | 'content';

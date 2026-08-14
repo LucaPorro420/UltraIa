@@ -1,8 +1,11 @@
-"""Generación de imágenes: OpenAI DALL-E 3 (default) o Fal.ai FLUX.
+"""Generación de imágenes: Pollinations (keyless, default) | DALL-E 3 | FLUX.
 
 Requisito funcional RF-05: cada shot del shot_list produce una imagen base que
 Runway/Fal.ai usará como frame inicial (image-to-video) o como referencia
-visual del prompt. Proveedor configurable vía pipeline_config.json.
+visual del prompt. Proveedor configurable vía pipeline_config.json:
+'pollinations' (keyless, funciona sin claves), 'openai' (DALL-E 3) o
+'fal' (FLUX via Fal.ai). El fallback keyless garantiza que el pipeline
+completo funcione sin ninguna API key.
 
 Base: `gemini-code-1786583784678.py` (SDK legacy corregido -> HTTP directo,
 clave desde entorno, timeout y validación de errores).
@@ -13,6 +16,7 @@ import base64
 import json
 import time
 from pathlib import Path
+from urllib.parse import quote
 
 import requests
 
@@ -20,6 +24,7 @@ from .config import Settings, require_key
 
 _OPENAI_IMAGES_URL = "https://api.openai.com/v1/images/generations"
 _FAL_QUEUE_URL = "https://queue.fal.run"
+_POLLINATIONS_URL = "https://image.pollinations.ai/prompt"
 
 
 def generate_image_dalle3(prompt: str, settings: Settings) -> str:
@@ -65,11 +70,60 @@ def generate_image_flux(prompt: str, settings: Settings) -> str:
     return res.json()["images"][0]["url"]
 
 
-def generate_image(prompt: str, settings: Settings, provider: str = "openai") -> str:
-    """Dispatch según proveedor configurado: 'openai' (DALL-E) o 'fal' (FLUX)."""
+def generate_image(prompt: str, settings: Settings, provider: str = "pollinations") -> str:
+    """Dispatch según proveedor configurado: 'pollinations' | 'openai' | 'fal'.
+
+    'pollinations' es el default keyless: funciona sin ninguna API key.
+    """
     if provider == "fal":
         return generate_image_flux(prompt, settings)
-    return generate_image_dalle3(prompt, settings)
+    if provider == "openai":
+        return generate_image_dalle3(prompt, settings)
+    return generate_image_pollinations(prompt)
+
+
+def generate_image_pollinations(
+    prompt: str,
+    settings: Settings | None = None,
+    width: int = 1024,
+    height: int = 1024,
+    model: str = "flux",
+    seed: int | None = None,
+) -> str:
+    """Genera una imagen SIN API key vía Pollinations (open image API, keyless).
+
+    Devuelve la URL final (tras redirección) del PNG generado. Modelos típicos:
+    'flux', 'turbo', 'flux-2', 'flux-schnell'. El tamaño se clampa al rango
+    soportado por la API (128–1792 px por lado).
+
+    Args:
+        prompt: descripción visual (en inglés para mejor adherencia).
+        settings: opcional; si se provee, usa image_model de la configuración.
+        width: ancho en px (clamped 128–1792).
+        height: alto en px (clamped 128–1792).
+        model: modelo Pollinations (default 'flux').
+        seed: semilla fija para reproducibilidad; aleatoria si se omite.
+
+    Returns:
+        URL final de la imagen generada.
+
+    Raises:
+        RuntimeError: si la API devuelve error o no hay red.
+    """
+    w = max(128, min(1792, int(width)))
+    h = max(128, min(1792, int(height)))
+    seed = seed if seed is not None else int(time.time() * 1000) % 1_000_000_000
+    model = model or (settings.image_model if settings else "flux")
+
+    query = (
+        f"width={w}&height={h}&seed={seed}&model={quote(model)}&nologo=true"
+    )
+    url = f"{_POLLINATIONS_URL}/{quote(prompt)}?{query}"
+
+    res = requests.get(url, timeout=120, allow_redirects=True)
+    if res.status_code != 200:
+        raise RuntimeError(f"Error Pollinations ({res.status_code}): {res.text[:500]}")
+    return res.url or url
 
 
 def download_image(url: str, output_dir: Path, name: str) -> Path:

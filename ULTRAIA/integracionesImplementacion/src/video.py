@@ -132,17 +132,65 @@ def trigger_fal_video(prompt: str, settings: Settings) -> str:
     return res.json()["request_id"]
 
 
+_MOTIONS = {"zoom-in", "zoom-out", "pan-left", "pan-right", "pan-up", "pan-down"}
+
+
+def _zoompan_filter(motion: str, fps: int, duration_sec: int, size: str) -> str:
+    """Construye el filtro zoompan de ffmpeg para un movimiento Ken Burns dado.
+
+    Variantes soportadas (misma escala de zoom/pan, reencuadre continuo):
+      - zoom-in:  zoom 1.0 -> 1.15 (acercamiento)
+      - zoom-out: zoom 1.15 -> 1.0 (alejamiento)
+      - pan-left: zoom fijo 1.1, encuadre de derecha a izquierda
+      - pan-right: zoom fijo 1.1, encuadre de izquierda a derecha
+      - pan-up / pan-down: igual pero en el eje vertical
+    """
+    scale_pad = (
+        f"scale={size}:force_original_aspect_ratio=decrease,"
+        f"pad={size}:(ow-iw)/2:(oh-ih)/2"
+    )
+    total = fps * max(duration_sec, 1)
+    if motion == "zoom-out":
+        z = "if(eq(on,0),1.15,max(zoom-0.0015,1.0))"
+        x, y = "(iw-iw/zoom)/2", "(ih-ih/zoom)/2"
+    elif motion == "pan-left":
+        z, x, y = "1.1", "(iw-iw/zoom)*(1-on/{})".format(total), "(ih-ih/zoom)/2"
+    elif motion == "pan-right":
+        z, x, y = "1.1", "(iw-iw/zoom)*on/{}".format(total), "(ih-ih/zoom)/2"
+    elif motion == "pan-up":
+        z, x, y = "1.1", "(iw-iw/zoom)/2", "(ih-ih/zoom)*(1-on/{})".format(total)
+    elif motion == "pan-down":
+        z, x, y = "1.1", "(iw-iw/zoom)/2", "(ih-ih/zoom)*on/{}".format(total)
+    else:  # zoom-in (default)
+        z = "min(zoom+0.0015,1.15)"
+        x, y = "(iw-iw/zoom)/2", "(ih-ih/zoom)/2"
+    return f"{scale_pad},zoompan=z='{z}':x='{x}':y='{y}':d={total}:s={size}:fps={fps}"
+
+
 def generate_slideshow(
     image_path: Path,
     output: Path,
     duration_sec: int = 5,
     fps: int = 24,
     size: str = "1920x1080",
+    motion: str = "zoom-in",
 ) -> str:
     """Video local SIN API key: clip de imagen con movimiento Ken Burns (zoompan).
 
     Fallback de Runway/Fal.ai usando ffmpeg (gratis). Requiere ffmpeg en PATH
-    (winget install Gyan.FFmpeg). Devuelve la ruta del MP4 generado.
+    (winget install Gyan.FFmpeg). Devuelve la ruta del MP4 generado. El
+    movimiento se alterna automáticamente entre shots vía `motion`.
+
+    Args:
+        image_path: PNG/JPG del shot (generado por el paso imágenes).
+        output: ruta del MP4 de salida.
+        duration_sec: duración del clip.
+        fps: frames por segundo del clip.
+        size: resolución de salida (WxH).
+        motion: dirección del Ken Burns (zoom-in|zoom-out|pan-left|pan-right|pan-up|pan-down).
+
+    Raises:
+        RuntimeError: si ffmpeg no está en PATH o falla la ejecución.
     """
     import shutil
     import subprocess as sp
@@ -152,15 +200,13 @@ def generate_slideshow(
             "Sin RUNWAY/FAL_API_KEY y ffmpeg no está en PATH. "
             "Instálalo con: winget install Gyan.FFmpeg"
         )
+    if motion not in _MOTIONS:
+        motion = "zoom-in"
     output.parent.mkdir(parents=True, exist_ok=True)
-    zoompan = (
-        f"scale={size}:force_original_aspect_ratio=decrease,"
-        f"pad={size}:(ow-iw)/2:(oh-ih)/2,"
-        f"zoompan=z='min(zoom+0.0015,1.15)':d={fps * duration_sec}:s={size}:fps={fps}"
-    )
+    vf = _zoompan_filter(motion, fps, duration_sec, size)
     cmd = [
         "ffmpeg", "-y", "-loop", "1", "-i", str(image_path),
-        "-vf", zoompan, "-t", str(duration_sec),
+        "-vf", vf, "-t", str(duration_sec),
         "-c:v", "libx264", "-pix_fmt", "yuv420p", str(output),
     ]
     proc = sp.run(cmd, capture_output=True, text=True, timeout=300)

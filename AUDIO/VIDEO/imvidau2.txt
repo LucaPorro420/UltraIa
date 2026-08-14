@@ -1,0 +1,1411 @@
+# Fase 2 — Especificación técnica implementable de OMAG
+
+Perfecto. Ahora pasamos de la **arquitectura conceptual** a una arquitectura que pueda convertirse progresivamente en código real.
+
+La regla de esta fase será:
+
+> **No intentar entrenar el modelo final desde el principio. Construir primero el sistema operativo de OMAG: representación del mundo, contratos de datos, memoria, temporalidad, orquestación, renderizadores, críticos y loops de mejora.**
+
+---
+
+## 1. Objetivo de la Fase 2
+
+El resultado de esta fase será un **OMAG Core v0.1** capaz de:
+
+```text
+IDEA
+ ↓
+INTENT
+ ↓
+WORLD SPECIFICATION
+ ↓
+MEDIA FIELD
+ ↓
+PLAN
+ ↓
+GENERATORS
+ ↓
+MULTIMODAL OUTPUT
+ ↓
+CRITIC
+ ↓
+CORRECTION LOOP
+```
+
+Inicialmente los generadores pueden ser adaptadores a modelos existentes.
+
+**Eso no contradice el objetivo de crear una arquitectura nueva.**
+
+Los modelos externos serán utilizados como:
+
+```text
+RENDER BACKENDS
+```
+
+mientras desarrollamos el verdadero núcleo de OMAG.
+
+---
+
+# 2. Arquitectura de software
+
+La primera versión debería dividirse en **10 subsistemas**.
+
+```text
+OMAG
+│
+├── 01_intelligence
+│   ├── intent
+│   ├── planning
+│   ├── reasoning
+│   └── decision
+│
+├── 02_world
+│   ├── entities
+│   ├── relations
+│   ├── physics
+│   ├── environment
+│   └── state
+│
+├── 03_media_field
+│   ├── latent
+│   ├── semantic
+│   ├── causal
+│   └── temporal
+│
+├── 04_memory
+│   ├── short_term
+│   ├── scene
+│   ├── character
+│   ├── story
+│   └── long_term
+│
+├── 05_generators
+│   ├── image
+│   ├── audio
+│   ├── video
+│   └── music
+│
+├── 06_temporal
+│   ├── timeline
+│   ├── events
+│   ├── synchronization
+│   └── continuity
+│
+├── 07_critics
+│   ├── visual
+│   ├── audio
+│   ├── video
+│   ├── causal
+│   └── multimodal
+│
+├── 08_orchestrator
+│   ├── scheduler
+│   ├── workflows
+│   ├── resources
+│   └── gpu
+│
+├── 09_interfaces
+│   ├── api
+│   ├── cli
+│   └── studio
+│
+└── 10_integrations
+    ├── blender
+    ├── comfyui
+    ├── opensora
+    └── external_backends
+```
+
+---
+
+# 3. El corazón: `MediaField`
+
+Este es el primer componente que deberíamos implementar.
+
+No queremos que cada módulo intercambie prompts arbitrarios.
+
+Todos deben hablar un lenguaje común.
+
+Por ejemplo:
+
+```json
+{
+  "world_id": "world_001",
+  "time": 0,
+  "environment": {},
+  "entities": [],
+  "relations": [],
+  "events": [],
+  "camera": {},
+  "audio": {},
+  "style": {},
+  "constraints": {},
+  "metadata": {}
+}
+```
+
+Pero conceptualmente esto es mucho más que JSON.
+
+JSON será solamente la **serialización**.
+
+Internamente:
+
+```text
+MediaField
+    │
+    ├── Semantic State
+    ├── Spatial State
+    ├── Temporal State
+    ├── Causal State
+    ├── Acoustic State
+    ├── Visual State
+    └── Style State
+```
+
+---
+
+# 4. Entidades
+
+Cada objeto del mundo debe tener identidad persistente.
+
+Ejemplo:
+
+```json
+{
+  "id": "character_001",
+  "type": "character",
+  "identity": {
+    "name": "Elena",
+    "age": 28
+  },
+  "appearance": {},
+  "personality": {},
+  "voice": {},
+  "position": [0, 0, 0],
+  "rotation": [0, 0, 0],
+  "state": {
+    "emotion": "sad",
+    "activity": "walking"
+  }
+}
+```
+
+El punto importante es:
+
+```text
+character_001
+```
+
+debe seguir siendo **el mismo objeto** durante toda la producción.
+
+---
+
+# 5. Relaciones
+
+Las entidades no existen aisladas.
+
+```json
+{
+  "source": "character_001",
+  "relation": "holding",
+  "target": "umbrella_001"
+}
+```
+
+Otro ejemplo:
+
+```json
+{
+  "source": "motorcycle_001",
+  "relation": "passing_near",
+  "target": "character_001"
+}
+```
+
+Esto crea el:
+
+# **World Graph**
+
+```text
+Elena
+ │
+ ├── holding ──► umbrella
+ │
+ ├── walking ──► street
+ │
+ └── observing ──► motorcycle
+```
+
+---
+
+# 6. Eventos
+
+Los acontecimientos deben ser entidades de primera clase.
+
+```json
+{
+  "id": "event_001",
+  "type": "motorcycle_pass",
+  "start": 4.7,
+  "duration": 1.8,
+  "actors": [
+    "motorcycle_001"
+  ],
+  "targets": [
+    "character_001"
+  ],
+  "effects": [
+    "engine_sound",
+    "motion",
+    "doppler",
+    "shadow_change"
+  ]
+}
+```
+
+Esto permitirá que un único evento genere consecuencias en **varias modalidades**.
+
+---
+
+# 7. Timeline común
+
+La línea temporal será compartida por:
+
+```text
+VIDEO
+AUDIO
+MUSIC
+CAMERA
+EVENTS
+LIGHT
+CHARACTER_ACTION
+```
+
+Ejemplo:
+
+```text
+0s ─────────────────────────────── 10s
+
+VIDEO
+████████████████████████████████
+
+AUDIO
+████████████████████████████████
+
+MUSIC
+        █████████████████████
+
+EVENT
+            ▲
+            motorcycle
+
+CAMERA
+████████───────████████████████
+```
+
+Nunca deberíamos permitir que cada generador tenga un timeline independiente.
+
+---
+
+# 8. `World State`
+
+El estado del mundo será dinámico.
+
+Formalmente:
+
+[
+W_{t+1}=F(W_t,E_t,A_t)
+]
+
+donde:
+
+* (W_t): mundo actual;
+* (E_t): eventos;
+* (A_t): acciones;
+* (F): transición de estado.
+
+Ejemplo:
+
+```text
+W0
+ ↓
+person walking
+ ↓
+EVENT: motorcycle passes
+ ↓
+W1
+ ↓
+character reacts
+ ↓
+W2
+```
+
+Esto será la base de la coherencia temporal.
+
+---
+
+# 9. Motor de transición
+
+Crearemos:
+
+```text
+WorldTransitionEngine
+```
+
+Responsabilidades:
+
+```text
+apply_event()
+update_entity()
+update_physics()
+update_relationships()
+update_environment()
+advance_time()
+validate_state()
+```
+
+No genera píxeles.
+
+Genera:
+
+> **estados coherentes del mundo.**
+
+---
+
+# 10. Generadores
+
+Cada generador tendrá una interfaz idéntica.
+
+```text
+Generator
+ ├── validate()
+ ├── prepare()
+ ├── generate()
+ ├── inspect()
+ └── export()
+```
+
+Entonces:
+
+```text
+ImageGenerator
+AudioGenerator
+VideoGenerator
+MusicGenerator
+```
+
+pueden sustituirse sin modificar el núcleo.
+
+---
+
+# 11. Contrato del generador
+
+Ejemplo conceptual:
+
+```python
+result = generator.generate(
+    media_field=field,
+    constraints=constraints,
+    quality="high"
+)
+```
+
+Resultado:
+
+```python
+GenerationResult(
+    artifact=...,
+    metadata=...,
+    confidence=...,
+    provenance=...
+)
+```
+
+Esto permitirá posteriormente reemplazar un backend experimental por el modelo OMAG propio.
+
+---
+
+# 12. Backend Adapter
+
+Inicialmente:
+
+```text
+OMAG
+ │
+ └── Generator Interface
+       │
+       ├── Local Model
+       ├── ComfyUI Adapter
+       ├── Open-Sora Adapter
+       ├── Blender Adapter
+       └── Future OMAG Model
+```
+
+Esto es importantísimo.
+
+No queremos:
+
+```text
+OMAG → ComfyUI
+```
+
+Queremos:
+
+```text
+OMAG → GENERATOR API → ComfyUI
+```
+
+Así ComfyUI es reemplazable.
+
+---
+
+# 13. ComfyUI como laboratorio
+
+Aquí aprovecharía muchísimo [ComfyUI](https://github.com/Comfy-Org/ComfyUI?utm_source=chatgpt.com).
+
+No como dependencia central.
+
+Sino como:
+
+## **Laboratorio de experimentación generativa**
+
+Podríamos probar:
+
+```text
+MediaField
+ ↓
+Workflow Adapter
+ ↓
+ComfyUI
+ ↓
+Resultado
+ ↓
+OMAG Critic
+```
+
+Y después:
+
+```text
+MediaField
+ ↓
+OMAG Native Renderer
+```
+
+cuando nuestro propio modelo esté listo.
+
+---
+
+# 14. Open-Sora como benchmark
+
+[Open-Sora](https://github.com/hpcaitech/Open-Sora?utm_source=chatgpt.com) puede utilizarse como referencia para:
+
+* generación de vídeo;
+* entrenamiento;
+* datasets;
+* resolución;
+* duración;
+* rendimiento;
+* evaluación.
+
+Pero OMAG añadirá encima:
+
+```text
+World State
++
+Temporal State
++
+Causal Graph
++
+Identity Memory
+```
+
+---
+
+# 15. ViMax como referencia de producción
+
+[ViMax](https://github.com/HKUDS/ViMax?utm_source=chatgpt.com) es útil para estudiar:
+
+```text
+script
+ ↓
+storyboard
+ ↓
+shots
+ ↓
+generation
+ ↓
+editing
+```
+
+OMAG convertiría esto en:
+
+```text
+INTENT
+ ↓
+WORLD
+ ↓
+STORY
+ ↓
+MEDIA FIELD
+ ↓
+SHOTS
+ ↓
+RENDER
+ ↓
+CRITIC
+ ↓
+RENDER AGAIN
+```
+
+La diferencia está en que el **mundo persistente** permanece durante toda la producción.
+
+---
+
+# 16. Sistema de memoria
+
+Propongo esta arquitectura:
+
+```text
+                    MEMORY
+                       │
+        ┌──────────────┼──────────────┐
+        ↓              ↓              ↓
+     WORKING        EPISODIC       SEMANTIC
+      MEMORY         MEMORY         MEMORY
+        │              │              │
+        ↓              ↓              ↓
+    current          scenes        knowledge
+     scene            events
+```
+
+Y adicionalmente:
+
+```text
+CHARACTER MEMORY
+STYLE MEMORY
+WORLD MEMORY
+PROJECT MEMORY
+```
+
+---
+
+# 17. Character Memory
+
+Debe guardar:
+
+```text
+identity
+appearance
+voice
+clothing
+personality
+movement
+relationships
+history
+```
+
+Esto resuelve uno de los problemas más difíciles de vídeo generativo:
+
+> mantener personajes durante escenas largas.
+
+---
+
+# 18. Style Memory
+
+Ejemplo:
+
+```json
+{
+  "visual": {
+    "lighting": "cinematic",
+    "contrast": 0.8,
+    "camera": "anamorphic",
+    "palette": "cold"
+  },
+  "audio": {
+    "environment": "urban",
+    "music": "minimal"
+  }
+}
+```
+
+Cada escena consulta esta memoria.
+
+---
+
+# 19. Critic Architecture
+
+Tendremos varios críticos.
+
+```text
+CriticSystem
+│
+├── VisualCritic
+├── AudioCritic
+├── VideoCritic
+├── IdentityCritic
+├── TemporalCritic
+├── PhysicsCritic
+├── NarrativeCritic
+└── MultimodalCritic
+```
+
+Cada uno produce:
+
+```json
+{
+  "score": 0.91,
+  "errors": [],
+  "recommendations": []
+}
+```
+
+---
+
+# 20. Critic Fusion
+
+Después:
+
+```text
+scores
+ ↓
+CriticFusion
+ ↓
+GlobalQuality
+```
+
+Por ejemplo:
+
+[
+Q = \sum_i w_iq_i
+]
+
+Pero los pesos deberían ser dinámicos.
+
+Si el usuario pide:
+
+> “máxima sincronización labial”
+
+entonces:
+
+```text
+LipSyncWeight ↑
+```
+
+Si pide:
+
+> “estética cinematográfica”
+
+entonces:
+
+```text
+VisualStyleWeight ↑
+```
+
+---
+
+# 21. Autonomous Correction Loop
+
+Este será uno de los componentes más importantes.
+
+```text
+GENERATE
+   ↓
+EVALUATE
+   ↓
+QUALITY >= threshold?
+   │
+ ┌─┴─┐
+YES  NO
+ │    │
+ ↓    ↓
+DONE DIAGNOSE
+      ↓
+   CORRECT
+      ↓
+   REGENERATE
+      │
+      └───────► EVALUATE
+```
+
+Y con límite:
+
+```text
+max_iterations = 5
+```
+
+para evitar loops infinitos.
+
+---
+
+# 22. Error Memory
+
+Cada fallo se almacena:
+
+```json
+{
+  "error_type": "identity_drift",
+  "scene": "scene_04",
+  "cause": "weak_character_reference",
+  "solution": "increase_identity_constraint"
+}
+```
+
+Con el tiempo:
+
+```text
+errores
+ ↓
+patrones
+ ↓
+knowledge
+ ↓
+mejores decisiones
+```
+
+Esto crea un sistema de mejora acumulativa.
+
+---
+
+# 23. Dataset Factory
+
+Aquí empieza la parte verdaderamente experimental.
+
+OMAG debe poder construir datasets.
+
+```text
+Raw Media
+   ↓
+Extractor
+   ↓
+Scene Analyzer
+   ↓
+Entity Detector
+   ↓
+Event Detector
+   ↓
+Temporal Alignment
+   ↓
+Audio Analysis
+   ↓
+World Graph Builder
+   ↓
+MediaField Dataset
+```
+
+Resultado:
+
+```text
+dataset/
+├── worlds/
+├── scenes/
+├── entities/
+├── events/
+├── audio/
+├── video/
+├── images/
+├── captions/
+├── timelines/
+└── metadata/
+```
+
+---
+
+# 24. Dataset sintético
+
+Posteriormente:
+
+```text
+WORLD SIMULATOR
+       ↓
+random world
+       ↓
+physics
+       ↓
+events
+       ↓
+render
+       ↓
+audio
+       ↓
+video
+       ↓
+MediaField
+```
+
+Esto permite generar enormes cantidades de datos estructurados.
+
+---
+
+# 25. Blender como simulador
+
+Aquí [Blender](https://www.blender.org/?utm_source=chatgpt.com) tiene muchísimo valor.
+
+No solamente como editor.
+
+Puede funcionar como:
+
+## **Synthetic World Generator**
+
+OMAG puede crear:
+
+```text
+scene
+characters
+objects
+lights
+camera
+physics
+```
+
+Blender renderiza:
+
+```text
+RGB
+depth
+normal
+segmentation
+motion
+```
+
+y además puede producir información de cámara y escena.
+
+Esto crea datasets extremadamente ricos.
+
+---
+
+# 26. Pipeline de entrenamiento
+
+La arquitectura de entrenamiento sería:
+
+```text
+DATA
+ ↓
+PREPROCESSING
+ ↓
+TOKENIZATION / ENCODING
+ ↓
+MEDIA FIELD
+ ↓
+WORLD LEARNING
+ ↓
+CAUSAL LEARNING
+ ↓
+TEMPORAL LEARNING
+ ↓
+MODALITY LEARNING
+ ↓
+MULTIMODAL ALIGNMENT
+ ↓
+GENERATION
+ ↓
+CRITIC
+ ↓
+RL / OPTIMIZATION
+```
+
+---
+
+# 27. Primer modelo que realmente deberíamos entrenar
+
+No empezaría con vídeo.
+
+Empezaría con:
+
+# **OMAG World Encoder**
+
+Objetivo:
+
+```text
+text
+image
+audio
+video
+```
+
+→
+
+```text
+COMMON WORLD REPRESENTATION
+```
+
+Por ejemplo:
+
+```text
+text ─────┐
+image ────┤
+audio ────┼──► World Encoder ─► MediaField
+video ────┘
+```
+
+Ese es el verdadero cimiento.
+
+---
+
+# 28. Segundo modelo
+
+Después:
+
+# **World Predictor**
+
+```text
+W(t)
++
+event
++
+action
+       ↓
+WorldPredictor
+       ↓
+W(t+1)
+```
+
+Este modelo aprende:
+
+> cómo evoluciona el mundo.
+
+---
+
+# 29. Tercer modelo
+
+# **World Renderer**
+
+```text
+MediaField
+   │
+   ├──► VisualRenderer
+   ├──► AudioRenderer
+   └──► VideoRenderer
+```
+
+Aquí empieza la generación.
+
+---
+
+# 30. Cuarto modelo
+
+# **Multimodal Critic**
+
+```text
+WORLD
++
+GENERATED MEDIA
+       ↓
+QUALITY
++
+ERROR
++
+CAUSE
+```
+
+---
+
+# 31. Quinto modelo
+
+# **Autonomous Director**
+
+Este sería el agente superior.
+
+```text
+USER REQUEST
+      ↓
+DIRECTOR
+      ↓
+PLAN
+      ↓
+EXECUTE
+      ↓
+OBSERVE
+      ↓
+CRITIQUE
+      ↓
+REPLAN
+```
+
+Esto convierte OMAG en un sistema autónomo.
+
+---
+
+# 32. Entrenamiento jerárquico
+
+El entrenamiento final podría ser:
+
+```text
+Stage 1
+World Representation
+
+Stage 2
+Entity Understanding
+
+Stage 3
+Causal Relations
+
+Stage 4
+Temporal Dynamics
+
+Stage 5
+Visual Rendering
+
+Stage 6
+Audio Rendering
+
+Stage 7
+Video Rendering
+
+Stage 8
+Cross-modal Alignment
+
+Stage 9
+Critic
+
+Stage 10
+Autonomous Generation
+```
+
+---
+
+# 33. Arquitectura de hardware inicial
+
+No recomiendo intentar entrenar el modelo completo inicialmente.
+
+Para investigación:
+
+### Desarrollo
+
+```text
+CPU
+32+ GB RAM
+NVIDIA GPU
+12–24 GB VRAM
+SSD NVMe
+```
+
+### Prototipo serio
+
+```text
+64–128 GB RAM
+24–48 GB VRAM
+2–4 GPUs
+NVMe 2–8 TB
+```
+
+### Entrenamiento grande
+
+Necesitaríamos infraestructura distribuida:
+
+```text
+GPU Cluster
+   │
+   ├── Data Parallel
+   ├── Tensor Parallel
+   ├── Pipeline Parallel
+   └── Expert Parallel
+```
+
+Pero esto solamente cuando el prototipo demuestre que la arquitectura funciona.
+
+---
+
+# 34. Gestión de GPU
+
+El `ResourceManager` deberá saber:
+
+```text
+GPU model
+VRAM
+free VRAM
+CUDA
+precision
+temperature
+utilization
+loaded models
+```
+
+Y decidir:
+
+```text
+qué modelo cargar
+cuándo descargarlo
+qué precision utilizar
+qué batch size usar
+```
+
+Esto es fundamental para convertir OMAG en una plataforma autónoma.
+
+---
+
+# 35. API
+
+La API principal podría ser:
+
+```text
+POST /projects
+POST /worlds
+POST /scenes
+POST /generate
+POST /evaluate
+POST /regenerate
+
+GET /projects/{id}
+GET /worlds/{id}
+GET /jobs/{id}
+GET /artifacts/{id}
+```
+
+Y WebSocket:
+
+```text
+/ws/jobs/{id}
+```
+
+para enviar:
+
+```text
+planning
+generation
+evaluation
+progress
+errors
+```
+
+en tiempo real.
+
+---
+
+# 36. Estructura del repositorio
+
+Yo establecería desde ahora:
+
+```text
+omag/
+│
+├── apps/
+│   ├── api/
+│   ├── studio/
+│   └── cli/
+│
+├── core/
+│   ├── mediafield/
+│   ├── world/
+│   ├── memory/
+│   ├── temporal/
+│   ├── causal/
+│   └── orchestration/
+│
+├── models/
+│   ├── encoders/
+│   ├── world_model/
+│   ├── renderers/
+│   └── critics/
+│
+├── adapters/
+│   ├── comfyui/
+│   ├── opensora/
+│   ├── blender/
+│   └── local/
+│
+├── datasets/
+│   ├── raw/
+│   ├── processed/
+│   └── synthetic/
+│
+├── training/
+│   ├── configs/
+│   ├── trainers/
+│   └── experiments/
+│
+├── evaluation/
+│
+├── infrastructure/
+│   ├── docker/
+│   ├── gpu/
+│   └── deployment/
+│
+├── tests/
+│
+└── docs/
+```
+
+---
+
+# 37. MVP realista
+
+El primer objetivo **no** debería ser:
+
+> “Generar una película completa”.
+
+Debe ser:
+
+> **Generar una escena de 5–10 segundos con una entidad persistente, movimiento, sonido sincronizado y capacidad de regeneración automática.**
+
+Por ejemplo:
+
+```text
+Prompt:
+
+"Una mujer camina por una calle lluviosa.
+Una motocicleta pasa detrás de ella."
+```
+
+OMAG debe producir:
+
+```text
+WORLD
+ ├── woman
+ ├── motorcycle
+ ├── street
+ └── rain
+
+TIMELINE
+ ├── walking
+ ├── rain
+ └── motorcycle_pass
+
+IMAGE
+VIDEO
+AUDIO
+```
+
+Después:
+
+```text
+Critic:
+motorcycle sound 0.4 sec late
+
+Correction:
+temporal alignment
+
+Regenerate
+```
+
+Ese sería un **MVP científico realmente valioso**.
+
+---
+
+# 38. La primera prueba de inteligencia del sistema
+
+No evaluaría solamente:
+
+> “¿el vídeo es bonito?”
+
+Haría pruebas causales.
+
+### Test A
+
+Eliminar una entidad:
+
+```text
+motorcycle = removed
+```
+
+El sistema debería eliminar:
+
+```text
+motorcycle visual
+motorcycle audio
+shadow
+doppler
+interaction
+```
+
+---
+
+### Test B
+
+Mover la motocicleta.
+
+Debería cambiar:
+
+```text
+visual trajectory
+audio timing
+doppler
+shadow
+```
+
+---
+
+### Test C
+
+Cambiar lluvia por nieve.
+
+Debería cambiar:
+
+```text
+visual particles
+surface
+lighting
+sound
+character clothing
+movement
+```
+
+Esto demostraría que OMAG **entiende una representación común**, en lugar de simplemente producir tres outputs independientes.
+
+---
+
+# 39. El experimento científico central
+
+La prueba definitiva sería:
+
+```text
+WORLD A
+ ↓
+IMAGE
+AUDIO
+VIDEO
+```
+
+Después modificar:
+
+```text
+WORLD A → WORLD B
+```
+
+sin volver a describir el prompt.
+
+Y comprobar si:
+
+```text
+IMAGE B
+AUDIO B
+VIDEO B
+```
+
+cambian coherentemente.
+
+Si esto funciona, tenemos evidencia de que:
+
+> **MediaField realmente está funcionando como representación generativa multimodal.**
+
+---
+
+# 40. Fase 2 → Fase 3
+
+Con esto ya tenemos definida la arquitectura de implementación.
+
+La **Fase 3** debería ser mucho más práctica:
+
+```text
+FASE 3
+│
+├── crear repositorio OMAG
+├── crear MediaField Schema
+├── implementar World Graph
+├── implementar Entity System
+├── implementar Event System
+├── implementar Timeline
+├── implementar Memory
+├── implementar Generator Interface
+├── crear ComfyUI Adapter
+├── crear Blender Adapter
+├── crear Open-Sora Adapter
+├── crear Critic Interface
+├── crear Orchestrator
+├── crear API
+├── crear CLI
+├── crear tests
+└── ejecutar primer experimento
+```
+
+Y aquí hay una decisión arquitectónica importante: **yo empezaría la Fase 3 por el `MediaField Schema` y el `World Engine`, no por el modelo neuronal**. Eso nos permite construir primero el “sistema operativo” sobre el que después podremos entrenar el verdadero **OMAG World Model** sin tener que rehacer toda la plataforma.

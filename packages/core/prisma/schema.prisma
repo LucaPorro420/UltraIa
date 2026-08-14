@@ -196,9 +196,10 @@ model GeneratedAsset {
   userId         String
   user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   prompt         String
-  provider       String // pollinations | meigen
+  provider       String // pollinations | meigen | local | edge-tts | storyboard | composition
   model          String
   seed           Int?
+  mediaType      String   @default("image") // image | audio | video | music | tts
   url            String
   width          Int      @default(1024)
   height         Int      @default(1024)

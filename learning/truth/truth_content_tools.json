@@ -1,0 +1,49 @@
+{
+  "id": "content_tools_apis",
+  "type": "facts",
+  "description": "APIs de las 5 herramientas de contenido (post @osama.ishtiaq.ai Db-oi8Qij1X) verificadas en vivo el 14/08/2026. Para datos sobre assets: usar API directa, NO búsqueda web.",
+  "cases": [
+    {
+      "id": "tunetank_mcp_sfx",
+      "source": "POST https://mcp.tunetank.com",
+      "verified": true,
+      "note": "MCP streamable HTTP (JSON-RPC 2.0). SIN api key, gratis. Header requerido: Accept: application/json, text/event-stream (sin él → 406 Not Acceptable). Método tools/call, name=search_sfx/search_music. Respuesta es SSE: 'event: message\\ndata: {...}'. Campos de SFX: id, name, duration, preview (mp3 CDN), waveform. Verificado: query=rain → 3 SFX reales con previews cloudfront.",
+      "usage": "function callMCP (buscar en packages/core/src/tools/reach.ts el patrón; requiere parsear SSE, no JSON directo)"
+    },
+    {
+      "id": "mixkit_api",
+      "source": "https://mixkit.co + descarga directa",
+      "verified": true,
+      "note": "NO existe api.mixkit.co (DNS no resuelve → NameResolutionError). Mixkit sirve assets gratis SIN signup ni atribución (licencia comercial OK). La web https://mixkit.co/free-sound-effects/<slug>/ responde 200 y trae las descargas en HTML. Para automatizar: parsear la página (r.jina.ai) y extraer los links de descarga directa. Música: mp3; SFX: wav/mp3; también video stock, templates, iconos.",
+      "usage": "usar readWeb (r.jina.ai) sobre mixkit.co/... y extraer URLs de descarga"
+    },
+    {
+      "id": "flaticon_api",
+      "source": "https://api.flaticon.com/v3",
+      "verified": true,
+      "note": "API oficial v3. Requiere token temporal (Bearer) + api key premium. Endpoints: GET /search/icons/{orderBy}?q=..., GET /item/icon/download/{id}?format=svg|png&size=16..512&color=hex. Scraper Python alternativo sin key: pip flaticon (yemreak/flaticon-python) → FlatIconClient.search_for_images(query, count) + download_image(). Para keyless usar el scraper o la búsqueda web de icons.",
+      "usage": "opcional: usar cliente Python 'flaticon' si se quiere scraping sin key"
+    },
+    {
+      "id": "zapsplat_api",
+      "source": "https://www.zapsplat.com",
+      "verified": true,
+      "note": "160k+ SFX y 800+ tracks de música gratis para uso comercial/no-comercial. NO tiene API pública: requiere cuenta free (Basic), 4 descargas/60min, MP3 gratis (WAV premium), atribución requerida a menos que dones. Diseñado para NO automatizarse (download points anti-bot). No usar para pipeline automático.",
+      "usage": "no automatizar; citar en docs como fuente manual"
+    },
+    {
+      "id": "adobe_enhance",
+      "source": "https://podcast.adobe.com/enhance",
+      "verified": true,
+      "note": "Enhance Speech quita ruido del audio con IA → calidad de estudio. El web gratis permite hasta 4h/día, archivos hasta 1GB, MP4 soportado. NO hay API pública (Adobe confirmó: 'no public APIs for Enhance Speech'); el API de audio/video de Firefly (TTS, Avatar, Reframe, DGR) es comercial por-minuto con key.",
+      "usage": "enhance manual en web; o alternativa local con ffmpeg afir (anlmdn noise) para el pipeline"
+    },
+    {
+      "id": "jitter_api",
+      "source": "https://jitter.video",
+      "verified": true,
+      "note": "Animaciones (motion graphics) listas para editar. NO tiene API pública de render programático accesible gratis. Se usan descargando templates. Para motion propio en UltraIa ya está GSAP/Three.js en apps/web.",
+      "usage": "no automatizar; fuente de inspiración/templates manuales"
+    }
+  ]
+}

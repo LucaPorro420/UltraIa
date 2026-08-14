@@ -72,19 +72,32 @@ def _srt_timecode(seconds: float) -> str:
 
 # ---------------------------------------------------------------------- ffmpeg
 
+def _escape_filter_path(path: str) -> str:
+    """Escapa una ruta para usarla dentro de un filtro ffmpeg (libass/drawtext).
+
+    En Windows los dos puntos de una ruta estilo C:/rompen el parsing del
+    filtro; se convierten las barras invertidas y se escapan ``:`` y ``'``.
+    """
+    p = path.replace("\\", "/")
+    return p.replace(":", "\\:").replace("'", "\\'")
+
+
 def merge_audio_video_subtitles(
     video_path: str,
     audio_path: str,
     output_path: str,
     srt_path: str | None = None,
+    bgm_path: str | None = None,
 ) -> Path:
     """Combina video y audio ajustando la duración y quemando subtítulos.
 
     Args:
         video_path: MP4 de entrada (shots concatenados o video único).
-        audio_path: MP3 de locución (guion diacritizado).
+        audio_path: MP3 de locución (guion).
         output_path: MP4 final con audio y subtítulos quemados.
         srt_path: opcional; si existe, se quema con libass.
+        bgm_path: opcional; si existe, se mezcla como música de fondo a -14 dB
+            bajo la locución (ducking fijo).
 
     Returns:
         Ruta del MP4 renderizado.
@@ -98,19 +111,27 @@ def merge_audio_video_subtitles(
             "Descárgalo desde https://ffmpeg.org/download.html"
         )
 
-    cmd = [
-        "ffmpeg",
-        "-y",                    # sobrescribir salida si existe
-        "-i", video_path,        # entrada video
-        "-i", audio_path,        # entrada audio
-        "-c:v", "libx264",       # códec video estándar
-        "-c:a", "aac",           # códec audio estándar
-        "-shortest",             # cortar según el elemento más corto
-    ]
+    cmd = ["ffmpeg", "-y", "-i", video_path, "-i", audio_path]
+    if bgm_path:
+        cmd += ["-i", bgm_path]
+    cmd += ["-c:v", "libx264", "-c:a", "aac", "-shortest"]
+
+    if bgm_path:
+        cmd += [
+            "-filter_complex",
+            "[1:a]aformat=sample_rates=44100:channel_layouts=stereo[va];"
+            "[2:a]volume=0.20,aformat=sample_rates=44100:channel_layouts=stereo[bgm];"
+            "[va][bgm]amix=inputs=2:duration=shortest:dropout_transition=3[aout]",
+            "-map", "0:v", "-map", "[aout]",
+        ]
+    else:
+        cmd += ["-map", "0:v", "-map", "1:a"]
+
     if srt_path:
+        escaped = _escape_filter_path(str(srt_path))
         cmd += [
             "-vf",
-            f"subtitles={srt_path}:force_style='FontSize=24,"
+            f"subtitles='{escaped}':force_style='FontSize=24,"
             f"FontName=Arial,PrimaryColour=&H00FFFFFF'",
         ]
     cmd.append(output_path)
@@ -124,15 +145,34 @@ def merge_audio_video_subtitles(
     return Path(output_path)
 
 
-def concat_videos(video_paths: list[Path], output_path: Path) -> Path:
-    """Concatena múltiples shots con demuxer concat (códec idéntico).
+def _probe_video_duration(path: Path) -> float:
+    """Duración en segundos de un video (ffprobe). Lanza RuntimeError si falla."""
+    proc = subprocess.run(
+        ["ffprobe", "-v", "error", "-show_entries", "format=duration",
+         "-of", "csv=p=0", str(path)],
+        capture_output=True, text=True, timeout=60,
+    )
+    if proc.returncode != 0 or not proc.stdout.strip():
+        raise RuntimeError(f"ffprobe no pudo leer duración de {path}")
+    return float(proc.stdout.strip())
 
-    Requisito RF-11: los videos generados por el mismo modelo (p. ej.
-    gen3a_turbo) comparten códec, por lo que `-c copy` concatena sin re-encode.
+
+def concat_videos(
+    video_paths: list[Path],
+    output_path: Path,
+    crossfade_sec: float = 0.0,
+) -> Path:
+    """Concatena múltiples shots, opcionalmente con crossfade (xfade).
+
+    Sin crossfade: demuxer concat con `-c copy` (códec idéntico, sin re-encode).
+    Con crossfade > 0: cadena de filtros xfade (transición 'fade') que exige
+    re-encode; las duraciones se obtienen con ffprobe. Si ffprobe falla o no
+    hay más de un clip, degrada a concat plano.
 
     Args:
         video_paths: lista de MP4 locales a concatenar (en orden de shot).
         output_path: MP4 concatenado.
+        crossfade_sec: segundos de transición entre clips (0 = sin crossfade).
 
     Returns:
         Ruta del MP4 concatenado.
@@ -140,6 +180,12 @@ def concat_videos(video_paths: list[Path], output_path: Path) -> Path:
     if len(video_paths) == 1:
         shutil.copyfile(video_paths[0], output_path)
         return output_path
+
+    if crossfade_sec > 0:
+        try:
+            return _concat_with_xfade(video_paths, output_path, crossfade_sec)
+        except (RuntimeError, subprocess.SubprocessError):
+            print("  xfade no disponible; usando concat plano (sin transición).")
 
     list_file = output_path.with_suffix(".txt")
     list_file.write_text(
@@ -152,6 +198,41 @@ def concat_videos(video_paths: list[Path], output_path: Path) -> Path:
     if result.returncode != 0:
         raise RuntimeError(
             f"Error concatenando videos: {result.stderr.decode('utf-8', errors='replace')[-1000:]}"
+        )
+    return output_path
+
+
+def _concat_with_xfade(
+    video_paths: list[Path],
+    output_path: Path,
+    crossfade_sec: float,
+) -> Path:
+    """Concatena con transiciones xfade encadenadas (requiere re-encode)."""
+    durations = [_probe_video_duration(p) for p in video_paths]
+    cmd = ["ffmpeg", "-y"]
+    for p in video_paths:
+        cmd += ["-i", str(p)]
+
+    chains: list[str] = []
+    offset = 0.0
+    prev = "0:v"
+    for i in range(1, len(video_paths)):
+        offset += durations[i - 1] - crossfade_sec
+        label = f"vx{i}" if i < len(video_paths) - 1 else "vout"
+        chains.append(
+            f"[{prev}][{i}:v]xfade=transition=fade:duration={crossfade_sec:.2f}:"
+            f"offset={offset:.2f}[{label}]"
+        )
+        prev = label
+    cmd += [
+        "-filter_complex", ";".join(chains),
+        "-map", "[vout]", "-c:v", "libx264", "-pix_fmt", "yuv420p",
+        "-movflags", "+faststart", str(output_path),
+    ]
+    result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    if result.returncode != 0:
+        raise RuntimeError(
+            f"Error con xfade: {result.stderr.decode('utf-8', errors='replace')[-1000:]}"
         )
     return output_path
 
