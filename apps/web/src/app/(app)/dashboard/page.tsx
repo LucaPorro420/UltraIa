@@ -36,7 +36,7 @@ export default async function DashboardPage() {
         </div>
         <Link
           href="/agents/new"
-          className="rounded-lg bg-violet-600 px-4 py-2 text-sm font-semibold text-white hover:bg-violet-500"
+          className="rounded-lg bg-violet-600 px-4 py-2 text-sm font-semibold text-white transition-colors duration-200 hover:bg-violet-500"
         >
           + New agent
         </Link>
@@ -51,21 +51,21 @@ export default async function DashboardPage() {
           </p>
           <Link
             href="/agents/new"
-            className="mt-6 inline-block rounded-lg bg-violet-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-violet-500"
+            className="mt-6 inline-block rounded-lg bg-violet-600 px-6 py-2.5 text-sm font-semibold text-white transition-colors duration-200 hover:bg-violet-500"
           >
             Create your first agent
           </Link>
         </div>
       ) : (
         <ul className="mt-8 grid gap-4 md:grid-cols-2">
-          {blueprints.map((bp) => {
+          {blueprints.map((bp, i) => {
             const active = bp.versions[0];
             const score = active?.evalRuns[0]?.avgScore;
             return (
-              <li key={bp.id}>
+              <li key={bp.id} style={{ animationDelay: `${Math.min(i * 60, 480)}ms` }}>
                 <Link
                   href={`/agents/${bp.id}`}
-                  className="block rounded-2xl border border-neutral-800 bg-neutral-900/50 p-6 transition hover:border-violet-700"
+                  className="chat-enter block rounded-2xl border border-neutral-800 bg-neutral-900/50 p-6 transition-all duration-200 [animation:var(--animate-chat-enter)] hover:border-violet-700 hover:bg-neutral-900/80"
                 >
                   <div className="flex items-center justify-between">
                     <h2 className="font-semibold">{bp.name}</h2>

@@ -60,7 +60,13 @@ Verification order: `typecheck → lint → test → build` (mirrored in CI).
 - **API key management** — list keys (with a `ua_…` prefix and last-used time) and revoke them from the UI (`GET`/`DELETE /api/agents/:id/apikeys`).
 - **Version rollback** — promote any past version back to ACTIVE from the version history (transaction-safe in `activateVersion`).
 - **Extended improvement proposals** — the improvement engine may also suggest a different model, tool set, guardrails, or rubric when the evidence justifies it.
-- **Design system** — Inter via `next/font`, plus small `components/ui` primitives (Button, Input, Badge, Card) matching the dark/violet design tokens.
+- **Design system** — Dark Obsidian tokens (`@theme` en Tailwind v4), tipografías Inter +
+  Plus Jakarta Sans + JetBrains Mono (`next/font`), primitivas `components/ui`, y sistema de
+  motion GSAP + Lottie (hero, features, chat, loader del builder, roadmap SVG). Fuentes de
+  verdad: `DESIGN.md`, `docs/design-dna.json`, `apps/web/MASTER.md`.
+- **Skills de diseño & motion** — 5 Claude Code Skills instaladas (Design DNA, GSAP, Three.js,
+  Motion Design, Genjutsu) en `.opencode/skills/` (proyecto) y `~/.config/opencode/skills/`
+  (global), más la skill propia `ultraia-design-system`. Detalle en `CHANGES.md`.
 
 ## Notes / limitations (MVP v0.1)
 

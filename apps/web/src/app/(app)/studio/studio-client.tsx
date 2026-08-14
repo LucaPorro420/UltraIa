@@ -350,7 +350,11 @@ function VideoPanel() {
       {data && (
         <div className="mt-3 grid grid-cols-2 gap-2">
           {data.frames.map((f, i) => (
-            <figure key={i} className="overflow-hidden rounded-lg border border-neutral-800">
+            <figure
+              key={i}
+              style={{ animationDelay: `${Math.min(i * 60, 360)}ms` }}
+              className="chat-enter overflow-hidden rounded-lg border border-neutral-800 [animation:var(--animate-chat-enter)]"
+            >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={f.url} alt={f.caption} className="w-full" />
               <figcaption className="p-1.5 text-[11px] text-neutral-500">{f.caption}</figcaption>
@@ -411,7 +415,11 @@ function MusicPanel() {
           </p>
           <ul className="space-y-1">
             {data.sections.map((s, i) => (
-              <li key={i} className="rounded-lg border border-neutral-800 bg-neutral-950 p-2">
+              <li
+                key={i}
+                style={{ animationDelay: `${Math.min(i * 60, 360)}ms` }}
+                className="chat-enter rounded-lg border border-neutral-800 bg-neutral-950 p-2 [animation:var(--animate-chat-enter)]"
+              >
                 <span className="text-xs font-semibold text-violet-300">{s.name}</span>
                 <span className="ml-2 text-xs text-neutral-400">{s.description}</span>
               </li>
@@ -545,19 +553,31 @@ function ChatPanel({ capabilities }: { capabilities: Cap[] }) {
         Enabled tools: {capabilities.length ? capabilities.join(', ') : 'none'} (chat needs an AI key)
       </p>
       <div className="mb-3 max-h-72 space-y-3 overflow-auto">
-        {messages.map((m) => (
+        {messages.map((m, i) => (
           <div
             key={m.id}
+            style={{ animationDelay: `${Math.min(i * 30, 240)}ms` }}
             className={
-              m.role === 'user'
+              (m.role === 'user'
                 ? 'ml-auto max-w-[85%] self-end rounded-2xl bg-violet-700/80 px-4 py-3 text-sm text-white'
-                : 'mr-auto max-w-[85%] self-start rounded-2xl border border-neutral-800 bg-neutral-900 px-4 py-3 text-sm text-neutral-100'
+                : 'mr-auto max-w-[85%] self-start rounded-2xl border border-neutral-800 bg-neutral-900 px-4 py-3 text-sm text-neutral-100') +
+              ' chat-enter [animation:var(--animate-chat-enter)]'
             }
           >
             {m.content}
+            {m.role === 'assistant' && isLoading && i === messages.length - 1 && (
+              <span className="stream-caret" />
+            )}
           </div>
         ))}
-        {isLoading && <p className="text-xs text-neutral-500">Thinkingâ€¦</p>}
+        {isLoading && (
+          <div className="flex items-center gap-1.5 rounded-2xl border border-neutral-800 bg-neutral-900 px-4 py-3">
+            <span className="typing-dot" style={{ animationDelay: '0ms' }} />
+            <span className="typing-dot" style={{ animationDelay: '150ms' }} />
+            <span className="typing-dot" style={{ animationDelay: '300ms' }} />
+            <span className="sr-only">Thinking</span>
+          </div>
+        )}
       </div>
       {error && (
         <p className="mb-2 rounded-lg border border-red-800 bg-red-950/50 px-3 py-2 text-xs text-red-300">

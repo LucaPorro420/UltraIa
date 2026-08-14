@@ -58,7 +58,7 @@ export function VersionActions({
           type="button"
           disabled={busy}
           onClick={() => approve(false)}
-          className="rounded bg-emerald-700 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-600 disabled:opacity-50"
+          className="rounded bg-emerald-700 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-600 transition-colors duration-200 disabled:opacity-50"
         >
           Approve (eval-gated)
         </button>
@@ -66,7 +66,7 @@ export function VersionActions({
           type="button"
           disabled={busy}
           onClick={() => approve(true)}
-          className="rounded bg-emerald-900 px-3 py-1.5 text-xs font-semibold text-emerald-200 hover:bg-emerald-800 disabled:opacity-50"
+          className="rounded bg-emerald-900 px-3 py-1.5 text-xs font-semibold text-emerald-200 hover:bg-emerald-800 transition-colors duration-200 disabled:opacity-50"
         >
           Force approve
         </button>
@@ -74,7 +74,7 @@ export function VersionActions({
           type="button"
           disabled={busy}
           onClick={reject}
-          className="rounded bg-neutral-800 px-3 py-1.5 text-xs font-semibold text-neutral-300 hover:bg-neutral-700 disabled:opacity-50"
+          className="rounded bg-neutral-800 px-3 py-1.5 text-xs font-semibold text-neutral-300 hover:bg-neutral-700 transition-colors duration-200 disabled:opacity-50"
         >
           Reject
         </button>
@@ -89,7 +89,7 @@ export function VersionActions({
         type="button"
         disabled={busy}
         onClick={rollback}
-        className="rounded bg-neutral-800 px-3 py-1.5 text-xs font-semibold text-neutral-200 hover:bg-neutral-700 disabled:opacity-50"
+        className="rounded bg-neutral-800 px-3 py-1.5 text-xs font-semibold text-neutral-200 hover:bg-neutral-700 transition-colors duration-200 disabled:opacity-50"
       >
         Rollback to this version
       </button>

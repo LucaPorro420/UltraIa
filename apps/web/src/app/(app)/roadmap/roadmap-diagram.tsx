@@ -1,4 +1,14 @@
+'use client';
+
+import { useLayoutEffect, useRef } from 'react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { DrawSVGPlugin } from 'gsap/DrawSVGPlugin';
 import { TECH_RADAR, type TechRadarItem } from '@/data/tech-radar';
+
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger, DrawSVGPlugin);
+}
 
 // * Diagrama de nodos: cada tecnologia es una caja; las lineas son sus dependencias.
 // * Layout deterministico: una columna por categoria, cajas apiladas dentro de la columna.
@@ -11,6 +21,7 @@ const TOP = 30;
 type Pos = { x: number; y: number; cx: number; cy: number };
 
 export function RoadmapDiagram() {
+  const root = useRef<HTMLDivElement>(null);
   const byCat = new Map<string, TechRadarItem[]>();
   for (const t of TECH_RADAR) {
     const arr = byCat.get(t.category) ?? [];
@@ -43,8 +54,30 @@ export function RoadmapDiagram() {
     }
   }
 
+  useLayoutEffect(() => {
+    const ctx = gsap.context(() => {
+      gsap.matchMedia().add('(prefers-reduced-motion: no-preference)', () => {
+        const tl = gsap.timeline({
+          scrollTrigger: { trigger: root.current, start: 'top 80%', once: true },
+          defaults: { ease: 'power3.out' },
+        });
+        tl.fromTo(
+          '.rm-line',
+          { opacity: 0, drawSVG: 0 },
+          { opacity: 0.45, drawSVG: '100%', duration: 0.9, stagger: 0.04, ease: 'none' }
+        ).fromTo(
+          '.rm-node',
+          { opacity: 0, y: 14 },
+          { opacity: 1, y: 0, duration: 0.6, stagger: 0.07 },
+          '-=0.5'
+        );
+      });
+    }, root);
+    return () => ctx.revert();
+  }, []);
+
   return (
-    <div className="overflow-auto rounded-xl border border-neutral-800 bg-neutral-950/40 p-2">
+    <div ref={root} className="overflow-auto rounded-xl border border-neutral-800 bg-neutral-950/40 p-2">
       <svg width={width} height={height} className="min-w-full">
         {lines.map((l) => (
           <line
@@ -55,7 +88,8 @@ export function RoadmapDiagram() {
             y2={l.y2}
             stroke="#7c3aed"
             strokeWidth={1.5}
-            opacity={0.45}
+            opacity={0}
+            className="rm-line"
           />
         ))}
         {cats.map(([cat, items], ci) => (
@@ -66,7 +100,7 @@ export function RoadmapDiagram() {
             {items.map((it) => {
               const p = pos.get(it.name)!;
               return (
-                <g key={it.name}>
+                <g key={it.name} className="rm-node">
                   <rect
                     x={p.x}
                     y={p.y}

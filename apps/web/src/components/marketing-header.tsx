@@ -13,29 +13,29 @@ export function MarketingHeader({ user }: MarketingHeaderProps) {
           Ultra<span className="text-violet-400">Ia</span>
         </Link>
         <nav className="flex items-center gap-4 text-sm">
-          <Link href="/explore" className="text-neutral-300 hover:text-white">
+          <Link href="/explore" className="text-neutral-300 transition-colors duration-200 hover:text-white">
             Explore
           </Link>
           {user ? (
             <>
-              <Link href="/studio" className="text-neutral-300 hover:text-white">
+              <Link href="/studio" className="text-neutral-300 transition-colors duration-200 hover:text-white">
                 Studio
               </Link>
               <Link
                 href="/dashboard"
-                className="rounded-lg bg-violet-600 px-4 py-2 font-medium text-white hover:bg-violet-500"
+                className="rounded-lg bg-violet-600 px-4 py-2 font-medium text-white transition-colors duration-200 hover:bg-violet-500"
               >
                 Open dashboard
               </Link>
             </>
           ) : (
             <>
-              <Link href="/login" className="text-neutral-300 hover:text-white">
+              <Link href="/login" className="text-neutral-300 transition-colors duration-200 hover:text-white">
                 Log in
               </Link>
               <Link
                 href="/register"
-                className="rounded-lg bg-violet-600 px-4 py-2 font-medium text-white hover:bg-violet-500"
+                className="rounded-lg bg-violet-600 px-4 py-2 font-medium text-white transition-colors duration-200 hover:bg-violet-500"
               >
                 Get started
               </Link>

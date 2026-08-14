@@ -25,7 +25,7 @@ export function ImproveButton({ agentId }: { agentId: string }) {
         type="button"
         disabled={busy}
         onClick={propose}
-        className="rounded-lg bg-violet-700 px-4 py-2 text-xs font-semibold text-white hover:bg-violet-600 disabled:opacity-50"
+        className="rounded-lg bg-violet-700 px-4 py-2 text-xs font-semibold text-white hover:bg-violet-600 transition-colors duration-200 disabled:opacity-50"
       >
         {busy ? 'Analyzing feedback…' : 'Propose improvement'}
       </button>

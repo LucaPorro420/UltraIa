@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { PendingLoader } from '@/components/pending-loader';
 import { createAgentAction } from '../actions';
 
 export function CreateAgentForm() {
@@ -60,8 +61,9 @@ export function CreateAgentForm() {
         UltraIa designs the system prompt, model, tools and evaluation rubric for this task.
       </p>
       <Button type="submit" disabled={pending} className="w-full">
-        {pending ? 'Designing your agent… (this can take ~15s)' : 'Design my agent'}
+        {pending ? 'Designing your agent…' : 'Design my agent'}
       </Button>
+      {pending && <PendingLoader label="Designing your agent" />}
     </form>
   );
 }

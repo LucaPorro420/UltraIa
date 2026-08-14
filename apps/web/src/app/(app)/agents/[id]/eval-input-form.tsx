@@ -29,7 +29,7 @@ export function EvalInputForm({ agentId }: { agentId: string }) {
       <button
         type="submit"
         disabled={busy || !input.trim()}
-        className="rounded bg-neutral-800 px-3 py-1.5 text-xs font-semibold text-neutral-200 hover:bg-neutral-700 disabled:opacity-50"
+        className="rounded bg-neutral-800 px-3 py-1.5 text-xs font-semibold text-neutral-200 hover:bg-neutral-700 transition-colors duration-200 disabled:opacity-50"
       >
         Add
       </button>

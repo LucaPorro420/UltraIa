@@ -1,5 +1,70 @@
 @import "tailwindcss";
 
+@theme {
+  /* Dark Obsidian surfaces (IMAGE-INTEGRATIONS / ADDITIONS2 + DESIGN.md) */
+  --color-canvas: #08080a;
+  --color-panel: #111115;
+  --color-panel-header: #18181f;
+  --color-panel-hover: #22222c;
+  --color-input-active: #0d0d11;
+  --color-border-subtle: #1f1f2a;
+  --color-border-muted: #2e2e3d;
+  --color-border-active: #6366f1;
+  --color-primary: #8b5cf6;
+  --color-accent: #f472b6;
+  --color-destructive: #f87171;
+
+  /* Typography */
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-jakarta), var(--font-inter), ui-sans-serif, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, "Cascadia Code", monospace;
+
+  /* IDE density */
+  --spacing-ide-header: 38px;
+  --spacing-ide-activitybar: 48px;
+  --spacing-ide-sidebar: 280px;
+
+  /* Motion tokens */
+  --ease-ultra: cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-aurora: aurora 18s ease-in-out infinite alternate;
+  --animate-grid-drift: grid-drift 60s linear infinite;
+  --animate-glow-pulse: glow-pulse 2.4s ease-in-out infinite;
+  --animate-typing: typing-bounce 1.2s ease-in-out infinite;
+  --animate-stream-cursor: stream-cursor 1s steps(2, jump-none) infinite;
+  --animate-shimmer: shimmer 2.2s linear infinite;
+  --animate-chat-enter: chat-enter 0.3s ease-out both;
+
+  @keyframes aurora {
+    0% { transform: translate3d(-4%, -2%, 0) scale(1); opacity: 0.55; }
+    50% { transform: translate3d(3%, 4%, 0) scale(1.15); opacity: 0.85; }
+    100% { transform: translate3d(-2%, -5%, 0) scale(1.05); opacity: 0.6; }
+  }
+  @keyframes grid-drift {
+    0% { background-position: 0 0; }
+    100% { background-position: 96px 64px; }
+  }
+  @keyframes glow-pulse {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+  }
+  @keyframes typing-bounce {
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+    30% { transform: translateY(-4px); opacity: 1; }
+  }
+  @keyframes stream-cursor {
+    0%, 49% { opacity: 1; }
+    50%, 100% { opacity: 0; }
+  }
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+  @keyframes chat-enter {
+    0% { opacity: 0; transform: translateY(6px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+}
+
 :root {
   /* Multimodal IDE accents (IMAGE-INTEGRATIONS / ADDITIONS2) */
   --agent-video: #a855f7;
@@ -13,8 +78,18 @@
 }
 
 body {
-  @apply bg-neutral-950 text-neutral-100 antialiased;
+  @apply bg-canvas text-neutral-100 antialiased;
   font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--color-primary) 40%, transparent);
+}
+
+/* Thin custom scrollbar (Calm UI) */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border-muted) transparent;
 }
 
 /* Glow border per agent modality */
@@ -58,10 +133,64 @@ body {
   width: 100%;
 }
 
-/* Calm UI: thin separators, subtle motion (prefers-reduced-motion respected) */
+/* --- Motion utilities (DESIGN.md §6) --- */
+
+/* Aurora background for hero / sections */
+.aurora-bg {
+  background:
+    radial-gradient(ellipse 60% 45% at 20% 0%, rgba(139, 92, 246, 0.14), transparent 60%),
+    radial-gradient(ellipse 50% 40% at 85% 10%, rgba(6, 182, 212, 0.08), transparent 60%),
+    radial-gradient(ellipse 55% 45% at 55% 90%, rgba(99, 102, 241, 0.1), transparent 60%);
+}
+
+/* IDE grid-dot pattern (ADDITIONS2 §2B) */
+.grid-dots {
+  background-image: radial-gradient(#27272a 1px, transparent 1px);
+  background-size: 16px 16px;
+  animation: var(--animate-grid-drift);
+}
+
+/* Typing indicator dots */
+.typing-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 9999px;
+  background: var(--color-primary);
+  animation: var(--animate-typing);
+}
+
+/* Streaming caret */
+.stream-caret {
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  vertical-align: text-bottom;
+  margin-left: 2px;
+  background: var(--color-primary);
+  animation: var(--animate-stream-cursor);
+}
+
+/* Shimmer skeleton for loading cards */
+.shimmer {
+  background: linear-gradient(
+    110deg,
+    var(--color-panel-hover) 8%,
+    var(--color-border-muted) 18%,
+    var(--color-panel-hover) 33%
+  );
+  background-size: 200% 100%;
+  animation: var(--animate-shimmer);
+}
+
+/* Reduced motion: kill all animation/transition (Calm UI, DESIGN.md §6) */
 @media (prefers-reduced-motion: reduce) {
   * {
     animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .grid-dots {
+    animation: none;
   }
 }

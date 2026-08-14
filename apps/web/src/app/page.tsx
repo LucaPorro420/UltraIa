@@ -1,66 +1,24 @@
-import Link from 'next/link'; 
 import { optionalUser } from '@/lib/server/context';
 import { MarketingHeader } from '@/components/marketing-header';
+import { LandingHero } from '@/components/landing/landing-hero';
+import { LandingFeatures } from '@/components/landing/landing-features';
 
 export default async function LandingPage() {
   const user = await optionalUser();
   return (
-    <main className="mx-auto max-w-5xl px-6 py-24">
+    <main className="min-h-screen bg-canvas">
       <MarketingHeader user={user} />
 
-      <section className="mt-28 text-center">
-        <h1 className="mx-auto max-w-3xl text-5xl font-bold leading-tight tracking-tight">
-          AI that <span className="text-violet-400">creates AI</span> — and learns from every
-          conversation.
-        </h1>
-        <p className="mx-auto mt-6 max-w-2xl text-lg text-neutral-400">
-          Describe a task in plain language. UltraIa designs a purpose-built AI agent with its own
-          system prompt, tools and evaluation rubric. Real feedback drives automatic improvements —
-          always gated by evaluation, always approved by you.
+      <LandingHero user={user} />
+      <LandingFeatures />
+
+      <footer className="mx-auto mt-28 max-w-5xl border-t border-neutral-800 px-6 pb-10 pt-8 text-center">
+        <p className="font-mono text-xs text-neutral-600">
+          UltraIa · AI creates AI, humans approve.
         </p>
-        <div className="mt-10">
-          {user ? (
-            <Link
-              href="/agents/new"
-              className="rounded-xl bg-violet-600 px-8 py-3 font-semibold text-white hover:bg-violet-500"
-            >
-              Create your first agent
-            </Link>
-          ) : (
-            <Link
-              href="/register"
-              className="rounded-xl bg-violet-600 px-8 py-3 font-semibold text-white hover:bg-violet-500"
-            >
-              Create your first agent
-            </Link>
-          )}
-        </div>
-      </section>
-
-      <section className="mt-28 grid gap-6 md:grid-cols-3">
-        {[
-          {
-            title: 'Generate',
-            body: 'Tell us the job. Our Agent Architect produces a precise system prompt, model choice, tools and a measurable rubric.',
-          },
-          {
-            title: 'Run',
-            body: 'Chat with your agent or call it over a scoped API key. Every exchange is stored and available for evaluation.',
-          },
-          {
-            title: 'Improve',
-            body: 'Negative feedback and failed evaluations feed an improvement pipeline. New versions must pass regression evals before they go live.',
-          },
-        ].map((f) => (
-          <div key={f.title} className="rounded-2xl border border-neutral-800 bg-neutral-900/50 p-6">
-            <h2 className="text-lg font-semibold text-violet-300">{f.title}</h2>
-            <p className="mt-2 text-sm text-neutral-400">{f.body}</p>
-          </div>
-        ))}
-      </section>
-
-      <footer className="mt-28 border-t border-neutral-800 pt-8 text-center text-xs text-neutral-600">
-        UltraIa · AI creates AI, humans approve.
+        <p className="mt-2 font-mono text-[11px] text-neutral-700">
+          v0.1 — agent generation · scoped API keys · eval-gated improvement pipeline
+        </p>
       </footer>
     </main>
   );

@@ -87,7 +87,7 @@ export function AgentChat({ agentId }: { agentId: string }) {
           className={`rounded-full px-3 py-1 text-xs font-medium ${
             activeId === null
               ? 'bg-violet-700 text-white'
-              : 'border border-neutral-700 text-neutral-300 hover:bg-neutral-800'
+              : 'border border-neutral-700 text-neutral-300 transition-colors duration-200 hover:bg-neutral-800'
           }`}
         >
           <Plus className="h-3.5 w-3.5" /> New chat
@@ -101,7 +101,7 @@ export function AgentChat({ agentId }: { agentId: string }) {
             className={`max-w-[12rem] truncate rounded-full px-3 py-1 text-xs font-medium ${
               activeId === c.id
                 ? 'bg-violet-700 text-white'
-                : 'border border-neutral-700 text-neutral-300 hover:bg-neutral-800'
+                : 'border border-neutral-700 text-neutral-300 transition-colors duration-200 hover:bg-neutral-800'
             }`}
           >
             {c.title}
@@ -119,13 +119,17 @@ export function AgentChat({ agentId }: { agentId: string }) {
         {messages.map((m, i) => (
           <div
             key={m.id}
-            className={`max-w-[85%] whitespace-pre-wrap rounded-2xl px-4 py-3 text-sm ${
+            style={{ animationDelay: `${Math.min(i * 30, 240)}ms` }}
+            className={`chat-enter max-w-[85%] whitespace-pre-wrap rounded-2xl px-4 py-3 text-sm [animation:var(--animate-chat-enter)] ${
               m.role === 'user'
                 ? 'self-end bg-violet-700/80 text-white'
                 : 'self-start border border-neutral-800 bg-neutral-900 text-neutral-100'
             }`}
           >
             {m.content}
+            {m.role === 'assistant' && isLoading && i === messages.length - 1 && (
+              <span className="stream-caret" />
+            )}
             {m.role === 'assistant' &&
               !isLoading &&
               activeId &&
@@ -135,8 +139,11 @@ export function AgentChat({ agentId }: { agentId: string }) {
           </div>
         ))}
         {isLoading && (
-          <div className="self-start rounded-2xl border border-neutral-800 bg-neutral-900 px-4 py-3 text-sm text-neutral-400">
-            Thinking…
+          <div className="self-start flex items-center gap-1.5 rounded-2xl border border-border-subtle bg-panel px-4 py-3.5">
+            <span className="typing-dot" style={{ animationDelay: '0ms' }} />
+            <span className="typing-dot" style={{ animationDelay: '150ms' }} />
+            <span className="typing-dot" style={{ animationDelay: '300ms' }} />
+            <span className="sr-only">Thinking…</span>
           </div>
         )}
         {error && (

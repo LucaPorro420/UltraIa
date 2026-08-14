@@ -74,3 +74,22 @@ Reglas aprendidas (no romperlas): API directa > búsqueda web para datos numéri
 - test: npm run test (vitest run, core)
 - build: npm run build (production build)
 - start: python start.py (setup + web + webhooks en un comando)
+
+## Diseño & motion (13/08/2026)
+
+- Fuentes de verdad: `DESIGN.md` (diseño), `docs/design-dna.json` (DNA), `apps/web/MASTER.md`
+  (motion, stack-aware) y skill `.opencode/skills/ultraia-design-system/`.
+- Tokens "Dark Obsidian" en `@theme` (globals.css): canvas `#08080a`, panel `#111115`, primary
+  `#8b5cf6`, border-subtle `#1f1f2a`; acentos de modalidad inmutables (video/audio/text/code/web).
+- Tipografía: Inter (funcional) + Plus Jakarta Sans (display/chat) + JetBrains Mono (mono) —
+  NO usar Inter para display (anti AI-slop).
+- Motion: GSAP 3.15 + lottie-react en apps/web. Reglas: `gsap.context()` en `useLayoutEffect`,
+  `gsap.matchMedia()` para prefers-reduced-motion (CSS y JS), animar solo transform/opacity,
+  micro-interacciones 100-250ms con `transition-colors duration-200`, entrada de listas con
+  `--animate-chat-enter` + delay por índice (cap 240-480ms), loaders >5s con Lottie local en
+  `src/animations/` (nunca `public/`), typing indicator = `.typing-dot`, streaming = `.stream-caret`.
+- Lottie reduced-motion: pausar con `lottieRef.current.pause()` en `PendingLoader`.
+- Roadmap diagram: client component, DrawSVGPlugin + ScrollTrigger (`top 80%`, once).
+- Revisar `apps/web/MASTER.md` §7 (checklist design-audit) antes de tocar UI.
+- QA navegador headless: `node C:\Users\UTEC-5695\.claude\skills\browser-automation\browser.mjs`
+  (NOTA: `--script` con rutas absolutas falla en Windows — usar `--eval` con IIFE async).
