@@ -44,6 +44,33 @@ describe('searchMusic (Tunetank MCP)', () => {
     const [, init] = fetchMock.mock.calls[0];
     expect(init.headers.Accept).toBe('application/json, text/event-stream');
   });
+
+  it('falls back to the first token when a multi-word query returns no results (single-word lesson)', async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(sseRes('data: {"result":{"content":[{"type":"text","text":"[]"}]},"jsonrpc":"2.0","id":1}'))
+      .mockResolvedValue(sseRes(SSE_MUSIC));
+    vi.stubGlobal('fetch', fetchMock);
+    const out = await searchMusic({ query: 'cinematic epic', maxResults: 3 });
+    expect(out.query).toBe('cinematic epic');
+    expect(out.tracks).toHaveLength(1);
+    expect(out.tracks[0].name).toBe('Chasing Shadows');
+    // First call with the full query, second with the single token.
+    const fullCall = JSON.parse(fetchMock.mock.calls[0][1].body) as { params: { arguments: { query: string } } };
+    const tokenCall = JSON.parse(fetchMock.mock.calls[1][1].body) as { params: { arguments: { query: string } } };
+    expect(fullCall.params.arguments.query).toBe('cinematic epic');
+    expect(tokenCall.params.arguments.query).toBe('cinematic');
+  });
+
+  it('does not retry when a single-word query is used even if empty', async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValue(sseRes('data: {"result":{"content":[{"type":"text","text":"[]"}]},"jsonrpc":"2.0","id":1}'));
+    vi.stubGlobal('fetch', fetchMock);
+    const out = await searchMusic({ query: 'cinematic', maxResults: 3 });
+    expect(out.tracks).toHaveLength(0);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
 });
 
 describe('searchSfx (Tunetank MCP)', () => {

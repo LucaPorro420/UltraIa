@@ -1,0 +1,563 @@
+Sí. **Absolutamente puedes llevar OMAG a vídeos de más de 10 minutos.** 🔥
+
+Los **5–10 segundos que puse no son un límite de la arquitectura**. Son solamente el tamaño recomendado para el **primer MVP**, porque permiten validar rápidamente identidad, causalidad, sincronización y continuidad sin necesitar una infraestructura enorme.
+
+De hecho, para el objetivo de OMAG, **yo cambiaría la arquitectura desde ahora para que 10 minutos sean un objetivo nativo**, no algo añadido posteriormente.
+
+## 🎬 La clave: no generar 10 minutos de una sola vez
+
+No deberíamos hacer:
+
+```text
+Prompt
+   ↓
+Modelo
+   ↓
+10 minutos de vídeo
+```
+
+Eso sería extremadamente costoso y difícil de mantener coherente.
+
+OMAG debería funcionar así:
+
+```text
+                    PROYECTO
+                       │
+                       ▼
+                  STORY WORLD
+                       │
+                       ▼
+                 10 MIN TIMELINE
+                       │
+        ┌──────────────┼──────────────┐
+        ▼              ▼              ▼
+     ACT 1           ACT 2           ACT 3
+        │              │              │
+     SCENE 1         SCENE 5         SCENE 10
+        │              │              │
+      SHOT           SHOT            SHOT
+        │              │              │
+      5–10s          5–10s           5–10s
+        │              │              │
+        └──────────────┼──────────────┘
+                       ▼
+                  COMPOSITION
+                       │
+                       ▼
+                  10 MIN VIDEO
+```
+
+El usuario ve un **vídeo continuo de 10 minutos**, pero internamente OMAG trabaja jerárquicamente.
+
+---
+
+# 🧠 Cambiaría el objetivo del proyecto
+
+En lugar de:
+
+> **MVP = generar 5–10 segundos**
+
+establecería:
+
+> **MVP = producir una obra audiovisual de hasta 10 minutos mediante generación jerárquica de segmentos coherentes.**
+
+Y los 5–10 segundos serían únicamente la **unidad de generación/renderizado**.
+
+---
+
+# 🏗️ Nueva arquitectura temporal
+
+Tenemos que añadir un nivel que antes no habíamos definido suficientemente:
+
+```text
+PROJECT
+   │
+   ▼
+STORY
+   │
+   ▼
+ACT
+   │
+   ▼
+SEQUENCE
+   │
+   ▼
+SCENE
+   │
+   ▼
+SHOT
+   │
+   ▼
+FRAME
+```
+
+Por ejemplo:
+
+```text
+10 minutos
+│
+├── Act 1 — 2:30
+│   ├── Scene 01 — 00:45
+│   ├── Scene 02 — 00:55
+│   └── Scene 03 — 00:50
+│
+├── Act 2 — 4:00
+│   ├── Scene 04 — 01:10
+│   ├── Scene 05 — 01:20
+│   └── Scene 06 — 01:30
+│
+└── Act 3 — 3:30
+    ├── Scene 07 — 01:10
+    ├── Scene 08 — 01:00
+    └── Scene 09 — 01:20
+```
+
+---
+
+# 🎥 ¿Y los clips de 5–10 segundos?
+
+Siguen siendo útiles.
+
+Una escena de 60 segundos podría estar formada internamente por:
+
+```text
+SHOT 01 → 7 s
+SHOT 02 → 8 s
+SHOT 03 → 6 s
+SHOT 04 → 9 s
+SHOT 05 → 7 s
+SHOT 06 → 8 s
+SHOT 07 → 6 s
+SHOT 08 → 9 s
+```
+
+Pero OMAG conoce que todos pertenecen a:
+
+```text
+SCENE 03
+```
+
+y todos utilizan el mismo:
+
+```text
+WORLD STATE
+CHARACTER MEMORY
+STYLE MEMORY
+CAMERA LANGUAGE
+AUDIO WORLD
+STORY STATE
+```
+
+Por eso pueden formar una escena continua.
+
+---
+
+# 🔥 Y podemos ir mucho más lejos
+
+No pondría un límite artificial de 10 minutos.
+
+Diseñaría OMAG para:
+
+```text
+10 segundos
+        ↓
+30 segundos
+        ↓
+1 minuto
+        ↓
+5 minutos
+        ↓
+10 minutos
+        ↓
+30 minutos
+        ↓
+60 minutos
+        ↓
+largometraje
+```
+
+La diferencia sería **la cantidad de memoria, planificación y recursos computacionales**, no una limitación conceptual del modelo.
+
+---
+
+# 🎧 Lo mismo para el audio
+
+El audio tampoco debería generarse como un único archivo gigante.
+
+OMAG tendría:
+
+```text
+AUDIO WORLD
+     │
+     ├── Dialogue
+     ├── Ambience
+     ├── Foley
+     ├── SFX
+     ├── Music
+     └── Spatial Audio
+```
+
+Y todos ellos estarían sincronizados con:
+
+```text
+MASTER TIMELINE
+```
+
+Por ejemplo:
+
+```text
+00:00 ───────────────────────────── 10:00
+
+VIDEO
+████████████████████████████████████
+
+DIALOGUE
+    ███       █████          ███
+
+MUSIC
+████████████████████████████████████
+
+RAIN
+████████████████████████████████████
+
+MOTORCYCLE
+             ███
+
+EVENT
+             ▲
+```
+
+---
+
+# 🎼 Incluso la música puede tener memoria
+
+En lugar de generar música aleatoriamente para cada escena:
+
+```text
+Scene 1 → música A
+Scene 2 → música B
+Scene 3 → música C
+```
+
+OMAG puede mantener:
+
+```text
+MUSIC WORLD
+```
+
+con:
+
+```text
+theme
+motifs
+tempo
+key
+instrumentation
+emotional state
+variation
+```
+
+Así puede reutilizar un motivo musical durante toda una película.
+
+---
+
+# 👤 Lo mismo para personajes
+
+Este punto es fundamental.
+
+El personaje:
+
+```text
+Elena
+```
+
+debe existir durante los 10 minutos como una entidad persistente:
+
+```text
+character_001
+```
+
+y tener:
+
+```text
+Identity
+Appearance
+Voice
+Personality
+Clothing
+Motion
+Relationships
+Memory
+Emotional State
+```
+
+Entonces:
+
+```text
+Scene 01
+Elena tiene abrigo.
+
+Scene 05
+Elena sigue siendo Elena.
+
+Scene 08
+Elena recuerda lo sucedido.
+
+Scene 09
+Elena cambia emocionalmente.
+```
+
+No queremos que cada escena "regenere" a Elena.
+
+---
+
+# 🧠 Necesitamos una memoria de largo plazo
+
+Para vídeos largos agregaría:
+
+## **Long-Horizon Memory**
+
+```text
+                    PROJECT MEMORY
+                          │
+        ┌─────────────────┼─────────────────┐
+        ▼                 ▼                 ▼
+   CHARACTER           WORLD             STORY
+    MEMORY             MEMORY            MEMORY
+        │                 │                 │
+        └─────────────────┼─────────────────┘
+                          ▼
+                    SCENE MEMORY
+                          │
+                          ▼
+                     SHOT MEMORY
+```
+
+Esto permite que una decisión tomada en el minuto 1 pueda tener consecuencias en el minuto 9.
+
+---
+
+# ⚡ El concepto más importante: `World Checkpoints`
+
+No necesitamos mantener absolutamente todo en VRAM.
+
+Cada cierto tiempo guardamos:
+
+```text
+WORLD_CHECKPOINT_00
+WORLD_CHECKPOINT_01
+WORLD_CHECKPOINT_02
+...
+```
+
+Por ejemplo:
+
+```text
+00:00 → World State A
+02:00 → World State B
+04:00 → World State C
+06:00 → World State D
+08:00 → World State E
+10:00 → World State F
+```
+
+Si necesitamos regenerar el minuto 7:
+
+```text
+Checkpoint 06:00
+       ↓
+reconstruct state
+       ↓
+regenerate 06:00–07:00
+```
+
+No necesitamos regenerar los primeros seis minutos.
+
+---
+
+# 🚀 Esto también resuelve el problema de edición
+
+Supongamos:
+
+> "Cambia la motocicleta del minuto 4."
+
+OMAG no debería volver a producir toda la película.
+
+Debería hacer:
+
+```text
+PROJECT
+  │
+  ▼
+find event
+  │
+  ▼
+minute 04:00
+  │
+  ▼
+modify World State
+  │
+  ├── video regeneration
+  ├── audio regeneration
+  └── downstream consistency check
+           │
+           ▼
+        scenes 4+
+```
+
+Incluso podría detectar qué escenas posteriores se ven afectadas.
+
+---
+
+# 🔄 Dependency Graph
+
+Aquí aparece otra mejora importante.
+
+```text
+Motorcycle
+   │
+   ├── Scene 04
+   │      ├── Video
+   │      └── Audio
+   │
+   └── Scene 05
+          └── Character reaction
+```
+
+Si modificamos la motocicleta:
+
+```text
+Motorcycle
+    ↓
+Scene 04
+    ↓
+Character reaction
+    ↓
+Scene 05
+```
+
+OMAG sabe qué debe regenerar.
+
+Eso evita desperdiciar GPU.
+
+---
+
+# 📈 Entonces el MVP debería cambiar
+
+Yo modificaría nuestra hoja de ruta a:
+
+### MVP-0.1
+
+**Core**
+
+```text
+MediaField
+World
+Entities
+Events
+Timeline
+Critics
+```
+
+✅ Ya construido.
+
+### MVP-0.2
+
+**Short generation**
+
+```text
+5–10 s
+```
+
+Objetivo:
+
+> validar el motor.
+
+### MVP-0.3
+
+**Long-form orchestration**
+
+```text
+1–2 minutos
+```
+
+Añadimos:
+
+* Scene Manager
+* Shot Manager
+* Long-Term Memory
+* Checkpoints
+* Timeline global.
+
+### MVP-0.4
+
+```text
+5 minutos
+```
+
+Añadimos:
+
+* continuidad entre escenas;
+* personaje persistente;
+* audio persistente;
+* música;
+* regeneración selectiva.
+
+### **MVP-1.0**
+
+```text
+10 MINUTOS
+```
+
+Con:
+
+```text
+Story
+Acts
+Sequences
+Scenes
+Shots
+World Memory
+Character Memory
+Audio World
+Video World
+Checkpoint System
+Critic
+Regeneration
+```
+
+---
+
+# 🎯 Y después
+
+Una vez que 10 minutos funcionen:
+
+```text
+10 min
+ ↓
+30 min
+ ↓
+60 min
+ ↓
+120 min
+```
+
+Ahí ya estaríamos hablando de una arquitectura potencialmente orientada a **producción audiovisual larga**, no simplemente un generador de clips.
+
+---
+
+## La conclusión importante
+
+**No limites OMAG a 5–10 segundos.**
+
+De hecho, cambiaría ahora mismo la especificación:
+
+> **5–10 segundos = unidad de renderizado inicial.**
+
+> **10 minutos = objetivo del MVP.**
+
+> **Duración arbitraria = objetivo arquitectónico final.**
+
+La arquitectura correcta sería **jerárquica + temporal + basada en memoria + checkpoints + dependencia causal**, de manera que OMAG pueda producir desde un clip corto hasta una obra de larga duración sin intentar mantener 10 minutos completos dentro de una única inferencia.
+
+Y esto tiene una consecuencia muy importante para nuestro desarrollo: **antes de conectar los generadores reales, conviene modificar el MVP que acabamos de crear para incorporar `Project → Act → Sequence → Scene → Shot`, `LongTermMemory`, `WorldCheckpoint` y un `MasterTimeline`**. Así no tendremos que rehacer el núcleo cuando pasemos de 10 segundos a 10 minutos.

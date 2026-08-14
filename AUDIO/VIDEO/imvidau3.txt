@@ -1,0 +1,335 @@
+# 🚀 Fase 3 — OMAG MVP v0.1
+
+Ya pasamos de la especificación a una **primera implementación ejecutable**.
+
+Construí el esqueleto funcional del MVP con:
+
+* **MediaField Schema**
+* **World Engine**
+* entidades persistentes
+* eventos causales
+* timeline multimodal
+* interfaces de generadores
+* generadores mock de **imagen/audio/vídeo**
+* **Multimodal Critic**
+* loop automático de evaluación
+* CLI
+* tests
+* documentación
+* estructura preparada para sustituir los mocks por modelos reales
+
+### 📦 Proyecto
+
+[**Descargar OMAG MVP v0.1**](sandbox:/mnt/data/omag_mvp_v0.1.zip)
+
+---
+
+## 🧠 Qué tenemos ahora
+
+La arquitectura implementada es:
+
+```text
+                 USER
+                  │
+                  ▼
+             MediaField
+                  │
+                  ▼
+            WorldEngine
+                  │
+                  ▼
+             Timeline
+                  │
+        ┌─────────┼─────────┐
+        ▼         ▼         ▼
+      IMAGE     AUDIO      VIDEO
+     Generator Generator Generator
+        │         │         │
+        └─────────┼─────────┘
+                  ▼
+          Multimodal Critic
+                  │
+             score/error
+                  │
+                  ▼
+          Autonomous Loop
+                  │
+          ┌───────┴───────┐
+          │               │
+       ACCEPT          REVISE
+```
+
+La decisión importante es que **los generadores son intercambiables**.
+
+Por ahora:
+
+```text
+MockImageGenerator
+MockAudioGenerator
+MockVideoGenerator
+```
+
+pero la interfaz ya está preparada para:
+
+```text
+ComfyUIAdapter
+OpenSoraAdapter
+BlenderAdapter
+OMAGNativeRenderer
+```
+
+---
+
+# 🎬 El escenario del MVP
+
+El proyecto ya contiene una escena de prueba:
+
+> Elena camina por una calle lluviosa mientras una motocicleta pasa cerca de ella.
+
+El mundo contiene:
+
+```text
+woman_001
+motorcycle_001
+street_001
+```
+
+y un evento:
+
+```text
+motorcycle_pass_001
+```
+
+que simultáneamente declara:
+
+```text
+motion
+engine_sound
+doppler
+```
+
+Esto es importante porque demuestra el principio central de OMAG:
+
+```text
+EVENT
+  │
+  ├──► VIDEO
+  │
+  ├──► AUDIO
+  │
+  └──► TEMPORAL
+```
+
+---
+
+# 🧪 Cómo ejecutar
+
+Después de extraer el proyecto:
+
+```bash
+cd omag_mvp
+pip install -e ".[dev]"
+python -m omag.cli demo
+```
+
+Y:
+
+```bash
+pytest
+```
+
+La salida del demo debería representar algo similar a:
+
+```json
+{
+  "world_id": "rainy_city_001",
+  "duration": 5,
+  "status": "accepted",
+  "history": [
+    {
+      "iteration": 1,
+      "score": 1.0,
+      "errors": []
+    }
+  ]
+}
+```
+
+---
+
+# 🔥 Pero esto todavía NO es el MVP audiovisual final
+
+Esto es deliberado.
+
+Tenemos ahora el **MVP arquitectónico**:
+
+```text
+MediaField
++
+World
++
+Timeline
++
+Generators
++
+Critic
++
+Loop
+```
+
+El siguiente paso es convertirlo en:
+
+# **OMAG MVP-REAL**
+
+con generación audiovisual real.
+
+La evolución será:
+
+```text
+MVP v0.1
+   │
+   ├── Mock Image
+   ├── Mock Audio
+   └── Mock Video
+           ↓
+MVP v0.2
+   │
+   ├── Real Image
+   ├── Real Audio
+   └── Real Video
+           ↓
+MVP v0.3
+   │
+   ├── Identity consistency
+   ├── temporal consistency
+   └── audio/video synchronization
+           ↓
+MVP v0.4
+   │
+   ├── automatic evaluation
+   ├── regeneration
+   └── error memory
+           ↓
+OMAG MVP 1.0
+   │
+   └── autonomous 5–10 second production
+```
+
+---
+
+# 🧩 El siguiente salto: conectar los modelos reales
+
+La arquitectura que acabamos de crear permite hacer esto:
+
+```text
+                         OMAG
+                          │
+                     MediaField
+                          │
+                  Generator API
+                          │
+          ┌───────────────┼───────────────┐
+          ▼               ▼               ▼
+      IMAGE BACKEND   AUDIO BACKEND   VIDEO BACKEND
+          │               │               │
+          ▼               ▼               ▼
+       ComfyUI          Audio AI       Open-Sora
+          │                               │
+          └───────────────┬───────────────┘
+                          ▼
+                    OMAG Critic
+```
+
+Y después sustituiremos progresivamente:
+
+```text
+ComfyUI
+   ↓
+OMAG Image Renderer
+
+Open-Sora
+   ↓
+OMAG Video Renderer
+
+External Audio
+   ↓
+OMAG Audio Renderer
+```
+
+---
+
+# 🧠 El objetivo científico del próximo incremento
+
+No quiero que el siguiente paso sea simplemente:
+
+> “conectar tres APIs”.
+
+El verdadero experimento será:
+
+```text
+MediaField
+    ↓
+IMAGE
+AUDIO
+VIDEO
+    ↓
+¿SON CONSECUENCIA DEL MISMO WORLD STATE?
+```
+
+Por ejemplo, cambiar:
+
+```text
+motorcycle.position.x = 8
+```
+
+debería producir coherentemente:
+
+```text
+VIDEO
+→ motocicleta cambia de trayectoria
+
+AUDIO
+→ cambia distancia / volumen / Doppler
+
+TIMELINE
+→ cambia momento de interacción
+
+WORLD
+→ cambia relación espacial
+```
+
+**Ese será el primer test serio de la hipótesis de OMAG.**
+
+---
+
+## 🎯 Fase 3 queda entonces dividida en cuatro subfases
+
+### **3A — Core**
+
+✅ Ya implementada.
+
+### **3B — Real Renderers**
+
+Conectar generación real de imagen, audio y vídeo.
+
+### **3C — Consistency**
+
+Implementar identidad, sincronización temporal, causalidad y continuidad.
+
+### **3D — Autonomous MVP**
+
+Implementar:
+
+```text
+GENERATE
+→ EVALUATE
+→ DIAGNOSE
+→ MODIFY MEDIA FIELD
+→ REGENERATE
+→ COMPARE
+→ ACCEPT
+```
+
+y llegar al objetivo de **una escena audiovisual autónoma de 5–10 segundos**.
+
+El ZIP que te dejo contiene la base **OMAG MVP v0.1** sobre la cual podemos construir directamente esas etapas.

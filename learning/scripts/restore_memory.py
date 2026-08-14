@@ -32,11 +32,15 @@ def extract():
 def summary():
     with _open() as z:
         truth = {}
+        facts = []
         for name in z.namelist():
             if "/truth/" in name and name.endswith(".json"):
                 d = json.loads(z.read(name))
                 for c in d["cases"]:
-                    truth[c["id"]] = {"prompt": c["prompt"], "answer": c["answer"], "kind": c.get("type", "exact")}
+                    if "prompt" in c and "answer" in c:
+                        truth[c["id"]] = {"prompt": c["prompt"], "answer": c["answer"], "kind": c.get("type", "exact")}
+                    elif c.get("verified"):
+                        facts.append((name.split("/")[-1], c["id"], c.get("note", c.get("source", ""))))
         learnings = ""
         if "learning/LEARNINGS.md" in z.namelist():
             learnings = z.read("learning/LEARNINGS.md").decode("utf-8", errors="replace")
@@ -48,12 +52,17 @@ def summary():
 
     passed = sum(1 for v in verdicts if v["status"] == "PASS")
     total = len(verdicts)
-    print(f"MEMORIA ULTRAIA — {passed}/{total} veredictos PASS, {len(truth)} casos de verdad")
+    print(f"MEMORIA ULTRAIA — {passed}/{total} veredictos PASS, {len(truth)} casos de verdad, {len(facts)} hechos verificados")
     print()
     print("=== ESQUEMAS DE CONSULTA VERIFICADOS ===")
     for cid, c in truth.items():
         ans = str(c["answer"])
         print(f"[{c['kind']}] {cid}: {c['prompt']}  ->  {ans[:70]}")
+    if facts:
+        print()
+        print("=== HECHOS VERIFICADOS (APIs/tools) ===")
+        for tfile, fid, note in facts:
+            print(f"[facts] {fid} ({tfile}): {note[:110]}")
     print()
     print("=== LECCIONES (LEARNINGS.md) ===")
     for line in learnings.splitlines():
@@ -67,7 +76,10 @@ def schemas():
                 d = json.loads(z.read(name))
                 print(f"--- {name}")
                 for c in d["cases"]:
-                    print(f"[{c.get('type','exact')}] {c['id']} :: {c['prompt']}")
+                    if "prompt" in c:
+                        print(f"[{c.get('type','exact')}] {c['id']} :: {c['prompt']}")
+                    elif c.get("verified"):
+                        print(f"[facts] {c['id']} :: {c.get('note', c.get('source', ''))[:110]}")
 
 if __name__ == "__main__":
     cmd = sys.argv[1] if len(sys.argv) > 1 else "summary"

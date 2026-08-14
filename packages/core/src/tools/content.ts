@@ -5,6 +5,10 @@
  *  - Tunetank MCP (music + SFX): free, keyless, JSON-RPC over Streamable HTTP.
  *    Requires header `Accept: application/json, text/event-stream` (else 406);
  *    response is SSE (`event: message\ndata: {...}`), not plain JSON.
+ *    IMPORTANT lesson (verified live 2026-08-14): Tunetank only matches SINGLE-WORD
+ *    queries. A multi-word query ("cinematic epic") returns [] while any single token
+ *    ("cinematic" / "epic") hits. searchMusic/searchSfx therefore fall back to the
+ *    first token when the full query yields no results.
  *  - Mixkit: free stock video/music/SFX/templates/illustrations, no signup, no
  *    attribution (commercial OK). No public API (api.mixkit.co does not resolve);
  *    discover via readWeb over mixkit.co pages.
@@ -130,22 +134,46 @@ export async function searchMusic(input: ContentMusicInput): Promise<ContentMusi
   const query = input.query.trim();
   if (!query) throw new Error('Query is required');
   const maxResults = Math.min(input.maxResults ?? 6, 20);
-  const args: Record<string, unknown> = { query, limit: maxResults };
-  if (input.duration && input.duration > 0) args.duration = input.duration;
-  if (input.tolerance && input.tolerance > 0) args.tolerance = input.tolerance;
-  const tracks = await callMcp<ContentMusicItem[]>('search_music', args);
-  return { query, tracks: (tracks || []).slice(0, maxResults) };
+  const tracks = await tunetankSearch<ContentMusicItem>('search_music', query, maxResults, (args) => {
+    if (input.duration && input.duration > 0) args.duration = input.duration;
+    if (input.tolerance && input.tolerance > 0) args.tolerance = input.tolerance;
+  });
+  return { query, tracks: tracks.slice(0, maxResults) };
 }
 
 /** Search royalty-free sound effects (Tunetank MCP, keyless). */
 export async function searchSfx(input: ContentSfxInput): Promise<ContentSfxResult> {
   const query = input.query.trim();
   if (!query) throw new Error('Query is required');
-  const maxResults = Math.min(input.maxResults ?? 8, 30);
-  const args: Record<string, unknown> = { query, limit: maxResults };
-  if (input.category && input.category.trim()) args.category = input.category.trim();
-  const sfx = await callMcp<ContentSfxItem[]>('search_sfx', args);
-  return { query, sfx: (sfx || []).slice(0, maxResults) };
+const maxResults = Math.min(input.maxResults ?? 8, 30);
+  const sfx = await tunetankSearch<ContentSfxItem>('search_sfx', query, maxResults, (args) => {
+    if (input.category && input.category.trim()) args.category = input.category.trim();
+  });
+  return { query, sfx: sfx.slice(0, maxResults) };
+}
+
+/**
+ * Shared Tunetank search with the single-word fallback:
+ * if the full (possibly multi-word) query returns no results, retry with the
+ * first token — verified live that Tunetank only matches single words.
+ */
+async function tunetankSearch<T>(
+  method: 'search_music' | 'search_sfx',
+  query: string,
+  maxResults: number,
+  addArgs: (args: Record<string, unknown>) => void,
+): Promise<T[]> {
+  const attempt = async (q: string): Promise<T[]> => {
+    const args: Record<string, unknown> = { query: q, limit: maxResults };
+    addArgs(args);
+    return callMcp<T[]>(method, args);
+  };
+  const first = await attempt(query);
+  if (first.length > 0 || !/\s/.test(query)) return first ?? [];
+  const singleWord = query.split(/\s+/)[0];
+  if (!singleWord) return first ?? [];
+  const retried = await attempt(singleWord);
+  return (retried ?? []).length > 0 ? retried : (first ?? []);
 }
 
 /** Read a Mixkit category/search page via Jina and list downloadable assets (keyless). */

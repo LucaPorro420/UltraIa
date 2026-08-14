@@ -1,0 +1,144 @@
+Te presento una lista comprensiva de repositorios de código abierto relacionados con IA, desarrollo de software profesional y herramientas empresariales:
+
+## 🤖 **Modelos y Frameworks LLM**
+
+### Modelos Base y Alternativas
+- **Llama 2/3** - https://github.com/meta-llama/llama
+- **Mistral AI** - https://github.com/mistralai/mistral-src
+- **Qwen (Alibaba)** - https://github.com/QwenLM/Qwen
+- **Falcon** - https://github.com/adzerc/falcon
+- **OLMo (Allen AI)** - https://github.com/allenai/OLMo
+- **Bloom** - https://github.com/bigscience-workshop/bloom
+
+### Frameworks y Librerías
+- **Hugging Face Transformers** - https://github.com/huggingface/transformers
+- **LangChain** - https://github.com/langchain-ai/langchain
+- **LlamaIndex** - https://github.com/run-llm/llama_index
+- **Ollama** - https://github.com/ollama/ollama
+- **LiteLLM** - https://github.com/BerriAI/litellm
+- **Ray** - https://github.com/ray-project/ray
+- **Petals** - https://github.com/bigscience-workshop/petals
+
+## 🏗️ **Arquitecturas y Diseños**
+
+- **MLflow** - https://github.com/mlflow/mlflow (tracking y producción)
+- **Kubeflow** - https://github.com/kubeflow/kubeflow (ML en Kubernetes)
+- **Airflow** - https://github.com/apache/airflow (orquestación)
+- **DVC** - https://github.com/iterative/dvc (versionado de datos)
+- **Weights & Biases** - https://github.com/wandb/wandb (experimentación)
+
+## 🔗 **Conectores y Integraciones (MCP - Model Context Protocol)**
+
+- **Claude MCP Servers** - https://github.com/modelcontextprotocol/servers
+- **Anthropic MCP** - https://github.com/modelcontextprotocol
+- **Langsmith** - https://github.com/langchain-ai/langsmith-sdk
+- **Integrations Hub** - https://github.com/langchain-ai/langchain-integrations
+
+## 💬 **RAG (Retrieval-Augmented Generation)**
+
+- **LlamaIndex** - https://github.com/run-llm/llama_index
+- **Haystack** - https://github.com/deepset-ai/haystack
+- **Vectara** - https://github.com/vectara/vectara-sdk
+- **Chroma** - https://github.com/chroma-core/chroma (bases de datos vectoriales)
+- **Weaviate** - https://github.com/weaviate/weaviate
+- **Milvus** - https://github.com/milvus-io/milvus
+- **Pinecone SDK** - https://github.com/pinecone-io/pinecone-python
+
+## 🎯 **Prompt Engineering y Management**
+
+- **Prompt Engineering Guide** - https://github.com/dair-ai/Prompt-Engineering-Guide
+- **Langchain Prompts** - https://github.com/langchain-ai/langchain/tree/master/libs/langchain/langchain/prompts
+- **promptfoo** - https://github.com/promptfoo/promptfoo (testing de prompts)
+- **LM Harness** - https://github.com/EleutherAI/lm-evaluation-harness
+- **Dust** - https://github.com/dust-tt/dust (workspace para prompts)
+
+## 🛠️ **Herramientas Empresariales y Profesionales**
+
+- **Qdrant** - https://github.com/qdrant/qdrant (base de datos vectorial)
+- **Supabase** - https://github.com/supabase/supabase (backend open source)
+- **Temporal** - https://github.com/temporalio/temporal (workflows tolerantes a fallos)
+- **N8N** - https://github.com/n8n-io/n8n (automatización y orquestación)
+- **Dify** - https://github.com/langgenius/dify (plataforma LLM full-stack)
+- **FastAPI** - https://github.com/tiangolo/fastapi
+
+## 🎨 **Extensiones y Plugins Libres**
+
+### Para VS Code
+- **GitHub Copilot Alternative (Continue)** - https://github.com/continuedev/continue
+- **Cody (Sourcegraph)** - https://github.com/sourcegraph/cody
+- **Tabnine** - https://github.com/codota/tabnine-nvim
+
+### Para IDEs generales
+- **Cursor** - https://github.com/getcursor/cursor (basado en VSCode con IA integrada)
+- **Aider** - https://github.com/paul-gauthier/aider (AI pair programming en terminal)
+
+## 🤝 **Asistentes de Código y Pair Programming**
+
+- **Codeium** - https://github.com/Exafunction/codeium
+- **Devika** - https://github.com/stitionai/devika (AI senior developer)
+- **OpenDevin** - https://github.com/All-Hands-AI/OpenDevin (agente de IA autónomo)
+- **AutoGPT** - https://github.com/Significant-Gravitas/Auto-GPT
+- **AgentGPT** - https://github.com/reworkd/AgentGPT
+- **Crew AI** - https://github.com/joaomdmoura/crewAI (multi-agent framework)
+
+## 📊 **ML Operations y DevOps para IA**
+
+- **Seldon** - https://github.com/SeldonIO/seldon-core (modelo serving)
+- **BentoML** - https://github.com/bentoml/BentoML (empaquetado de modelos)
+- **KServe** - https://github.com/kserve/kserve (Kubernetes ML serving)
+- **Evidently** - https://github.com/evidentlyai/evidently (monitoreo de modelos)
+- **Arthur** - https://github.com/arthur-ai/arthur (governance de modelos)
+
+## 🔐 **Seguridad y Privacidad**
+
+- **Private-LLM** - https://github.com/private-llm/private-llm
+- **OpenDP** - https://github.com/opendp/opendp (privacidad diferencial)
+- **TensorFlow Privacy** - https://github.com/tensorflow/privacy
+
+## 📚 **Knowledge Bases y Documentación**
+
+- **Obsidian** - https://github.com/obsidianmd/obsidian-sample-plugin
+- **Logseq** - https://github.com/logseq/logseq (base de conocimiento con IA)
+- **Notion Alternative (AnyType)** - https://github.com/anyproto/any-sync
+
+## 🎯 **Skills y Agents Específicos**
+
+- **LangChain Agents** - https://github.com/langchain-ai/langchain/tree/master/libs/langchain/langchain/agents
+- **SuperAGI** - https://github.com/TransformerOptimus/SuperAGI
+- **TaskWeaver** - https://github.com/microsoft/TaskWeaver
+- **Autonomous Agents** - https://github.com/yoheinakajima/pmatag
+
+## 🔬 **Fine-tuning y Customización**
+
+- **LoRA** - https://github.com/microsoft/LoRA
+- **QLoRA** - https://github.com/artidoro/qlora
+- **Hugging Face PEFT** - https://github.com/huggingface/peft
+- **Axolotl** - https://github.com/OpenAccess-AI-Collective/axolotl
+
+## 💰 **Monitoreo de Costos y Optimización**
+
+- **OpenAI Cost Calculator** - https://github.com/agalwood/Voyager
+- **LiteLLM Proxy** - https://github.com/BerriAI/litellm
+
+## 🌐 **Plataformas Completas (All-in-One)**
+
+- **Flowise** - https://github.com/FlowiseAI/Flowise (visual LLM app builder)
+- **Langflow** - https://github.com/logspace-ai/langflow (similar a Flowise)
+- **Gradio** - https://github.com/gradio-app/gradio (UI para modelos ML)
+- **Streamlit** - https://github.com/streamlit/streamlit (dashboards ML rápidos)
+
+## 🎓 **Educación y Recursos**
+
+- **Awesome AI** - https://github.com/sindresorhus/awesome-ai
+- **Awesome LLM** - https://github.com/Hannibal046/Awesome-LLM
+- **Machine Learning System Design** - https://github.com/chiphuyen/machine-learning-systems-design
+
+---
+
+**Bonus - Herramientas Específicas de Desarrollo:**
+
+- **GitHub CLI** - https://github.com/cli/cli
+- **Act (GitHub Actions locales)** - https://github.com/nektos/act
+- **Earthly (CI/CD)** - https://github.com/earthly/earthly
+
+Todos estos repositorios son **100% open source**, con licencias permisivas (MIT, Apache 2.0, GPL) y actualizados activamente. ¿Necesitas más detalles sobre alguno en específico o recomendaciones para un caso de uso particular?

@@ -13,6 +13,8 @@ import { generateUiScreen } from '../tools/stitch';
 import { readWeb, searchWeb, searchGitHub, parseRss, videoInfo } from '../tools/reach';
 import { searchMusic, searchSfx, mixkit } from '../tools/content';
 import { runSkill } from '../tools/skills';
+import { audioLibrary } from '../omag/audiolibrary';
+import { synthSound as synth } from '../omag/sound';
 
 const modelCache = new Map<string, LanguageModel>();
 
@@ -267,6 +269,32 @@ export function chatStream(opts: {
         maxLength: z.number().int().min(500).max(50000).optional(),
       }),
       execute: async ({ type, maxLength }) => mixkit({ type, maxLength }),
+    });
+  }
+  if (opts.tools?.includes('audio')) {
+    tools.audio_search = tool({
+      description:
+        'Search royalty-free audio (Tunetank, keyless) for music or SFX and return downloadable URLs. Use when the task needs real sound (music beds, effects, ambience) rather than synthesized ones.',
+      parameters: z.object({
+        query: z.string().min(1).max(200),
+        kind: z.enum(['music', 'sfx']).optional(),
+        maxResults: z.number().int().min(1).max(20).optional(),
+      }),
+      execute: async ({ query, kind, maxResults }) => audioLibrary.search({ query, kind, maxResults }),
+    });
+    tools.audio_synth = tool({
+      description:
+        'Synthesize a procedural sound from nothing (no network, no ffmpeg): kinds are tone, noise, impact, whoosh, beat, ambience. Returns duration and kind; saves a WAV when a name is given. Use for UI sounds, transitions, foley and background beds without licensing.',
+      parameters: z.object({
+        kind: z.enum(['tone', 'noise', 'impact', 'whoosh', 'beat', 'ambience']),
+        name: z.string().min(1).max(80).optional(),
+        durationSec: z.number().min(0.05).max(30).optional(),
+        freq: z.number().min(20).max(8000).optional(),
+      }),
+      execute: async ({ kind, name, durationSec, freq }) => {
+        const result = name ? await audioLibrary.saveSynth(kind, name, { durationSec, freq }) : synth(kind, { durationSec, freq });
+        return { kind: result.kind, durationSec: result.durationSec, sampleRate: result.sampleRate };
+      },
     });
   }
   return streamText({

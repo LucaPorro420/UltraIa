@@ -61,6 +61,29 @@ describe('parseDirectorPlan', () => {
   it('rejects invalid JSON', () => {
     expect(() => parseDirectorPlan('not json at all')).toThrow();
   });
+
+  it('parses per-shot motions (new format) and keeps motion for compatibility', () => {
+    const plan = parseDirectorPlan(
+      '{"language":"es","script":"Un perro corre en el parque","images":["a dog running in a park"],"shots":3,"motions":["slow push-in","pan right","aerial drone shot"],"motion":"slow push-in","bgm":"orquesta suave","style":"cinematic"}',
+    );
+    expect(plan.motions).toEqual(['slow-push-in', 'pan-right', 'aerial-drone-shot']);
+    expect(plan.motion).toBe('slow-push-in');
+  });
+
+  it('falls back to the single motion when motions is absent (backward compatible)', () => {
+    const plan = parseDirectorPlan(
+      '{"language":"es","script":"Un perro corre","images":["a dog running"],"shots":2,"motion":"tilt up","bgm":"","style":"cinematic"}',
+    );
+    expect(plan.motions).toEqual(['tilt-up']);
+    expect(plan.motion).toBe('tilt-up');
+  });
+
+  it('normalizes unknown motions to zoom-in and trims to the shot count', () => {
+    const plan = parseDirectorPlan(
+      '{"language":"es","script":"Un perro corre","images":["a dog running"],"shots":2,"motions":["wacky spin","static shot","dolly in"],"bgm":"","style":""}',
+    );
+    expect(plan.motions).toEqual(['zoom-in', 'static-shot']);
+  });
 });
 
 describe('buildLocalPlan (sin LLM)', () => {

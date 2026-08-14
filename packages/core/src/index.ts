@@ -12,5 +12,6 @@ export * from './domain/feedback';
 export * from './domain/improve';
 export * from './domain/versions';
 export * from './domain/workspace';
+export * from './omag';
 export * from './tools/calculator';
 export * from './tools';
