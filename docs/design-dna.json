@@ -1,0 +1,96 @@
+{
+  "$schema": "design-dna/v1",
+  "identity": {
+    "name": "UltraIa — Dark Obsidian Multimodal IDE",
+    "source": "IMAGE-INTEGRATIONS/ADDITIONS*.TXT, designs-ui-ux/01-design-system.md, DESIGN.png",
+    "product": "SaaS — AI agent generation with human-in-the-loop improvement",
+    "audience": "developers & ML engineers (dark-mode default is intentional)",
+    "archetype": "Precision Instrument / Terminal-Core with editorial restraint"
+  },
+  "designSystem": {
+    "color": {
+      "canvas": "#08080a",
+      "panelBase": "#111115",
+      "panelHeader": "#18181f",
+      "panelHover": "#22222c",
+      "inputActive": "#0d0d11",
+      "borderSubtle": "#1f1f2a",
+      "borderMuted": "#2e2e3d",
+      "borderActive": "#6366f1",
+      "primary": "#8b5cf6",
+      "accent": "#f472b6",
+      "destructive": "#f87171",
+      "foreground": "#e4e4e7",
+      "muted": "#71717a",
+      "success": "#4ade80",
+      "warning": "#fbbf24",
+      "error": "#f87171",
+      "info": "#60a5fa"
+    },
+    "modalityAccents": {
+      "video": "#a855f7",
+      "audio": "#06b6d4",
+      "text": "#f59e0b",
+      "code": "#10b981",
+      "web": "#6366f1"
+    },
+    "typography": {
+      "display": { "font": "Plus Jakarta Sans", "weights": [600, 700], "usage": "landing H1/H2, headlines" },
+      "body": { "font": "Inter", "weights": [400, 500, 600, 700], "usage": "functional UI, panels, tabs" },
+      "chat": { "font": "Plus Jakarta Sans", "weights": [400, 500], "usage": "chat messages, transcripts" },
+      "mono": { "font": "JetBrains Mono", "weights": [400, 600, 700], "usage": "code, logs, timestamps, badges, agent titles" },
+      "scale": [12, 13, 14, 16, 20, 28, 32, 48, 56]
+    },
+    "spacing": { "base": 4, "scale": [8, 12, 16, 20, 24, 32, 40, 48, 56, 64] },
+    "radius": { "sm": 4, "md": 8, "lg": 12 },
+    "density": {
+      "ideHeaderHeight": 38,
+      "ideActivitybarWidth": 48,
+      "ideSidebarWidth": 280,
+      "idePanelGap": 4
+    },
+    "elevation": {
+      "panelGlow": "0 0 20px -5px var(--color-border-active)",
+      "cardElevated": "0 10px 30px -10px rgba(0,0,0,0.7)",
+      "panelObsidian": "0 8px 32px 0 rgba(0,0,0,0.37)"
+    }
+  },
+  "designStyle": {
+    "mood": "dark, cinematic, technical, precision, premium, calm under pressure",
+    "visualLanguage": "IDE-inspired bento grid; thin 1px borders; glassmorphism on panels (blur 12-16px, saturate 180%); glow accents as state signals, never decoration",
+    "composition": "high-density panels; auto-pairing grid minmax(280px,1fr); asymmetric hero with terminal-style typography; signature: modality glow as live status",
+    "imagery": "no photography; procedural canvas/SVG/CSS patterns (grid dots, aurora, neural-node graph)",
+    "interactionFeel": "snappy 150-250ms micro-interactions; glow on focus-within; status dots with ping; typing indicators for streaming",
+    "brandVoice": "engineering-grade, no marketing fluff"
+  },
+  "visualEffects": {
+    "allowed": [
+      "canvas generative (particles, node graph)",
+      "SVG animation (path draw, node pulse)",
+      "scroll-driven motion (GSAP ScrollTrigger)",
+      "CSS aurora / radial gradients",
+      "glassmorphism (backdrop-filter)",
+      "glow borders & shadows per modality",
+      "Lottie loaders (local JSON)",
+      "grid dot patterns (radial-gradient)"
+    ],
+    "prohibited": [
+      "generic purple gradients",
+      "Inter-only display typography",
+      "external image assets (CSP: img-src 'self' data:)",
+      "animations without prefers-reduced-motion guard"
+    ],
+    "constraints": {
+      "csp": "img-src 'self' data:",
+      "motionGuard": "@media (prefers-reduced-motion: reduce)",
+      "bundleBudget": "gsap ~60KB gzip, lottie ~45KB gzip; no three.js in MVP"
+    }
+  },
+  "motionVocabulary": {
+    "heroEntry": { "engine": "gsap", "duration": "0.6-0.9s", "ease": "power3.out", "stagger": 0.08 },
+    "scrollReveal": { "engine": "gsap ScrollTrigger", "start": "top 80%", "yPercent": 12, "stagger": 0.1 },
+    "microInteraction": { "duration": "150-250ms", "ease": "power2.out" },
+    "typingIndicator": { "engine": "gsap/css", "dots": 3, "stagger": 0.15 },
+    "longLoader": { "engine": "lottie", "trigger": ">5s processes" }
+  }
+}
