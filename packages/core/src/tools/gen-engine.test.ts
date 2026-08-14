@@ -3,6 +3,7 @@ import {
   genEngineMusicProvider,
   genEngineTts,
   genEngineVideoProvider,
+  registerGenEngineIfHealthy,
 } from './gen-engine';
 import { generateMusic, setMusicProvider } from './music';
 import { generateVideo, setVideoProvider } from './video';
@@ -71,5 +72,35 @@ describe('genEngineTts', () => {
   it('returns null when the engine is down', async () => {
     vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('down')));
     expect(await genEngineTts('hola', 'es')).toBeNull();
+  });
+});
+
+describe('registerGenEngineIfHealthy', () => {
+  it('registers music+video providers when /health responds', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({ ok: true, status: 200, json: async () => ({}) }),
+    );
+    const active = await registerGenEngineIfHealthy({ url: 'http://engine:8000' });
+    expect(active).toBe(true);
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({ ok: true, status: 200, json: async () => ({ provider: 'local', url: '/media/m.wav' }) }),
+    );
+    const music = await generateMusic('calm piano');
+    expect(music.kind).toBe('audio');
+    if (music.kind === 'audio') expect(music.url).toContain('http://engine:8000');
+  });
+
+  it('keeps providers unset when the engine is down', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('ECONNREFUSED')));
+    const active = await registerGenEngineIfHealthy({ url: 'http://engine:8000' });
+    expect(active).toBe(false);
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({ ok: true, status: 200, url: 'https://image.pollinations.ai/seed/1/frame.png' }),
+    );
+    const video = await generateVideo('a cat');
+    expect(video.kind).toBe('storyboard');
   });
 });

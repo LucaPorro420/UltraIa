@@ -1,5 +1,7 @@
 import type { VideoClip, VideoProvider } from './video';
 import type { MusicTrack, MusicProvider } from './music';
+import { setMusicProvider } from './music';
+import { setVideoProvider } from './video';
 
 /**
  * Cliente del Gen-Engine self-hosted (gen-engine/, FastAPI).
@@ -8,8 +10,12 @@ import type { MusicTrack, MusicProvider } from './music';
  */
 const GEN_ENGINE_URL = process.env.GEN_ENGINE_URL || 'http://localhost:8000';
 
-async function genEnginePost(path: string, body: Record<string, unknown>): Promise<Record<string, unknown>> {
-  const res = await fetch(`${GEN_ENGINE_URL}${path}`, {
+async function genEnginePost(
+  path: string,
+  body: Record<string, unknown>,
+  baseUrl: string,
+): Promise<Record<string, unknown>> {
+  const res = await fetch(`${baseUrl}${path}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
@@ -20,23 +26,27 @@ async function genEnginePost(path: string, body: Record<string, unknown>): Promi
 }
 
 /** Provider de video real que delega en el Gen-Engine (LTX-2.3 en GPU, storyboard en CPU). */
-export function genEngineVideoProvider(): VideoProvider {
+export function genEngineVideoProvider(baseUrl = GEN_ENGINE_URL): VideoProvider {
   return {
     name: 'gen-engine',
     async generate(prompt, opts) {
-      const res = await genEnginePost('/generate/video', {
-        prompt,
-        frames: opts?.frames ?? 3,
-        duration_sec: opts?.durationSec ?? 5,
-        provider: 'auto',
-      });
+      const res = await genEnginePost(
+        '/generate/video',
+        {
+          prompt,
+          frames: opts?.frames ?? 3,
+          duration_sec: opts?.durationSec ?? 5,
+          provider: 'auto',
+        },
+        baseUrl,
+      );
       const frames = Array.isArray(res.frames) ? (res.frames as string[]) : [];
       const url = typeof res.url === 'string' ? res.url : frames[0];
       if (!url) throw new Error('gen-engine video: sin url en la respuesta');
       return {
         kind: 'video',
         prompt,
-        url: url.startsWith('/') ? `${GEN_ENGINE_URL}${url}` : url,
+        url: url.startsWith('/') ? `${baseUrl}${url}` : url,
         provider: String(res.provider || 'gen-engine'),
       };
     },
@@ -44,21 +54,25 @@ export function genEngineVideoProvider(): VideoProvider {
 }
 
 /** Provider de música real que delega en el Gen-Engine (ACE-Step en GPU). */
-export function genEngineMusicProvider(): MusicProvider {
+export function genEngineMusicProvider(baseUrl = GEN_ENGINE_URL): MusicProvider {
   return {
     name: 'gen-engine',
     async generate(prompt, opts) {
-      const res = await genEnginePost('/generate/music', {
-        prompt,
-        duration_sec: opts?.durationSec ?? 30,
-        provider: 'auto',
-      });
+      const res = await genEnginePost(
+        '/generate/music',
+        {
+          prompt,
+          duration_sec: opts?.durationSec ?? 30,
+          provider: 'auto',
+        },
+        baseUrl,
+      );
       const url = typeof res.url === 'string' ? res.url : undefined;
       if (!url) throw new Error('gen-engine music: sin url en la respuesta');
       return {
         kind: 'audio',
         prompt,
-        url: url.startsWith('/') ? `${GEN_ENGINE_URL}${url}` : url,
+        url: url.startsWith('/') ? `${baseUrl}${url}` : url,
         provider: String(res.provider || 'gen-engine'),
       };
     },
@@ -66,13 +80,39 @@ export function genEngineMusicProvider(): MusicProvider {
 }
 
 /** TTS multilingüe vía Gen-Engine (edge-tts). Devuelve la URL del MP3 o null si no hay engine. */
-export async function genEngineTts(text: string, language: string): Promise<string | null> {
+export async function genEngineTts(
+  text: string,
+  language: string,
+  baseUrl = GEN_ENGINE_URL,
+): Promise<string | null> {
   try {
-    const res = await genEnginePost('/generate/tts', { text, language });
+    const res = await genEnginePost('/generate/tts', { text, language }, baseUrl);
     const url = typeof res.url === 'string' ? res.url : null;
     if (!url) return null;
-    return url.startsWith('/') ? `${GEN_ENGINE_URL}${url}` : url;
+    return url.startsWith('/') ? `${baseUrl}${url}` : url;
   } catch {
     return null;
+  }
+}
+
+/**
+ * Activa los providers del Gen-Engine (video + música) solo si el engine
+ * responde `/health`. Sin cambios si no responde: la pipeline sigue keyless
+ * (Tunetank para música, storyboard para video). Idempotente.
+ */
+export async function registerGenEngineIfHealthy(
+  opts: { url?: string; timeoutMs?: number } = {},
+): Promise<boolean> {
+  const baseUrl = opts.url ?? GEN_ENGINE_URL;
+  try {
+    const res = await fetch(`${baseUrl}/health`, {
+      signal: AbortSignal.timeout(opts.timeoutMs ?? 3000),
+    });
+    if (!res.ok) return false;
+    setMusicProvider(genEngineMusicProvider(baseUrl));
+    setVideoProvider(genEngineVideoProvider(baseUrl));
+    return true;
+  } catch {
+    return false;
   }
 }
