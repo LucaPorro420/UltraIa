@@ -1,0 +1,6 @@
+{
+  "attempt": 1,
+  "prompt": "arxiv_2307_01952_sdxl",
+  "answer": "SDXL (Podell et al. 2023): UNet 3x, segundo text encoder, refinement model; repo Stability-AI/generative-models",
+  "source": "https://arxiv.org/abs/2307.01952"
+}

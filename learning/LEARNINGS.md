@@ -58,6 +58,27 @@ python learning/media-corpus/verify_corpus.py --verbose   # valida corpus media 
 python ULTRAIA/integracionesImplementacion/media_score.py <resultado.json>  # puntua media 0-25
 ```
 
+## Recursos IA generativa desde cero (14/08/2026) — 8 casos verificados
+
+Extraído del AI mode de Google (`share.google/aimode/85V1fon3WxWeePSAN`) y verificado contra
+arXiv + GitHub (8/8 PASS). Fuente de verdad: `learning/truth/truth_ai_gen_resources.json`.
+Usar como **encaminamiento** para el roadmap de entrenamiento del Gen-Engine de OMAG:
+
+| Recurso | Qué aporta |
+|---|---|
+| arXiv 2208.11970 (Unified Diffusion) | Teoría: VDM=VAE markoviano, 3 objetivos (x0/ruido/score), Tweedie |
+| arXiv 2006.11239 (DDPM) | Paper fundacional: CIFAR-10 FID 3.17, timesteps 1000, lr 2e-4, EMA 0.995 |
+| arXiv 2210.02747 (Flow Matching) | Alternativa moderna a difusión (OT paths): entrenamiento/sampling más rápidos |
+| arXiv 2206.00364 (EDM) | Receta: FID 1.79 cond / 35 NFE (18 pasos Heun); NVlabs/edm |
+| arXiv 2307.01952 (SDXL) | Latent diffusion: UNet 3x, 2º text encoder, refinement model |
+| lucidrains/denoising-diffusion-pytorch | Código principal de entrenamiento (10.7k⭐, MIT); Unet1D para audio |
+| karpathy/makemore | Pedagogía "generar de la nada": Bigram→Transformer, CPU, 1 archivo |
+| NVlabs/edm | Repo oficial EDM (CC BY-NC-SA 4.0): CIFAR-10 32x32 ~6s/grid |
+
+**Decisiones propuestas**: DDPM+lucidrains = base del Gen-Engine de entrenamiento;
+Flow Matching para escalar a video/audio; EDM para sampling eficiente; makemore como
+pedagogía para un generador desde cero en CreationsApp/mvp/.
+
 ## Estado del testing de gstack
 
 - ✅ 53 skills instaladas (frontmatter `name`+`description` válidos)

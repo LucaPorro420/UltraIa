@@ -43,11 +43,11 @@ function fakeDb() {
 }
 
 describe('apikey', () => {
-  it('hashes deterministically and keys are prefixed', () => {
-    expect(hashApiKey('secret')).toBe(hashApiKey('secret'));
-    const { key, keyHash } = generateApiKey();
+  it('hashes deterministically and keys are prefixed', async () => {
+    expect(await hashApiKey('secret')).toBe(await hashApiKey('secret'));
+    const { key, keyHash } = await generateApiKey();
     expect(key.startsWith('ua_')).toBe(true);
-    expect(keyHash).toBe(hashApiKey(key));
+    expect(keyHash).toBe(await hashApiKey(key));
   });
 
   it('creates, verifies and lists keys', async () => {

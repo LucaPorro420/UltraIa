@@ -197,7 +197,7 @@ export async function edgeTts(
   let url: string;
   if (opts.filePath) {
     try {
-      const fs = await import('node:fs');
+      const fs = await import(/* webpackIgnore: true */ 'node:fs');
       fs.mkdirSync(require_node_dirname(opts.filePath), { recursive: true });
       fs.writeFileSync(opts.filePath, audio);
       url = opts.filePath;

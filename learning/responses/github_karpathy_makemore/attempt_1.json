@@ -1,0 +1,6 @@
+{
+  "attempt": 1,
+  "prompt": "github_karpathy_makemore",
+  "answer": "makemore: 4.2k stars MIT; autoregresivo caracter; Bigram a Transformer; names.txt 32k; corre en CPU",
+  "source": "https://github.com/karpathy/makemore"
+}

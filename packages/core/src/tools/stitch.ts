@@ -1,5 +1,3 @@
-import { stitch } from '@google/stitch-sdk';
-
 export interface UiScreen {
   prompt: string;
   imageUrl: string;
@@ -26,6 +24,7 @@ export async function generateUiScreen(prompt: string): Promise<UiScreen> {
     );
   }
 
+  const { stitch } = await import(/* webpackIgnore: true */ '@google/stitch-sdk');
   const project = await stitch.createProject('UltraIa');
   const screen = await project.generate(p);
   const [imageUrl, htmlUrl] = await Promise.all([screen.getImage(), screen.getHtml()]);

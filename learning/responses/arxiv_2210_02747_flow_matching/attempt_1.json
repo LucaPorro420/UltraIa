@@ -1,0 +1,6 @@
+{
+  "attempt": 1,
+  "prompt": "arxiv_2210_02747_flow_matching",
+  "answer": "Flow Matching (Lipman et al. 2022): regresion de campos vectoriales sobre paths condicionales fijos; OT mas eficiente que difusion",
+  "source": "https://arxiv.org/abs/2210.02747"
+}

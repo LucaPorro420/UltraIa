@@ -96,7 +96,7 @@ export class AudioLibrary {
       const res = await fetch(url);
       if (!res.ok) return null;
       const buf = Buffer.from(await res.arrayBuffer());
-      const { writeFileSync, mkdirSync } = await import('node:fs');
+      const { writeFileSync, mkdirSync } = await import(/* webpackIgnore: true */ 'node:fs');
       mkdirSync(this.dir, { recursive: true });
       const path = `${this.dir}/${safeName}.mp3`;
       writeFileSync(path, buf);
@@ -111,8 +111,8 @@ export class AudioLibrary {
    * Requires ffmpeg; most hosts additionally need yt-dlp. Degrades gracefully.
    */
   async extractAudioFromVideo(url: string, name: string): Promise<SavedSample> {
-    const { execFile } = await import('node:child_process');
-    const { mkdirSync } = await import('node:fs');
+    const { execFile } = await import(/* webpackIgnore: true */ 'node:child_process');
+    const { mkdirSync } = await import(/* webpackIgnore: true */ 'node:fs');
     mkdirSync(this.dir, { recursive: true });
     const safeName = name.replace(/[^a-z0-9-_]/gi, '_').toLowerCase();
     const out = `${this.dir}/${safeName}.mp3`;
@@ -162,7 +162,7 @@ export class AudioLibrary {
   async saveSynth(kind: string, name: string, opts?: { durationSec?: number; freq?: number }): Promise<SynthResult> {
     const result = synthSound(kind, opts);
     const buf = encodeWav(result);
-    const { writeFileSync, mkdirSync } = await import('node:fs');
+    const { writeFileSync, mkdirSync } = await import(/* webpackIgnore: true */ 'node:fs');
     mkdirSync(this.dir, { recursive: true });
     const safeName = name.replace(/[^a-z0-9-_]/gi, '_').toLowerCase();
     writeFileSync(`${this.dir}/${safeName}.wav`, buf);

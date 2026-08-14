@@ -1,5 +1,11 @@
+import { spawnSync } from 'node:child_process';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { AudioLibrary } from './audiolibrary';
+
+function hasCommand(cmd: string): boolean {
+  const res = spawnSync(cmd, ['-version'], { stdio: 'ignore', timeout: 5000 });
+  return res.error == null;
+}
 
 afterEach(() => {
   vi.unstubAllGlobals();
@@ -52,11 +58,11 @@ describe('AudioLibrary', () => {
     expect(await lib.saveSample('https://cdn/x.mp3', 'x')).toBeNull();
   });
 
-  it('extractAudioFromVideo degrades with an actionable message without ffmpeg', { timeout: 15_000 }, async () => {
+  it('extractAudioFromVideo degrades with an actionable message', { timeout: 15_000 }, async () => {
     const lib = sampleLib();
-    // execFile resolves through a non-existent command → error → our guide.
-    await expect(lib.extractAudioFromVideo('https://example.com/v.mp4', 'clip')).rejects.toThrow(
-      /winget install Gyan\.FFmpeg/,
-    );
+    // With ffmpeg installed the extraction on a bogus URL fails with the
+    // yt-dlp guide; without it, we get the ffmpeg install guide.
+    const pattern = hasCommand('ffmpeg') ? /Could not extract audio/ : /winget install Gyan\.FFmpeg/;
+    await expect(lib.extractAudioFromVideo('https://example.com/v.mp4', 'clip')).rejects.toThrow(pattern);
   });
 });

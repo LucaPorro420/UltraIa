@@ -2,7 +2,46 @@ import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   transpilePackages: ['@ultraia/core'],
-  serverExternalPackages: ['@prisma/client'],
+  serverExternalPackages: ['@prisma/client', '@google/stitch-sdk'],
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      const serverOnlyBuiltins = [
+        'child_process',
+        'crypto',
+        'fs',
+        'path',
+        'net',
+        'tls',
+        'os',
+        'worker_threads',
+        'async_hooks',
+        'perf_hooks',
+        'readline',
+        'repl',
+        'vm',
+        'v8',
+        'diagnostics_channel',
+        'inspector',
+        'module',
+        'sys',
+        'trace_events',
+        'tty',
+        'dgram',
+        'dns',
+        'cluster',
+        'http2',
+        'wasi',
+        'webcrypto',
+      ];
+      for (const mod of serverOnlyBuiltins) {
+        config.resolve.fallback = {
+          ...(config.resolve.fallback ?? {}),
+          [`node:${mod}`]: false,
+        };
+      }
+    }
+    return config;
+  },
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: 'image.pollinations.ai' },

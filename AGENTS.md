@@ -60,6 +60,8 @@ Ciclo recomendado para features: `gstack-plan-ceo-review` → `gstack-plan-eng-r
 - **start.py robustecido (14/08/2026)**: `python_exec()` prefiere `python` sobre `py` (el launcher
   `py` apunta a Python 3.14 donde NO está fastapi/uvicorn). `http_ok()` trata 404 como "servidor
   vivo" (el webhook server no tiene ruta `/` — antes el health-check de :8000 fallaba siempre).
+  NOTA (14/08/2026): Python 3.14.7 (py launcher) YA tiene fastapi+uvicorn instalados; `python`
+  (3.12.10) sigue siendo el intérprete por defecto preferido en `python_exec()`.
   `wait_healthy(url, service, proc)` distingue "proceso murió antes de responder" vs "no responde".
   `terminate()` mata el ÁRBOL completo en Windows (`taskkill /T /F`) — clave para no dejar `next dev`
   huérfano (el `terminate()` antiguo solo mataba npm.cmd y dejaba 2 dev servers duplicados).
@@ -104,6 +106,14 @@ python learning/scripts/restore_memory.py summary   # esquemas verificados + lec
 ```
 
 Reglas aprendidas (no romperlas): API directa > búsqueda web para datos numéricos; pedir campos crudos exactos; el tipo de comparación viene de la verdad; PowerShell 5.1 rompe JSON en argv (usar Write).
+
+## Recursos IA generativa desde cero (14/08/2026)
+
+Verdad verificada 8/8 PASS en `learning/truth/truth_ai_gen_resources.json` (fuente: AI mode de Google
+`share.google/aimode/85V1fon3WxWeePSAN`). Encaminamiento para entrenar el Gen-Engine de OMAG:
+- Teoría: arXiv 2208.11970 (unified diffusion: VDM/3 objetivos/Tweedie) → 2006.11239 (DDPM fundacional) → 2210.02747 (flow matching, OT) → 2206.00364 (EDM, 35 NFE) → 2307.01952 (SDXL latente).
+- Código: lucidrains/denoising-diffusion-pytorch (base entrenamiento, Unet1D audio), karpathy/makemore (pedagogía Bigram→Transformer), NVlabs/edm (repo oficial, CC BY-NC-SA 4.0).
+- Roadmap F5 (E0–E5) documentado en CreationsApp `04-pipeline-ultraia/plan-de-implementacion.md`.
 
 ## Health Stack
 

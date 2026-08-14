@@ -1,0 +1,6 @@
+{
+  "attempt": 1,
+  "prompt": "arxiv_2206_00364_edm",
+  "answer": "EDM (Karras et al., NeurIPS 2022): FID 1.79 cond / 1.97 uncond CIFAR-10 con 35 NFE; 18 pasos Heun; repo NVlabs/edm",
+  "source": "https://arxiv.org/abs/2206.00364"
+}

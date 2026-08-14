@@ -1,10 +1,10 @@
-import { randomBytes } from 'node:crypto';
 import type { Db } from '../db/client';
 
 export const SESSION_COOKIE = 'ultraia_session';
 const SESSION_TTL_DAYS = 30;
 
 export async function createSession(db: Db, userId: string): Promise<{ token: string; expiresAt: Date }> {
+  const { randomBytes } = await import(/* webpackIgnore: true */ 'node:crypto');
   const token = randomBytes(32).toString('base64url');
   const expiresAt = new Date(Date.now() + SESSION_TTL_DAYS * 24 * 60 * 60 * 1000);
   await db.session.create({ data: { token, userId, expiresAt } });

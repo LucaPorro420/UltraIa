@@ -1,0 +1,118 @@
+{
+  "case": "ai_gen_from_scratch_resources",
+  "prompt": "Analiza el enlace Google AI mode (share.google/aimode/85V1fon3WxWeePSAN) sobre creacion de IA generativa desde cero: ingresa a los enlaces, extrae informacion, recursos, papers y repos, y guardalos en memoria.",
+  "source_analysis": "El enlace share.google/aimode requiere JS (webfetch devuelve redirect). El contenido completo fue pegado por el usuario en el prompt. Los 6 enlaces CLAVE fueron ingresados y verificados directamente el 14/08/2026.",
+  "extracted_resources": [
+    {
+      "title": "Understanding Diffusion Models: A Unified Perspective",
+      "url": "https://arxiv.org/abs/2208.11970",
+      "type": "paper",
+      "key_facts": [
+        "Unifica las perspectivas variacional y score-based",
+        "VDM = caso especial de Markovian Hierarchical VAE (3 supuestos hacen el ELBO trazable)",
+        "Aprender = predecir 1 de 3 objetivos: entrada original x0, ruido, o score function",
+        "Tweedie's Formula conecta ambas perspectivas",
+        "Guia condicional via guidance"
+      ],
+      "why": "Primer paper para entender difusion desde cero"
+    },
+    {
+      "title": "Denoising Diffusion Probabilistic Models (DDPM)",
+      "url": "https://arxiv.org/abs/2006.11239",
+      "type": "paper",
+      "key_facts": [
+        "Paper fundacional (Ho, Jain, Abbeel, NeurIPS 2020)",
+        "CIFAR-10: Inception 9.46, FID 3.17 (SOTA en su epoca)",
+        "Implementacion oficial TensorFlow: hojonathanho/diffusion",
+        "Timesteps 1000, schedule lineal de beta"
+      ],
+      "why": "La referencia base de todo entrenamiento de difusion"
+    },
+    {
+      "title": "Flow Matching for Generative Modeling",
+      "url": "https://arxiv.org/abs/2210.02747",
+      "type": "paper",
+      "key_facts": [
+        "Paradigma sobre Continuous Normalizing Flows (Lipman et al., 2022)",
+        "Regresion de campos vectoriales de paths condicionales FIJOS - simulation-free",
+        "Subsuma los diffusion paths como caso particular",
+        "Optimal Transport (OT) interpolation: entrenamiento y sampling mas rapidos, mejor generalizacion",
+        "Solvers ODE off-the-shelf"
+      ],
+      "why": "Alternativa moderna a difusion para el Gen-Engine de OMAG (video/audio)"
+    },
+    {
+      "title": "Elucidating the Design Space of Diffusion-Based Generative Models (EDM)",
+      "url": "https://arxiv.org/abs/2206.00364",
+      "type": "paper",
+      "key_facts": [
+        "Karras, Aittala, Aila, Laine (NeurIPS 2022)",
+        "Design space: schedule sigma(t), scaling s(t), preconditioning F_theta, solver",
+        "FID 1.79 cond / 1.97 uncond CIFAR-10 con SOLO 35 NFE (18 pasos Heun)",
+        "ImageNet-64 re-entrenado: FID 1.36 SOTA",
+        "Repo oficial: NVlabs/edm"
+      ],
+      "why": "Receta moderna de entrenamiento + sampling con pocos pasos"
+    },
+    {
+      "title": "SDXL: Improving Latent Diffusion Models",
+      "url": "https://arxiv.org/abs/2307.01952",
+      "type": "paper",
+      "key_facts": [
+        "Podell et al., 2023",
+        "UNet 3x mas grande, segundo text encoder (cross-attention mas contexto)",
+        "Multiples aspect ratios en entrenamiento",
+        "Refinement model post-hoc (image-to-image) para fidelidad",
+        "Repo: Stability-AI/generative-models"
+      ],
+      "why": "Arquitectura de referencia en latent space para imagen"
+    },
+    {
+      "title": "denoising-diffusion-pytorch",
+      "url": "https://github.com/lucidrains/denoising-diffusion-pytorch",
+      "type": "repo",
+      "key_facts": [
+        "10.7k stars, MIT",
+        "Unet + GaussianDiffusion + Trainer (pip install denoising-diffusion-pytorch)",
+        "Objetivos: pred_noise / pred_x0 / pred_v",
+        "DDIM sampling 250 pasos, EMA 0.995, AMP, gradient accumulation, Accelerator",
+        "Unet1D/GaussianDiffusion1D para audio/secuencias",
+        "Cita: CFG (2207.12598), DPM-Solver++, min-SNR weighting, offset noise"
+      ],
+      "why": "Codigo de referencia principal para entrenar difusion desde cero"
+    },
+    {
+      "title": "makemore (karpathy)",
+      "url": "https://github.com/karpathy/makemore",
+      "type": "repo",
+      "key_facts": [
+        "4.2k stars, MIT, 1 archivo hackeable",
+        "Modelo de lenguaje autoregresivo a nivel de caracter",
+        "Progresion: Bigram -> MLP (Bengio 2003) -> CNN (WaveNet) -> RNN -> LSTM -> GRU -> Transformer (GPT)",
+        "Dataset: names.txt 32k nombres ssa.gov 2018",
+        "Solo requiere PyTorch, corre en CPU (MacBook Air), test logprob ~1.92"
+      ],
+      "why": "Mejor punto de partida pedagogico para 'generar de la nada'"
+    },
+    {
+      "title": "NVlabs/edm",
+      "url": "https://github.com/NVlabs/edm",
+      "type": "repo",
+      "key_facts": [
+        "2k stars, implementacion oficial EDM",
+        "Python 3.8 + PyTorch 1.12+, Linux/Windows (Linux recomendado)",
+        "1+ GPU sampling, 8+ GPU training (V100/A100)",
+        "Pretrained: nvlabs-fi-cdn.nvidia.com/edm/pretrained/",
+        "Licencia CC BY-NC-SA 4.0 (NO comercial)",
+        "example.py ~6s CIFAR-10 8x8 grid; generate.py --steps 18/40/256"
+      ],
+      "why": "Para reproducir/reutilizar modelos EDM sin entrenar"
+    }
+  ],
+  "next_steps_proposed": [
+    "Elegir DDPM (2206.11239 + lucidrains repo) como base del Gen-Engine de entrenamiento",
+    "Flow Matching (2210.02747) como via de escalado a video/audio condicionado",
+    "EDM como receta de sampling eficiente (35 NFE) para produccion",
+    "makemore como pedagogia: implementar generador desde cero en CreationsApp/mvp/"
+  ]
+}

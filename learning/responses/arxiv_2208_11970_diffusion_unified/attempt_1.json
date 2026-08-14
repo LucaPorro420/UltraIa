@@ -1,0 +1,6 @@
+{
+  "attempt": 1,
+  "prompt": "arxiv_2208_11970_diffusion_unified",
+  "answer": "Unified Perspective (Calvin Luo, 2022): VDM como VAE jerarquico markoviano; 3 objetivos (x0, ruido, score); Tweedie Formula",
+  "source": "https://arxiv.org/abs/2208.11970"
+}

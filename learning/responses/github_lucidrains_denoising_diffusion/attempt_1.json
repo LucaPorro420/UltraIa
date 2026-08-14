@@ -1,0 +1,6 @@
+{
+  "attempt": 1,
+  "prompt": "github_lucidrains_denoising_diffusion",
+  "answer": "denoising-diffusion-pytorch: 10.7k stars MIT; Unet+GaussianDiffusion+Trainer; objetivos pred_noise/x0/v; DDIM 250; EMA 0.995; Unet1D para audio",
+  "source": "https://github.com/lucidrains/denoising-diffusion-pytorch"
+}

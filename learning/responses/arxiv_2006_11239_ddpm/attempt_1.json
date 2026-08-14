@@ -1,0 +1,6 @@
+{
+  "attempt": 1,
+  "prompt": "arxiv_2006_11239_ddpm",
+  "answer": "DDPM (Ho, Jain, Abbeel, NeurIPS 2020): CIFAR-10 IS 9.46 / FID 3.17; timesteps 1000; repo hojonathanho/diffusion",
+  "source": "https://arxiv.org/abs/2006.11239"
+}

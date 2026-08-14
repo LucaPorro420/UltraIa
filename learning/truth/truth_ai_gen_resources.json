@@ -1,0 +1,79 @@
+{
+  "id": "ai_gen_from_scratch_resources",
+  "type": "facts",
+  "description": "Recursos verificados el 14/08/2026 para IA generativa desde cero (difusión, flow matching, SDXL, EDM) — extraídos del AI mode de Google (share.google/aimode/85V1fon3WxWeePSAN) y verificados contra arXiv + GitHub. Usar como encaminamiento (routing) y memoria para el roadmap de entrenamiento de OMAG.",
+  "cases": [
+    {
+      "id": "arxiv_2208_11970_diffusion_unified",
+      "source": "https://arxiv.org/abs/2208.11970",
+      "verified": true,
+      "note": "Understanding Diffusion Models: A Unified Perspective (Calvin Luo, 2022). Unifica la vista variacional y score-based. VDM = caso especial de VAE jerárquico markoviano (3 supuestos → ELBO trazable). Aprender = predecir 1 de 3 objetivos: la entrada original, el ruido, o la score function (unidos por Tweedie's Formula). Cubre guía condicional (classifier guidance / CFG).",
+      "usage": "primer paper a leer para entender difusión desde cero; el repo lucidrains implementa sus objetivos (pred_x0, pred_noise, pred_v)",
+      "answer": "Unified Perspective (Calvin Luo, 2022): VDM como VAE jerarquico markoviano; 3 objetivos (x0, ruido, score); Tweedie Formula",
+      "type": "text"
+    },
+    {
+      "id": "arxiv_2006_11239_ddpm",
+      "source": "https://arxiv.org/abs/2006.11239",
+      "verified": true,
+      "note": "Denoising Diffusion Probabilistic Models (Ho, Jain, Abbeel, NeurIPS 2020). El paper fundacional de difusión. CIFAR-10: IS 9.46, FID 3.17 (SOTA en su época). Implementación oficial: hojonathanho/diffusion (TensorFlow). Timesteps 1000, UNet, predicción de ruido ε, schedule lineal de β.",
+      "usage": "referencia base de entrenamiento; hiperparámetros canónicos: timesteps=1000, lr 2e-4, EMA 0.995, AMP",
+      "answer": "DDPM (Ho, Jain, Abbeel, NeurIPS 2020): CIFAR-10 IS 9.46 / FID 3.17; timesteps 1000; repo hojonathanho/diffusion",
+      "type": "text"
+    },
+    {
+      "id": "arxiv_2210_02747_flow_matching",
+      "source": "https://arxiv.org/abs/2210.02747",
+      "verified": true,
+      "note": "Flow Matching for Generative Modeling (Lipman, Chen, Ben-Hamu, Nickel, Le, 2022). Paradigma sobre CNFs: regresión de campos vectoriales de paths condicionales FIJOS — training simulation-free. Subsuma los paths de difusión como caso particular. Interpolación OT (Optimal Transport) más eficiente que difusión: entrenamiento y sampling más rápidos, mejor generalización. Compatible con solvers ODE off-the-shelf.",
+      "usage": "alternativa moderna a difusión para el Gen-Engine de OMAG; OT-FM es el camino para video/audio condicionado",
+      "answer": "Flow Matching (Lipman et al. 2022): regresion de campos vectoriales sobre paths condicionales fijos; OT mas eficiente que difusion",
+      "type": "text"
+    },
+    {
+      "id": "arxiv_2206_00364_edm",
+      "source": "https://arxiv.org/abs/2206.00364",
+      "verified": true,
+      "note": "Elucidating the Design Space of Diffusion-Based Generative Models (Karras, Aittala, Aila, Laine, NeurIPS 2022). Define un design space limpio (schedule σ(t), scaling s(t), preconditioning F_θ, solver). SOTA: FID 1.79 CIFAR-10 cond / 1.97 uncond con SOLO 35 NFE (18 pasos deterministas Heun 2nd order). ImageNet-64: 1.36 re-entrenado. Implementación oficial: NVlabs/edm (PyTorch, Linux/Windows).",
+      "usage": "receta de entrenamiento: 8xV100 ~2 días CIFAR-10 (ddpmpp/ncsnpp, batch 512/64 por GPU); sampling: euler/heun, NFE 35; training con ema, dropout 0.05-0.25, augment 0.15, FP16 opcional",
+      "answer": "EDM (Karras et al., NeurIPS 2022): FID 1.79 cond / 1.97 uncond CIFAR-10 con 35 NFE; 18 pasos Heun; repo NVlabs/edm",
+      "type": "text"
+    },
+    {
+      "id": "arxiv_2307_01952_sdxl",
+      "source": "https://arxiv.org/abs/2307.01952",
+      "verified": true,
+      "note": "SDXL (Podell et al., 2023). Latent diffusion: UNet 3x más grande, SEGUNDO text encoder (cross-attention más contexto), entrenado en múltiples aspect ratios, más un refinement model post-hoc (image-to-image) para fidelidad. Código/pesos: Stability-AI/generative-models (abierto). Aporta el patrón: VAE (latent space) + UNet difusión + text conditioning + CFG.",
+      "usage": "arquitectura de referencia para el Gen-Engine de imágenes en latente; CFG scale típico 5-7.5; refinador opcional para calidad",
+      "answer": "SDXL (Podell et al. 2023): UNet 3x, segundo text encoder, refinement model; repo Stability-AI/generative-models",
+      "type": "text"
+    },
+    {
+      "id": "github_lucidrains_denoising_diffusion",
+      "source": "https://github.com/lucidrains/denoising-diffusion-pytorch",
+      "verified": true,
+      "note": "Implementación PyTorch de DDPM (10.7k stars, MIT, activo). Unet + GaussianDiffusion + Trainer. Pip: denoising-diffusion-pytorch. Objetivos: pred_noise/pred_x0/pred_v. DDIM sampling (250 pasos), EMA 0.995, AMP, gradient accumulation, Accelerator multi-GPU, Unet1D/1D para secuencias, XMWrapper multi-candidato. Además cita: Cold Diffusion, CFG (2207.12598), DPM-Solver++, Simple Diffusion, min-SNR weighting (2303.09556), offset noise.",
+      "usage": "código de referencia principal para entrenar difusión desde cero; soporta 1D (audio) vía Unet1D/GaussianDiffusion1D",
+      "answer": "denoising-diffusion-pytorch: 10.7k stars MIT; Unet+GaussianDiffusion+Trainer; objetivos pred_noise/x0/v; DDIM 250; EMA 0.995; Unet1D para audio",
+      "type": "text"
+    },
+    {
+      "id": "github_karpathy_makemore",
+      "source": "https://github.com/karpathy/makemore",
+      "verified": true,
+      "note": "Modelo de lenguaje autoregresivo a nivel de carácter (4.2k stars, MIT, 1 archivo hackeable). Progresión pedagógica: Bigram → MLP (Bengio 2003) → CNN (WaveNet) → RNN (Mikolov) → LSTM → GRU → Transformer (GPT). Dataset names.txt = 32k nombres ssa.gov 2018. Requiere solo PyTorch; corre en CPU (MacBook Air). Test logprob ~1.92 por defecto.",
+      "usage": "mejor punto de partida pedagógico para 'generar de la nada': tokens de texto/nombres/prompts; base para un generador de prompts o nombres de mundo",
+      "answer": "makemore: 4.2k stars MIT; autoregresivo caracter; Bigram a Transformer; names.txt 32k; corre en CPU",
+      "type": "text"
+    },
+    {
+      "id": "github_nvlabs_edm_repo",
+      "source": "https://github.com/NVlabs/edm",
+      "verified": true,
+      "note": "Repo oficial EDM (2k stars). Python 3.8 + PyTorch 1.12+, Linux/Windows (Linux recomendado). 1+ GPU para sampling, 8+ para training (V100/A100). Pretrained: nvlabs-fi-cdn.nvidia.com/edm/pretrained/ (CIFAR-10 32x32, FFHQ 64x64, AFHQv2, ImageNet 64x64). Licencia CC BY-NC-SA 4.0 (NO comercial). example.py reproduce resultados; generate.py --steps=18 (CIFAR), 40 (FFHQ), 256 stochastic (ImageNet).",
+      "usage": "para reproducir/reutilizar: CIFAR-10 32x32 ~6s por grid 8x8; entrenar con torchrun; FID con fid.py (50k imágenes)",
+      "answer": "NVlabs/edm: 2k stars; PyTorch 1.12+; 1 GPU sample, 8+ train; pretrained en nvlabs-fi-cdn; CC BY-NC-SA 4.0",
+      "type": "text"
+    }
+  ]
+}
