@@ -132,6 +132,43 @@ def trigger_fal_video(prompt: str, settings: Settings) -> str:
     return res.json()["request_id"]
 
 
+def generate_slideshow(
+    image_path: Path,
+    output: Path,
+    duration_sec: int = 5,
+    fps: int = 24,
+    size: str = "1920x1080",
+) -> str:
+    """Video local SIN API key: clip de imagen con movimiento Ken Burns (zoompan).
+
+    Fallback de Runway/Fal.ai usando ffmpeg (gratis). Requiere ffmpeg en PATH
+    (winget install Gyan.FFmpeg). Devuelve la ruta del MP4 generado.
+    """
+    import shutil
+    import subprocess as sp
+
+    if shutil.which("ffmpeg") is None:
+        raise RuntimeError(
+            "Sin RUNWAY/FAL_API_KEY y ffmpeg no está en PATH. "
+            "Instálalo con: winget install Gyan.FFmpeg"
+        )
+    output.parent.mkdir(parents=True, exist_ok=True)
+    zoompan = (
+        f"scale={size}:force_original_aspect_ratio=decrease,"
+        f"pad={size}:(ow-iw)/2:(oh-ih)/2,"
+        f"zoompan=z='min(zoom+0.0015,1.15)':d={fps * duration_sec}:s={size}:fps={fps}"
+    )
+    cmd = [
+        "ffmpeg", "-y", "-loop", "1", "-i", str(image_path),
+        "-vf", zoompan, "-t", str(duration_sec),
+        "-c:v", "libx264", "-pix_fmt", "yuv420p", str(output),
+    ]
+    proc = sp.run(cmd, capture_output=True, text=True, timeout=300)
+    if proc.returncode != 0:
+        raise RuntimeError(f"ffmpeg slideshow falló: {proc.stderr[-500:]}")
+    return str(output)
+
+
 def save_video_manifest(output_dir: Path, entries: list[dict]) -> Path:
     """Guarda el manifiesto de videos generados en output/video/manifest.json."""
     path = output_dir / "manifest.json"

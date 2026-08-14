@@ -59,6 +59,33 @@ def generate_audio(
     return res.content
 
 
+def generate_audio_free(script_diacritized: str, voice: str = "ar-SA-HamedNeural") -> bytes:
+    """Síntesis de voz SIN API key vía Microsoft Edge TTS (gratuito, ar-SA).
+
+    Fallback local cuando ELEVENLABS_API_KEY no está configurada. Requiere
+    `pip install edge-tts`. Devuelve bytes MP3, misma firma que generate_audio.
+    """
+    try:
+        import asyncio
+        import tempfile
+
+        import edge_tts
+    except ImportError as exc:
+        raise RuntimeError(
+            "Sin ELEVENLABS_API_KEY y edge-tts no está instalado. "
+            "Instálalo con: pip install edge-tts"
+        ) from exc
+
+    text = build_tts_text(script_diacritized)
+    with tempfile.NamedTemporaryFile(suffix=".mp3", delete=False) as tmp:
+        tmp_path = Path(tmp.name)
+    try:
+        asyncio.run(edge_tts.Communicate(text, voice).save(str(tmp_path)))
+        return tmp_path.read_bytes()
+    finally:
+        tmp_path.unlink(missing_ok=True)
+
+
 def save_audio(audio_bytes: bytes, output_dir: Path, title: str) -> Path:
     """Persiste el audio MP3 en output/audio/<title>.mp3 y devuelve su ruta."""
     safe_title = "".join(c if c.isalnum() else "_" for c in title).strip("_") or "audio"

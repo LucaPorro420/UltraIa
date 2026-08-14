@@ -29,6 +29,13 @@ function ollamaModel(name: string): LanguageModel {
   return provider(name);
 }
 
+// LM Studio serves an OpenAI-compatible API locally — fully free (Qwen, Llama, etc.).
+function lmstudioModel(name: string): LanguageModel {
+  const baseURL = process.env.LMSTUDIO_BASE_URL || 'http://localhost:1234/v1';
+  const provider = createOpenAI({ baseURL, apiKey: 'lmstudio', compatibility: 'compatible' });
+  return provider(name);
+}
+
 function openaiModel(name: string): LanguageModel {
   if (!process.env.OPENAI_API_KEY) {
     throw new AiUnavailableError(
@@ -55,21 +62,23 @@ function deepseekModel(name: string): LanguageModel {
 
 /**
  * Resolve a LanguageModel by provider. Controlled by ULTRAIA_PROVIDER
- * (openai | google | ollama). Keeps the user's existing OpenAI path as the
- * default while adding free Google (Gemini) and local Ollama (Llama/Phi).
+ * (openai | google | ollama | lmstudio). Keeps the user's existing OpenAI path
+ * as an option while defaulting to local Ollama (Llama/Phi) — free, no keys.
  */
 export function resolveModel(model?: string): LanguageModel {
   // * Por defecto Ollama (local, sin API key). Cambia ULTRAIA_PROVIDER para usar
-  // * openai / google / deepseek (estos sí requieren key externa).
+  // * openai / google / deepseek / lmstudio.
   const provider = (process.env.ULTRAIA_PROVIDER || 'ollama').toLowerCase();
   const defaultName =
     provider === 'google'
       ? 'gemini-2.5-flash'
       : provider === 'ollama'
         ? 'llama3.1'
-        : provider === 'deepseek'
-          ? 'deepseek-chat'
-          : 'gpt-4o-mini';
+        : provider === 'lmstudio'
+          ? 'qwen2.5-7b-instruct'
+          : provider === 'deepseek'
+            ? 'deepseek-chat'
+            : 'gpt-4o-mini';
   const name = model || process.env.ULTRAIA_MODEL || defaultName;
   const cacheKey = `${provider}:${name}`;
   let cached = modelCache.get(cacheKey);
@@ -79,15 +88,17 @@ export function resolveModel(model?: string): LanguageModel {
         ? googleModel(name)
         : provider === 'ollama'
           ? ollamaModel(name)
-          : provider === 'deepseek'
-            ? deepseekModel(name)
-            : openaiModel(name);
+          : provider === 'lmstudio'
+            ? lmstudioModel(name)
+            : provider === 'deepseek'
+              ? deepseekModel(name)
+              : openaiModel(name);
     modelCache.set(cacheKey, cached);
   }
   return cached;
 }
 
-export type ProviderName = 'openai' | 'google' | 'ollama' | 'deepseek';
+export type ProviderName = 'openai' | 'google' | 'ollama' | 'lmstudio' | 'deepseek';
 
 export class OpenAICompatibleGateway implements AiGateway {
   async generateStructured<T>(input: StructuredGenInput): Promise<T> {

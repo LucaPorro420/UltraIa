@@ -16,18 +16,22 @@ starts the services. Ctrl+C stops everything.
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import shutil
+import socket
 import subprocess
 import sys
 import threading
+import urllib.request
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 PIPE_DIR = ROOT / "ULTRAIA" / "integracionesImplementacion"
 WEBHOOK_SERVER = PIPE_DIR / "webhook_server.py"
 DB_FILE = ROOT / "packages" / "core" / "prisma" / "dev.db"
-ENV_SOURCES = [ROOT / ".env.example", ROOT / "apps" / "web" / ".env.example"]
+ENV_SOURCES = [ROOT / ".env.example", ROOT / "apps" / "web" / ".env.example", PIPE_DIR / ".env.example"]
+ENV_TARGETS = [ROOT / ".env", ROOT / "apps" / "web" / ".env", PIPE_DIR / ".env"]
 
 
 def log(msg: str) -> None:
@@ -65,19 +69,14 @@ def check_prereqs() -> None:
 
 
 def setup_env() -> None:
-    targets = [ROOT / ".env", ROOT / "apps" / "web" / ".env"]
-    for target in targets:
+    for target, source in zip(ENV_TARGETS, ENV_SOURCES):
         if target.exists():
             continue
-        source = ENV_SOURCES[0] if target == ROOT / ".env" else ENV_SOURCES[1]
         if not source.exists():
             print(f"[ultraia] AVISO: {source} no existe; no puedo crear {target}", file=sys.stderr)
             continue
         shutil.copyfile(source, target)
         log(f"Creando {target.relative_to(ROOT)} desde .env.example (revisa tus API keys)")
-    key_file = targets[1]
-    if key_file.exists() and "OPENAI_API_KEY" in key_file.read_text(encoding="utf-8"):
-        log("apps/web/.env listo (puede que necesites poner OPENAI_API_KEY real para generación de agentes)")
 
 
 def setup() -> None:
@@ -93,6 +92,63 @@ def setup() -> None:
     else:
         log("DB ausente — npm run db:migrate...")
         run(["npm", "run", "db:migrate"])
+
+
+def http_ok(url: str, timeout: float = 2.0) -> bool:
+    try:
+        with urllib.request.urlopen(url, timeout=timeout):
+            return True
+    except Exception:
+        return False
+
+
+def port_free(port: int) -> bool:
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.settimeout(0.5)
+        return s.connect_ex(("127.0.0.1", port)) != 0
+
+
+def env_keys_with_values(path: Path) -> dict[str, str | None]:
+    """Devuelve {VARIABLE: valor} para claves tipo KEY/SECRET/TOKEN/CLIENT del .env."""
+    if not path.exists():
+        return {}
+    out: dict[str, str | None] = {}
+    for line in path.read_text(encoding="utf-8", errors="ignore").splitlines():
+        line = line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        name, _, value = line.partition("=")
+        name = name.strip()
+        value = value.strip().strip('"').strip("'")
+        if any(t in name.upper() for t in ("KEY", "SECRET", "TOKEN", "PASSWORD", "CLIENT")):
+            out[name] = value or None
+    return out
+
+
+def check_connections() -> None:
+    log("=== CONEXIONES ===")
+    for target, source in zip(ENV_TARGETS, ENV_SOURCES):
+        label = str(target.relative_to(ROOT))
+        if not target.exists():
+            print(f"  [ENV]   {label}: NO EXISTE (crea con: python start.py)")
+            continue
+        keys = env_keys_with_values(target)
+        example = env_keys_with_values(source) if source.exists() else {}
+        for name in sorted(example):
+            value = keys.get(name)
+            status = "OK" if value else ("VACIA" if name in keys else "FALTA")
+            if value:
+                masked = value[:4] + "****" if len(value) > 4 else "****"
+                print(f"  [ENV]   {label}: {name} = {masked} ({status})")
+            else:
+                print(f"  [ENV]   {label}: {name} ({status})")
+    print(f"  [TOOL]  ffmpeg: {'OK (' + (shutil.which('ffmpeg') or '') + ')' if shutil.which('ffmpeg') else 'FALTA (winget install Gyan.FFmpeg)'}")
+    print(f"  [TOOL]  ollama: {'OK (http://localhost:11434)' if http_ok('http://localhost:11434/api/version') else 'NO responde (arranca Ollama)'}")
+    print(f"  [TOOL]  LM Studio: {'OK (http://localhost:1234)' if http_ok('http://localhost:1234/v1/models') else 'NO responde (opcional: arranca LM Studio)'}")
+    print(f"  [NET]   registry npm: {'OK' if http_ok('https://registry.npmjs.org', 4.0) else 'NO alcanzable (sin red/proxy)'}")
+    for port, svc in [(3000, "web (Next.js)"), (8000, "webhooks (FastAPI)")]:
+        print(f"  [PORT]  {port} ({svc}): {'LIBRE' if port_free(port) else 'EN USO'}")
+    log("check-connections: listo. Las claves reales (OPENAI/ELEVENLABS/RUNWAY/FAL) debes pegarlas tú en los .env.")
 
 
 def validate_pipeline() -> None:
@@ -129,8 +185,13 @@ def main() -> None:
     parser.add_argument("--web", action="store_true", help="solo web app")
     parser.add_argument("--hooks", action="store_true", help="solo webhooks")
     parser.add_argument("--validate", action="store_true", help="solo validar pipeline ar-SA")
+    parser.add_argument("--check-connections", action="store_true", help="reporte de claves, herramientas y puertos")
     parser.add_argument("--skip-setup", action="store_true", help="no instalar/migrar; solo arrancar")
     args = parser.parse_args()
+
+    if args.check_connections:
+        check_connections()
+        return
 
     if args.validate:
         validate_pipeline()

@@ -92,8 +92,8 @@ class Pipeline:
             result.images = self._step_images(script)
 
         if active("video"):
-            self._log("4. Generando video por shot (Runway/Fal.ai)")
-            result.videos = asyncio.run(self._step_videos(script))
+            self._log("4. Generando video por shot (Runway/Fal.ai, o slideshow local sin keys)")
+            result.videos = asyncio.run(self._step_videos(script, result.images))
 
         if active("assembly"):
             self._log("5. Ensamblando MP4 final (video + audio + subtítulos)")
@@ -126,8 +126,10 @@ class Pipeline:
             path = self.dirs["audio"] / f"{_safe(script['title'])}.mp3"
             path.write_bytes(b"")  # placeholder
             return path
-        require_key("ELEVENLABS_API_KEY", self.settings.elevenlabs_api_key)
-        audio_bytes = audio_mod.generate_audio(diacritized, self.settings)
+        if self.settings.elevenlabs_api_key:
+            audio_bytes = audio_mod.generate_audio(diacritized, self.settings)
+        else:
+            audio_bytes = audio_mod.generate_audio_free(diacritized)
         return audio_mod.save_audio(audio_bytes, self.dirs["audio"], script["title"])
 
     def _step_images(self, script: dict) -> dict[int, Path]:
@@ -147,9 +149,12 @@ class Pipeline:
             print(f"  Imagen shot {shot_id}: {images[shot_id]}")
         return images
 
-    async def _step_videos(self, script: dict) -> dict[int, str]:
+    async def _step_videos(self, script: dict, images: dict[int, Path] | None = None) -> dict[int, str]:
         videos: dict[int, str] = {}
         provider = self.settings.video_provider
+        has_paid_key = (
+            self.settings.fal_key_id if provider == "fal" else self.settings.runway_api_key
+        )
         for shot in script["shot_list"]:
             shot_id = shot["shot_id"]
             prompt = shot["visual_prompt_en"]
@@ -157,10 +162,24 @@ class Pipeline:
                 videos[shot_id] = f"https://mock.invalid/video/{shot_id}"
                 print(f"  [simulado] video shot {shot_id}: {prompt[:80]}...")
                 continue
-            url = await self._generate_one_video(prompt)
+            if has_paid_key:
+                url = await self._generate_one_video(prompt)
+            else:
+                url = self._free_slideshow(shot_id, images, shot.get("duration_sec", 5))
             videos[shot_id] = url
             print(f"  Video shot {shot_id}: {url}")
         return videos
+
+    def _free_slideshow(self, shot_id: int, images: dict[int, Path] | None, duration_sec: int) -> str:
+        """Fallback sin API key: clip local desde la imagen del shot (ffmpeg zoompan)."""
+        image = (images or {}).get(shot_id)
+        if image is None or not image.exists():
+            raise RuntimeError(
+                f"Sin RUNWAY/FAL_API_KEY y sin imagen local para shot {shot_id}: "
+                "ejecuta primero el paso images."
+            )
+        out = self.dirs["video"] / f"shot_{shot_id}.mp4"
+        return video_mod.generate_slideshow(image, out, duration_sec=int(duration_sec or 5))
 
     async def _generate_one_video(self, prompt: str) -> str:
         s = self.settings
