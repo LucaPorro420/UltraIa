@@ -619,3 +619,62 @@ ormalizeTitle() (lower + strip non-alnum), dedupe() (bigram overlap > 0.6),
 - Ruido externo NO tocado: `.opencode/skills/loop-*`, `DOCS_TODO.md`, `LOOP.md`,
   `loop-constraints.md`, `opencode.json`, `scripts/loop_piv.py`, `start.py`,
   `.opencode/skills/loop-verifier/`, `PrototypeREADME.md` — quedan en working tree.
+
+---
+
+## Iteración 13 — AutoPub F5: KPIs + media_score pre-pub + feedback (15/08/2026)
+
+**[P] Plan**
+- Objetivo: F5 tareas 1+2 (y conexión de 3) del plan maestro AUTO-PUBLICACION.md:
+  KPIs por canal + media_score pre-publicación (port TS de `media_score.py`) + feedback
+  post-pub → señales para el pipeline de mejora existente (improve.ts). (STATE.md #13).
+- Pasos:
+  1. Migración Prisma `add_publication_metrics`: `mediaScore Int?` + `feedbackJson String?`
+     en `Publication`.
+  2. `packages/core/src/tools/media-score.ts` — port determinista de media_score.py:
+     `puntuarMedia(data)` (image/audio/video/tts/music/director, 0-25, PASS ≥20) +
+     `puntuarPaquete(paquete)` (score 0-100 del PublicationPackage F3: caption no vacío,
+     hashtags, visual por canal, contenido, horario sugerido) + veredicto.
+  3. `domain/publications.ts`: `createPublication` calcula y persiste `mediaScore` del
+     paquete; `registrarFeedback(db, id, {rating, critique})` → feedbackJson (GOOD/BAD +
+     nota + ts); `publicationSignals(db)` → ImprovementSignal (BAD critiques) compatible
+     con improve.ts.
+  4. `tools/metrics.ts` + `computeChannelKpis(db)`: por canal {publicadas, fallidas,
+     pendientes, tasaExito, scorePromedio} + totales.
+  5. Endpoints: `GET /api/publications/metrics` (ADMIN) + `POST /api/publications/[id]/
+     feedback` (ADMIN/creador, rating+critique). Tool `publication_metrics` (capability
+     `metrics`) en llm.ts: kpis + signals.
+  6. Tests: media-score.test.ts (port, ~8) + publications.test.ts (mediaScore en create,
+     feedback, signals, ~5) + metrics.test.ts (kpis, ~3).
+  7. Docs: AUTO-PUBLICACION.md §F5, STATE.md #13 DONE, AGENTS.md.
+- Criterios: gates FULL verdes; core 294 → ~310 PASS; commit
+  `feat(core): AutoPub F5 - KPIs por canal + media_score pre-pub + feedback post-pub + tests`.
+
+**[I] Commits**
+- `b5465e5` feat(core+web): AutoPub F5 - KPIs por canal + media_score pre-pub (port) + feedback post-pub + endpoints + tool publication_metrics + 22 tests (15 archivos, +681/-7: migración add_publication_metrics, tools/media-score.ts + metrics.ts, domain/publications.ts mediaScore+feedback+signals, endpoints metrics/feedback, tool publication_metrics). Sin push.
+
+**[V] Gates**
+- Scoped: media-score.test.ts **13/13** (2 fallos corregidos: music score 25 como el Python original; `.every()` vacuidad → exigir canales.length>0) · publications.test.ts **23/23** (mediaScore/fecha en fake db) · metrics.test.ts **4/4** (tasaExito redondeada a 2 decimales) · typecheck core/web ✅ · lint ✅
+- FULL: typecheck ✅ · lint ✅ · test **508/508** (core 316 + runtime 192) ✅ · build ✅
+- Pre-build check: sin dev servers node activos ✅
+
+**[R] Veredicto**
+- **GREEN** → commit `b5465e5`. Tarea #13 completada: AutoPub F5 (tareas 1-2 + conexión 3):
+  KPIs por canal (`computeChannelKpis`: publicadas/fallidas/pendientes, tasaExito,
+  scorePromedio; endpoint GET /api/publications/metrics ADMIN); media_score pre-pub
+  (port TS determinista de media_score.py: `puntuarMedia` 0-25 PASS≥20 + `puntuarPaquete`
+  0-100; createPublication persiste mediaScore — migración `add_publication_metrics`);
+  feedback post-pub (`registrarFeedback` acumulativo + `publicationSignals` → critiques BAD
+  para improve.ts; endpoint POST /api/publications/[id]/feedback ADMIN/creador);
+  tool `publication_metrics` (capability `metrics`: kpis + signals). 22 tests nuevos.
+  LECCIONES: `.every()` sobre arrays vacíos da true (vacuidad) — exigir length>0;
+  port 1:1 del Python: music=audio 25 no 20 (url servible +5).
+- Pendiente F5: analytics reales por API de canal (quotas/permisos) + promoción automática
+  de agentes vía signals → proposeImprovement.
+- Siguiente ciclo: verificar backlog — #6-13 DONE (AutoPub F1-F5 núcleo completo);
+  pendientes: #14 AutoPub F1 cola de briefs persistente (Prisma), #15 F2 multi-idioma
+  es/ar + TTS, #16 OMAG long-form 60s+, F4 canales siguientes (Meta/X/LinkedIn),
+  F6 escala (GPU), Desktop Fase D paso 3 (ventana WebView2).
+- Ruido externo NO tocado: `.opencode/skills/loop-*`, `DOCS_TODO.md`, `LOOP.md`,
+  `loop-constraints.md`, `opencode.json`, `scripts/loop_piv.py`, `start.py`,
+  `.opencode/skills/loop-verifier/`, `PrototypeREADME.md` — quedan en working tree.
