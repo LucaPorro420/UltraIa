@@ -162,3 +162,50 @@ Verdad verificada 9/9 PASS en `learning/truth/truth_tecno_recursos.json` (fuente
 - Revisar `apps/web/MASTER.md` §7 (checklist design-audit) antes de tocar UI.
 - QA navegador headless: `node C:\Users\UTEC-5695\.claude\skills\browser-automation\browser.mjs`
   (NOTA: `--script` con rutas absolutas falla en Windows — usar `--eval` con IIFE async).
+## G0DM0D3 integration (14/08/2026)
+
+- **Vendored**: vendor/G0DM0D3 (AGPL-3.0, sin .git) - referencia del repositorio
+  elder-plinius/G0DM0D3 (godmod3.com es el spin-off comercial de crypto, NO el repo).
+- **Port** (packages/core/src/tools/g0dm0d3.ts): implementacion ORIGINAL de los conceptos
+  (nada de codigo copiado, attribution header). Parseltongue: 33 tecnicas de ofuscacion
+  (tiers light 11 / standard 22 / heavy 33, triggers detectados en el query, maps
+  LEET/UNICODE/SEMANTIC/MORSE/BRAILLE). AutoTune: 20 contextos con regex + perfiles de
+  sampling (temperature/top_p/top_k/penalties), blending hacia balanced si confidence < 0.6,
+  boost + repet. penalty si history > 10. Scoring: isRefusal (patrones de rechazo),
+  countHedges, scoreResponse (largo/estructura/keywords/numeros), compositeScore
+  (quality x filteredness x speed, grades ELITE 90 / EXCELLENT 80 / GOOD 70 / ACCEPTABLE 60 / POOR).
+  Races: ultraplinian (N passes = tiers fast 12 / standard 27 / smart 41 / power 53 / ultra 60,
+  12 angulos de evaluacion ciclados) y godmodeClassic (5 combos BOUNDARY/CONCISE/STRUCTURED/
+  EXPLORATORY/FAST en paralelo) - ambos usan resolveModel() del proveedor configurado
+  (openai/google/ollama/lmstudio/deepseek), NO OpenRouter.
+- **Tools de agente**: capability `g0dm0d3` en ai/llm.ts -> g0_parseltongue, g0_autotune,
+  g0_ultraplinian, g0_godmode. Export en tools/index.ts (+ descripcion y namespace).
+- **Tests**: g0dm0d3.test.ts 29 tests (mocks de `ai`/`resolveModel` como skills.test.ts).
+  Verificado: typecheck/lint OK, core 218/218 PASS, build OK.
+
+## Fase Desktop (15/08/2026)
+
+- **@ultraia/runtime** (packages/runtime, TS puro sin deps nuevas): Fase A del plan Desktop
+  (desktopFase/ARCHITECTURE.md) implementada y verificada. Runtime local: UltraRuntime
+  (orquestador), UltraPaths (layout .ultraia/ de 9 directorios), UltraConfig (secretos
+  enmascarados en disco, secret() en memoria), UltraLogger (sinks console json|text +
+  memoria, child()), UltraEventBus (wildcards * y modulo.*), TaskManager (prioridades 0-5,
+  cancelacion cooperativa con AbortSignal), ModuleRegistry (metadata-only, id
+  ^[a-z0-9][a-z0-9-]{1,63}$ + version semver-ish, capabilities), ModuleManager (LOAD ONLY
+  WHEN NEEDED, lazy, stopAll inverso), ResourceManager (CPU real vía muestreo de busy time
+  en win32, warningAt 0.7 / criticalAt 0.85, unloadSuggestions solo en CRITICAL),
+  CommandExecutor (allowlist estricto + roles user<operator<admin + niveles
+  safe<restricted<admin + allowShell explícito), HealthManager (checks con timeout, estado
+  healthy/degraded/unhealthy), Recovery (por módulo: 2 intentos, backoff 1000ms, nunca tumbar
+  el runtime), MemoryManager (importancia/confianza, dedup por hash sha256(16), persistencia
+  con persistThreshold 0.3, eviction maxEntries 2000, score con recency half-life 7 días),
+  ContextSelector (budgetChars 8000 / maxItems 25), Installer (install/uninstall/repair/
+  update idempotentes, backup+rollback, prereqs node>=20, offline, nunca sobrescribe .env).
+- **Verificación**: typecheck core+web+runtime OK, lint OK, core 218/218 PASS (incluye 29
+  tests g0dm0d3) + runtime 132/132 PASS, build OK. LECCIÓN: fallos raros de vitest tras
+  editar = caché stale 
+ode_modules/.vite (limpiar antes de diagnosticar; afecta core y runtime).
+- **Docs**: desktopFase/DESKTOP_ARCHITECTURE.md (fases A-E, Tauri/Electron diferido a Fase D),
+  RUNTIME.md (contrato + comandos del sistema), MODULE_SYSTEM.md, MEMORY_SYSTEM.md,
+  INSTALLER.md, SECURITY.md (allowlist, 127.0.0.1 + token para la Local API de Fase B).
+- **Pendiente Fase B**: Local API HTTP/WS en 127.0.0.1 + token de sesión + origin + rate limit.

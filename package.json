@@ -12,8 +12,8 @@
     "build": "npm run build -w @ultraia/web",
     "start": "npm run start -w @ultraia/web",
     "lint": "npm run lint -w @ultraia/web",
-    "typecheck": "npm run typecheck -w @ultraia/core && npm run typecheck -w @ultraia/web",
-    "test": "npm run test -w @ultraia/core",
+    "typecheck": "npm run typecheck -w @ultraia/core && npm run typecheck -w @ultraia/web && npm run typecheck -w @ultraia/runtime",
+    "test": "npm run test -w @ultraia/core && npm run test -w @ultraia/runtime",
     "db:generate": "prisma generate --schema packages/core/prisma/schema.prisma",
     "db:migrate": "prisma migrate dev --schema packages/core/prisma/schema.prisma",
     "db:studio": "prisma studio --schema packages/core/prisma/schema.prisma"
