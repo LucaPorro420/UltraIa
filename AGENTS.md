@@ -76,8 +76,11 @@ Ciclo recomendado para features: `gstack-plan-ceo-review` → `gstack-plan-eng-r
 - **start.py + gen-engine (14/08/2026)**: nuevo flag `--gen-engine` (solo engine) y el run full
   (`python start.py`) levanta web :3000 + webhooks :8000 + gen-engine en **:8100** (nunca choca con
   webhooks). `gen_engine_url()` lee `GEN_ENGINE_URL` de ROOT/.env (default `http://localhost:8100`);
-  `write_gen_engine_env()` escribe `GEN_ENGINE_URL` en apps/web/.env si falta para que
+  `write_gen_engine_env()` escribe `GEN_ENGINE_URL` en apps/web/.env si falta o está vacía para que
   `instrumentation.ts` active los providers al boot. `--check-connections` incluye `report_gen_engine()`.
+  VERIFICADO end-to-end 14/08: `python start.py --gen-engine` levanta uvicorn (py -3.12) en :8100,
+  `/health` 200 y `POST /generate/tts` devuelve edge-tts real; `taskkill /T /F` mata el árbol completo
+  (start.py → py → uvicorn). Linters start.py: ruff/pylint/pyright/pyflakes 0 issues.
 - **DEPLOY.md (14/08/2026)**: guía de deploy gratuito 2026 (Vercel recomendado para Next.js, Netlify,
   Render, Cloudflare Pages, GitHub Pages) + notas del webhook server (Render/Railway/localtunnel) y
   de secrets. Generada desde el post de Instagram @sanskaar.ai (Db-xGaekmeE).
@@ -115,6 +118,21 @@ Verdad verificada 8/8 PASS en `learning/truth/truth_ai_gen_resources.json` (fuen
 - Teoría: arXiv 2208.11970 (unified diffusion: VDM/3 objetivos/Tweedie) → 2006.11239 (DDPM fundacional) → 2210.02747 (flow matching, OT) → 2206.00364 (EDM, 35 NFE) → 2307.01952 (SDXL latente).
 - Código: lucidrains/denoising-diffusion-pytorch (base entrenamiento, Unet1D audio), karpathy/makemore (pedagogía Bigram→Transformer), NVlabs/edm (repo oficial, CC BY-NC-SA 4.0).
 - Roadmap F5 (E0–E5) documentado en CreationsApp `04-pipeline-ultraia/plan-de-implementacion.md`.
+
+## integracionTecno.txt (14/08/2026)
+
+Verdad verificada 9/9 PASS en `learning/truth/truth_tecno_recursos.json` (fuente: AI mode de Google
+`share.google/aimode/I6dSNWjGoPy4g6suJ`). `integracionTecno.txt` estructurado con URLs oficiales:
+- Video con IA: Gemini Omni Flash + Veo 3.1 (ai.google.dev/gemini-api/docs/video, 4K/audio nativo/SynthID),
+  CapCut Seedance 2.5 (capcut.com/features/seedance-2-5-for-video-editor, 30s 4K nativo, 50 refs, R2V, 180s beta),
+  OpenCut (MIT, rewrite Rust: Editor API + MCP server + headless; usable en opencut-classic).
+- OSS Netflix/Spotify: Titus (Apache 2.0, ARCHIVADO 2022 — solo referencia), Backstage (34k stars, CNCF Incubation).
+- Toolkits AI: Databricks AI Dev Kit (installer unificado install.sh/ps1 + MCP 40-50 tools; skills vía `databricks aitools install`),
+  ColinEberhardt/awesome-ai-developer-tools.
+- Video por código: Remotion (55.7k stars; ⚠ licencia propia: gratis <3 empleados, Automators $0.01/render),
+  OpenShorts (MIT, Docker: largo→9:16 con whisper+PySceneDetect+Gemini+MediaPipe+FFmpeg; MCP+API+CLI).
+- Decisiones: Veo/Seedance = providers premium de video del Gen-Engine; OpenShorts = pipeline 9:16 self-host;
+  OpenCut headless+MCP = editor automatizable; patrón Databricks para distribuir skills de los agentes admin.
 
 ## Health Stack
 

@@ -79,6 +79,29 @@ Usar como **encaminamiento** para el roadmap de entrenamiento del Gen-Engine de 
 Flow Matching para escalar a video/audio; EDM para sampling eficiente; makemore como
 pedagogía para un generador desde cero en CreationsApp/mvp/.
 
+## Recursos tecnológicos verificados (14/08/2026) — 9 casos, 9/9 PASS
+
+Extraído de `integracionTecno.txt` (AI mode de Google `share.google/aimode/I6dSNWjGoPy4g6suJ`),
+verificado contra sitios oficiales + GitHub. Fuente de verdad: `learning/truth/truth_tecno_recursos.json`.
+
+| Recurso | URL verificada | Punto clave |
+|---|---|---|
+| Gemini Omni Video (Veo) | ai.google.dev/gemini-api/docs/video | Gemini Omni Flash (default) + Veo 3.1 (4K, audio nativo, SynthID) |
+| CapCut Seedance 2.5 | capcut.com/features/seedance-2-5-for-video-editor | 4K 30s nativo, 50 refs multimodales, R2V, audio sync, 180s beta (31/07/2026) |
+| OpenCut | github.com/OpenCut-app/OpenCut | MIT, rewrite Rust (Editor API, MCP server, headless); classic = usable |
+| Netflix Titus | netflix.github.io/titus | Apache 2.0, 3M contenedores/semana 2018; repo ARCHIVADO 2022 |
+| Spotify Backstage | github.com/backstage/backstage | 34k stars, CNCF Incubation, Software Catalog |
+| Databricks AI Dev Kit | github.com/databricks-solutions/ai-dev-kit | installer unificado multi-agente + MCP 40-50 tools; skills vía `databricks aitools install` |
+| Awesome AI Dev Tools | github.com/ColinEberhardt/awesome-ai-developer-tools | herramientas AI maduras con detalle y MCP |
+| Remotion | github.com/remotion-dev/remotion | 55.7k stars; videos con React; ⚠ licencia propia (<3 empleados gratis) |
+| OpenShorts | github.com/mutonby/openshorts | MIT, Docker, largo→9:16 (whisper+PySceneDetect+Gemini+MediaPipe+FFmpeg), MCP+API+CLI |
+
+**Decisiones propuestas**: Veo 3.1/Seedance 2.5 = providers premium de video del Gen-Engine;
+OpenShorts = pipeline self-host de clips 9:16 (MIT, usa ffmpeg/yt-dlp ya instalados);
+OpenCut headless+MCP = referencia de editor automatizable; Remotion para render React→MP4
+(licencia propia: gratis <3 empleados); Backstage = patrón de portal multi-tenant; Titus solo
+referencia (archivado); patrón Databricks para distribuir skills/MCP de los agentes admin.
+
 ## Estado del testing de gstack
 
 - ✅ 53 skills instaladas (frontmatter `name`+`description` válidos)

@@ -1,0 +1,88 @@
+{
+  "id": "tecno_recursos_ia_media",
+  "type": "facts",
+  "description": "Recursos verificados el 14/08/2026 desde integracionTecno.txt (AI mode de Google share.google/aimode/I6dSNWjGoPy4g6suJ): edición de video con IA (Veo/Seedance/OpenCut), repos OSS de Netflix/Spotify, toolkits de desarrollo con IA y generación de video por código. Verificados contra sitios oficiales + GitHub. Usar como encaminamiento para el pipeline audiovisual de OMAG/Gen-Engine y la arquitectura del producto.",
+  "cases": [
+    {
+      "id": "gemini_omni_veo",
+      "source": "https://ai.google.dev/gemini-api/docs/video",
+      "verified": true,
+      "note": "La API de Gemini ofrece DOS modelos de video: Gemini Omni Flash (default: multi-input texto/imagen/audio/video, consistencia de personaje, edición conversacional multi-turno) y Veo 3.1 (veo-3.1-generate-preview / veo-3.1-fast-generate-preview): 4K, audio nativo sincronizado, extensión de escenas, último-frame control, portrait 9:16 nativo, SynthID watermark. Página oficial del modelo: deepmind.google/models/veo.",
+      "usage": "provider premium de video real para el Gen-Engine (provider: gemini/veo) cuando haya GOOGLE_API_KEY; Gemini Omni Flash como default de video conversacional",
+      "answer": "Gemini API: Gemini Omni Flash (default) + Veo 3.1 (veo-3.1-generate-preview): 4K, audio nativo, SynthID; docs ai.google.dev/gemini-api/docs/video",
+      "type": "text"
+    },
+    {
+      "id": "capcut_seedance",
+      "source": "https://www.capcut.com/features/seedance-2-5-for-video-editor",
+      "verified": true,
+      "note": "Seedance 2.5 (ByteDance/Dreamina) live en CapCut desde el 31/07/2026: clips 4K nativos de hasta 30s en un solo pass (sin stitching), hasta 50 referencias multimodales (fotos, clips, audio, guiones, style guides, storyboards), control de movimiento R2V (green screen / white-model), audio estéreo sincronizado (SFX, música al ritmo, lip-sync), Intelligent Edit Mode (edición por timestamp/región sin regenerar), modo beta Long Video de 180s, 11 idiomas. Pro/Ultra por créditos (se cobra por segundo); créditos diarios gratis.",
+      "usage": "alternativa premium a Veo para el pipeline audiovisual; patrón de referencia: referencias multimodales + control de movimiento explícito (R2V) para consistencia en OMAG",
+      "answer": "Seedance 2.5 en CapCut (31/07/2026): 4K 30s nativo, 50 refs multimodales, R2V motion, audio estéreo sync, 180s beta; capcut.com/features/seedance-2-5",
+      "type": "text"
+    },
+    {
+      "id": "opencut",
+      "source": "https://github.com/OpenCut-app/OpenCut",
+      "verified": true,
+      "note": "Editor de video open source alternativo a CapCut (MIT, web/desktop/mobile): captions automáticas, auto-reframe, text-to-video, voice cloning, sin watermark. EN REESCRITURA desde cero (Rust core): Editor API, plugins first-class, MCP server para agentes AI, headless mode (automation/batch render). La versión actual usable está en opencut-app/opencut-classic; opencut.app sigue en classic. OJO: el fork opencut-desktop-app/opencut (70k stars, instalador firmado, AI suite cloud opt-in) es independiente del core.",
+      "usage": "referencia de editor de video por código/MCP para el pipeline de OMAG; headless mode + MCP server = automatización de edición desde agentes",
+      "answer": "OpenCut (MIT): editor open source tipo CapCut, en rewrite Rust (Editor API, MCP server, headless); usable hoy en opencut-classic",
+      "type": "text"
+    },
+    {
+      "id": "netflix_oss_titus",
+      "source": "https://netflix.github.io/titus/",
+      "verified": true,
+      "note": "Titus = plataforma de gestión de contenedores de Netflix (Apache 2.0, repo Netflix/titus-control-plane ARCHIVADO en 2022): corre en producción en miles de EC2 y cientos de miles de contenedores/día (hasta 3M/semana en 2018). Base Mesos + integración profunda AWS (ENI, IAM, security groups, Auto Scaling). Ecosistema Netflix OSS: Spinnaker (CI/CD), Eureka (service discovery), Atlas (telemetría), Archaius. Titus ya no se desarrolla (K8s lo reemplazó en la industria) → usar como referencia de arquitectura, no para deploy.",
+      "usage": "lecciones de arquitectura de plataforma (scheduling, AWS integration) para el infra del producto; NO adoptar (archivado)",
+      "answer": "Titus (Netflix, Apache 2.0): contenedores en producción, miles de EC2, 3M contenedores/semana 2018; repo ARCHIVADO 2022",
+      "type": "text"
+    },
+    {
+      "id": "spotify_backstage",
+      "source": "https://github.com/backstage/backstage",
+      "verified": true,
+      "note": "Backstage = framework open source de portales de desarrollador creado por Spotify (34k stars, Apache 2.0, CNCF Incubation — aceptado 08/09/2020, Incubating 15/03/2022). Software Catalog centralizado (servicios, APIs, infra), self-service (scaffolding de proyectos con CI listo), TechDocs, Search. Patrón: portal de DX sobre microservicios.",
+      "usage": "patrón de producto para UltraIa si llega a multi-tenant/equipos (catálogo de agentes + docs); referente de arquitectura de portal de desarrollador",
+      "answer": "Backstage (Spotify, CNCF Incubation): 34k stars Apache 2.0; portal de desarrollador con Software Catalog y self-service",
+      "type": "text"
+    },
+    {
+      "id": "databricks_ai_dev_kit",
+      "source": "https://github.com/databricks-solutions/ai-dev-kit",
+      "verified": true,
+      "note": "Databricks AI Dev Kit (1k stars, Python, Field Engineering): instalador unificado (install.sh / install.ps1) que configura skills, MCP server y config para Claude Code, Cursor, Codex, GitHub Copilot, Gemini CLI y Antigravity. Las skills ahora se entregan como 'Databricks AI Tools' oficiales vía `databricks aitools install` (requiere CLI v1.0.0+); el MCP server (40-50+ tools) y Builder App quedan en el repo.",
+      "usage": "patrón de distribución de skills/MCP para los agentes admin de UltraIa; el installer multi-agente es el modelo para 'install de skills de producto'",
+      "answer": "databricks-solutions/ai-dev-kit: 1k stars; installer unificado (install.sh/ps1) + MCP server 40-50 tools; skills ahora via 'databricks aitools install'",
+      "type": "text"
+    },
+    {
+      "id": "awesome_ai_dev_tools",
+      "source": "https://github.com/ColinEberhardt/awesome-ai-developer-tools",
+      "verified": true,
+      "note": "Lista curada de herramientas AI MADURAS para productividad de desarrollo (no exhaustiva, con detalle y comparativa): autocompletado (Copilot, Amazon Q, Cody...), IDEs/agentes (Cursor, Cline, Windsurf, Aider, Replit Agent), prototipado rápido (v0, Bolt, Lovable), agentes (Devin, Copilot Agent Mode), todo con soporte MCP. Alternativas MCP-específicas: punkpeye/awesome-mcp-servers, michielhdoteth/awesome-ai-agent-tools (600 componentes instalables).",
+      "usage": "fuente de selección de herramientas para el stack de desarrollo del producto; benchmark de UX para los agentes de UltraIa",
+      "answer": "ColinEberhardt/awesome-ai-developer-tools: lista curada de herramientas AI maduras (Copilot, Cursor, Cline, v0, Devin) con detalle y MCP",
+      "type": "text"
+    },
+    {
+      "id": "remotion",
+      "source": "https://github.com/remotion-dev/remotion",
+      "verified": true,
+      "note": "Remotion (55.7k stars): videos programáticos con React — 'React Code is the source of truth'; render local/cliente/cloud, batch, Player embebible, flujos agentic. LICENCIA PROPIA (no OSI): gratis para individuos, organizaciones con fines de lucro de hasta 3 empleados y sin fines de lucro; Company License obligatoria en el resto: 'for Creators' $25/seat/mes o 'for Automators' $0.01/render con mínimo $100/mes.",
+      "usage": "ideal para render programático de videos en el producto (agente → React → MP4); OJO con la licencia si la empresa crece >3 empleados",
+      "answer": "remotion-dev/remotion: 55.7k stars; videos con React, render batch/cloud; licencia propia: gratis <3 empleados, Company desde $25/seat o $0.01/render",
+      "type": "text"
+    },
+    {
+      "id": "openshorts",
+      "source": "https://github.com/mutonby/openshorts",
+      "verified": true,
+      "note": "OpenShorts (MIT): generador de clips AI open source — videos largos (podcasts/webinars/livestreams) → shorts verticales 9:16 virales. Pipeline 10 etapas: yt-dlp ingest → faster-whisper (word-level timestamps) → PySceneDetect → Gemini detecta 3-15 momentos virales (15-60s) → FFmpeg corta → reframe 9:16 (MediaPipe+YOLOv8 TRACK / GENERAL blur) → subtítulos/hooks → S3 → publish (TikTok/IG/YT vía Upload-Post). Self-host con Docker (8GB RAM, CPU 5-8min por video de 8min) o cloud desde $12/mo. Incluye MCP server (/mcp), REST API con webhooks y CLI en PyPI (openshorts).",
+      "usage": "pipeline de shorts directamente reutilizable para el producto (self-host, MIT); su MCP server es modelo para exponer el pipeline audiovisual a agentes",
+      "answer": "mutonby/openshorts (MIT): shorts 9:16 desde videos largos; whisper+PySceneDetect+Gemini+MediaPipe+FFmpeg; Docker self-host; MCP server + API + CLI",
+      "type": "text"
+    }
+  ]
+}

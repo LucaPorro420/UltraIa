@@ -1,0 +1,6 @@
+{
+  "attempt": 1,
+  "prompt": "databricks_ai_dev_kit",
+  "answer": "databricks-solutions/ai-dev-kit: 1k stars; installer unificado (install.sh/ps1) + MCP server 40-50 tools; skills ahora via 'databricks aitools install'",
+  "source": "https://github.com/databricks-solutions/ai-dev-kit"
+}

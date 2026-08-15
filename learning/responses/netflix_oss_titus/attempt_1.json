@@ -1,0 +1,6 @@
+{
+  "attempt": 1,
+  "prompt": "netflix_oss_titus",
+  "answer": "Titus (Netflix, Apache 2.0): contenedores en producción, miles de EC2, 3M contenedores/semana 2018; repo ARCHIVADO 2022",
+  "source": "https://netflix.github.io/titus/"
+}

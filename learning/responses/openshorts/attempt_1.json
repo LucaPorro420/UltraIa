@@ -1,0 +1,6 @@
+{
+  "attempt": 1,
+  "prompt": "openshorts",
+  "answer": "mutonby/openshorts (MIT): shorts 9:16 desde videos largos; whisper+PySceneDetect+Gemini+MediaPipe+FFmpeg; Docker self-host; MCP server + API + CLI",
+  "source": "https://github.com/mutonby/openshorts"
+}
