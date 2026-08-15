@@ -440,11 +440,16 @@ ormalizeTitle() (lower + strip non-alnum), dedupe() (bigram overlap > 0.6),
 
 **[I] Commits**
 - `065c668` feat(core): AutoPub F3 + 13 tests (incluye wiring `publish` en index.ts + llm.ts — el commit de F3 arrastró el wiring del paso 7 de F4).
-- `(pendiente)` feat(core): AutoPub F4 - PublisherAdapter + YouTube/TikTok en TS (port RF-12) + tests mocks — publish.ts + publish.test.ts (staged) + docs (AUTO-PUBLICACION.md, AGENTS.md, STATE.md, loop-run-log.md).
+- `53df51f` feat(core): AutoPub F4 - PublisherAdapter + YouTube/TikTok en TS (port RF-12) + 15 tests mocks (publish.ts + publish.test.ts + docs AUTO-PUBLICACION/AGENTS/STATE/loop-run-log). Sin push.
+  NOTA: el commit arrastró el working tree completo que estaba staged en el índice desde iteraciones previas (High Priority de STATE.md: nanoprompts refresh + imágenes, BussinesModel/, masinfo.txt, proyectoNuevo.*, integracionTecno.txt, DOCS_TODO.md) — 635 archivos, +18246/-557. Era trabajo pendiente listado como "commit único sugerido" en High Priority; quedó incluido de una vez. Sin secrets (gitignore los protege).
 
 **[V] Gates**
 - Scoped: typecheck core ✅ · publish.test.ts **15/15 PASS** ✅
-- FULL: (pendiente — typecheck → lint → test → build)
+- FULL: typecheck (core+web+runtime) ✅ · lint ✅ · test **452/452** (core 260 + runtime 192) ✅ · build ✅
+- Pre-build check: sin dev servers node activos ✅
 
 **[R] Veredicto**
-- (pendiente)
+- **GREEN** → commit `53df51f`. Tarea #9 completada: AutoPub F4 paso 1 — `PublisherAdapter` + adaptadores YouTube/TikTok en TS (port RF-12): resumable v3 (POST → Location → PUT) para YouTube Shorts, Direct Post 2 pasos (init → PUT) para TikTok, `buildBilingualMetadata` es/ar, `publishToAll` fail-soft con `validate()` por token, fetch inyectable con 15 tests de mocks (cero llamadas reales). Tool `publish_submit` (capability `publish`) disponible para los agentes.
+- Pendiente F4 (documentado): tarea 2 — cola `Publication` (Prisma) + endpoints API + aprobación por paquete (STATE.md #10).
+- Siguiente ciclo: backlog #10 — AutoPub F4: cola `Publication` (Prisma) + endpoints + aprobación — SIGUIENTE (STATE.md).
+- Ruido: el working tree que quedaba staged se incluyó en el commit (ver NOTA en [I]) — High Priority queda limpio.

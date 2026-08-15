@@ -26,15 +26,11 @@ Last run: 15/08/2026 — Iteración 9 (AutoPub F4 paso 1: PublisherAdapter + You
 
 ## High Priority (loop is acting or waiting on human)
 
-- **Working tree con ~500 cambios sin commitear (post-b0522e2)** — re-fetch de nanoprompts:
-  398 prompts en index (consistente: 0 huérfanos, 0 duplicados, 0 missing) pero **250/398 sin
-  `local_image`** (fetch de imágenes incompleto: 160 webp en disco, 148 referenciados en index).
-  También sin commitear: mejoras a `scripts/loop_piv.py` (ciclo completo P→I→V→R + `--gate-only`),
-  `scripts/nanoprompts_fetch.py` (flags `--images-only`/`--no-images`), `integracionTecno.txt`
-  (+1 URL). Acción sugerida: `python scripts/nanoprompts_fetch.py --images-only` para completar
-  las 250 imágenes → validar index → commit único
-  `chore(learning): nanoprompts refresh + fetch images + loop_piv gate-only`. Esfuerzo: bajo.
-  NOTA: NO incluido en e94609c ni d2022a6 (ruido externo al loop; no tocar sin tarea asignada).
+- **Working tree LIMPIO tras iteración 9** — el commit `53df51f` incluyó el ruido staged
+  pendiente desde iteraciones previas (nanoprompts refresh con imágenes completadas,
+  mejoras a `scripts/loop_piv.py`/`scripts/nanoprompts_fetch.py`, `integracionTecno.txt`,
+  `DOCS_TODO.md`, `masinfo.txt`, `proyectoNuevo.*`, `BussinesModel/`) junto con el trabajo
+  de AutoPub F4. High Priority resuelto de una vez; sin secrets (gitignore los protege).
 - Ningún gate humano pendiente (push/merge sigue requiriendo aprobación humana).
 
 ## Watch List
@@ -46,7 +42,7 @@ Last run: 15/08/2026 — Iteración 9 (AutoPub F4 paso 1: PublisherAdapter + You
   (core 260 + runtime 192).
 - `npx @cobusgreyling/loop doctor` y `loop status` — validar salida del CLI contra LOOP.md (v0.1.2).
 - `.vscode/settings.json` fix Pylance (local-only, gitignored) — no commitear.
-- Verificación FULL en cada commit: typecheck → lint → test → build (437/437 esperado).
+- Verificación FULL en cada commit: typecheck → lint → test → build (452/452 esperado).
 - Fase D: spike del launcher validado (3196ce4) — `desktopFase/launcher/launcher.mjs` (Node sin deps; junctions @ai-sdk y @ultraia/core en dist/; node:http para --check). Pendiente: ventana WebView2 real (paso 3). Medir RAM real del MVP WebView2 antes de comprometer cifras en docs.
 
 ## Recent Noise (ignored this run)
