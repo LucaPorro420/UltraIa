@@ -227,6 +227,16 @@ alternativas con pros/cons. Orden sugerido de ejecución (ajustable por el usuar
 > Capability `publications` → tool `publication_queue` en llm.ts (db inyectable vía `opts.db`).
 > Pendiente F4: tareas 3-5 — calendario + blog propio + canales siguientes (STATE.md #11).
 
+> **F4 tarea 4 + 5-parcial implementadas 15/08/2026 (iteración 11)**: calendario —
+> `POST /api/publications/publish-due` (ADMIN) dispara `publishDue(prisma)` (publica los
+> APPROVED con scheduledAt <= now, fail-soft sin tokens → FAILED). Uso: cron externo
+> (Task Scheduler / intervalo futuro en start.py). Blog propio — página pública `/blog`
+> (server component, `listBlogPosts(prisma)` = PUBLISHED/canal blog, ordenado por
+> publishedAt desc, tarjetas Dark Obsidian con tema/caption/contenido/media, revalidate 5min)
+> + helper `listBlogPosts` en dominio con 3 tests. Pendiente F4: tarea 5-resto — canales
+> siguientes (Meta/X/LinkedIn) y tarea 3-doc — integración del blog con /recursos o galería
+> (STATE.md #12/#13 siguen pendientes: F2 enrutamiento y F5 KPIs).
+
 ### F5 — Métricas y mejora (nuevo)
 
 - **Objetivo**: cerrar el loop con datos reales.

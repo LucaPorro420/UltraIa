@@ -3,6 +3,7 @@ import {
   approvePublication,
   canalRequiereAprobacion,
   createPublication,
+  listBlogPosts,
   listPublications,
   markFailed,
   markPublished,
@@ -249,5 +250,44 @@ describe('listPublications', () => {
     const video = await listPublications(db, { canal: 'youtube_shorts' });
     expect(video.items).toHaveLength(1);
     expect(video.items[0].estado).toBe('DRAFT');
+  });
+});
+
+describe('listBlogPosts', () => {
+  it('devuelve solo PUBLISHED/blog con contenido parseado, ordenado por publishedAt desc', async () => {
+    const { db, rows } = fakeDb();
+    const pub = await createPublication(db, { paquete: makePaquete('blog'), canal: 'blog' });
+    await createPublication(db, { paquete: makePaquete('youtube_shorts'), canal: 'youtube_shorts' });
+    // marca la de blog como publicada
+    await markPublished(db, pub.id, [{ platform: 'youtube', ok: true, id: 'v1' }]);
+    rows[0].publishedAt = new Date('2026-08-15T10:00:00Z');
+
+    const posts = await listBlogPosts(db);
+    expect(posts).toHaveLength(1);
+    expect(posts[0].tema).toBe('El futuro de la IA');
+    expect(posts[0].caption).toBe('Caption para blog');
+    expect(posts[0].contenido).toContain('Contenido de prueba');
+    expect(posts[0].publishedAt.toISOString()).toBe('2026-08-15T10:00:00.000Z');
+  });
+
+  it('ignora publicaciones sin publishedAt y respeta take', async () => {
+    const { db, rows } = fakeDb();
+    const pub = await createPublication(db, { paquete: makePaquete('blog'), canal: 'blog' });
+    await markPublished(db, pub.id, []);
+    rows[0].publishedAt = new Date('2026-08-15T10:00:00Z');
+    // segunda sin publishedAt (PUBLISHED pero fecha null — caso raro, se filtra)
+    const pub2 = await createPublication(db, { paquete: makePaquete('blog'), canal: 'blog' });
+    await markPublished(db, pub2.id, []);
+    rows[1].publishedAt = null;
+
+    expect(await listBlogPosts(db, 1)).toHaveLength(1);
+    expect(await listBlogPosts(db, 10)).toHaveLength(1);
+  });
+
+  it('no devuelve drafts ni videos', async () => {
+    const { db } = fakeDb();
+    await createPublication(db, { paquete: makePaquete('blog'), canal: 'blog' }); // APPROVED (auto)
+    await createPublication(db, { paquete: makePaquete('youtube_shorts'), canal: 'youtube_shorts' }); // DRAFT
+    expect(await listBlogPosts(db)).toHaveLength(0);
   });
 });

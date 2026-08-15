@@ -279,6 +279,11 @@ Verdad verificada 9/9 PASS en `learning/truth/truth_tecno_recursos.json` (fuente
   (publish fail-soft sin tokens → FAILED con razón; ADMIN o creador). Capability
   `publications` → tool `publication_queue` en llm.ts (usa `opts.db`, Prisma inyectable).
   Pendiente F4: calendario + blog propio (STATE.md #11).
+- **F4 Distribución paso 3 (15/08/2026, iteración 11)**: calendario — `POST
+  /api/publications/publish-due` (ADMIN) dispara `publishDue(prisma)` (publica APPROVED
+  con scheduledAt <= now, fail-soft); página pública `/blog` (server component con
+  `listBlogPosts(prisma)` — PUBLISHED/canal blog, tarjetas Dark Obsidian, revalidate 5min).
+  Pendiente F4: canales siguientes (Meta/X/LinkedIn).
 
 ## Loop PIVR (Plan ⇒ Implement ⇒ Verificar ⇒ Reiniciar) — 15/08/2026
 
@@ -291,31 +296,41 @@ Harness de desarrollo continuo del proyecto, orquestado por loop-engineering
 - `loop-budget.md` — límites diarios y kill switch (`loop-pause-all`).
 - `loop-constraints.md` — reglas vinculantes del bucle.
 - `opencode.json` — agents: `piv-plan` (primary, read-only), `piv-build` (primary, ejecuta+commitea),
-  `loop-triage` (primary), `implementer`/`verifier` (subagents).
+  `loop-triage` (primary), `implementer`/`verifier` (subagents); built-ins `plan`/`build` override
+  loop-aware.
 - `scripts/loop_piv.py` — driver híbrido: ejecuta ciclos vía `opencode run --agent piv-plan|piv-build`
   + gates npm; usable por cualquier modelo/agente.
 - `skills/loop-*` (raíz, referencia del scaffold) y `.opencode/skills/loop-*` (cargables) —
-  `loop-piv` es el protocolo en-sesión.
+  `loop-piv` es el protocolo en-sesión, `loop-verifier` el checker APPROVE/REJECT.
+- `.opencode/plans/loop-<taskid>-<slug>.md` — plan file por tarea (plantilla en skill loop-piv);
+  piv-build lee el plan DEL ARCHIVO, no del prompt.
 
 ### Protocolo del bucle (obligatorio para TODO agente del proyecto)
 
-1. **P — Planificar**: leer `STATE.md` + `learning/LEARNINGS.md` + `loop-run-log.md`; tomar la
-   primera tarea del backlog priorizado; escribir en `loop-run-log.md` el plan: objetivo, pasos,
-   criterios de verificación (gates + tests esperados). No editar código.
-2. **I — Implementar**: ejecutar el plan con las tools del proyecto (workspaces, worktree si aplica);
-   commit por iteración con mensaje `feat|fix|chore(scope): <descripción>`.
+1. **P — Planificar**: leer `STATE.md` + `learning/LEARNINGS.md` + `loop-run-log.md` +
+   `loop-constraints.md`; verificar que la primera tarea sigue `pendiente`; escribir el plan en
+   `.opencode/plans/loop-<taskid>-<slug>.md` (plantilla: contexto, objetivo, pasos, ARCHIVOS A
+   TOCAR, criterios scoped+FULL, riesgos, esfuerzo) + resumen `[P]` en `loop-run-log.md`. No editar código.
+2. **I — Implementar**: leer el plan del archivo; pre-flight `git status --porcelain`; ejecutar con
+   las tools del proyecto (workspaces, worktree si aplica); staging EXPLÍCITO (`git add <archivos
+   del plan>`, NUNCA `git add .`); commit por iteración con mensaje `feat|fix|chore(scope): <descripción>`.
 3. **V — Verificar**: gates en orden CI: `npm run typecheck` → `npm run lint` → `npm run test` →
    `npm run build`. Gates duales: scoped (tests del paquete afectado) en iteraciones intermedias,
-   FULL en cada commit. Opcional: verifier sub-agent (APPROVE/REJECT). Registrar evidencia en
-   `loop-run-log.md` y `STATE.md`.
+   FULL en cada commit. Antes del build: matar dev servers (`taskkill /T /F`). Commit SOLO con
+   gates GREEN; si RED → máx 3 intentos, luego escalar a High Priority. Opcional: verifier
+   sub-agent (skill `loop-verifier` → APPROVE/REJECT). Registrar evidencia en `loop-run-log.md`
+   y `STATE.md` (tarea DONE + commit hash + tests).
 4. **R — Reiniciar**: si V=GREEN → siguiente ciclo inmediato (auto plan→build, sin esperar al
    humano); si REJECT → reinyectar el error al plan (máx 3 intentos por ítem, luego escalar a
-   High Priority). Al terminar el backlog o agotar límites → reportar en `STATE.md`.
+   High Priority). JSON de presupuesto por ciclo (formato loop-budget). Al terminar el backlog o
+   agotar límites → reportar en `STATE.md`.
 
 ### Auto-conmutación Plan→Build
 
 - El driver `scripts/loop_piv.py` emite automáticamente la "petición" de build al terminar P
-  (`opencode run --agent piv-build "<plan>"`), simulando la instrucción del humano.
+  (`opencode run --agent piv-build "<plan>"` pasando la RUTA del plan file), simulando la
+  instrucción del humano. Flags: `--cycles N`, `--gate-only`, `--plan-only`, `--triage`,
+  `--no-commit`, `--dry-run`.
 - En-sesión: el agente sigue el protocolo sin esperar confirmación (autorización permanente del
   usuario, 15/08/2026), respetando SIEMPRE los gates humanos de push/merge (nunca push automático).
 - Kill switch: si `STATE.md` o `loop-run-log.md` contienen `loop-pause-all`, el bucle se detiene.

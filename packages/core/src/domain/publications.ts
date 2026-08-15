@@ -89,6 +89,37 @@ export async function listPublications(db: Db, opts: ListPublicationsOptions = {
   };
 }
 
+export interface BlogPost {
+  id: string;
+  tema: string;
+  caption: string;
+  contenido: string;
+  media: string[];
+  publishedAt: Date;
+}
+
+/** Posts publicados del blog propio (canal blog, estado PUBLISHED). */
+export async function listBlogPosts(db: Db, take: number = 10): Promise<BlogPost[]> {
+  const items = await db.publication.findMany({
+    where: { estado: 'PUBLISHED', canal: 'blog' },
+    orderBy: { publishedAt: 'desc' },
+    take: Math.min(Math.max(take, 1), 50),
+  });
+  return items
+    .filter((p) => p.publishedAt)
+    .map((p) => {
+      const paquete = JSON.parse(p.paqueteJson) as { contenido?: string; media?: string[] };
+      return {
+        id: p.id,
+        tema: p.tema,
+        caption: p.caption,
+        contenido: paquete.contenido ?? '',
+        media: paquete.media ?? [],
+        publishedAt: p.publishedAt!,
+      };
+    });
+}
+
 /** Transición DRAFT → APPROVED (aprobación humana del paquete). */
 export async function approvePublication(db: Db, id: string): Promise<PublicationEstado> {
   const pub = await db.publication.findUnique({ where: { id } });
@@ -167,4 +198,4 @@ export async function publishDue(db: Db, opts: PublishDueOptions = {}): Promise<
   return { publicadas, fallidas };
 }
 
-export const publications = { createPublication, listPublications, approvePublication, rejectPublication, markPublished, markFailed, publishDue, canalRequiereAprobacion };
+export const publications = { createPublication, listPublications, listBlogPosts, approvePublication, rejectPublication, markPublished, markFailed, publishDue, canalRequiereAprobacion };

@@ -17,8 +17,8 @@ Last run: 15/08/2026 — Iteración 9 (AutoPub F4 paso 1: PublisherAdapter + You
 | 8 | **AutoPub F3**: schema `PublicationPackage` + tool `present` (formato por canal, captions/hashtags) | packages/core | FULL | ✅ DONE 2026-08-15 (tool present.ts + capability `present` → `present_package`; 13 tests; repo 437/437) |
 | 9 | **AutoPub F4**: `PublisherAdapter` + adaptadores YouTube/TikTok en TS (port RF-12) + tests con mocks | packages/core | FULL | ✅ DONE 2026-08-15 (tool publish.ts + wiring publish_submit; 15 tests; repo 452/452) |
 | 10 | **AutoPub F4**: cola `Publication` (Prisma) + endpoints API + aprobación por paquete | packages/core + apps/web | FULL | ✅ DONE 2026-08-15 (modelo Publication + migración + dominio publications.ts 15 tests + endpoints /api/publications + tool publication_queue; repo 467/467) |
-| 11 | **AutoPub F4**: calendario (start.py o scheduler runtime) + blog propio (publicar en /recursos) | scripts + apps/web | FULL | pendiente — SIGUIENTE |
-| 12 | **AutoPub F2**: enrutamiento brief→Redactor/Guionista vía Orquestador + manifest JSON | packages/core | FULL | pendiente |
+| 11 | **AutoPub F4**: calendario (start.py o scheduler runtime) + blog propio (publicar en /recursos) | scripts + apps/web | FULL | ✅ DONE 2026-08-15 (endpoint POST /api/publications/publish-due ADMIN + página pública /blog + listBlogPosts dominio; repo 470/470) |
+| 12 | **AutoPub F2**: enrutamiento brief→Redactor/Guionista vía Orquestador + manifest JSON | packages/core | FULL | pendiente — SIGUIENTE |
 | 13 | **AutoPub F5**: KPIs + media_score pre-pub + feedback → mejora de agentes | packages/core + scripts | FULL | pendiente |
 
 > AutoPub = plan maestro `docs/AUTO-PUBLICACION.md` (aprobado 15/08/2026). Orden de
@@ -38,11 +38,11 @@ Last run: 15/08/2026 — Iteración 9 (AutoPub F4 paso 1: PublisherAdapter + You
 - **Typecheck transitorio (1 vez)**: primer run de una triage falló "command failed" en
   packages/runtime SIN errores TS; re-run EXIT=0. Posible lock/transitorio o caché stale
   `node_modules/.vite` — vigilar si se repite antes de diagnosticar.
-- **Runtime tests 192/192** (Fase A 132 + Fase B 20 + Fase C 34 + wiring system-core 5 + spike launcher 1). Total repo: 452/452 PASS
-  (core 260 + runtime 192).
+- **Runtime tests 192/192** (Fase A 132 + Fase B 20 + Fase C 34 + wiring system-core 5 + spike launcher 1). Total repo: 470/470 PASS
+  (core 278 + runtime 192).
 - `npx @cobusgreyling/loop doctor` y `loop status` — validar salida del CLI contra LOOP.md (v0.1.2).
 - `.vscode/settings.json` fix Pylance (local-only, gitignored) — no commitear.
-- Verificación FULL en cada commit: typecheck → lint → test → build (452/452 esperado).
+- Verificación FULL en cada commit: typecheck → lint → test → build (470/470 esperado).
 - Fase D: spike del launcher validado (3196ce4) — `desktopFase/launcher/launcher.mjs` (Node sin deps; junctions @ai-sdk y @ultraia/core en dist/; node:http para --check). Pendiente: ventana WebView2 real (paso 3). Medir RAM real del MVP WebView2 antes de comprometer cifras en docs.
 
 ## Recent Noise (ignored this run)
