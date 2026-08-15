@@ -68,3 +68,18 @@ Cada commit agrega una sección con fecha y la lista de archivos `.ts/.tsx` toca
 - [ ] packages/core/src/tools/content.ts
 - [ ] packages/core/src/tools/music.test.ts
 - [ ] packages/core/src/tools/music.ts
+
+## 2026-08-14T23:42:55.529Z
+- [ ] apps/web/next.config.ts
+- [ ] packages/core/src/auth/apikey.test.ts
+- [ ] packages/core/src/auth/apikey.ts
+- [ ] packages/core/src/auth/session.ts
+- [ ] packages/core/src/omag/audiolibrary.test.ts
+- [ ] packages/core/src/omag/audiolibrary.ts
+- [ ] packages/core/src/omag/tts.ts
+- [ ] packages/core/src/tools/stitch.ts
+
+## 2026-08-14T23:55:29.681Z
+- [ ] apps/web/src/instrumentation.ts
+- [ ] packages/core/src/tools/gen-engine.test.ts
+- [ ] packages/core/src/tools/gen-engine.ts

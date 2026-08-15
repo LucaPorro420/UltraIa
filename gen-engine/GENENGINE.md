@@ -18,12 +18,28 @@ si no keyless. `GET /health` y `GET /capabilities` reportan el estado.
 
 ## Ejecutar sin GPU (esta laptop, keyless)
 
+### Vía start.py (recomendado, un comando)
+
+`python start.py` lanza web (:3000) + webhooks (:8000) + gen-engine (:8100) y
+anuncia la URL a la web (`apps/web/.env` → `instrumentation.ts` registra los
+providers solo si `/health` responde). Solo el engine:
+
+```bash
+python start.py --gen-engine     # http://localhost:8100
+curl http://localhost:8100/health
+```
+
+El puerto local es :8100 para no chocar con el webhook server (:8000). Para un
+pod GPU remoto, pon `GEN_ENGINE_URL="http://<pod>:8000"` en `.env`.
+
+### Manual
+
 ```bash
 cd gen-engine
 pip install -r requirements.txt        # + uvicorn ya incluido
-uvicorn app.main:app --port 8000
-curl http://localhost:8000/health
-curl -X POST http://localhost:8000/generate/image -H "Content-Type: application/json" \
+uvicorn app.main:app --port 8100
+curl http://localhost:8100/health
+curl -X POST http://localhost:8100/generate/image -H "Content-Type: application/json" \
      -d '{"prompt":"futuristic desert city, golden hour","width":1024,"height":576}'
 ```
 

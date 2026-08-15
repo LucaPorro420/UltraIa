@@ -10,6 +10,7 @@ Usage:
     python start.py --skip-setup   # skip install/.env/migrate, just start services
     python start.py --deploy   # production build + instructions for free hosting
     python start.py --check-connections  # env keys, tools and ports report
+    python start.py --gen-engine  # only the local Gen-Engine (http://localhost:8100)
 
 Checks prerequisites (node >= 20, npm, python >= 3.10, ffmpeg), installs deps if
 missing or outdated, creates .env files from .env.example, runs the DB migration
@@ -37,6 +38,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent
 PIPE_DIR = ROOT / "ULTRAIA" / "integracionesImplementacion"
 WEBHOOK_SERVER = PIPE_DIR / "webhook_server.py"
+GEN_ENGINE_DIR = ROOT / "gen-engine"
 DB_FILE = ROOT / "packages" / "core" / "prisma" / "dev.db"
 LOCK_FILE = ROOT / "package-lock.json"
 NODE_MODULES = ROOT / "node_modules"
@@ -53,6 +55,7 @@ ENV_TARGETS = [
 ]
 WEB_PORT = 3000
 HOOKS_PORT = 8000
+GEN_ENGINE_PORT = 8100
 
 DEPLOY_DOC = """UltraIa — deploy gratuito (2026)
 
@@ -93,21 +96,34 @@ def npm_exec() -> str:
     return "npm"
 
 
-def python_exec() -> str:
-    """Resolve the Python interpreter consistently.
+def python_exec() -> list[str]:
+    """Resolve a Python interpreter that can run the Python services.
 
-    Prefer the `python` that runs this script (3.12 here) over the Windows `py`
-    launcher, which may point to a different 3.x where fastapi/uvicorn are not
-    installed.
+    Returns the argv (e.g. ["python"] or ["py", "-3.12"]) of the first
+    candidate able to import fastapi+uvicorn (needed by the webhook server
+    and the gen-engine). Prefers the interpreter running this script, then
+    `python`, then the Windows launcher with common 3.11/3.12 minors, then
+    the launcher default. Falls back to the first candidate so setup and
+    validate still run even without the web deps.
     """
+    candidates: list[list[str]] = [[sys.executable]] if sys.executable else []
     if os.name == "nt":
-        for c in ("python", "py"):
-            if shutil.which(c):
-                return c
-    for c in ("python3", "python"):
-        if shutil.which(c):
-            return c
-    return "python" if os.name == "nt" else "python3"
+        candidates += [["python"], ["py", "-3.12"], ["py", "-3.11"], ["py"]]
+    else:
+        candidates += [["python3"], ["python"]]
+    for cmd in candidates:
+        try:
+            probe = subprocess.run(
+                [*cmd, "-c", "import fastapi, uvicorn"],
+                capture_output=True,
+                timeout=15,
+                check=False,
+            )
+        except (OSError, subprocess.SubprocessError):
+            continue
+        if probe.returncode == 0:
+            return cmd
+    return candidates[0] if candidates else ["python"]
 
 
 def run(cmd: list[str], cwd: Path = ROOT, check: bool = True) -> int:
@@ -123,11 +139,12 @@ def run(cmd: list[str], cwd: Path = ROOT, check: bool = True) -> int:
     return proc.returncode
 
 
-def tool_version(tool: str) -> str:
+def tool_version(tool: str | list[str]) -> str:
     """Return the --version output of a tool, or '?' when it cannot run."""
+    cmd = [tool] if isinstance(tool, str) else tool
     try:
         out = subprocess.run(
-            [tool, "--version"], capture_output=True, text=True, timeout=10, check=False
+            cmd + ["--version"], capture_output=True, text=True, timeout=10, check=False
         )
         return (out.stdout or out.stderr).strip()
     except (OSError, subprocess.SubprocessError, ValueError):
@@ -148,7 +165,7 @@ def check_prereqs() -> None:
             missing.append(f"node {raw} — se requiere >= 20")
     if shutil.which(npm_exec()) is None:
         missing.append("npm (viene con Node.js)")
-    if shutil.which(python_exec()) is None:
+    if shutil.which(python_exec()[0]) is None:
         missing.append("python >= 3.10 (https://python.org)")
     else:
         raw = tool_version(python_exec())
@@ -301,18 +318,8 @@ def env_report_row(label: str, name: str, keys: dict[str, str | None]) -> None:
         print(f"  [ENV]   {label}: {name} ({status})")
 
 
-def check_connections() -> None:
-    """Print a report of env keys, tools, network and ports (no changes)."""
-    log("=== CONEXIONES ===")
-    for target, source in zip(ENV_TARGETS, ENV_SOURCES):
-        label = str(target.relative_to(ROOT))
-        if not target.exists():
-            print(f"  [ENV]   {label}: NO EXISTE (crea con: python start.py)")
-            continue
-        keys = env_keys_with_values(target)
-        example = env_keys_with_values(source) if source.exists() else {}
-        for name in sorted(example):
-            env_report_row(label, name, keys)
+def report_tools() -> None:
+    """Print the ffmpeg / ollama / LM Studio / npm status rows."""
     ffmpeg = shutil.which("ffmpeg")
     if ffmpeg:
         print(f"  [TOOL]  ffmpeg: OK ({ffmpeg})")
@@ -330,12 +337,39 @@ def check_connections() -> None:
         print("  [NET]   registry npm: OK")
     else:
         print("  [NET]   registry npm: NO alcanzable (sin red/proxy)")
+
+
+def report_gen_engine() -> None:
+    """Print the Gen-Engine status row (local launch vs remote health)."""
+    ge_url = gen_engine_url()
+    if is_local_url(ge_url):
+        print(f"  [GEN]   {ge_url} — local (start.py lo lanza con --gen-engine o en el full run)")
+        return
+    ok = http_ok(f"{ge_url}/health", 3.0)
+    print(f"  [GEN]   {ge_url} — remoto: {'OK' if ok else 'NO responde'}")
+
+
+def check_connections() -> None:
+    """Print a report of env keys, tools, network and ports (no changes)."""
+    log("=== CONEXIONES ===")
+    for target, source in zip(ENV_TARGETS, ENV_SOURCES):
+        label = str(target.relative_to(ROOT))
+        if not target.exists():
+            print(f"  [ENV]   {label}: NO EXISTE (crea con: python start.py)")
+            continue
+        keys = env_keys_with_values(target)
+        example = env_keys_with_values(source) if source.exists() else {}
+        for name in sorted(example):
+            env_report_row(label, name, keys)
+    report_tools()
     for port, svc in (
         (WEB_PORT, "web (Next.js)"),
         (HOOKS_PORT, "webhooks (FastAPI)"),
+        (gen_engine_port(gen_engine_url()), "gen-engine (FastAPI)"),
     ):
         state = "LIBRE" if port_free(port) else "EN USO"
         print(f"  [PORT]  {port} ({svc}): {state}")
+    report_gen_engine()
     log("check-connections: listo. Las claves reales (OPENAI/ELEVENLABS/RUNWAY/FAL)")
     log("debes pegarlas tú en los .env.")
 
@@ -345,7 +379,7 @@ def validate_pipeline() -> None:
     if not PIPE_DIR.exists():
         print(f"[ultraia] ERROR: {PIPE_DIR} no existe", file=sys.stderr)
         sys.exit(1)
-    run([python_exec(), "main.py", "--validate"], cwd=PIPE_DIR)
+    run(python_exec() + ["main.py", "--validate"], cwd=PIPE_DIR)
 
 
 def start_web() -> subprocess.Popen:
@@ -363,7 +397,81 @@ def start_hooks() -> subprocess.Popen | None:
         )
         return None
     log("Webhook server (Runway/Fal) -> http://localhost:8000")
-    return subprocess.Popen([python_exec(), "webhook_server.py"], cwd=PIPE_DIR)
+    return subprocess.Popen(python_exec() + ["webhook_server.py"], cwd=PIPE_DIR)
+
+
+def gen_engine_url() -> str:
+    """Return the configured Gen-Engine URL (ROOT/.env) or the local default."""
+    env = ROOT / ".env"
+    if env.exists():
+        for line in env.read_text(encoding="utf-8", errors="ignore").splitlines():
+            line = line.strip()
+            if line.startswith("GEN_ENGINE_URL="):
+                value = line.partition("=")[2].strip().strip('"').strip("'")
+                if value:
+                    return value
+    return f"http://localhost:{GEN_ENGINE_PORT}"
+
+
+def gen_engine_port(url: str) -> int:
+    """Extract the port from a Gen-Engine URL (http://host:port/...)."""
+    match = re.search(r":(\d+)", url)
+    return int(match.group(1)) if match else GEN_ENGINE_PORT
+
+
+def is_local_url(url: str) -> bool:
+    """Return True when the URL points to this machine (localhost/127.0.0.1)."""
+    return "localhost" in url or "127.0.0.1" in url
+
+
+def write_gen_engine_env(url: str) -> None:
+    """Ensure apps/web/.env advertises GEN_ENGINE_URL so Next.js registers the
+    providers at boot (instrumentation.ts). No-op when a real URL is configured.
+    An empty GEN_ENGINE_URL="" (from .env.example) is replaced by the local one.
+    """
+    target = ROOT / "apps" / "web" / ".env"
+    if not target.exists():
+        return
+    text = target.read_text(encoding="utf-8", errors="ignore")
+    if re.search(r"^\s*GEN_ENGINE_URL=\"?[^\"]+\"?\s*$", text, re.MULTILINE):
+        return
+    if re.search(r"^\s*GEN_ENGINE_URL=\"\"\s*$", text, re.MULTILINE):
+        text = re.sub(
+            r"^\s*GEN_ENGINE_URL=\"\"\s*$",
+            f'GEN_ENGINE_URL="{url}"',
+            text,
+            count=1,
+            flags=re.MULTILINE,
+        )
+        target.write_text(text, encoding="utf-8")
+        log(f"GEN_ENGINE_URL={url} actualizado en {target.relative_to(ROOT)}")
+        return
+    with target.open("a", encoding="utf-8") as f:
+        f.write(f'\nGEN_ENGINE_URL="{url}"\n')
+    log(f"GEN_ENGINE_URL={url} añadido a {target.relative_to(ROOT)}")
+
+
+def start_gen_engine() -> subprocess.Popen | None:
+    """Start the local Gen-Engine (FastAPI) on the configured port (None if missing).
+
+    Uses :8100 by default so it never collides with the webhook server (:8000).
+    The web app must know the URL: GEN_ENGINE_URL is written to apps/web/.env
+    when absent (the instrumentation then health-checks and registers providers).
+    """
+    if not GEN_ENGINE_DIR.exists():
+        print(
+            f"[ultraia] AVISO: {GEN_ENGINE_DIR} no existe — omitiendo gen-engine",
+            file=sys.stderr,
+        )
+        return None
+    url = gen_engine_url()
+    port = gen_engine_port(url)
+    write_gen_engine_env(url)
+    log(f"Gen-Engine (FastAPI) -> {url}")
+    return subprocess.Popen(
+        python_exec() + ["-m", "uvicorn", "app.main:app", "--port", str(port)],
+        cwd=GEN_ENGINE_DIR,
+    )
 
 
 def terminate(proc: subprocess.Popen, _name: str) -> None:
@@ -397,9 +505,12 @@ def shutdown(procs: list[tuple[subprocess.Popen, str]]) -> None:
 
 
 def service_url(name: str) -> str:
-    """Return the health URL for a service name ('web' or anything else)."""
-    port = WEB_PORT if name == "web" else HOOKS_PORT
-    return f"http://localhost:{port}"
+    """Return the health URL for a service name."""
+    if name == "web":
+        return f"http://localhost:{WEB_PORT}"
+    if name == "gen-engine":
+        return f"{gen_engine_url()}/health"
+    return f"http://localhost:{HOOKS_PORT}"
 
 
 def monitor_loop(procs: list[tuple[subprocess.Popen, str]]) -> None:
@@ -463,23 +574,45 @@ def cmd_deploy() -> None:
 
 
 def cmd_single(flag: str) -> None:
-    """Handle --web / --hooks: start exactly one service and watch it."""
-    port, name, start_fn = (WEB_PORT, "web", start_web)
+    """Handle --web / --hooks / --gen-engine: one service, watched."""
+    if flag == "--web":
+        preflight_ports([(WEB_PORT, "web (Next.js)")])
+        spawn_and_watch(start_web, "web", timeout=240.0)
+        return
     if flag == "--hooks":
-        port, name, start_fn = (HOOKS_PORT, "webhooks", start_hooks)
-    preflight_ports([(port, name)])
-    spawn_and_watch(start_fn, name, timeout=240.0 if name == "web" else 90.0)
+        preflight_ports([(HOOKS_PORT, "webhooks (FastAPI)")])
+        spawn_and_watch(start_hooks, "hooks", timeout=90.0)
+        return
+    if flag == "--gen-engine":
+        if not GEN_ENGINE_DIR.exists():
+            print(f"[ultraia] ERROR: {GEN_ENGINE_DIR} no existe", file=sys.stderr)
+            sys.exit(1)
+        port = gen_engine_port(gen_engine_url())
+        preflight_ports([(port, "gen-engine (FastAPI)")])
+        spawn_and_watch(start_gen_engine, "gen-engine", timeout=90.0)
+        return
+    raise ValueError(f"flag desconocido: {flag}")
 
 
 def cmd_full() -> None:
-    """Handle the default run: both services in parallel with a monitor loop."""
-    preflight_ports([(WEB_PORT, "web (Next.js)"), (HOOKS_PORT, "webhooks (FastAPI)")])
+    """Handle the default run: web + webhooks + (local) gen-engine in parallel."""
+    services: list[tuple[int, str, str, object]] = [
+        (WEB_PORT, "web (Next.js)", "web", start_web),
+    ]
+    if WEBHOOK_SERVER.exists():
+        services.append((HOOKS_PORT, "webhooks (FastAPI)", "hooks", start_hooks))
+    if GEN_ENGINE_DIR.exists():
+        services.append(
+            (gen_engine_port(gen_engine_url()),
+             "gen-engine (FastAPI)", "gen-engine", start_gen_engine)
+        )
+    preflight_ports([(port, label) for port, label, _, _ in services])
     procs: list[tuple[subprocess.Popen, str]] = []
-    web = start_web()
-    procs.append((web, "web"))
-    hooks = start_hooks()
-    if hooks:
-        procs.append((hooks, "hooks"))
+    for port, label, name, start_fn in services:
+        log(f"Puerto {port} libre ({label})")
+        proc = start_fn()  # type: ignore[operator]
+        if proc is not None:
+            procs.append((proc, name))
 
     for p, name in procs:
         t = threading.Thread(
@@ -497,6 +630,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="UltraIa one-command start")
     parser.add_argument("--web", action="store_true", help="solo web app")
     parser.add_argument("--hooks", action="store_true", help="solo webhooks")
+    parser.add_argument("--gen-engine", action="store_true", help="solo gen-engine local")
     parser.add_argument("--validate", action="store_true", help="solo validar pipeline ar-SA")
     parser.add_argument(
         "--install",
@@ -532,8 +666,9 @@ def main() -> None:
         return
     if not args.skip_setup:
         setup()
-    if args.web or args.hooks:
-        cmd_single("--web" if args.web else "--hooks")
+    if args.web or args.hooks or args.gen_engine:
+        flag = "--web" if args.web else ("--hooks" if args.hooks else "--gen-engine")
+        cmd_single(flag)
         return
     cmd_full()
 
