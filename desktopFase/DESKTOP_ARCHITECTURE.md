@@ -81,12 +81,12 @@ restart() → stop() + start() (idempotente)
 |---|---|---|
 | A | `packages/runtime` (infraestructura pura TS + tests) | ✅ Implementada (132/132) |
 | B | Local API HTTP/WS en 127.0.0.1 + token (contrato en `docs/IPC.md`) | ✅ Implementada (15/08/2026, 152/152) |
-| C | Adaptadores a `@ultraia/core` (Db, AiGateway, tools, omag) | Pendiente |
+| C | Adaptadores a `@ultraia/core` (Db, AiGateway, tools, omag) | ✅ Parcial (15/08/2026, 173/173): `adapters/ports.ts` + `db.ts` + `ai.ts` + `core.ts` (CorePorts). Pendiente: tools + omag |
 | D | Shell Desktop (Tauri 2 o Electron) consumiendo solo la Local API | Pendiente |
 | E | Instalador real (NSIS/MSI) + actualizador + firma | Pendiente |
 
 ## Verificación
 
-- Runtime: `npm run typecheck -w @ultraia/runtime` + `npm run test -w @ultraia/runtime` (152 tests: 132 Fase A + 20 Fase B).
+- Runtime: `npm run typecheck -w @ultraia/runtime` + `npm run test -w @ultraia/runtime` (173 tests: 132 Fase A + 20 Fase B + 21 Fase C parcial).
 - Repo completo: `npm run typecheck && npm run lint && npm run test && npm run build`.
 - Si vitest da fallos raros tras editar: limpiar `node_modules/.vite` (caché de transform stale).

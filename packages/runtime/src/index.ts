@@ -16,3 +16,7 @@ export * from './installer';
 export * from './api/ws';
 export * from './api/server';
 export * from './api/runtime-handlers';
+export * from './adapters/ports';
+export * from './adapters/db';
+export * from './adapters/ai';
+export * from './adapters/core';
