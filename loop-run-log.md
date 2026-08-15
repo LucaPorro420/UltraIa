@@ -622,6 +622,60 @@ ormalizeTitle() (lower + strip non-alnum), dedupe() (bigram overlap > 0.6),
 
 ---
 
+## Iteración 15 — AutoPub F2 tarea 2: multi-idioma es/ar + TTS edge-tts (15/08/2026)
+
+**[P] Plan**
+- Objetivo: F2 tarea 2 (AUTO-PUBLICACION.md §F2): el enrutador (Redactor/Guionista)
+  produce en es Y ar (patrón bilingüe del pipeline Python RF-12) y el guion se convierte
+  en narración MP3 vía edge-tts (omag/tts.ts, keyless, 14 idiomas). (STATE.md #15).
+- Pasos:
+  1. `tools/enrutador.ts`:
+     - `idioma: 'es' | 'ar'` (default 'es') en `redactar`/`guionizar`/`generarContenido`
+       y `ContentPackage` (campo `idioma`).
+     - Plantillas bilingües: CTA_BY_CANAL, plantillas de guion (7), hook, cierre, y
+       conectores es/ar — mismo esquema determinista, textos en árabe para 'ar'.
+     - `generarContenido(..., {tts?: boolean})`: si tipo guion y tts → `edgeTtsAudio(
+       narracion, idioma)` → escribe `narracion.mp3` en la carpeta del brief y agrega
+       `audioPath` al paquete; degradación elegante: edge-tts no responde → `audioPath:
+       null` (sin romper el paquete).
+  2. Tool `contenido_generar` en llm.ts: params `idioma` + `tts` opcionales.
+  3. Tests `enrutador.test.ts` (+6): redactar ar (texto árabe + CTA ar), guionizar ar
+     (hook/voces árabes), generarContenido con tts (mock edgeTtsAudio inyectable → mp3 en
+     disco), degradación tts falla → audioPath null.
+  4. Docs: AUTO-PUBLICACION.md §F2 tarea 2, STATE.md #15 DONE + #16 SIGUIENTE, AGENTS.md.
+- Criterios: gates FULL verdes; core 322 → ~328 PASS; commit
+  `feat(core): AutoPub F2 tarea 2 - multi-idioma es/ar + TTS edge-tts (narracion mp3) + tests`.
+- Nota: edgeTtsAudio es inyectable para tests (mock sin red).
+
+**[I] Commits**
+- `960e55a` feat(core): AutoPub F2 tarea 2 - multi-idioma es/ar en redactor/guionista + TTS edge-tts (narracion.mp3) + 6 tests (6 archivos, +219/-50). Sin push.
+
+**[V] Gates**
+- Scoped: enrutador.test.ts **22/22 PASS** (6 nuevos: redactar ar, redactar es previo,
+  guionizar ar, paquete idioma ar, tts→mp3 en disco, degradación tts→null) · typecheck core ✅
+- FULL: typecheck ✅ · lint ✅ · test **520/520** (core 328 + runtime 192) ✅ · build ✅
+- Pre-build check: sin dev servers node activos ✅
+
+**[R] Veredicto**
+- **GREEN** → commit `960e55a`. Tarea #15 completada: AutoPub F2 tarea 2 — multi-idioma
+  es/ar: `idioma?: 'es'|'ar'` (default es) en `redactar`/`guionizar`/`generarContenido` +
+  `ContentPackage.idioma`; plantillas bilingües deterministas (CTA_BY_CANAL, CONECTORES,
+  CUERPO_POR_IDIOMA, PLANTILLAS_GUION 7 escenas, HOOK_POR_IDIOMA — patrón RF-12) +
+  **TTS edge-tts keyless**: `generarContenido(...,{tts:true})` en guiones →
+  `edgeTtsAudio` (omag/tts.ts, voz por idioma) → `narracion.mp3` junto al manifest
+  (`audioPath`), degradación elegante a null (engine inyectable para tests). Tool
+  `contenido_generar` gana `idioma` + `tts`.
+  FIXES: describe nuevos sin `dir` (mkdtemp) → ReferenceError en 4 tests; CTA esperado
+  era de canal youtube_shorts pero brief default es blog. LECCIÓN: al añadir describe
+  nuevos a un test file con setup por-describe, copiar también el beforeEach/afterEach.
+- Siguiente ciclo: backlog #16 — AutoPub F2 tarea 3: OMAG long-form 60s+ (Project/Act/
+  Sequence/Scene/Shot + audio) — SIGUIENTE (STATE.md).
+- Ruido externo NO tocado: `.opencode/skills/loop-*`, `DOCS_TODO.md`, `LOOP.md`,
+  `loop-constraints.md`, `opencode.json`, `scripts/loop_piv.py`, `start.py`,
+  `.opencode/skills/loop-verifier/`, `PrototypeREADME.md` — quedan en working tree.
+
+---
+
 ## Iteración 14 — AutoPub F1 tarea 4: cola de briefs persistente (Prisma) (15/08/2026)
 
 **[P] Plan**
