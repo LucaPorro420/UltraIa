@@ -134,6 +134,13 @@ alternativas con pros/cons. Orden sugerido de ejecución (ajustable por el usuar
   cons: más frágil (anti-bot, ver lecciones). (c) manual (briefs escritos a mano) — pros:
   control total; cons: no es "auto". **Recomendado: (a)+(b) con degradación a (a).**
 
+> **F1 implementado 15/08/2026 (iteración 7)**: tool `topics` en
+> `packages/core/src/tools/topics.ts` (generateTopicBriefs: RSS + DDG, dedupe bigram,
+> score novedad × relevancia de canal, formato/tono/ángulo por canal, briefs JSON;
+> registrada como capability `topics` → tool `topics_briefs` en llm.ts; 14 tests) +
+> CLI `scripts/topics.py --dry-run` (Python puro sin deps, mismo esquema, fuentes reales
+> verificadas). Queda pendiente: cola de briefs persistente (Prisma, tarea 4 de F1).
+
 ### F2 — Contenido (completar)
 
 - **Objetivo**: convertir briefs en contenido listo (texto, guion, media).

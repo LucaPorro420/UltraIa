@@ -248,6 +248,13 @@ Verdad verificada 9/9 PASS en `learning/truth/truth_tecno_recursos.json` (fuente
   /gallery) → Meta (IG Reels/Threads, app review) → X API v2 → LinkedIn.
 - **Referencias de adaptadores futuros**: vendor `everything-claude-code/skills/x-api`
   (X v2) y `social-publisher` (LinkedIn/IG).
+- **F1 Motor de ideas (15/08/2026, iteración 7)**: tool `topics` en
+  `packages/core/src/tools/topics.ts` (capability `topics` → tool `topics_briefs`; RSS +
+  DuckDuckGo, dedupe bigram Jaccard, score novedad × relevancia de canal, briefs
+  `{tema, canal, formato, tono, angulo, fuentes, score}`; 14 tests) + CLI
+  `python scripts/topics.py --dry-run` (solo stdlib, mismo esquema de brief, degradación
+  elegante por fuente — verificado con HN + Ars Technica). Pendiente F1: cola de briefs
+  persistente (Prisma). Siguiente: F3 schema `PublicationPackage` + tool `present`.
 
 ## Loop PIVR (Plan ⇒ Implement ⇒ Verificar ⇒ Reiniciar) — 15/08/2026
 

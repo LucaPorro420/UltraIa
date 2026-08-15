@@ -303,3 +303,42 @@ BitÃ¡cora de ciclos PIVR (Plan â‡’ Implement â‡’ Verificar â‡’ Reiniciar). Forma
   rate limit, eventos WS) + docs IPC/SECURITY. 17 archivos, +1652.
 - **15/08/2026** â€” Commit 2 (`.vscode/settings.json` Pylance fix) ABORTADO: `.vscode/` estÃ¡ en
   `.gitignore` â†’ nada que commitear (config local-only, correcto).
+## Iteración 7 — AutoPub F1: motor de ideas (tool topics + topics.py) (15/08/2026)
+
+**[P] Plan**
+- Objetivo: implementar F1 del plan maestro AUTO-PUBLICACION.md §4/§6 (tarea #7 de STATE.md):
+  motor de temas que genera briefs recurrentes sin intervención manual — RSS (parseRss ya
+  existe) + searchWeb DuckDuckGo (tendencias), dedupe + priorización por canal, brief JSON
+  estandarizado. Keyless-first, sin deps nuevas.
+- Pasos:
+  1. packages/core/src/tools/topics.ts — motor de briefs TS:
+     - Types: TopicBrief {tema, canal, formato, tono, angulo, fuentes, score, pubDate?},
+       GenerateTopicsInput {fuentes, canales?, maxBriefs?, fetchFn?} (fetch inyectable para tests).
+     - 
+ormalizeTitle() (lower + strip non-alnum), dedupe() (bigram overlap > 0.6),
+       scoreBrief() (novedad: pubDate <7d +; >30d -; relevancia por keywords de canal),
+       ormatForChannel() (youtube_shorts/tiktok ? 9:16 video; instagram ? 1:1 imagen;
+       blog ? 16:9 artículo), 	onoYAngulo() (template por tipo de fuente).
+     - generateTopicBriefs(): fetch RSS + DDG (reusa parseRss/searchWeb con fetch inyectable)
+       ? items ? normalize ? dedupe ? score ? top N ? briefs.
+  2. index.ts: export topics + TOOL_DESCRIPTIONS.topics + Capability 'topics'.
+  3. llm.ts: tool 	opics_briefs (capability topics) ? generateTopicBriefs.
+  4. Tests packages/core/src/tools/topics.test.ts: normalize/dedupe/score/formato por canal +
+     generateTopicBriefs con fetch stub (RSS + DDG), maxBriefs, fuentes vacías.
+  5. scripts/topics.py — CLI Python puro (urllib + xml.etree, sin deps): --dry-run imprime
+     briefs JSON a stdout; --out file.json (UTF-8 sin BOM); --max N; --canales yt,tiktok,blog.
+     Mismo esquema de brief que la tool TS (fuente de verdad: TS; Python = CLI autónomo keyless).
+  6. Docs: AUTO-PUBLICACION.md §4 F1 (checklist), STATE.md #7, AGENTS.md sección AutoPub.
+- Criterios: gates FULL verdes (typecheck ? lint ? test ? build); core 218 ? ~226 PASS;
+  python scripts/topics.py --dry-run produce N briefs; commits
+  eat(core): AutoPub F1 - tool topics (motor de briefs: RSS + DDG, dedupe, score) + tests y
+  eat(scripts): AutoPub F1 - topics.py CLI --dry-run (keyless, sin deps).
+
+**[I] Commits**
+- (pendiente)
+
+**[V] Gates**
+- (pendiente)
+
+**[R] Veredicto**
+- (pendiente)
