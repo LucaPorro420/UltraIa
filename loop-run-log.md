@@ -513,3 +513,48 @@ ormalizeTitle() (lower + strip non-alnum), dedupe() (bigram overlap > 0.6),
   blog propio (publicar en /recursos) — SIGUIENTE (STATE.md).
 - Ruido externo NO tocado: `DOCS_TODO.md`, `start.py` (modificados por hooks/herramientas
   externas al loop) — quedan en working tree.
+
+---
+
+## Iteración 11 — AutoPub F4 (tarea 4): calendario + blog propio (15/08/2026)
+
+**[P] Plan**
+- Objetivo: cerrar F4 con las tareas 4 (calendario) y 5-parcial (blog propio) del plan
+  maestro AUTO-PUBLICACION.md (tarea #11 de STATE.md): disparador de publicación
+  programada + página pública del blog que muestra los paquetes PUBLISHED de texto.
+- Pasos:
+  1. Endpoint `POST /api/publications/publish-due` (auth ADMIN) → `publishDue(prisma)`
+     (ya implementado en el dominio, iteración 10). Devuelve `{publicadas, fallidas}`.
+     Uso: cron externo (Task Scheduler / intervalo en start.py futuro) → publicación
+     automática de lo programado y aprobado.
+  2. Página pública `/blog` (server component, sin auth): lee de Prisma las publicaciones
+     con `estado=PUBLISHED` y `canal=blog`, muestra tema + caption + fecha + contenido
+     (paqueteJson) en tarjetas Dark Obsidian (patrón de /recursos: MarketingHeader).
+  3. Helper de dominio `listBlogPosts(db, {take})` → solo PUBLISHED/blog, ordenado por
+     publishedAt desc; tests con fake db (+4).
+  4. Docs: AUTO-PUBLICACION.md §4 F4 (tarea 4 + 5-parcial), STATE.md #11, AGENTS.md.
+- Criterios: gates FULL verdes; core 275 → ~279 PASS; commits
+  `feat(web+core): AutoPub F4 tarea 4 - endpoint publish-due (calendario) + blog publico /blog + tests`.
+
+**[I] Commits**
+- `cf3aed2` feat(web+core): AutoPub F4 tarea 4 - endpoint publish-due (calendario) + blog publico /blog + listBlogPosts dominio + 3 tests (7 archivos, +220/-17). Sin push.
+
+**[V] Gates**
+- Scoped: publications.test.ts **18/18 PASS** (15 previos + 3 nuevos listBlogPosts) ✅ · typecheck core ✅ · typecheck web ✅ · lint web ✅
+- FULL: typecheck ✅ · lint ✅ · test **470/470** (core 278 + runtime 192) ✅ · build ✅
+- Pre-build check: sin dev servers node activos ✅
+
+**[R] Veredicto**
+- **GREEN** → commit `cf3aed2`. Tarea #11 completada: AutoPub F4 tareas 4 + 5-parcial —
+  calendario (`POST /api/publications/publish-due`, ADMIN → publishDue(prisma), para cron
+  externo/Task Scheduler) + blog propio (página pública `/blog` server component con
+  `listBlogPosts(prisma)` — PUBLISHED/canal blog ordenado por publishedAt desc, tarjetas
+  Dark Obsidian, revalidate 5min; helper `listBlogPosts` en dominio con 3 tests).
+- Pendiente F4: tarea 5-resto — canales siguientes Meta/X/LinkedIn (STATE.md #13);
+  F2 enrutamiento brief→Redactor/Guionista (STATE.md #12).
+- Siguiente ciclo: backlog #12 — AutoPub F2: enrutamiento brief→Redactor/Guionista vía
+  Orquestador + manifest JSON (packages/core) — SIGUIENTE (STATE.md).
+- Ruido externo NO tocado: `.opencode/skills/loop-*`, `DOCS_TODO.md`, `LOOP.md`,
+  `loop-constraints.md`, `opencode.json`, `scripts/loop_piv.py`, `start.py`,
+  `.opencode/skills/loop-verifier/`, `PrototypeREADME.md` — modificados por herramientas
+  externas al loop, quedan en working tree.
