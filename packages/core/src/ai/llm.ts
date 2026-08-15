@@ -19,6 +19,8 @@ import { present } from '../tools/present';
 import { createDefaultPublishers, publishToAll, buildBilingualMetadata } from '../tools/publish';
 import { createPublication, listPublications, approvePublication, rejectPublication, publishDue } from '../domain/publications';
 import { generarContenido, type ContentPackage } from '../tools/enrutador';
+import { computeChannelKpis } from '../tools/metrics';
+import { publicationSignals } from '../domain/publications';
 import { audioLibrary } from '../omag/audiolibrary';
 import { synthSound as synth } from '../omag/sound';
 
@@ -496,6 +498,21 @@ export function chatStream(opts: {
               ? paquete.contenido?.intro.slice(0, 200)
               : `${paquete.guion?.hook} (${paquete.guion?.duracionSeg}s, ${paquete.guion?.escenas.length} escenas)`,
         } satisfies { briefId: string; tipo: 'texto' | 'guion'; manifestPath: string | null; titulo?: string; resumen?: string };
+      },
+    });
+  }
+  if (opts.tools?.includes('metrics') && opts.db) {
+    tools.publication_metrics = tool({
+      description:
+        'Publication metrics (AutoPub F5): channel KPIs (published/failed/pending, success rate, avg pre-publication media score) and BAD-feedback signals from published posts (ready for the agent improvement pipeline). Use to measure results and close the content loop.',
+      parameters: z.object({
+        accion: z.enum(['kpis', 'signals']),
+        limit: z.number().int().min(1).max(100).optional(),
+      }),
+      execute: async ({ accion, limit }) => {
+        if (accion === 'kpis') return computeChannelKpis(opts.db!);
+        const res = await publicationSignals(opts.db!, limit ?? 20);
+        return res;
       },
     });
   }

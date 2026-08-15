@@ -267,6 +267,20 @@ alternativas con pros/cons. Orden sugerido de ejecución (ajustable por el usuar
   mide resultado real. (b) analytics por API de cada canal — pros: datos reales; cons:
   quotas y permisos. (c) ambos (recomendado).
 
+> **F5 tareas 1-2 + conexión 3 implementadas 15/08/2026 (iteración 13)**: KPIs por canal —
+> `tools/metrics.ts` `computeChannelKpis(db)` (publicadas/fallidas/pendientes, tasa de
+> éxito, media de mediaScore; agrega sobre Publication) + endpoint `GET
+> /api/publications/metrics` (ADMIN). media_score pre-pub — `tools/media-score.ts` port
+> determinista de `media_score.py` (`puntuarMedia` 0-25 PASS≥20 para image/audio/video/tts/
+> music/director + `puntuarPaquete` 0-100 del PublicationPackage: contenido/caption/
+> hashtags/visual/SRT/horario); `createPublication` persiste `mediaScore` (migración
+> `add_publication_metrics`). Feedback post-pub — `registrarFeedback(db,id,{rating,
+> critique})` (feedbackJson acumulativo) + `publicationSignals(db)` → critiques BAD para el
+> pipeline de mejora (improve.ts) + endpoint `POST /api/publications/[id]/feedback`
+> (ADMIN/creador). Tool `publication_metrics` (capability `metrics`): kpis + signals.
+> 21 tests nuevos. Pendiente F5: analytics reales por API de canal (quota/permisos) y
+> promoción automática de agentes impulsada por signals (conectar con proposeImprovement).
+
 ### F6 — Escala (futuro)
 
 - **Objetivo**: producción sostenida.

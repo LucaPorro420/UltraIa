@@ -14,6 +14,8 @@ export * from './topics';
 export * from './present';
 export * from './publish';
 export * from './enrutador';
+export * from './media-score';
+export * from './metrics';
 
 import * as web from './web';
 import * as image from './image';
@@ -28,8 +30,10 @@ import { topics } from './topics';
 import { presentTools } from './present';
 import { publish } from './publish';
 import { enrutador } from './enrutador';
+import { mediaScore } from './media-score';
+import { metrics } from './metrics';
 
-export const tools = { web, image, video, music, stitch, reach, skills: { runSkill }, content, g0dm0d3, topics, present: presentTools, publish, enrutador };
+export const tools = { web, image, video, music, stitch, reach, skills: { runSkill }, content, g0dm0d3, topics, present: presentTools, publish, enrutador, mediaScore, metrics };
 
 export const TOOL_DESCRIPTIONS: Record<string, string> = {
   calculator: 'Safely evaluate a mathematical expression (math only).',
@@ -55,6 +59,8 @@ export const TOOL_DESCRIPTIONS: Record<string, string> = {
     'Publication queue (AutoPub F4): create/list/approve/reject queued publications from PublicationPackages (auto-approves text/blog; video/image channels require human approval) and publish scheduled items that are due. Persisted in Prisma. Use to manage the content distribution pipeline end-to-end.',
   contenido:
     'Content router (AutoPub F2): converts a topic brief into ready-to-use content — written post (Redactor) or video script + storyboard (Guionista) — and writes a manifest.json to disk. Deterministic and keyless. Use to move from idea to content package.',
+  metrics:
+    'Publication metrics (AutoPub F5): channel KPIs (published/failed/pending counts, success rate, average pre-publication media score) and BAD-feedback signals from published posts, ready to feed the agent improvement pipeline. Use to measure and close the content loop.',
 };
 
 export type Capability =
@@ -72,4 +78,5 @@ export type Capability =
   | 'present'
   | 'publish'
   | 'publications'
-  | 'contenido';
+  | 'contenido'
+  | 'metrics';

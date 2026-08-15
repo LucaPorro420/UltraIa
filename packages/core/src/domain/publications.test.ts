@@ -7,7 +7,9 @@ import {
   listPublications,
   markFailed,
   markPublished,
+  publicationSignals,
   publishDue,
+  registrarFeedback,
   rejectPublication,
   type PublicationEstado,
 } from './publications';
@@ -20,7 +22,7 @@ function makePaquete(canal: 'youtube_shorts' | 'tiktok' | 'instagram' | 'blog'):
   const visualByChannel = {} as PublicationPackage['visualByChannel'];
   const horarioSugerido = {} as PublicationPackage['horarioSugerido'];
   for (const c of canales) {
-    captionsByChannel[c] = { canal: c, caption: `Caption para ${c}`, hashtags: ['#IA', '#Shorts'], srt: null };
+    captionsByChannel[c] = { canal: c, caption: `Caption para ${c}`, hashtags: ['#IA', '#Shorts'], srt: `1\n00:00:00,000 --> 00:00:02,000\nHola` };
     visualByChannel[c] = { dimensiones: '1080x1920', formato: '9:16 video', estilo: 'x', textoOverlay: 'x', thumbnail: 'https://x' };
     horarioSugerido[c] = 'lun 12:00';
   }
@@ -51,6 +53,9 @@ interface Row {
   error: string | null;
   resultadoJson: string | null;
   publishedAt: Date | null;
+  mediaScore: number | null;
+  feedbackJson: string | null;
+  updatedAt: Date;
 }
 
 let seq = 0;
@@ -72,6 +77,9 @@ function fakeDb(rows: Row[] = []) {
           error: null,
           resultadoJson: null,
           publishedAt: null,
+          mediaScore: data.mediaScore ?? null,
+          feedbackJson: data.feedbackJson ?? null,
+          updatedAt: new Date(),
         };
         rows.push(row);
         return row;
@@ -289,5 +297,52 @@ describe('listBlogPosts', () => {
     await createPublication(db, { paquete: makePaquete('blog'), canal: 'blog' }); // APPROVED (auto)
     await createPublication(db, { paquete: makePaquete('youtube_shorts'), canal: 'youtube_shorts' }); // DRAFT
     expect(await listBlogPosts(db)).toHaveLength(0);
+  });
+});
+
+describe('mediaScore (F5)', () => {
+  it('createPublication calcula y persiste el mediaScore del paquete', async () => {
+    const { db, rows } = fakeDb();
+    await createPublication(db, { paquete: makePaquete('blog'), canal: 'blog' });
+    expect(rows[0].mediaScore).toBeGreaterThan(0);
+    expect(rows[0].mediaScore).toBeLessThanOrEqual(100);
+  });
+
+  it('el paquete de makePaquete tiene score alto (contenido+caption+visual+horario)', async () => {
+    const { db, rows } = fakeDb();
+    await createPublication(db, { paquete: makePaquete('blog'), canal: 'blog' });
+    // 15 contenido corto + 20 caption + 15 visual + 10 srt + 15 horario = 75
+    expect(rows[0].mediaScore).toBeGreaterThanOrEqual(70);
+  });
+});
+
+describe('registrarFeedback / publicationSignals (F5)', () => {
+  it('registra GOOD y BAD con timestamp y las acumula', async () => {
+    const { db, rows } = fakeDb();
+    const pub = await createPublication(db, { paquete: makePaquete('blog'), canal: 'blog' });
+    await registrarFeedback(db, pub.id, { rating: 'GOOD', critique: 'muy buen post' });
+    await registrarFeedback(db, pub.id, { rating: 'BAD', critique: 'caption demasiado largo' });
+    const senales = JSON.parse(rows[0].feedbackJson!);
+    expect(senales).toHaveLength(2);
+    expect(senales[0].rating).toBe('GOOD');
+    expect(senales[0].ts).toBeTruthy();
+    expect(senales[1].critique).toBe('caption demasiado largo');
+  });
+
+  it('publicationSignals devuelve solo BAD con critique no vacía', async () => {
+    const { db } = fakeDb();
+    const p1 = await createPublication(db, { paquete: makePaquete('blog'), canal: 'blog' });
+    const p2 = await createPublication(db, { paquete: makePaquete('blog'), canal: 'blog' });
+    await registrarFeedback(db, p1.id, { rating: 'BAD', critique: 'mejorar el hook' });
+    await registrarFeedback(db, p1.id, { rating: 'GOOD', critique: 'ok' });
+    await registrarFeedback(db, p2.id, { rating: 'BAD', critique: '   ' });
+    const { critiques, total } = await publicationSignals(db);
+    expect(total).toBe(1);
+    expect(critiques).toEqual(['mejorar el hook']);
+  });
+
+  it('registrarFeedback lanza si la publicación no existe', async () => {
+    const { db } = fakeDb();
+    await expect(registrarFeedback(db, 'nope', { rating: 'BAD', critique: 'x' })).rejects.toThrow();
   });
 });

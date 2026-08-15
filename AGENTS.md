@@ -292,6 +292,15 @@ Verdad verificada 9/9 PASS en `learning/truth/truth_tecno_recursos.json` (fuente
   16:9/1:1→texto), `generarContenido(brief,{dir,dryRun,tipo})` → ContentPackage +
   `manifest.json` atómico/idempotente (.ultraia/content/<briefId>/). 16 tests. Pendiente F2:
   multi-idioma es/ar + TTS y OMAG long-form 60s+.
+- **F5 Métricas y mejora (15/08/2026, iteración 13)**: KPIs por canal (`tools/metrics.ts`
+  `computeChannelKpis`: publicadas/fallidas/pendientes, tasaExito, scorePromedio) +
+  endpoint `GET /api/publications/metrics` (ADMIN); media_score pre-pub (`tools/media-score.ts`
+  port de media_score.py: `puntuarMedia` 0-25 PASS≥20, `puntuarPaquete` 0-100; createPublication
+  persiste mediaScore — migración `add_publication_metrics`); feedback post-pub
+  (`registrarFeedback`/`publicationSignals` → critiques BAD para improve.ts) + endpoint
+  `POST /api/publications/[id]/feedback` (ADMIN/creador); tool `publication_metrics`
+  (capability `metrics`: kpis + signals). 21 tests. Pendiente F5: analytics reales por
+  API de canal + promoción automática de agentes vía signals.
 
 ## Loop PIVR (Plan ⇒ Implement ⇒ Verificar ⇒ Reiniciar) — 15/08/2026
 

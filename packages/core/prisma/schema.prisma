@@ -224,6 +224,8 @@ model Publication {
   publishedAt  DateTime?
   resultadoJson String? // resultado de publicacion (por plataforma)
   error        String?
+  mediaScore   Int? // 0-100 calidad pre-publicacion (AutoPub F5, port media_score.py)
+  feedbackJson String? // JSON string[] de senales post-pub: {rating, critique, ts} (F5)
   creadoPorId  String?
   creadoPor    User?     @relation("CreatedPublications", fields: [creadoPorId], references: [id], onDelete: SetNull)
   createdAt    DateTime  @default(now())

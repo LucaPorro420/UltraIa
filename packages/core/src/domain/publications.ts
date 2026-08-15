@@ -16,6 +16,7 @@ import type { Db } from '../db/client';
 import type { PublicationPackage, PresentChannel } from '../tools/present';
 import { publishToAll, createDefaultPublishers } from '../tools/publish';
 import type { PublishResult } from '../tools/publish';
+import { puntuarPaquete } from '../tools/media-score';
 
 export type PublicationEstado = 'DRAFT' | 'APPROVED' | 'REJECTED' | 'PUBLISHED' | 'FAILED';
 
@@ -45,6 +46,7 @@ export async function createPublication(db: Db, input: CreatePublicationInput): 
   const requiereAprobacion = canalRequiereAprobacion(input.canal);
   const caption = input.paquete.captionsByChannel[input.canal]?.caption ?? input.paquete.contenido.slice(0, 300);
   const hashtags = input.paquete.captionsByChannel[input.canal]?.hashtags ?? [];
+  const mediaScore = puntuarPaquete(input.paquete).score;
   const created = await db.publication.create({
     data: {
       briefId: input.paquete.briefId ?? null,
@@ -57,9 +59,40 @@ export async function createPublication(db: Db, input: CreatePublicationInput): 
       requiereAprobacion,
       scheduledAt: input.scheduledAt ?? null,
       creadoPorId: input.creadoPorId ?? null,
+      mediaScore,
     },
   });
   return { id: created.id, estado: created.estado as PublicationEstado, requiereAprobacion };
+}
+
+export interface FeedbackSenal {
+  rating: 'GOOD' | 'BAD';
+  critique: string;
+  ts: string;
+}
+
+/** Registra una señal de feedback post-publicación (F5 tarea 3). */
+export async function registrarFeedback(db: Db, id: string, senal: Omit<FeedbackSenal, 'ts'>): Promise<FeedbackSenal[]> {
+  const pub = await db.publication.findUnique({ where: { id } });
+  if (!pub) throw new Error(`Publication ${id} no encontrada`);
+  const previas = (pub.feedbackJson ? JSON.parse(pub.feedbackJson) : []) as FeedbackSenal[];
+  const nuevas = [...previas, { ...senal, ts: new Date().toISOString() }];
+  await db.publication.update({ where: { id }, data: { feedbackJson: JSON.stringify(nuevas) } });
+  return nuevas;
+}
+
+/** Señales BAD → ImprovementSignal compatible con el pipeline de mejora (improve.ts). */
+export async function publicationSignals(db: Db, limit = 20): Promise<{ critiques: string[]; total: number }> {
+  const pubs = await db.publication.findMany({
+    where: { feedbackJson: { not: null } },
+    orderBy: { updatedAt: 'desc' },
+    take: limit,
+  });
+  const critiques = pubs
+    .flatMap((p) => (p.feedbackJson ? (JSON.parse(p.feedbackJson) as FeedbackSenal[]) : []))
+    .filter((s) => s.rating === 'BAD' && s.critique.trim().length > 0)
+    .map((s) => s.critique.trim());
+  return { critiques, total: critiques.length };
 }
 
 export interface ListPublicationsOptions {
