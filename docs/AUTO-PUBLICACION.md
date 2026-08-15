@@ -173,6 +173,14 @@ alternativas con pros/cons. Orden sugerido de ejecución (ajustable por el usuar
   (b) plantillas por canal hardcodeadas (rápido, frágil). (c) delegar todo al Publicador
   vía chat (flexible, no determinista).
 
+> **F3 implementado 15/08/2026 (iteración 8)**: tool `present` en
+> `packages/core/src/tools/present.ts` — `PublicationPackage` completo (briefId, tema,
+> contenido, media, captions/hashtags/visual/SRT/horario por canal, branding) + helpers
+> deterministas (`captionFor`, `hashtagsFor`, `visualFor`, `srtFor` patrón RF-11,
+> `brandingFor` kits Dark Obsidian/Neo Violet); capability `present` → tool
+> `present_package` en llm.ts; 13 tests. Pendiente: branding kit editable por marca
+> (tarea 3 de F3).
+
 ### F4 — Distribución + calendario (nuevo)
 
 - **Objetivo**: publicar con cola, calendario y aprobación configurable.

@@ -1,6 +1,6 @@
 # Loop State — UltraIa
 
-Last run: 15/08/2026 — Iteración 7 (AutoPub F1 motor de ideas ✅)
+Last run: 15/08/2026 — Iteración 8 (AutoPub F3 presentación unificada ✅)
 Última triage: 15/08/2026 (report-only — sin edición de código)
 
 ## Backlog priorizado (orden de ejecución)
@@ -14,8 +14,8 @@ Last run: 15/08/2026 — Iteración 7 (AutoPub F1 motor de ideas ✅)
 | 5 | Fase D paso 2: (a) wiring `system-core` en UltraRuntime — DONE; (b) launcher Node sin deps + ventana WebView2 | packages/runtime + launcher | FULL | ✅ DONE 2026-08-15: (a) 5ab0426 + 0fa16f5 (runtime 191/191, repo 409/409); (b) 3196ce4 — spike launcher validado (`--check` → ok:true, core configured:true, tools:10, exit 0; runtime 192/192, repo 410/410). Pendiente Fase D: ventana WebView2 real (paso 3) |
 | 6 | Gen-Engine: entrenamiento roadmap F5 (E0–E5, CreationsApp plan-de-implementacion.md) | gen-engine | pytest | pendiente — requiere GPU/decisión humana (no es ciclo de código npm) |
 | 7 | **AutoPub F1**: tool `topics` en core + `scripts/topics.py --dry-run` (RSS + DuckDuckGo, dedupe, briefs JSON) | packages/core + scripts | FULL | ✅ DONE 2026-08-15 (tool topics.ts + CLI topics.py; 14 tests; core 232/232, repo 424/424). Pendiente F1: cola de briefs persistente (Prisma) |
-| 8 | **AutoPub F3**: schema `PublicationPackage` + tool `present` (formato por canal, captions/hashtags) | packages/core | FULL | pendiente — SIGUIENTE |
-| 9 | **AutoPub F4**: `PublisherAdapter` + adaptadores YouTube/TikTok en TS (port RF-12) + tests con mocks | packages/core | FULL | pendiente |
+| 8 | **AutoPub F3**: schema `PublicationPackage` + tool `present` (formato por canal, captions/hashtags) | packages/core | FULL | ✅ DONE 2026-08-15 (tool present.ts + capability `present` → `present_package`; 13 tests; repo 437/437) |
+| 9 | **AutoPub F4**: `PublisherAdapter` + adaptadores YouTube/TikTok en TS (port RF-12) + tests con mocks | packages/core | FULL | pendiente — SIGUIENTE |
 | 10 | **AutoPub F4**: cola `Publication` (Prisma) + endpoints API + aprobación por paquete | packages/core + apps/web | FULL | pendiente |
 | 11 | **AutoPub F4**: calendario (start.py o scheduler runtime) + blog propio (publicar en /recursos) | scripts + apps/web | FULL | pendiente |
 | 12 | **AutoPub F2**: enrutamiento brief→Redactor/Guionista vía Orquestador + manifest JSON | packages/core | FULL | pendiente |
@@ -42,11 +42,11 @@ Last run: 15/08/2026 — Iteración 7 (AutoPub F1 motor de ideas ✅)
 - **Typecheck transitorio (1 vez)**: primer run de una triage falló "command failed" en
   packages/runtime SIN errores TS; re-run EXIT=0. Posible lock/transitorio o caché stale
   `node_modules/.vite` — vigilar si se repite antes de diagnosticar.
-- **Runtime tests 192/192** (Fase A 132 + Fase B 20 + Fase C 34 + wiring system-core 5 + spike launcher 1). Total repo: 424/424 PASS
-  (core 232 + runtime 192).
+- **Runtime tests 192/192** (Fase A 132 + Fase B 20 + Fase C 34 + wiring system-core 5 + spike launcher 1). Total repo: 437/437 PASS
+  (core 245 + runtime 192).
 - `npx @cobusgreyling/loop doctor` y `loop status` — validar salida del CLI contra LOOP.md (v0.1.2).
 - `.vscode/settings.json` fix Pylance (local-only, gitignored) — no commitear.
-- Verificación FULL en cada commit: typecheck → lint → test → build (424/424 esperado).
+- Verificación FULL en cada commit: typecheck → lint → test → build (437/437 esperado).
 - Fase D: spike del launcher validado (3196ce4) — `desktopFase/launcher/launcher.mjs` (Node sin deps; junctions @ai-sdk y @ultraia/core en dist/; node:http para --check). Pendiente: ventana WebView2 real (paso 3). Medir RAM real del MVP WebView2 antes de comprometer cifras en docs.
 
 ## Recent Noise (ignored this run)

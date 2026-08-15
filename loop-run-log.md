@@ -355,3 +355,50 @@ ormalizeTitle() (lower + strip non-alnum), dedupe() (bigram overlap > 0.6),
 - Ruido externo NO tocado: `learning/nanoprompts/`, `scripts/loop_piv.py` +
   `scripts/nanoprompts_fetch.py`, `integracionTecno.txt`, `DOCS_TODO.md`, `masinfo.txt`,
   `proyectoNuevo.*`, `BussinesModel/` — siguen en working tree (High Priority).
+
+## Iteraci�n 8 � AutoPub F3: schema PublicationPackage + tool present (15/08/2026)
+
+**[P] Plan**
+- Objetivo: implementar F3 del plan maestro AUTO-PUBLICACION.md �4/�6 (tarea #8 de STATE.md):
+  presentaci�n unificada � un solo paquete que se adapta a cada canal (9:16 video / 1:1 imagen /
+  16:9 blog), captions + hashtags por plataforma, branding kit, subt�tulos SRT (patr�n RF-11).
+- Pasos:
+  1. packages/core/src/tools/present.ts:
+     - Types: PublicationPackage (briefId, contenido, media[], captionsByChannel,
+       hashtagsByChannel, visualByChannel, horarioSugerido, canales[]), PresentInput
+       (contenido + canales + opciones), PresentResult.
+     - FORMAT_BY_CHANNEL (reusa de topics: 9:16 video / 1:1 imagen / 16:9 articulo).
+     - captionFor(content, canal): caption por plataforma (yt: descripci�n larga + hashtags;
+       tiktok: caption corto + hashtags trending; ig: caption + 30 hashtags; blog: resumen SEO).
+     - hashtagsFor(tema, canal): generaci�n de hashtags por canal (5-10, max 30 IG).
+     - isualFor(canal, tema): sugerencia visual (dimensiones, estilo, texto overlay).
+     - srtFor(text, style): subt�tulos SRT (patr�n RF-11) � segmentos por ~12 palabras.
+     - randingFor(marca?): kit por marca (paleta + fuente + logo) � default Dark Obsidian.
+     - present(input): orquesta ? PublicationPackage completo.
+  2. index.ts: export present + TOOL_DESCRIPTIONS.present + Capability 'present'.
+  3. llm.ts: tool present_package (capability present) ? present.
+  4. Tests present.test.ts: caption/hashtags/visual/SRT/branding/present completo con mocks.
+  5. Docs: AUTO-PUBLICACION.md �4 F3 + STATE.md #8 + AGENTS.md.
+- Criterios: gates FULL verdes; core 232 ? ~240 PASS; commit
+  eat(core): AutoPub F3 - schema PublicationPackage + tool present (formato por canal, captions/hashtags, SRT).
+
+**[I] Commits**
+- `d052b68` feat(core): AutoPub F3 - schema PublicationPackage + tool present (formato por canal, captions/hashtags, SRT) (4 archivos, +413/-2: present.ts, present.test.ts, index.ts, llm.ts). Sin push.
+
+**[V] Gates**
+- Scoped: typecheck core ✅ · present.test.ts + topics.test.ts **27/27 PASS** ✅
+- FULL: typecheck (core+web+runtime) ✅ · lint ✅ · test **437/437** (core 245 + runtime 192) ✅ · build ✅
+- Pre-build check: sin dev servers node activos ✅
+
+**[R] Veredicto**
+- **GREEN** → commit `d052b68`. Tarea #8 completada: AutoPub F3 presentación unificada —
+  `PublicationPackage` determinista y keyless (captions/hashtags/visual/SRT/horario/branding
+  por canal, 9:16/1:1/16:9, SRT patrón RF-11, kits Dark Obsidian/Neo Violet), tool
+  `present_package` (capability `present`) para los agentes, 13 tests.
+- Pendiente F3 (documentado): branding kit editable por marca (tarea 3 de F3).
+- Siguiente ciclo: backlog #9 — AutoPub F4: `PublisherAdapter` + adaptadores YouTube/TikTok
+  en TS (port RF-12 de `ULTRAIA/integracionesImplementacion/src/publish.py`) + tests con
+  mocks — SIGUIENTE (STATE.md).
+- Ruido externo NO tocado: `learning/nanoprompts/`, `scripts/loop_piv.py` +
+  `scripts/nanoprompts_fetch.py`, `integracionTecno.txt`, `DOCS_TODO.md`, `masinfo.txt`,
+  `proyectoNuevo.*`, `BussinesModel/` — siguen en working tree (High Priority).

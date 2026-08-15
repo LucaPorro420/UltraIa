@@ -255,6 +255,13 @@ Verdad verificada 9/9 PASS en `learning/truth/truth_tecno_recursos.json` (fuente
   `python scripts/topics.py --dry-run` (solo stdlib, mismo esquema de brief, degradación
   elegante por fuente — verificado con HN + Ars Technica). Pendiente F1: cola de briefs
   persistente (Prisma). Siguiente: F3 schema `PublicationPackage` + tool `present`.
+- **F3 Presentación unificada (15/08/2026, iteración 8)**: tool `present` en
+  `packages/core/src/tools/present.ts` (capability `present` → tool `present_package`):
+  `PublicationPackage` {briefId, tema, contenido, media, captionsByChannel (caption +
+  hashtags + SRT patrón RF-11), visualByChannel (9:16/1:1/16:9 + thumbnail pollinations),
+  horarioSugerido (D2), branding kit Dark Obsidian/Neo Violet}; determinista, keyless,
+  13 tests. Pendiente F3: branding kit editable. Siguiente: F4 `PublisherAdapter` +
+  YouTube/TikTok en TS (port RF-12).
 
 ## Loop PIVR (Plan ⇒ Implement ⇒ Verificar ⇒ Reiniciar) — 15/08/2026
 
