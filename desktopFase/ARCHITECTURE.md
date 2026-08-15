@@ -136,10 +136,10 @@ El smoke E2E (13/13) y el pipeline Python ar-SA quedan documentados como verdes 
 (IPC por allowlist) **si** el equipo acepta Rust para el shell. Alternativa pragmática:
 **Electron + hardening estricto** (contextIsolation:true, sandbox:true, preload sin `nodeIntegration`,
 IPC con allowlist de comandos) — coste de desarrollo menor y cero idioma nuevo, a cambio de
-RAM. **Decisión diferida a la fase Shell**: este reporte construye primero `@ultraia/runtime`
-(puro TS, portable a ambas) + Local API HTTP/WS en `127.0.0.1` como contrato de IPC — así el
-shell (Tauri o Electron) solo habla HTTP+token con el runtime y el runtime nunca expone el SO
-directamente al frontend.
+RAM. **Decisión resuelta 15/08/2026 en `SHELL_DECISION.md`: MVP = WebView2 puro (Windows) +
+Local API como único contrato de IPC; upgrade path a Tauri 2 si la Fase E (instalador/firma/
+auto-update) o macOS/Linux lo exigen** — el shell (sea cual sea) solo habla HTTP+token con el
+runtime y el runtime nunca expone el SO directamente al frontend.
 
 ## 9. Propuesta Shell (resumen, fase posterior)
 
