@@ -158,12 +158,16 @@ en `DESKTOP.md` de la fase 2 — no se implementa en esta fase.
    (`packages/runtime/src/api/`): token de sesión timing-safe, origin/host loopback, rate
    limit, body cap, eventos WS, módulo `system-api` + comandos `api.*`. Contrato en
    `docs/IPC.md`; 20 tests nuevos (runtime 152/152).
-3. **Fase C (parcial ✅ 15/08/2026)** — Adaptadores a `@ultraia/core` bajo
-   `packages/runtime/src/adapters/` (`ports.ts` — `DbAdapter`/`AiGatewayAdapter`/`CorePorts`;
-   `db.ts` — `createPrismaDb` singleton por datasourceUrl + ping SELECT 1 + close idempotente;
-   `ai.ts` — `createCoreAiGateway` env-safe + ping por `resolveModel` sin gastar tokens;
-   `core.ts` — `createCorePorts` isHealthy/close). 21 tests nuevos (runtime 173/173).
-   Pendiente (tarea #3): adapters de tools y omag + wiring en `UltraRuntime`.
+3. **Fase C (✅ 15/08/2026)** — Adaptadores a `@ultraia/core` bajo
+   `packages/runtime/src/adapters/` (`ports.ts` — `DbAdapter`/`AiGatewayAdapter`/`ToolsAdapter`/
+   `OmagAdapter`/`CorePorts`; `db.ts` — `createPrismaDb` singleton por datasourceUrl + ping
+   SELECT 1 + close idempotente; `ai.ts` — `createCoreAiGateway` env-safe + ping por
+   `resolveModel` sin gastar tokens; `tools.ts` — `createToolsAdapter` catálogo + dispatcher
+   passthrough a las 10 capabilities de core; `omag.ts` — `createOmagAdapter` con gateway
+   inyectado si hay ai adapter, keyless sin él; `core.ts` — `createCorePorts` isHealthy/close).
+   34 tests nuevos (runtime 186/186). Core tocado SOLO para exportar `audiolibrary`/`sound`
+   por la API pública (visibilidad, sin cambio de comportamiento). Wiring del módulo
+   `system-core` en `UltraRuntime` queda para la Fase D.
 4. **Fase D** — Shell Desktop (Tauri o Electron según decisión §8) consumiendo solo la Local API.
 5. **Fase E** — Instalador real (NSIS/MSI) + actualizador + firma.
 

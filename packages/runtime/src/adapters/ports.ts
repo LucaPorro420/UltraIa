@@ -1,5 +1,5 @@
 import type { PrismaClient } from '@prisma/client';
-import type { AiGateway, ProviderName } from '@ultraia/core';
+import type { AiGateway, OmagRequest, OmagResult, ProviderName } from '@ultraia/core';
 
 /**
  * Ports de integración con `@ultraia/core` (Fase C, parcial).
@@ -48,11 +48,37 @@ export interface AiGatewayAdapter extends AdapterInfo {
   close(): Promise<void>;
 }
 
+/** Catálogo + despacho de tools de agente de core (keyless por diseño). */
+export interface ToolsAdapter extends AdapterInfo {
+  readonly kind: 'tools';
+  /** Capabilities disponibles (derivadas de `TOOL_DESCRIPTIONS` de core). */
+  readonly capabilities: readonly string[];
+  /** Descripciones de cada capability (para LLM / UI). */
+  readonly descriptions: Readonly<Record<string, string>>;
+  /** Ejecuta una capability con un input plano; lanza Error si capability/op/campos inválidos. */
+  run(capability: string, input?: Record<string, unknown>): Promise<unknown>;
+  ping(): Promise<boolean>;
+  close(): Promise<void>;
+}
+
+/** Orquestador OMAG (sistema operativo de mundo multimedia) de core, keyless. */
+export interface OmagAdapter extends AdapterInfo {
+  readonly kind: 'omag';
+  /** Orquestador subyacente (generadores/críticos default o custom). */
+  readonly orchestrator: unknown;
+  /** Ejecuta idea → plan → media field → generación → crítica (gateway inyectado si hay ai adapter). */
+  run(request: Omit<OmagRequest, 'gateway'>): Promise<OmagResult>;
+  ping(): Promise<boolean>;
+  close(): Promise<void>;
+}
+
 /** Contenedor de adapters de core que el runtime expone a módulos/agentes. */
 export interface CorePorts extends AdapterInfo {
   readonly kind: 'core';
   readonly db?: DbAdapter;
   readonly ai?: AiGatewayAdapter;
+  readonly tools?: ToolsAdapter;
+  readonly omag?: OmagAdapter;
   /**
    * Salud agregada: false si no hay adapters configurados, o si algún adapter presente
    * no responde a su ping.
@@ -65,4 +91,6 @@ export interface CorePorts extends AdapterInfo {
 export interface CorePortsOptions {
   db?: DbAdapter;
   ai?: AiGatewayAdapter;
+  tools?: ToolsAdapter;
+  omag?: OmagAdapter;
 }

@@ -6,3 +6,5 @@ export * from './generators';
 export * from './critics';
 export * from './orchestrator';
 export * from './project';
+export * from './audiolibrary';
+export * from './sound';

@@ -19,4 +19,6 @@ export * from './api/runtime-handlers';
 export * from './adapters/ports';
 export * from './adapters/db';
 export * from './adapters/ai';
+export * from './adapters/tools';
+export * from './adapters/omag';
 export * from './adapters/core';

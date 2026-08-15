@@ -14,12 +14,16 @@
   ya existe como **Local API** en `127.0.0.1` (Fase B — ver `IPC.md`).
 - Principios: LOCAL-FIRST, MODULAR, LAZY-LOADED, RESOURCE-AWARE, SECURE, OBSERVABLE,
   RECOVERABLE, EXTENSIBLE, AI-NATIVE.
-- Integración con `@ultraia/core` **solo por adapters/inyección** (Db, AiGateway) — nunca imports
-  internos de core. **Fase C parcial (15/08/2026)**: `adapters/ports.ts` (DbAdapter/AiGatewayAdapter/
-  CorePorts), `adapters/db.ts` (`createPrismaDb`: singleton por datasourceUrl, factory inyectable,
-  `ping()` SELECT 1, `close()` idempotente), `adapters/ai.ts` (`createCoreAiGateway`: env-safe,
-  `ping()` por `resolveModel` sin gastar tokens — ollama/lmstudio true sin keys, cloud sin key false),
-  `adapters/core.ts` (`createCorePorts`: isHealthy/close). Pendiente: tools + omag (tarea #3).
+- Integración con `@ultraia/core` **solo por adapters/inyección** (Db, AiGateway, tools, omag) —
+  nunca imports internos de core. **Fase C (15/08/2026)**: `adapters/ports.ts` (DbAdapter/
+  AiGatewayAdapter/ToolsAdapter/OmagAdapter/CorePorts), `adapters/db.ts` (`createPrismaDb`:
+  singleton por datasourceUrl, factory inyectable, `ping()` SELECT 1, `close()` idempotente),
+  `adapters/ai.ts` (`createCoreAiGateway`: env-safe, `ping()` por `resolveModel` sin gastar
+  tokens — ollama/lmstudio true sin keys, cloud sin key false), `adapters/tools.ts`
+  (`createToolsAdapter`: catálogo desde `TOOL_DESCRIPTIONS` de core + dispatcher passthrough a
+  las 10 capabilities, keyless), `adapters/omag.ts` (`createOmagAdapter`: inyecta el gateway del
+  ai adapter si existe; sin él plan local keyless), `adapters/core.ts` (`createCorePorts`:
+  isHealthy/close). Wiring del módulo `system-core` en UltraRuntime → Fase D.
 
 ## Layout
 
@@ -77,6 +81,6 @@ registry + moduleManager + resources + commands + health + recovery + memory + c
 
 ```
 npm run typecheck -w @ultraia/runtime
-npm run test -w @ultraia/runtime       # 173 tests (Fase A 132 + Fase B 20 + Fase C parcial 21)
+npm run test -w @ultraia/runtime       # 186 tests (Fase A 132 + Fase B 20 + Fase C 34)
 npm run typecheck && npm run lint && npm run test && npm run build   # repo completo
 ```
