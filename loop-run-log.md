@@ -453,3 +453,63 @@ ormalizeTitle() (lower + strip non-alnum), dedupe() (bigram overlap > 0.6),
 - Pendiente F4 (documentado): tarea 2 — cola `Publication` (Prisma) + endpoints API + aprobación por paquete (STATE.md #10).
 - Siguiente ciclo: backlog #10 — AutoPub F4: cola `Publication` (Prisma) + endpoints + aprobación — SIGUIENTE (STATE.md).
 - Ruido: el working tree que quedaba staged se incluyó en el commit (ver NOTA en [I]) — High Priority queda limpio.
+
+---
+
+## Iteración 10 — AutoPub F4 (tarea 2): cola `Publication` (Prisma) + endpoints + aprobación (15/08/2026)
+
+**[P] Plan**
+- Objetivo: implementar la tarea 2 de F4 del plan maestro AUTO-PUBLICACION.md (tarea #10 de
+  STATE.md): cola de publicaciones persistente con Prisma, endpoints API y aprobación por
+  paquete (texto auto; video/imagen requieren aprobación — decisión del usuario 15/08/2026).
+- Pasos:
+  1. `schema.prisma`: modelo `Publication` {id, briefId?, tema, canal, paqueteJson (JSON string
+     del PublicationPackage), caption, hashtags (JSON string), estado DRAFT/APPROVED/REJECTED/
+     PUBLISHED/FAILED, scheduledAt?, publishedAt?, resultadoJson?, error?, creadoPor?, createdAt,
+     updatedAt} + migración SQLite `add_publication_queue`.
+  2. `packages/core/src/domain/publications.ts` — dominio con db inyectable (patrón versions.ts):
+     - `createPublication(db, {paquete, canal, scheduledAt?, creadoPor?})` → DRAFT; devuelve
+       `{id, requiereAprobacion}` donde requiereAprobacion = canales con video/imagen
+       (youtube_shorts/tiktok/instagram) — texto/blog auto-aprueba.
+     - `listPublications(db, {estado?, canal?, take?, cursor?})` ordenado por scheduledAt desc.
+     - `approvePublication(db, id)` (DRAFT→APPROVED), `rejectPublication(db, id)` (DRAFT→REJECTED).
+     - `markPublished(db, id, resultado)` (APPROVED→PUBLISHED + resultadoJson),
+       `markFailed(db, id, error)` (APPROVED→FAILED + error).
+     - `publishDue(db, {publishFn?})` — publica los APPROVED con scheduledAt <= now usando
+       publishToAll + adapters default (fail-soft sin tokens → FAILED con razón); helper para
+       el calendario de la tarea 4 (#11).
+  3. Endpoints en apps/web (auth via getCurrentUser):
+     - `GET /api/publications` (lista con filtros), `POST /api/publications` (crea desde
+       package; auto-aprueba si no requiere aprobación; requiereAuth true).
+     - `POST /api/publications/[id]/approve` y `/reject` (solo estado DRAFT; ADMIN o creador).
+     - `POST /api/publications/[id]/publish` (publica ahora vía publishToAll; fail-soft).
+  4. Tests `domain/publications.test.ts` con fake db (patrón versions.test.ts): create
+     requiereAprobacion (video→true, blog→false), approve/reject transiciones y errores
+     (estado inválido), markPublished/markFailed, publishDue con publishFn stub (solo los
+     due, fail-soft sin token), list con filtros.
+  5. Docs: AUTO-PUBLICACION.md §4 F4 tarea 2 (checklist), STATE.md #10, AGENTS.md sección AutoPub.
+- Criterios: gates FULL verdes; core 260 → ~270 PASS; commits
+  `feat(core): AutoPub F4 tarea 2 - cola Publication (Prisma) + dominio publications + tests`
+  y `feat(web): AutoPub F4 tarea 2 - endpoints /api/publications (crear, listar, aprobar, publicar)`.
+
+**[I] Commits**
+- `4976662` feat(core+web): AutoPub F4 tarea 2 - cola Publication (Prisma) + dominio publications + endpoints /api/publications + 15 tests (15 archivos, +696/-5: schema.prisma + migración add_publication_queue, domain/publications.ts + test, index.ts, llm.ts capability publications → publication_queue, tools/index.ts, session.ts +role, 4 rutas API publications). Sin push.
+
+**[V] Gates**
+- Scoped: typecheck core ✅ · typecheck web ✅ · publications.test.ts **15/15 PASS** ✅ · session.test.ts 4/4 ✅ · lint web ✅
+- FULL: typecheck (core+web+runtime) ✅ · lint ✅ · test **467/467** (core 275 + runtime 192) ✅ · build ✅
+- Pre-build check: sin dev servers node activos ✅
+
+**[R] Veredicto**
+- **GREEN** → commit `4976662`. Tarea #10 completada: AutoPub F4 tarea 2 — cola persistente
+  `Publication` (Prisma SQLite) + dominio (aprobación híbrida: video/imagen → DRAFT;
+  texto/blog → APPROVED auto; approve/reject/markPublished/markFailed/publishDue) +
+  endpoints `/api/publications` (GET/POST + approve/reject/publish con auth, ADMIN o
+  creador) + tool `publication_queue` (capability `publications`, db vía `opts.db`).
+  Fix necesario: `getSessionUser` ahora devuelve `role` (para el check ADMIN).
+- Pendiente F4 (documentado): tareas 3-5 — calendario + blog propio + canales siguientes
+  (STATE.md #11).
+- Siguiente ciclo: backlog #11 — AutoPub F4: calendario (start.py o scheduler runtime) +
+  blog propio (publicar en /recursos) — SIGUIENTE (STATE.md).
+- Ruido externo NO tocado: `DOCS_TODO.md`, `start.py` (modificados por hooks/herramientas
+  externas al loop) — quedan en working tree.
