@@ -558,3 +558,64 @@ ormalizeTitle() (lower + strip non-alnum), dedupe() (bigram overlap > 0.6),
   `loop-constraints.md`, `opencode.json`, `scripts/loop_piv.py`, `start.py`,
   `.opencode/skills/loop-verifier/`, `PrototypeREADME.md` — modificados por herramientas
   externas al loop, quedan en working tree.
+
+---
+
+## Iteración 12 — AutoPub F2 tarea 1: enrutador brief→Redactor/Guionista + manifest (15/08/2026)
+
+**[P] Plan**
+- Objetivo: tarea 1 de F2 (AUTO-PUBLICACION.md §F2): enrutar `TopicBrief` → Redactor
+  (texto/post 16:9) o Guionista (guion + storyboard 9:16) vía orquestador, y materializar
+  1 brief → 1 paquete de contenido en disco con manifest JSON. (STATE.md #12).
+- Pasos:
+  1. `packages/core/src/tools/enrutador.ts`:
+     - `ContenidoTexto` {titulo, intro, cuerpo[], cierre, cta, palabrasClave} +
+       `GuionVideo` {titulo, hook, escenas[{tiempo, voz, camara, motion}], narracion,
+       duracionSeg} (tipos de salida del Redactor/Guionista).
+     - `redactar(brief)`: determinista keyless — intro/cuerpo/cierre a partir de tema+angulo+
+       tono+fuentes; 3-5 párrafos, CTA por canal.
+     - `guionizar(brief)`: determinista keyless — hook ≤3s, escenas 5-8 con cámara+motion
+       (vocabulario de `omag/prompt/director.ts` si importable, si no local), narración
+       hablada, duración por formato (45-60s).
+     - `enrutarBrief(brief)`: formato 9:16 → Guionista; 16:9 → Redactor; 1:1 → Redactor
+       corto (también soporta override).
+     - `generarContenido(brief, {dir})`: enruta → produce paquete `ContentPackage`
+       {briefId, tipo, brief, contenido|guion, manifest} → escribe manifest JSON en disco
+       (`.ultraia/content/<briefId>/manifest.json`, atómico tmp+rename, idempotente) →
+       devuelve ruta. Sin writes en tests (dir temporal de vitest).
+  2. Tool de agente: capability `contenido` → tool `contenido_generar` en llm.ts (entrada
+     brief JSON, salida resumen + ruta manifest); descripciones en tools/index.ts.
+  3. Tests `enrutador.test.ts`: redactor (estructura, CTA por canal, fuentes citadas),
+     guionista (hook, escenas, duración, cámaras válidas), enrutamiento (9:16→guion,
+     16:9→texto), manifest (escribe JSON válido + idempotente, temp dir) — 12-14 tests.
+  4. Docs: AUTO-PUBLICACION.md §F2 tarea 1, STATE.md #12 DONE + #13 SIGUIENTE, AGENTS.md.
+- Criterios: gates FULL verdes; core 278 → ~290 PASS; commit
+  `feat(core): AutoPub F2 tarea 1 - enrutador brief→Redactor/Guionista + manifest JSON + tests`.
+- Nota: keyless-first (determinista sin LLM), el LLM es mejora futura opcional.
+
+**[I] Commits**
+- `45d030e` feat(core): AutoPub F2 tarea 1 - enrutador brief->Redactor/Guionista + manifest JSON idempotente + tool contenido_generar + 16 tests (6 archivos, +479/-7). Sin push.
+
+**[V] Gates**
+- Scoped: enrutador.test.ts **16/16 PASS** (2 fallos iniciales corregidos: palabras clave con
+  puntuación → regex unicode; briefId por Date.now → hash FNV-1a estable del brief para
+  idempotencia real) · typecheck core ✅ · core completo **294/294 PASS** ✅
+- FULL: typecheck ✅ · lint ✅ · test **486/486** (core 294 + runtime 192) ✅ · build ✅
+- Pre-build check: sin dev servers node activos ✅
+
+**[R] Veredicto**
+- **GREEN** → commit `45d030e`. Tarea #12 completada: AutoPub F2 tarea 1 — enrutador
+  brief→contenido: `redactar(brief)` (Redactor determinista: título/intro/cuerpo/cierre/CTA
+  por canal, cita fuentes, palabras clave sin puntuación), `guionizar(brief)` (Guionista
+  determinista: hook ≤3s, 5-7 escenas con cámara del vocabulario verificado MOTIONS +
+  normalizeMotion de prompt/director.ts, narración completa, 45-60s, estilo por tono),
+  `enrutarBrief` (9:16→guion; 16:9/1:1→texto), `generarContenido(brief,{dir,dryRun,tipo})`
+  (ContentPackage + manifest.json atómico tmp+rename, idempotente con briefId hash FNV-1a,
+  default `.ultraia/content/<briefId>/manifest.json`) + capability `contenido` → tool
+  `contenido_generar` en llm.ts. 16 tests. Keyless-first (determinista sin LLM).
+- Pendiente F2: tareas 2 (multi-idioma es/ar + TTS) y 3 (OMAG long-form 60s+).
+- Siguiente ciclo: backlog #13 — AutoPub F5: KPIs + media_score pre-pub + feedback → mejora
+  de agentes (packages/core + scripts) — SIGUIENTE (STATE.md).
+- Ruido externo NO tocado: `.opencode/skills/loop-*`, `DOCS_TODO.md`, `LOOP.md`,
+  `loop-constraints.md`, `opencode.json`, `scripts/loop_piv.py`, `start.py`,
+  `.opencode/skills/loop-verifier/`, `PrototypeREADME.md` — quedan en working tree.
