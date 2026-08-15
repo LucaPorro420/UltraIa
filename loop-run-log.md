@@ -622,6 +622,65 @@ ormalizeTitle() (lower + strip non-alnum), dedupe() (bigram overlap > 0.6),
 
 ---
 
+## Iteración 16 — AutoPub F2 tarea 3: OMAG long-form 60s+ (15/08/2026)
+
+**[P] Plan**
+- Objetivo: F2 tarea 3 (AUTO-PUBLICACION.md §F2): conectar el enrutador de contenido
+  (F2) con el scaffolding long-form de OMAG (`omag/project.ts`: Project → Act →
+  Sequence → Scene → Shot + MasterTimeline) para generar guiones de video 60s+ desde un
+  brief, con narración TTS (tarea 2) y timeline sincronizada. (STATE.md #16).
+- Pasos:
+  1. `tools/enrutador.ts`:
+     - `guionLargo(brief, idioma, duracionSeg?)` → `OmagProject`: 3 actos (Apertura /
+       Desarrollo / Cierre), 7 escenas (plantillas PLANTILLAS_GUION), shots ~10s del
+       vocabulario MOTIONS, prompt por shot (sujeto+acción+cámara+estilo), narración por
+       escena (bilingüe), `language` es|ar.
+     - `ContenidoTipo` gana `'guion_largo'`; `ContentPackage.proyecto?: OmagProject` +
+       `timeline?: MasterTimeline` (createMasterTimeline + tracks.video/dialogue +
+       checkTimelineSync sin issues).
+     - `generarContenido(..., {tipo:'guion_largo', duracionSeg})`: shots por escena
+       derivados de la duración target (60-180s); TTS (tarea 2) narra la concatenación
+       de hook + escenas → `narracion.mp3`; manifest idempotente incluye proyecto.
+     - `enrutarBrief`: formato '16:9 video' → guion_largo.
+  2. Tool `contenido_generar` en llm.ts: tipo gana 'guion_largo' + param `duracionSeg`.
+  3. Tests `enrutador.test.ts` (+6): estructura proyecto (3 actos, 7 escenas, shots
+     MOTIONS válidos, duración ≈ target), timeline sincronizada (0 issues), narración
+     larga en es/ar, tts largo → mp3, enrutarBrief 16:9 video → guion_largo, manifest
+     serializa proyecto.
+  4. Docs: AUTO-PUBLICACION.md §F2 tarea 3, STATE.md #16 DONE + #17 SIGUIENTE, AGENTS.md.
+- Criterios: gates FULL verdes; core 328 → ~334 PASS; commit
+  `feat(core): AutoPub F2 tarea 3 - guion largo OMAG 60s+ (Project/Act/Scene/Shot + timeline) + tests`.
+- Nota: todo determinista y keyless; reusa MOTIONS/normalizeMotion y edgeTtsAudio.
+
+**[I] Commits**
+- `93877d1` feat(core): AutoPub F2 tarea 3 - guion largo OMAG 60s+ (Project/Act/Scene/Shot + MasterTimeline) + 6 tests (7 archivos, +252/-23). Sin push.
+
+**[V] Gates**
+- Scoped: enrutador.test.ts **28/28 PASS** (6 nuevos: estructura 3 actos/7 escenas/shots
+  MOTIONS, timeline sincronizada 0 issues, narración es/ar, duración 60-180s ajusta
+  shots, generarContenido guion_largo+tts→mp3, enrutarBrief 16:9 video→guion_largo) ·
+  typecheck core ✅ (fix: TopicFormat gana '16:9 video' — TS2820 en tests)
+- FULL: typecheck ✅ · lint ✅ · test **526/526** (core 334 + runtime 192) ✅ · build ✅
+- Pre-build check: sin dev servers node activos ✅
+
+**[R] Veredicto**
+- **GREEN** → commit `93877d1`. Tarea #16 completada: AutoPub F2 tarea 3 — guion largo
+  OMAG 60s+: `guionLargo(brief, idioma, duracionSeg)` (60-180s) → `OmagProject`
+  (Project→Act→Sequence→Scene→Shot de omag/project.ts): 3 actos bilingües
+  (Apertura/Desarrollo/Cierre), 7 escenas (PLANTILLAS_GUION), shots ~10s con MOTIONS del
+  vocabulario del director, `prompt` por shot, `MasterTimeline` sincronizada
+  (tracks.video + dialogue; checkTimelineSync sin issues); `ContentPackage.proyecto` +
+  `.timeline`; `ContenidoTipo` gana 'guion_largo'; `TopicFormat` gana '16:9 video';
+  enrutarBrief mapea 16:9 video → guion_largo; TTS narra hook + 7 escenas → narracion.mp3.
+  Tool `contenido_generar` gana `duracionSeg` + tipo guion_largo. F2 COMPLETA (tareas 1-3).
+- Siguiente ciclo: backlog #17 — AutoPub F4 tarea 4: canales Meta/X/LinkedIn (requiere
+  app review / decisión humana — verificar con usuario antes de implementar adapters).
+- Ruido externo NO tocado: `.opencode/skills/loop-*`, `DOCS_TODO.md`, `LOOP.md`,
+  `loop-constraints.md`, `opencode.json`, `scripts/loop_piv.py`, `start.py`,
+  `.opencode/skills/loop-verifier/`, `PrototypeREADME.md` — quedan en working tree.
+
+---
+
 ## Iteración 15 — AutoPub F2 tarea 2: multi-idioma es/ar + TTS edge-tts (15/08/2026)
 
 **[P] Plan**
