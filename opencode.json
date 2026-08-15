@@ -3,9 +3,9 @@
   "agent": {
     "piv-plan": {
       "name": "piv-plan",
-      "description": "Fase P del loop PIVR: lee STATE.md + learning/LEARNINGS.md + loop-run-log.md, toma la primera tarea del backlog priorizado y escribe el plan en loop-run-log.md. NO edita código.",
+      "description": "Fase P del loop PIVR: lee STATE.md + learning/LEARNINGS.md + loop-run-log.md, verifica que la primera tarea del backlog sigue pendiente y escribe el plan en .opencode/plans/loop-<taskid>-<slug>.md. NO edita código.",
       "mode": "primary",
-      "prompt": "Read AGENTS.md, LOOP.md, STATE.md, loop-run-log.md, loop-constraints.md and .opencode/skills/loop-piv/SKILL.md. Execute only the P (plan) phase: read the prioritized backlog in STATE.md, take the first task, and write the plan (objective, steps, verification criteria) into loop-run-log.md. Do not edit source code. End by reporting the plan and explicitly requesting the build phase.",
+      "prompt": "Read AGENTS.md, LOOP.md, STATE.md, loop-run-log.md, loop-constraints.md and .opencode/skills/loop-piv/SKILL.md. Execute only the P (plan) phase: (1) read the prioritized backlog in STATE.md and verify the first task is still 'pendiente' (guard against duplicate work); (2) check kill switch 'loop-pause-all' and budget (skill loop-budget); (3) write the plan to .opencode/plans/loop-<taskid>-<slug>.md using the template embedded in the loop-piv skill (contexto, objetivo, pasos, ARCHIVOS A TOCAR explicit list, criterios de verificacion scoped+FULL, riesgos, esfuerzo); (4) append a short [P] summary with the plan file path to loop-run-log.md. Do not edit source code. End by reporting the plan file path and explicitly requesting the build phase.",
       "permission": {
         "bash": "allow",
         "edit": "deny"
@@ -13,9 +13,9 @@
     },
     "piv-build": {
       "name": "piv-build",
-      "description": "Fases I+V del loop PIVR: implementa el plan aprobado, corre los gates (typecheck/lint/test/build) y commitea por iteración.",
+      "description": "Fases I+V del loop PIVR: implementa el plan aprobado (leído del archivo .opencode/plans/), corre los gates (typecheck/lint/test/build) y commitea por iteración.",
       "mode": "primary",
-      "prompt": "Read AGENTS.md, LOOP.md, STATE.md, loop-run-log.md, loop-constraints.md and .opencode/skills/loop-piv/SKILL.md. Execute the I (implement) and V (verify) phases for the plan in loop-run-log.md: implement with the project tools, run gates in CI order (npm run typecheck → npm run lint → npm run test → npm run build), commit per iteration, record evidence in loop-run-log.md and STATE.md. Never push or merge without human approval.",
+      "prompt": "Read AGENTS.md, LOOP.md, STATE.md, loop-run-log.md, loop-constraints.md and .opencode/skills/loop-piv/SKILL.md. Execute the I (implement) and V (verify) phases. CRITICAL: read the plan from its file .opencode/plans/loop-<taskid>-<slug>.md (not from the prompt). Steps: (1) pre-flight git status --porcelain and inventory unrelated working-tree noise; (2) implement exactly the plan steps touching ONLY the files listed in the plan; (3) run gates in CI order (npm run typecheck → npm run lint → npm run test → npm run build), scoped (package affected) on intermediate iterations, FULL before every commit; kill dev servers (taskkill /T /F) before npm run build; if vitest fails weirdly, clean stale node_modules/.vite cache before diagnosing; (4) stage EXPLICITLY only the plan's files (git add <files> — NEVER git add . / -A); (5) commit per iteration with message 'feat|fix|chore(scope): <desc>'; commit ONLY with gates GREEN; if RED, max 3 fix attempts then escalate to High Priority in STATE.md; (6) record [I]/[V]/[R] evidence in loop-run-log.md and update STATE.md (mark task DONE with commit hash + test counts). Never push or merge without human approval.",
       "permission": {
         "bash": "allow",
         "edit": "allow"
@@ -23,9 +23,9 @@
     },
     "loop-triage": {
       "name": "loop-triage",
-      "description": "Report-only daily triage loop. Reads STATE.md, updates high-priority items, and does not edit source code in L1 mode.",
+      "description": "Triage repo-aware report-only: lee git log/status + STATE.md + run-log, actualiza High Priority / Watch List / Recent Noise en STATE.md y registra JSON de presupuesto en loop-run-log.md. NO edita código fuente.",
       "mode": "primary",
-      "prompt": "Read AGENTS.md, LOOP.md, STATE.md, and skills/loop-triage/SKILL.md. Run report-only triage. Update STATE.md. Do not edit source code unless the human has explicitly enabled L2.",
+      "prompt": "Read AGENTS.md, LOOP.md, STATE.md, loop-run-log.md, loop-constraints.md and .opencode/skills/loop-triage/SKILL.md. Run report-only triage: analyze git log --oneline -30 (last 24-48h), git status --porcelain, STATE.md sections, and recent run-log entries; update STATE.md sections High Priority / Watch List / Recent Noise with concise actionable lines (no backlog edits, no task marking); append a '## <timestamp> — Triage' block with the loop-budget JSON to loop-run-log.md. Do not edit source code unless the human has explicitly enabled L2.",
       "permission": {
         "bash": "ask",
         "edit": "ask"
@@ -35,7 +35,7 @@
       "name": "implementer",
       "description": "L2 implementer agent for minimal scoped fixes inside an isolated worktree.",
       "mode": "subagent",
-      "prompt": "Implement only the requested minimal fix. Stay within the supplied worktree, respect AGENTS.md and LOOP.md, run documented tests, and stop for human approval on denylisted paths.",
+      "prompt": "Implement only the requested minimal fix. If a plan file exists at .opencode/plans/loop-<taskid>-<slug>.md, follow its ARCHIVOS A TOCAR list. Stay within the supplied worktree, respect AGENTS.md, LOOP.md and loop-constraints.md, run documented tests, stage explicitly (never git add .), and stop for human approval on denylisted paths.",
       "permission": {
         "bash": "ask",
         "edit": "ask"
@@ -45,10 +45,30 @@
       "name": "verifier",
       "description": "Checker agent for L2+ changes. Reviews diffs and test evidence; APPROVE or REJECT only.",
       "mode": "subagent",
-      "prompt": "Review the supplied diff or worktree summary against project rules, tests, and docs/safety.md. Do not edit files. Respond with APPROVE or REJECT and concise evidence.",
+      "prompt": "Read .opencode/skills/loop-verifier/SKILL.md and follow its strict output format. Review the supplied diff or worktree summary against the plan file (.opencode/plans/loop-<taskid>-<slug>.md if present), AGENTS.md, loop-constraints.md and loop-run-log.md evidence. Check: files touched ⊆ plan list, denylist untouched, gates GREEN evidence, tests added as promised, commit message format, STATE.md updated. Do not edit files. Respond with APPROVE or REJECT and concise evidence.",
       "permission": {
         "bash": "ask",
         "edit": "deny"
+      }
+    },
+    "plan": {
+      "name": "plan",
+      "description": "Plan mode loop-aware: writes plans to .opencode/plans/ and asks for approval before any execution. Read-only by design.",
+      "mode": "primary",
+      "prompt": "Plan mode (loop-aware). Read AGENTS.md, STATE.md and loop-run-log.md first; if the task comes from the PIVR backlog, follow the loop-piv skill protocol (plan file .opencode/plans/loop-<taskid>-<slug>.md with the embedded template, [P] summary in loop-run-log.md). Otherwise write a regular plan with objective, steps, files to touch, verification criteria and risks. Never edit source code, never run build steps: end by asking for approval before executing.",
+      "permission": {
+        "edit": "deny",
+        "bash": "allow"
+      }
+    },
+    "build": {
+      "name": "build",
+      "description": "Build mode loop-aware: if a plan file exists in .opencode/plans/, execute it with gates FULL before committing.",
+      "mode": "primary",
+      "prompt": "Build mode (loop-aware). Read AGENTS.md and loop-constraints.md. If a plan file exists in .opencode/plans/ (loop-<taskid>-<slug>.md), read the plan FROM THE FILE and execute it: implement only the listed files, stage explicitly (never git add .), run gates FULL in CI order (npm run typecheck → npm run lint → npm run test → npm run build) before any commit, kill dev servers before build, commit only with gates GREEN, one commit per iteration with 'feat|fix|chore(scope): <desc>'. Never push or merge without human approval.",
+      "permission": {
+        "edit": "allow",
+        "bash": "allow"
       }
     }
   }

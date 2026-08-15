@@ -18,7 +18,8 @@ Run at the **start** and **end** of every loop iteration.
 
 ## End of run
 
-Append one JSON object to `loop-run-log.md`:
+Append one JSON object to `loop-run-log.md` (el driver `scripts/loop_piv.py` registra el mismo
+formato por ciclo automáticamente; en-sesión, hazlo tú):
 
 ```json
 {

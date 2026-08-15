@@ -19,6 +19,12 @@
 - Max 3 fix attempts per item; escalate after (High Priority en STATE.md)
 - Verificación FULL en cada commit: `npm run typecheck` → `npm run lint` → `npm run test` → `npm run build`
 - Gates duales: scoped (paquete afectado) en iteraciones intermedias
+- **Staging explícito**: `git add <archivos del plan>` — NUNCA `git add .` ni `git add -A`
+  (el ruido externo — fetches de datos, docs ajenas — queda fuera del commit)
+- Commit SOLO con gates GREEN (nunca commitear con gates rojos)
+- Antes de `npm run build`: matar dev servers (`taskkill /T /F` sobre `next dev`/uvicorn) —
+  un dev server corriendo rompe el build
+- Plan de cada ciclo en `.opencode/plans/loop-<taskid>-<slug>.md` (plantilla en skill loop-piv)
 
 ## Communication
 - Always tell me what you're about to do before doing it

@@ -1,59 +1,77 @@
 ---
 name: loop-triage
 description: >
-  Triage recent changes, CI failures, issues, and conversations.
-  Produces a concise, actionable findings report suitable for a loop to consume.
-  Writes structured output to a state file or issue tracker.
+  Triage repo-aware del loop PIVR de UltraIa: analiza git log (24-48h), working tree,
+  STATE.md, run-log y (si hay) fallos de CI, y produce un reporte accionable actualizando
+  las secciones High Priority / Watch List / Recent Noise de STATE.md + JSON block en
+  loop-run-log.md. Report-only: NUNCA edita código fuente. Usar al arrancar un día,
+  antes de ciclos PIVR, o al pedir "triage".
 user_invocable: true
 ---
 
-# Loop Triage Skill
+# Loop Triage — ojos del bucle (report-only)
 
-You are an expert engineering triage agent. Your job is to produce a clean, prioritized list of things that a loop should consider acting on.
+Eres el agente de triage de UltraIa. Tu trabajo: producir una lista limpia y priorizada de
+cosas que el bucle debería considerar, actualizando el estado vivo del repo. **Nunca editas
+código fuente.** Solo lees y actualizas `STATE.md` / `loop-run-log.md`.
 
-## Inputs (the loop will provide these)
+## Entrada (leer SIEMPRE, en este orden)
 
-- Recent CI / test failures (last 24h)
-- Open issues / tickets assigned to the team
-- Recent commits on main (last 24-48h)
-- Any chat threads the loop has visibility into
-- The current state file (what the loop already knows about)
+1. `loop-constraints.md` — reglas vinculantes (constraints override prioridad de triage).
+2. `STATE.md` — qué sabe ya el bucle (backlog, High Priority, Watch List, Recent Noise).
+3. `loop-run-log.md` — últimas iteraciones (últimas 48h).
+4. `git log --oneline -30` — commits recientes (24-48h).
+5. `git status --porcelain` — working tree sucio (ruido vs trabajo en curso).
+6. `learning/LEARNINGS.md` — lecciones verificadas (no re-inventar).
+7. Si hay CI visible (GitHub MCP read-only u otro), revisar fallos de las últimas 24h.
 
-## Output Format
+## Salida
 
-Produce a markdown report with these sections:
+### 1. Actualizar `STATE.md`
 
-### 1. High-Priority Items (act on these)
+- **High Priority** (el bucle actúa o espera al humano):
+  - Cambios sin commitear que requieran decisión (ej: fetches de datos externos).
+  - Gates rojos repetidos (2+ runs seguidos con el mismo fallo).
+  - Escalaciones pendientes (ítems que agotaron 3 fix attempts).
+  - Línea clara, por qué importa, acción sugerida, esfuerzo estimado.
+- **Watch List**: lo mismo pero sin actuar aún (transitorios, tendencias, deudas).
+- **Recent Noise** (ignorado este run): fallos transitorios resueltos, refrescos normales
+  de datos, ruido ya diagnosticado.
 
-- Clear, one-line description
-- Why it matters (impact, risk, or customer pain)
-- Suggested next action for the loop (for example, "draft minimal fix in isolated worktree")
-- Rough effort estimate
+### 2. Append a `loop-run-log.md`
 
-### 2. Watch Items (monitor, do not act yet)
+Un bloque `## <fecha-hora> — Triage` con el JSON del skill `loop-budget`:
 
-- Same format but lower urgency
-
-### 3. Noise / Ignore
-
-- Brief list of things the loop looked at and decided were not worth action
-
-### 4. State Updates
-
-- Any facts the loop should remember for the next run (for example, "PR #1234 now has 2 approvals")
-
-## Rules
-
-- Be brutally concise. The loop and the human reading the state will thank you.
-- Only put something in "High-Priority" if a reasonable engineer would want to know about it today.
-- When in doubt, put it in Watch or Noise rather than creating work.
-- Never propose architectural overhauls during triage — this skill is for signal, not invention.
-- Respect the project's existing skills and conventions (they will be provided in context).
-
-## Example Invocation (in an opencode loop)
-
-```bash
-opencode run "Call loop-triage and append high-priority items to STATE.md. Do not edit code."
+```json
+{
+  "run_id": "<ISO8601>",
+  "pattern": "triage",
+  "duration_s": <number>,
+  "items_found": <number>,
+  "actions_taken": <number>,
+  "escalations": <number>,
+  "tokens_estimate": <number>,
+  "outcome": "no-op | report-only | fix-proposed | escalated"
+}
 ```
 
-The triage skill should be the "eyes" of the loop. Keep it focused and honest.
+(En triage `actions_taken` suele ser 0 y `outcome` = report-only.)
+
+## Reglas
+
+- Sé brutalmente conciso. El bucle y el humano que lean STATE.md te lo agradecerán.
+- Solo pon en High Priority lo que un ingeniero razonable querría saber HOY.
+- Ante la duda → Watch o Noise, no crees trabajo.
+- Nunca propongas overhauls arquitectónicos durante triage: esto es señal, no invención.
+- No marques tareas DONE, no toques el backlog: eso es del ciclo PIVR.
+- Respeta los paths denylisted y las convenciones del proyecto.
+
+## Invocación
+
+```bash
+# Vía driver (headless):
+python scripts/loop_piv.py --triage
+
+# Vía opencode:
+opencode run --agent loop-triage "Ejecuta loop-triage y actualiza STATE.md. No edites código."
+```

@@ -284,6 +284,14 @@ Verdad verificada 9/9 PASS en `learning/truth/truth_tecno_recursos.json` (fuente
   con scheduledAt <= now, fail-soft); página pública `/blog` (server component con
   `listBlogPosts(prisma)` — PUBLISHED/canal blog, tarjetas Dark Obsidian, revalidate 5min).
   Pendiente F4: canales siguientes (Meta/X/LinkedIn).
+- **F2 Contenido tarea 1 (15/08/2026, iteración 12)**: enrutador brief→contenido en
+  `packages/core/src/tools/enrutador.ts` (capability `contenido` → tool `contenido_generar`):
+  `redactar(brief)` (post determinista: título/intro/cuerpo/cierre/CTA por canal, cita
+  fuentes), `guionizar(brief)` (guion+storyboard determinista: hook, 5-7 escenas con cámara
+  del vocabulario MOTIONS, narración, 45-60s, estilo por tono), `enrutarBrief` (9:16→guion,
+  16:9/1:1→texto), `generarContenido(brief,{dir,dryRun,tipo})` → ContentPackage +
+  `manifest.json` atómico/idempotente (.ultraia/content/<briefId>/). 16 tests. Pendiente F2:
+  multi-idioma es/ar + TTS y OMAG long-form 60s+.
 
 ## Loop PIVR (Plan ⇒ Implement ⇒ Verificar ⇒ Reiniciar) — 15/08/2026
 
