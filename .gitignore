@@ -51,3 +51,6 @@ headroom/
 # Vendored reference copies: never re-add an embedded .git dir here
 vendor/**/.git/
 vendor/**/.gitkeep
+
+# launcher spike dist
+desktopFase/launcher/dist/

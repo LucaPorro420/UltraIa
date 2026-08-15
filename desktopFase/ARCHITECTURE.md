@@ -173,7 +173,16 @@ en `DESKTOP.md` de la fase 2 — no se implementa en esta fase.
     191/191, repo 409/409).
 4. **Fase D** — Shell Desktop (decisión §8 resuelta en `SHELL_DECISION.md`: MVP WebView2 puro
    en Windows + Local API como único contrato IPC; upgrade path a Tauri 2) consumiendo solo la
-   Local API.
+   Local API. **Spike del launcher completado 15/08/2026 (iteración 6)**:
+   `desktopFase/launcher/launcher.mjs` (Node, cero deps) — compila runtime+core a CJS en `dist/`
+   con el tsc hoisted del repo (`tsconfig.build.json`), monta junctions para `@ai-sdk/google`
+   (aislado por npm en `packages/core/node_modules`) y `@ultraia/core` (el emit no reescribe el
+   specifier), arranca `UltraRuntime` + Local API + proxy HTTP (token inyectado server-side,
+   nunca llega al renderer) y abre `msedge --app` (WebView2 Runtime preinstalado). Modo
+   `--check --no-window` auto-verifica `system.health` + `core.*` por HTTP real (node:http, sin
+   undici — evita assert de libuv al salir) → `ok:true, core configured:true, tools:10`, exit 0.
+   Test de regresión: `packages/runtime/src/launcher.test.ts` (spawn real). Pendiente: ventana
+   WebView2 (paso 3 del plan de spike).
 5. **Fase E** — Instalador real (NSIS/MSI) + actualizador + firma.
 
 Cada fase mantiene verde la verificación del repo (typecheck → lint → test → build).

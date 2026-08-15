@@ -82,11 +82,12 @@ restart() → stop() + start() (idempotente)
 | A | `packages/runtime` (infraestructura pura TS + tests) | ✅ Implementada (132/132) |
 | B | Local API HTTP/WS en 127.0.0.1 + token (contrato en `docs/IPC.md`) | ✅ Implementada (15/08/2026, 152/152) |
 | C | Adaptadores a `@ultraia/core` (Db, AiGateway, tools, omag) | ✅ Implementada (15/08/2026, 186/186): `adapters/ports.ts` + `db.ts` + `ai.ts` + `tools.ts` + `omag.ts` + `core.ts` (CorePorts completo). Wiring `system-core` en UltraRuntime ✅ (15/08/2026, 191/191): factory `corePorts` lazy + comandos `core.*` + health check |
-| D | Shell Desktop — **decisión tomada** (`SHELL_DECISION.md`): MVP WebView2 puro en Windows + Local API; upgrade path Tauri 2 si Fase E lo exige | Spike pendiente (launcher Node + ventana WebView2 + comando `system.core`) |
+| D | Shell Desktop — **decisión tomada** (`SHELL_DECISION.md`): MVP WebView2 puro en Windows + Local API; upgrade path Tauri 2 si Fase E lo exige | **Spike del launcher ✅ (15/08/2026, 192/192)**: `desktopFase/launcher/launcher.mjs` (Node, cero deps) compila runtime+core a CJS (`dist/`), arranca `UltraRuntime` + Local API + proxy UI (token inyectado, nunca al renderer) y abre `msedge --app` (WebView2 Runtime); `--check --no-window` verifica system/core y sale 0. Falta: ventana real (paso 3) |
 | E | Instalador real (NSIS/MSI) + actualizador + firma | Pendiente |
 
 ## Verificación
 
-- Runtime: `npm run typecheck -w @ultraia/runtime` + `npm run test -w @ultraia/runtime` (186 tests: 132 Fase A + 20 Fase B + 34 Fase C).
+- Runtime: `npm run typecheck -w @ultraia/runtime` + `npm run test -w @ultraia/runtime` (192 tests: 132 Fase A + 20 Fase B + 34 Fase C + 5 wiring system-core + 1 spike launcher).
+- Launcher spike: `node desktopFase/launcher/launcher.mjs --check --no-window` (compila automáticamente; junta `@ai-sdk` y `@ultraia/core` con junctions en `dist/`).
 - Repo completo: `npm run typecheck && npm run lint && npm run test && npm run build`.
 - Si vitest da fallos raros tras editar: limpiar `node_modules/.vite` (caché de transform stale).

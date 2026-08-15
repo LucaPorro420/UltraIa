@@ -74,11 +74,24 @@ principios del repo: LOCAL-FIRST, SECURE (token + loopback), sin deps nuevas en 
 
 ## Plan de spike (siguiente paso de la Fase D — criterios de aceptación)
 
-- [ ] Launcher Node sin deps que arranca `UltraRuntime` + Local API en un puerto libre.
+- [x] Launcher Node sin deps que arranca `UltraRuntime` + Local API en un puerto libre.
 - [ ] Ventana WebView2 (Windows) apuntando a la URL local; recarga el build estático de web.
-- [ ] Health-check: la UI muestra `system.health` y `core.isHealthy()` vía Local API.
-- [ ] Comando `system.core` (wiring de los adapters al runtime) expuesto por la API.
-- [ ] Gates del repo intactos (typecheck → lint → test → build).
+- [x] Health-check: `--check` verifica `system.health` y `core.health` vía la Local API (HTTP real, no mocks).
+- [x] Comando `system.core` (wiring de los adapters al runtime) expuesto por la API → en el spike se usan los comandos `core.*` (`core.health`/`core.ports`/`core.tools`).
+- [x] Gates del repo intactos (typecheck → lint → test → build).
+
+> **Spike completado 15/08/2026 (iteración 6)**: `desktopFase/launcher/launcher.mjs` (Node, cero
+> deps) + `tsconfig.build.json` (compila runtime+core a CJS en `dist/` con el tsc del repo).
+> Verificado end-to-end: `node desktopFase/launcher/launcher.mjs --check --no-window` →
+> `{"ok":true,"state":"running","healthStatus":"healthy","core":{"configured":true,"healthy":true,
+> "adapters":["tools","omag"],"tools":10}}`, exit 0, sin crash. Detalles en
+> `desktopFase/launcher/README.md`.
+> **Lecciones del spike**: (1) `@ai-sdk/google` queda aislado en `packages/core/node_modules`
+> (npm) → junction `dist/node_modules/@ai-sdk` en el build; (2) el dist emite
+> `require("@ultraia/core")` sin reescribir → junction `dist/node_modules/@ultraia/core` con
+> `package.json` propio (`main: src/index.js`); (3) usar `node:http` (no `fetch`/undici) para el
+> auto-check: salir con sockets de undici en cierre dispara un assert de libuv en Windows
+> (`src\win\async.c`). Pendiente real del MVP: la ventana WebView2 (paso 3 del plan).
 
 > Nota de rigor: las cifras de RAM/bundle de Tauri/Electron citadas en ARCHITECTURE.md §8 son
 > aproximaciones de mercado (2024-2026), no mediciones propias; el spike medirá las reales del
