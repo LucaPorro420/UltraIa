@@ -11,6 +11,7 @@ export * from './stitch';
 export * from './gen-engine';
 export * from './g0dm0d3';
 export * from './topics';
+export * from './present';
 
 import * as web from './web';
 import * as image from './image';
@@ -22,8 +23,9 @@ import { reach } from './reach';
 import { runSkill } from './skills';
 import * as g0dm0d3 from './g0dm0d3';
 import { topics } from './topics';
+import { presentTools } from './present';
 
-export const tools = { web, image, video, music, stitch, reach, skills: { runSkill }, content, g0dm0d3, topics };
+export const tools = { web, image, video, music, stitch, reach, skills: { runSkill }, content, g0dm0d3, topics, present: presentTools };
 
 export const TOOL_DESCRIPTIONS: Record<string, string> = {
   calculator: 'Safely evaluate a mathematical expression (math only).',
@@ -41,6 +43,8 @@ export const TOOL_DESCRIPTIONS: Record<string, string> = {
     'G0DM0D3-style evaluation & testing: Parseltongue input perturbation (33 obfuscation techniques), AutoTune context-adaptive sampling params, multi-angle response evaluation (ultraplinian) and combo racing (godmode) with composite scoring (ELITE/EXCELLENT/GOOD/ACCEPTABLE/POOR). Use to stress-test queries, tune generation or pick the best of several candidate answers.',
   topics:
     'Content idea engine (AutoPub F1): generates prioritized topic briefs from RSS feeds and DuckDuckGo trend searches — deduplicated, scored by novelty × channel relevance, with per-channel format/tone/angle. Use to feed the content factory with recurring, ready-to-write briefs.',
+  present:
+    'Presentation builder (AutoPub F3): builds a PublicationPackage from raw content — per-channel captions + hashtags (YouTube/TikTok/Instagram/blog), visual specs (9:16/1:1/16:9), SRT subtitles, branding kit and suggested schedule. Use to adapt one piece of content into ready-to-publish packages per platform.',
 };
 
 export type Capability =
@@ -54,4 +58,5 @@ export type Capability =
   | 'skills'
   | 'content'
   | 'g0dm0d3'
-  | 'topics';
+  | 'topics'
+  | 'present';

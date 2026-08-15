@@ -15,6 +15,7 @@ import { searchMusic, searchSfx, mixkit } from '../tools/content';
 import { runSkill } from '../tools/skills';
 import { generateParseltongueVariants, computeAutoTuneParams, ultraplinian, godmodeClassic } from '../tools/g0dm0d3';
 import { generateTopicBriefs } from '../tools/topics';
+import { present } from '../tools/present';
 import { audioLibrary } from '../omag/audiolibrary';
 import { synthSound as synth } from '../omag/sound';
 
@@ -380,6 +381,22 @@ export function chatStream(opts: {
         maxBriefs: z.number().int().min(1).max(50).optional(),
       }),
       execute: async ({ fuentes, canales, maxBriefs }) => generateTopicBriefs({ fuentes, canales, maxBriefs }),
+    });
+  }
+  if (opts.tools?.includes('present')) {
+    tools.present_package = tool({
+      description:
+        'Build a PublicationPackage from raw content (AutoPub F3): returns per-channel captions + hashtags (YouTube/TikTok/Instagram/blog), visual specs (9:16/1:1/16:9 with thumbnail), SRT subtitles for video, branding kit and suggested schedule. Use to adapt one piece of content into ready-to-publish packages per platform.',
+      parameters: z.object({
+        tema: z.string().min(1).max(300),
+        contenido: z.string().min(1).max(8000),
+        media: z.array(z.string().url()).max(20).optional(),
+        canales: z.array(z.enum(['youtube_shorts', 'tiktok', 'instagram', 'blog'])).max(4).optional(),
+        briefId: z.string().max(100).optional(),
+        marca: z.string().max(100).optional(),
+      }),
+      execute: async ({ tema, contenido, media, canales, briefId, marca }) =>
+        present({ tema, contenido, media, canales, briefId, marca }),
     });
   }
   return streamText({
