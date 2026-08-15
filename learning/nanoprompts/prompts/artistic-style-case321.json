@@ -1,0 +1,15 @@
+{
+  "id": "artistic-style-case321",
+  "slug": "321",
+  "url": "/es/prompt-handbook/artistic-style/#case321",
+  "title": "Baraja de Tarot Completa de 78 Cartas en Estilo Kawaii Minimalista Lindo con Diseño de Cuadrícula 13x6",
+  "prompt": "FULL 78-CARD TAROT DECK PROMPT: 13x6 grid of tarot card illustrations in a cohesive minimalist cute style. Soft muted color palette of dusty rose, sage green, cream ivory, soft gold, and gentle lavender against warm off-white backgrounds. Simple geometric shapes, clean lines, delicate linework with subtle gold foil accents. Characters are identical throughout: round soft face, dot eyes, small gentle features, simplified body proportions (chibi-inspired but elegant). Style references: modern indie tarot meets Scandinavian illustration meets kawaii minimalism. Each card framed with thin golden border and subtle rounded corners. Consistent elements across all cards: soft diffused lighting from top-left, gentle drop shadows, paper texture overlay, matte finish appearance, pastel watercolor wash backgrounds with white space, symbolic objects rendered in flat simplified forms with minimal detail. ROW 1 (Major Arcana 0-12): THE FOOL through THE HANGED ONE. ROW 2 (Major Arcana 13-21 + Wands Ace-3): DEATH through THREE OF WANDS. ROW 3 (Wands 4-King + Cups Ace-2). ROW 4 (Cups 3-King + Swords Ace). ROW 5 (Swords 2-King + Pentacles Ace-2). ROW 6 (Pentacles 2-Queen). Technical notes: Each card rendered at equal proportion within grid cell, 2:3 aspect ratio per card, consistent 8px golden border, soft ambient occlusion shadows, color correction to ensure palette harmony across full grid. Digital illustration style mimicking gouache and colored pencil hybrid, slightly desaturated for vintage feel while maintaining warmth. Mood: gentle, mystical, approachable, contemplative, cozy, magical.",
+  "category": "artistic-style",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20251224-1-output.webp"
+  ],
+  "local_image": null
+}

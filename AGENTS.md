@@ -262,6 +262,14 @@ Verdad verificada 9/9 PASS en `learning/truth/truth_tecno_recursos.json` (fuente
   horarioSugerido (D2), branding kit Dark Obsidian/Neo Violet}; determinista, keyless,
   13 tests. Pendiente F3: branding kit editable. Siguiente: F4 `PublisherAdapter` +
   YouTube/TikTok en TS (port RF-12).
+- **F4 Distribución paso 1 (15/08/2026, iteración 9)**: tool `publish` en
+  `packages/core/src/tools/publish.ts` (capability `publish` → tool `publish_submit`):
+  `PublisherAdapter` (publish/validate fail-soft) + `createYouTubeAdapter` (resumable v3:
+  POST → Location → PUT) + `createTikTokAdapter` (Direct Post 2 pasos: init → PUT) +
+  `buildBilingualMetadata` es/ar (port RF-12) + `publishToAll`; tokens vía options o env
+  `YOUTUBE_ACCESS_TOKEN`/`TIKTOK_ACCESS_TOKEN`; fetch inyectable, 15 tests con mocks (cero
+  llamadas reales). Pendiente F4: cola `Publication` (Prisma) + endpoints + aprobación
+  (STATE.md #10).
 
 ## Loop PIVR (Plan ⇒ Implement ⇒ Verificar ⇒ Reiniciar) — 15/08/2026
 

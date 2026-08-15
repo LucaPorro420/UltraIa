@@ -1,0 +1,15 @@
+{
+  "id": "artistic-style-case62",
+  "slug": "62",
+  "url": "/es/prompt-handbook/artistic-style/#case62",
+  "title": "Restablecer Parámetros de Cámara",
+  "prompt": "RAW-ISO [100] - [F2.8-1/200 24mm] settings",
+  "category": "artistic-style",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/case62_output.webp"
+  ],
+  "local_image": null
+}

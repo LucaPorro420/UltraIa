@@ -1,0 +1,15 @@
+{
+  "id": "information-viz-case105",
+  "slug": "105",
+  "url": "/es/prompt-handbook/information-viz/#case105",
+  "title": "Interfaz de Estado de Personaje RPG",
+  "prompt": "Use the character in the original image to create a character status screen for an RPG game.\nKeep the character design and style from the original image, but change the costume to one from a fantasy RPG. Also, change the pose to suit the situation.\nDisplay the character from the original image and the status screen side by side.\nThe status screen will list various parameters, skills, icons, etc.\nThe background should be a fantasy background that matches the style of the original image.\nThe status screen should be rich and stylish, like a game from 2025.",
+  "category": "information-viz",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/case105_output.webp"
+  ],
+  "local_image": null
+}

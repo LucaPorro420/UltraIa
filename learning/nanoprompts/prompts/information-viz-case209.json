@@ -1,0 +1,15 @@
+{
+  "id": "information-viz-case209",
+  "slug": "209",
+  "url": "/es/prompt-handbook/information-viz/#case209",
+  "title": "Visualización Educativa de Algoritmos: Ordenamiento por Montículo con Datos Emoji",
+  "prompt": "Visualize the heap sort algorithm process in one diagram using yellow smiley face emojis - the happier the expression, the larger the value. Include pseudocode annotations. Scrapbook journal style with hand-drawn elements, annotations, and step-by-step visualization. 4:3 aspect ratio. Educational infographic with playful character-based data visualization showing array transformations during heap sort operations.",
+  "category": "information-viz",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20251215-16-output.webp"
+  ],
+  "local_image": null
+}

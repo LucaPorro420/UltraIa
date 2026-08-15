@@ -1,0 +1,15 @@
+{
+  "id": "information-viz-case115",
+  "slug": "115",
+  "url": "/es/prompt-handbook/information-viz/#case115",
+  "title": "Infografía de Sonnet - Análisis de Poesía sobre Bananas",
+  "prompt": "Show me an infographic about how sonnets work, using a sonnet about bananas written in it, along with a lengthy literary analysis of the poem. Good vintage aesthetics",
+  "category": "information-viz",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/1124-3-output.webp"
+  ],
+  "local_image": null
+}

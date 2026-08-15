@@ -1,0 +1,17 @@
+{
+  "id": "map-navigation-case2",
+  "slug": "2",
+  "url": "/es/prompt-handbook/map-navigation/#case2",
+  "title": "Generar Vista desde el Suelo a partir de Flecha en Mapa",
+  "prompt": "draw what the red arrow sees \n/ \ndraw the real world view from the red circle in the direction of the arrow.",
+  "category": "map-navigation",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/case2_output2.webp",
+    "https://banana-prompt.nanoprompts.org/handbook/case2_output4.webp",
+    "https://banana-prompt.nanoprompts.org/handbook/case2_output6.webp"
+  ],
+  "local_image": null
+}

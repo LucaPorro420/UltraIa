@@ -402,3 +402,49 @@ ormalizeTitle() (lower + strip non-alnum), dedupe() (bigram overlap > 0.6),
 - Ruido externo NO tocado: `learning/nanoprompts/`, `scripts/loop_piv.py` +
   `scripts/nanoprompts_fetch.py`, `integracionTecno.txt`, `DOCS_TODO.md`, `masinfo.txt`,
   `proyectoNuevo.*`, `BussinesModel/` — siguen en working tree (High Priority).
+
+## Iteraci�n 9 � AutoPub F4 (paso 1): PublisherAdapter + YouTube/TikTok en TS (15/08/2026)
+
+**[P] Plan**
+- Objetivo: portar el RF-12 de ULTRAIA/integracionesImplementacion/src/publish.py a TS en
+  packages/core/src/tools/publish.ts (tarea #9 de STATE.md): adaptador base PublisherAdapter
+  + YouTubeShortsAdapter + TikTokAdapter, con tests con mocks (sin llamadas reales).
+- Pasos:
+  1. Types: PublishMetadata (title/description/tags/privacyStatus), PublishInput
+     (videoPath|videoBuffer + metadata), PublishResult (ok/platform/id/url/error),
+     PublisherAdapter (platform + publish + validate).
+  2. uildBilingualMetadata(title, plainScript?) � port de uild_metadata_from_script
+     (t�tulo es/ar | ?????? ????????? #Shorts, tags mixtos es/ar, privacy public).
+  3. createYouTubeAdapter({ accessToken?, fetchFn? }) � port del flujo resumable v3:
+     POST https://www.googleapis.com/upload/youtube/v3/videos?uploadType=resumable&part=snippet,status
+     (snippet title/description/tags/categoryId 28, status privacy + madeForKids false) ?
+     PUT al uploadUrl del header Location con el binario; devuelve video id ? url
+     https://youtube.com/shorts/{id}. alidate(): token de options o env
+     YOUTUBE_ACCESS_TOKEN. Fetch inyectable para tests (patr�n repo).
+  4. createTikTokAdapter({ accessToken?, fetchFn? }) � port del Direct Post 2 pasos:
+     init POST https://open.tiktokapis.com/v2/post/publish/video/init/ (post_info con
+     title+hashtags =150, source_info FILE_UPLOAD video_size/chunk_size/total_chunk_count=1)
+     ? PUT al data.upload_url con el binario ? publish_id. alidate(): token de options
+     o env TIKTOK_ACCESS_TOKEN.
+  5. publishToAll(adapters, input) � helper que corre todos los adapters y agrega resultados.
+  6. index.ts: export publish + TOOL_DESCRIPTIONS.publish + Capability 'publish'.
+  7. llm.ts: tool publish_submit (capability publish) ? valida + publica, fail-soft con
+     error claro si falta token.
+  8. Tests publish.test.ts: buildBilingualMetadata (es/ar), validate sin/presencia token,
+     YouTube con fetch stub (2 pasos: resumable ? Location ? PUT ? id), TikTok con fetch
+     stub (init ? upload_url ? PUT 201 ? publish_id), errores (init falla, PUT falla,
+     sin token), publishToAll parcial (YT ok, TikTok sin token omitido).
+  9. Docs: AUTO-PUBLICACION.md �4 F4 (tarea 1) + STATE.md #9 + AGENTS.md.
+- Criterios: gates FULL verdes; core 245 ? ~255 PASS; commit
+  eat(core): AutoPub F4 - PublisherAdapter + YouTube/TikTok en TS (port RF-12) + tests mocks.
+
+**[I] Commits**
+- `065c668` feat(core): AutoPub F3 + 13 tests (incluye wiring `publish` en index.ts + llm.ts — el commit de F3 arrastró el wiring del paso 7 de F4).
+- `(pendiente)` feat(core): AutoPub F4 - PublisherAdapter + YouTube/TikTok en TS (port RF-12) + tests mocks — publish.ts + publish.test.ts (staged) + docs (AUTO-PUBLICACION.md, AGENTS.md, STATE.md, loop-run-log.md).
+
+**[V] Gates**
+- Scoped: typecheck core ✅ · publish.test.ts **15/15 PASS** ✅
+- FULL: (pendiente — typecheck → lint → test → build)
+
+**[R] Veredicto**
+- (pendiente)

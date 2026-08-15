@@ -1,0 +1,15 @@
+{
+  "id": "artistic-style-case324",
+  "slug": "324",
+  "url": "/es/prompt-handbook/artistic-style/#case324",
+  "title": "Diorama de Maqueta de Paisaje Urbano en Globo de Arena del Desierto de Dubai con Figura Emiratí",
+  "prompt": "A hyper-realistic macro shot of an open or cracked open decorative Arabian sand globe converted into a miniature Dubai desert cityscape diorama. Inside the sphere is a tiny, highly detailed world featuring golden sand dunes, miniature Burj Khalifa tower, palm trees, and traditional Arabic architecture. In the center stands a highly detailed, photorealistic miniature figure of Emirati man in traditional white kandura and ghutra headwear, standing proudly beside a luxury sports car, in a confident welcoming pose. A miniature majlis tent with carpets and Arabic coffee pots are visible in the background. The outer shell of the sphere has a realistic polished brass Arabian geometric pattern etching. The scene is resting on a blurred desert sand surface with soft dunes, emphasizing scale and depth. Style: macro photography, tilt-shift effect, shallow depth of field, volumetric lighting, photorealistic, cinematic, ultra-detailed, 8k render, Unreal Engine 5, Octane render, ray tracing. Lighting: warm golden hour sunlight creating long shadows and desert atmosphere.",
+  "category": "artistic-style",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20251224-4-output.webp"
+  ],
+  "local_image": null
+}

@@ -1,0 +1,15 @@
+{
+  "id": "manga-comic-case57",
+  "slug": "57",
+  "url": "/es/prompt-handbook/manga-comic/#case57",
+  "title": "Conversión a Estilo Manga",
+  "prompt": "Convert the input photo into a black-and-white manga-style line drawing.",
+  "category": "manga-comic",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/case57_output.webp"
+  ],
+  "local_image": null
+}

@@ -1,0 +1,15 @@
+{
+  "id": "spatial-design-case177",
+  "slug": "177",
+  "url": "/es/prompt-handbook/spatial-design/#case177",
+  "title": "Cuadrícula 2x2 de Países Recreados con Arte de Comida de Platos Nacionales",
+  "prompt": "A 2x2 grid of countries recreated entirely from their national dishes [Top Left: Mexico; tortilla-landscape map, Chichén Itzá pyramid built from stacked tostadas, salsa rivers, guacamole Yucatán jungle] [Top Right: Japan; sushi rice Honshu island, Mount Fuji of shaved tuna, bullet-train soy-sauce track, wasabi forests] [Bottom Left: Italy; pizza dough boot shape, leaning tower of parmesan wheels, gondolas made of grissini in tomato-sauce canals] [Bottom Right: India; spice-powder subcontinent, Taj Mahal of pressed saffron rice, cardamom train tracks, tiny masala figures]\n\nStyle: extreme food art on slate boards, macro photography, dramatic overhead lighting, dark moody background",
+  "category": "spatial-design",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20251213-1-output.webp"
+  ],
+  "local_image": null
+}

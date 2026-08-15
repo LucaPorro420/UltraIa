@@ -1,0 +1,15 @@
+{
+  "id": "artistic-style-case13",
+  "slug": "13",
+  "url": "/es/prompt-handbook/artistic-style/#case13",
+  "title": "Colorear Arte Lineal con Paleta de Colores",
+  "prompt": "Accurately use the color palette from Figure 2 to color the character in Figure 1",
+  "category": "artistic-style",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/case13_output.webp"
+  ],
+  "local_image": null
+}

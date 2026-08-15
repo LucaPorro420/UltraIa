@@ -1,0 +1,15 @@
+{
+  "id": "information-viz-case124",
+  "slug": "124",
+  "url": "/es/prompt-handbook/information-viz/#case124",
+  "title": "Diagrama de Arquitectura de Sistema de Agente AI",
+  "prompt": "An academic paper-level engineering schematic diagram with the theme of AI Agent System Architecture. Black and white line art style, similar to patent illustrations. Horizontal composition, white background with black lines.\nThe image is strictly divided into three vertical layers:\nUpper layer (Physical Layer): Neatly arranged hardware icons, including LiDAR, cameras, GPU servers, and robotic arms.\nMiddle layer (Core Logic): Complex flowchart showing the agent's \"brain\". Contains rectangles labeled \"LLM\", \"Memory\", \"Planning\", with arrows connecting them to show data flow.\nLower layer (Environment Layer): Abstract grid floor representing the simulation environment, and simple building outlines representing the real world.\nOverall style: Minimalist, vector lines, no shadows, high contrast, textbook illustration style.",
+  "category": "information-viz",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/1124-9-output.webp"
+  ],
+  "local_image": null
+}

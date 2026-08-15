@@ -1,0 +1,15 @@
+{
+  "id": "artistic-style-case312",
+  "slug": "312",
+  "url": "/es/prompt-handbook/artistic-style/#case312",
+  "title": "Horizonte Surreal de Singapore en Mar de Nubes y Paisaje Lunar de Realismo Mágico",
+  "prompt": "A vertical 9:16 aspect ratio photograph. A stunning 45-degree high-angle aerial view looking down. The composition is dominated by a vast sea of clouds that submerges the city below.\n\nA colossal, surreal sphere of the full moon hangs low in the distant sky, resting on the far horizon of the cloud sea. It is gargantuan but set further back, creating a dramatic backdrop.\n\nA small, solitary wooden sampan boat sails on the flowing river of semi-translucent clouds in the middle ground, heading towards the distant giant moon.\n\nThe skyline of Singapore is mostly submerged beneath the thick mist. Only the very tops of its most iconic landmarks pierce through the cloud layer: Marina Bay Sands with its distinctive rooftop infinity pool, the Supertree Grove from Gardens by the Bay, and the Singapore Flyer observation wheel. The structures have ancient stone and modern glass textures, looking like mysterious islands emerging from the clouds.\n\nThe scene reflects current weather with dramatic tropical twilight atmosphere. Golden hour lighting transitions from warm amber near the horizon to deep purple-blue overhead, with volumetric god rays breaking through the clouds.\n\nMagical Realism, Cinematic, Dreamy, 8k resolution, highly detailed, ethereal atmosphere. --ar 9:16",
+  "category": "artistic-style",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20251223-3-output.webp"
+  ],
+  "local_image": null
+}

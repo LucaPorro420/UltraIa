@@ -1,0 +1,15 @@
+{
+  "id": "information-viz-case119",
+  "slug": "119",
+  "url": "/es/prompt-handbook/information-viz/#case119",
+  "title": "Pixel Art Isométrico - Carrera de Programador",
+  "prompt": "Search the web then generate an image of isometric perspective, detailed pixel art that shows the career of programmer",
+  "category": "information-viz",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/1124-1-output.webp"
+  ],
+  "local_image": null
+}

@@ -1,0 +1,15 @@
+{
+  "id": "information-viz-case229",
+  "slug": "229",
+  "url": "/es/prompt-handbook/information-viz/#case229",
+  "title": "Panel de Estado de Personaje RPG Estilo Japonés con Personaje Cartoon 3D e Interfaz Transparente",
+  "prompt": "The character status panel from a Japanese-style RPG game, and the game uses a 3D cartoon style. The left side of the screen is the character information box, and the right side is the pixel character standing illustration. The left side uses many semi-transparent UI panels: basic information, name, level, HP, MP. Equipment, weapon, armor, accessory. Limit skill: making videos and making games.",
+  "category": "information-viz",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20251216-19-output.webp"
+  ],
+  "local_image": null
+}

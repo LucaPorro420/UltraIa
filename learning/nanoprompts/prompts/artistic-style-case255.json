@@ -1,0 +1,15 @@
+{
+  "id": "artistic-style-case255",
+  "slug": "255",
+  "url": "/es/prompt-handbook/artistic-style/#case255",
+  "title": "Diseño de Plano en Papel Doblado con Hiper-Detalle: Personaje Iron Man",
+  "prompt": "A hyper-detailed folded-paper blueprint of Iron Man, where the character is constructed from precise geometric folds and crease lines, overlaid with subtle blueprint markings, measurement lines, and paper annotations. Minimal color palette, off-white paper with faint ink lines. Studio lighting, crisp shadows, architectural art style, photorealistic paper detail. 1080x1080 square format.",
+  "category": "artistic-style",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20251218-4-output.webp"
+  ],
+  "local_image": null
+}

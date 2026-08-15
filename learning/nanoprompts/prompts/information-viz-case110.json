@@ -1,0 +1,15 @@
+{
+  "id": "information-viz-case110",
+  "slug": "110",
+  "url": "/es/prompt-handbook/information-viz/#case110",
+  "title": "Infografía de Fotosíntesis",
+  "prompt": "Create a vibrant infographic that explains photosynthesis as if it were a recipe for a plant's favorite food. Show the \"ingredients\" (sunlight, water, CO2) and the \"finished dish\" (sugar/energy). The style should be like a page from a colorful kids' cookbook, suitable for a 4th grader.",
+  "category": "information-viz",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/1123-4-output.webp"
+  ],
+  "local_image": null
+}

@@ -1,0 +1,15 @@
+{
+  "id": "artistic-style-case44",
+  "slug": "44",
+  "url": "/es/prompt-handbook/artistic-style/#case44",
+  "title": "Control de Iluminación",
+  "prompt": "Change the character from Image 1 to the lighting from Image 2, with dark areas as shadows",
+  "category": "artistic-style",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/case44_output.webp"
+  ],
+  "local_image": null
+}

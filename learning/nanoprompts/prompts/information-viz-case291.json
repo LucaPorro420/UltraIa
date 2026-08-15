@@ -1,0 +1,15 @@
+{
+  "id": "information-viz-case291",
+  "slug": "291",
+  "url": "/es/prompt-handbook/information-viz/#case291",
+  "title": "Blake Snyder Beat Sheet: Infografía Educativa Estilo Anime Chibi para Estructura Narrativa",
+  "prompt": "A cute Japanese chibi anime style educational infographic about story structure, titled \"The Blake Snyder Beat Sheet\". The layout is a flowchart with a numbered, S-shaped path from 1 to 15. Each point on the path has a small, round illustration featuring a chibi white-haired girl in a blue dress, explaining a story beat with visual metaphors (like a door, a rollercoaster, a tombstone, a monster). Each illustration is accompanied by a bold Japanese title and a short explanatory text. The background is a soft, textured beige paper. The color palette is soft and pastel, transitioning from light blues and greens to darker tones and finally to warm yellows.",
+  "category": "information-viz",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20251222-8-output.webp"
+  ],
+  "local_image": null
+}

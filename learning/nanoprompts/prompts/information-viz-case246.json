@@ -1,0 +1,15 @@
+{
+  "id": "information-viz-case246",
+  "slug": "246",
+  "url": "/es/prompt-handbook/information-viz/#case246",
+  "title": "Rutina Diaria de 24 Horas de Influencer de Belleza Japonesa: Collage de Cuadrícula de 12 Fotos",
+  "prompt": "A photorealistic 12-panel grid collage layout (3 columns x 4 rows) depicting the 24-hour daily routine of a trendy 24-year-old Japanese beauty influencer named Mina. Aspect ratio 3:4. Each panel is a high-quality snapshot with a specific handwritten-style cute Japanese text caption overlay. Cinematic, highly detailed, photorealistic, lifestyle photography. The Japanese text should be legible, cute handwriting style, placed naturally in each frame.",
+  "category": "information-viz",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20251217-4-output.webp"
+  ],
+  "local_image": null
+}

@@ -1,0 +1,15 @@
+{
+  "id": "information-viz-case139",
+  "slug": "139",
+  "url": "/es/prompt-handbook/information-viz/#case139",
+  "title": "Ilustración de Calendario",
+  "prompt": "Please generate a cute and stylish vertical (9:16) calendar illustration in a fresh and bright hand-drawn illustration style:\n1. Illustration Requirements:\nThe character is a young, fashionable female figure with a cute and lively style, using watercolor or hand-drawn textures, with bright and soft colors.\nCharacter features include: large eyes, round rosy cheeks, wearing exaggerated and fashionable accessories (such as sunglasses, hoop earrings, headbands, hairbands or bows, knitted hats, etc.), brightly colored clothing, lively and playful character poses, appropriately exaggerated body proportions (such as a slightly larger head and a slender waist).\nBased on holidays, \"suitable activities\" or the season and the characteristic elements of the user's location, the character's outfit and styling description is: [{character outfit description}]\nThe character is located in the center or right side of the screen, leaving sufficient white space for text content.\nThe background is pure white, extremely simple, with no additional decorative elements, highlighting the main character and text.\n2. Calendar Element Layout:\nProminent position in the top center: Gregorian calendar date number [{Gregorian date number}] (large and eye-catching font)\nEnglish month [{English month}] below the date number\nOn the left and right sides of the date, respectively mark the Chinese and English day of the week [{Chinese day of the week}] [{English day of the week}] and the lunar date and holidays [{Lunar date in Chinese}] [{Holiday}], with a symmetrical left-right layout and clear and elegant fonts.\n3. \"Suitable\" Activities and Inspirational Sentences:\nOn the left side, display today's [suitable] activities in bold vertical text: [{suitable activities}], with a simple handwritten brush font, slightly larger, vertically arranged.\nTo the right of [suitable activities], arrange the corresponding inspirational and healing sentence [{inspirational sentence}] in a slightly smaller font vertically.\n4. Location-Specific Elements:\nBased on the user's current location or input location, appropriately incorporate local iconic elements or characteristics (such as city landmarks, climate characteristics, regional customs) into the character's clothing, accessories, or details of the illustration.\nOverall Description:\nAll placeholder information should be retrieved and generated automatically based on user input or user information and system information.\nThe layout of all elements should be neat and beautiful, maintaining appropriate white space.\nText positions should be clear and easy to read, avoiding overlap or obstruction with the illustration.",
+  "category": "information-viz",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/1130-2-output.webp"
+  ],
+  "local_image": null
+}

@@ -1,0 +1,1298 @@
+ias para estudiar e implementar:
+https://www.instagram.com/p/DcC0fUsk58D/?utm_source=ig_web_copy_link&igsh=NTc4MTIwNjQ2YQ==
+
+Interpreto **“del uno al dos”** como: **pasar de Fase 1 a Fase 2** dentro del plan anterior, pero considerando que hoy tu inversión es **$0**.  
+Si te referías a pasar de **$1M a $2M**, también lo aclaro al final, porque con $0 cambia completamente el camino.
+
+Con **$0**, la estrategia no puede ser “comprar GPUs, contratar equipo o hacer publicidad”. La estrategia debe ser:
+
+> **Vender antes de construir, cobrar por adelantado, usar infraestructura del cliente y convertir servicios en un producto recurrente.**
+
+Tu capital inicial no es dinero: es **tiempo, ejecución, ventas y tu código base**.
+
+---
+
+# PLAN REAL $0: DE FASE 1 A FASE 2 SIN INVERSIÓN INICIAL
+
+## Objetivo del plan
+
+Llevar el proyecto desde:
+
+**Fase 1 / validación**  
+Ingresos aproximados: $1,000 - $2,000 MRR  
+MRR = Ingresos recurrentes mensuales.
+
+Hasta:
+
+**Fase 2 / tracción comercial**  
+Ingresos aproximados: $8,000 - $12,000 MRR
+
+Sin comprar hardware, sin pagar anuncios, sin contratar empleados y sin levantar capital.
+
+---
+
+# 1. REGLA PRINCIPAL CON $0
+
+Con $0 no puedes financiar infraestructura. Por tanto:
+
+1. **No vendas generación ilimitada.**
+2. **No compres GPUs.**
+3. **No pagues publicidad.**
+4. **No construyas una plataforma gigante antes de vender.**
+5. **El cliente paga la infraestructura o usa su propia cuenta cloud/API.**
+6. **Tú cobras por implementación, gestión, automatización y optimización.**
+7. **Empiezas como servicio premium y luego lo conviertes en producto.**
+
+Tu negocio inicial no es “IA generativa”.  
+Tu negocio inicial es:
+
+> **“Implemento un sistema privado de generación de imágenes/video/audio para empresas que necesitan contenido rápido, controlado y sin depender de APIs públicas caras.”**
+
+---
+
+# 2. EL MODELO DE NEGOCIO PARA EMPEZAR SIN DINERO
+
+Tu código permite usar modelos abiertos como FLUX, ACE-Step y LTX-2.3. Pero sin GPU, no puedes ofrecer video pesado de forma masiva desde el primer día.
+
+Por eso, al principio debes vender en este orden:
+
+## Nivel 1: Servicio rápido de generación de contenido
+
+Para clientes que no tienen infraestructura:
+
+- Generación de imágenes para e-commerce.
+- Variaciones de anuncios.
+- Banners.
+- Fondos de producto.
+- Miniaturas.
+- Imágenes para redes sociales.
+- Copy + imagen.
+
+Esto consume menos recursos que video.
+
+## Nivel 2: Implementación privada en la cuenta del cliente
+
+Para clientes más serios:
+
+- Les instalas el pipeline en su propia cuenta AWS, GCP, Azure, Lambda, RunPod o servidor propio.
+- Ellos pagan el consumo cloud.
+- Tú cobras setup + mensualidad por gestión.
+
+## Nivel 3: Plataforma recurrente gestionada
+
+Cuando ya tienes clientes:
+
+- Cobras mensualidad por mantenimiento.
+- Automatizas colas.
+- Añades dashboards.
+- Añades plantillas de marca.
+- Añades generación por lotes.
+- Añades integración con Drive, Notion, Shopify, HubSpot, Meta Ads, etc.
+
+---
+
+# 3. TU OFERTA COMERCIAL SIN INVERSIÓN
+
+No vendas “IA”.  
+Vende resultados concretos.
+
+## Oferta A: AI Content Desk para e-commerce
+
+**Nombre sugerido:**  
+“AI Product Content Desk”
+
+**Promesa:**  
+Generamos imágenes y variaciones publicitarias para tus productos usando IA privada o híbrida, reduciendo costo por asset y acelerando campañas.
+
+**Incluye:**
+
+- 50 imágenes de producto al mes.
+- 10 variaciones para anuncios.
+- 5 fondos contextuales.
+- Prompts guardados por marca.
+- Entrega organizada en Drive/Notion.
+- Revisión manual básica.
+
+**Precio inicial:**  
+$497/mes
+
+**Setup:**  
+$250 - $500 único
+
+**Importante:**  
+Si se requiere GPU o API externa, el costo de generación se cobra aparte o lo paga directamente el cliente.
+
+---
+
+## Oferta B: AI Media Desk para agencias
+
+**Nombre sugerido:**  
+“Private AI Media Desk para Agencias”
+
+**Promesa:**  
+Implementamos un flujo privado de generación de contenido para que tu agencia produzca más assets sin aumentar costos ni depender de suscripciones públicas.
+
+**Incluye:**
+
+- Pipeline con FLUX para imagen.
+- Plantillas por cliente.
+- Biblioteca de prompts.
+- Generación por lotes.
+- Control de estilo de marca.
+- Carpeta de entrega automática.
+- Soporte prioritario.
+
+**Precio inicial:**  
+$997/mes
+
+**Setup:**  
+$997 - $2,500 único
+
+Este es tu mejor camino para llegar a Fase 2.
+
+Con 8 agencias a $997/mes:
+
+> 8 × $997 = $7,976 MRR
+
+Con upsells, soporte, integración o assets adicionales puedes superar $10,000 MRR.
+
+---
+
+## Oferta C: Implementación privada on-premise / VPC
+
+**Nombre sugerido:**  
+“Private AI Infrastructure Setup”
+
+**Promesa:**  
+Instalamos un motor de generación multimedia dentro de tu propia infraestructura para mantener control total de datos, privacidad y costos.
+
+**Incluye:**
+
+- Instalación del pipeline.
+- Configuración de modelos abiertos.
+- Cola de tareas.
+- Carpeta media.
+- Documentación.
+- Pruebas de rendimiento.
+- Optimización de GPU.
+
+**Precio:**  
+$1,500 - $5,000 único
+
+**Mantenimiento mensual:**  
+$300 - $1,500/mes
+
+Esta oferta es más avanzada, pero muy útil para clientes técnicos.
+
+---
+
+# 4. PLAN DE 90 DÍAS PARA PASAR DE $0 A FASE 1
+
+## Meta de los primeros 90 días
+
+Conseguir:
+
+- 2 a 4 clientes pagos.
+- $1,000 - $2,500 MRR.
+- 2 casos de éxito.
+- 1 testimonio.
+- 1 proceso de entrega repetible.
+
+Sin gastar dinero.
+
+---
+
+## Semana 1: Construir la oferta y el demo
+
+No necesitas una web cara. Necesitas claridad.
+
+### Día 1-2: Elegir nicho
+
+Elige uno solo para empezar:
+
+Opción recomendada:
+
+> Agencias de marketing que producen mucho contenido para clientes.
+
+Otras opciones:
+
+- Tiendas Shopify.
+- Marcas de cosmética.
+- Restaurantes/franquicias.
+- Inmobiliarias.
+- E-commerce de moda.
+- Estudios de videojuegos indie.
+- Productoras audiovisuales.
+
+Mi recomendación: **agencias de marketing**, porque:
+
+- Tienen muchos clientes.
+- Necesitan volumen.
+- Entienden el valor del contenido.
+- Pueden pagar mensualidad.
+- Pueden revenderte a sus clientes.
+
+---
+
+### Día 3-4: Crear una demo simple
+
+Sin dinero, puedes hacer:
+
+1. Una página simple en:
+   - GitHub Pages.
+   - Notion.
+   - Carrd versión gratuita.
+   - Google Sites.
+
+2. Contenido de la página:
+
+- Titular claro.
+- Problema.
+- Solución.
+- Qué incluye.
+- Precio.
+- Botón de contacto.
+- Demo visual.
+
+Ejemplo de titular:
+
+> “Implementamos un sistema privado de generación de imágenes con IA para agencias que necesitan producir más contenido sin aumentar costos.”
+
+---
+
+### Día 5-7: Crear portafolio mínimo
+
+Si no tienes GPU, no intentes generar video pesado.
+
+Crea ejemplos usando:
+
+- Imágenes de stock.
+- Mockups.
+- Antes/después.
+- Flujos de trabajo.
+- Diagramas del sistema.
+- Capturas de código.
+- Ejemplos de prompts.
+- Resultados simulados de campañas.
+
+No necesitas mostrar una obra maestra. Necesitas mostrar profesionalismo.
+
+---
+
+## Semana 2: Prospección masiva manual
+
+Con $0, tu marketing es outbound directo.
+
+### Meta:
+
+Contactar 50 empresas al día.
+
+En 5 días hábiles:
+
+> 250 contactos.
+
+### Canales gratuitos:
+
+- LinkedIn.
+- Instagram.
+- Email.
+- Directorios de agencias.
+- Grupos de Facebook.
+- Comunidades de Shopify.
+- Slack/Discord de founders.
+- Twitter/X.
+
+---
+
+### Mensaje de contacto para agencias
+
+Puedes usar algo así:
+
+> Hola [Nombre], vi que en [Agencia] trabajan con varios clientes y probablemente producen mucho contenido para redes y ads.  
+>   
+> Estoy implementando sistemas privados de generación de imágenes con IA para agencias, usando modelos abiertos para reducir dependencia de APIs caras y mantener control del contenido.  
+>   
+> ¿Te interesaría ver un piloto de 14 días para generar assets para uno de sus clientes?  
+>   
+> Sin permanencia. Solo quiero validar el flujo con 3 agencias este mes.
+
+No vendas tecnología. Vende ahorro, velocidad y control.
+
+---
+
+### Seguimiento
+
+La mayoría no responde al primer mensaje.
+
+Secuencia:
+
+1. Primer contacto.
+2. Seguimiento a los 2 días.
+3. Seguimiento a los 5 días.
+4. Último seguimiento a los 8 días.
+
+Ejemplo de seguimiento:
+
+> Hola [Nombre], te escribí hace unos días. Sé que estás ocupado. Solo quería saber si tiene sentido ayudarte a reducir el costo de producción de assets con IA privada. Si no es prioridad ahora, no insisto.
+
+---
+
+## Semana 3: Cerrar los primeros pilotos
+
+Tu objetivo no es vender un contrato enorme. Es conseguir:
+
+- 2 pilotos pagos.
+- 1 cliente mensual.
+- 1 caso de éxito.
+
+### Precio recomendado para primeros clientes
+
+Como no tienes reputación:
+
+**Piloto de 14 días:**
+
+- $300 - $500 pago único.
+- Incluye diagnóstico + implementación básica + 20-50 assets.
+- Si continúan, se descuenta del mensual.
+
+**Mensualidad inicial:**
+
+- $297 - $497/mes.
+
+No regales el servicio. Aunque sea barato, debe haber dinero real. Un cliente que no paga no da feedback real.
+
+---
+
+## Semana 4: Entregar, documentar y pedir referencia
+
+Cuando entregues:
+
+1. Crea una carpeta ordenada.
+2. Entrega rápido.
+3. Pide feedback.
+4. Pide testimonio.
+5. Pide referencia.
+
+Mensaje para pedir testimonio:
+
+> [Nombre], ¿te pareció útil el piloto? Si sí, ¿podrías dejarme una frase corta sobre el resultado? Me ayuda mucho para abrir más cupos.
+
+Ejemplo de testimonio ideal:
+
+> “Redujimos el tiempo de producción de assets para campañas y ahora podemos probar más variaciones creativas sin aumentar costos.”
+
+---
+
+# 5. CÓMO ENTREGAR SI NO TIENES GPU NI DINERO
+
+Esta parte es clave.
+
+No necesitas tener una RTX 4090 propia.
+
+## Opción 1: El cliente paga la nube
+
+Para clientes medianos:
+
+- Les creas cuenta en AWS, GCP, RunPod, Lambda Labs, Vast.ai, Paperspace, etc.
+- Ellos ponen su tarjeta.
+- Tú configuras el entorno.
+- Tú gestionas el pipeline.
+
+Tú no pagas la GPU.  
+Tú cobras por instalar y administrar.
+
+---
+
+## Opción 2: El cliente usa su propia GPU
+
+Si el cliente ya tiene servidor:
+
+- Instalas tu código.
+- Configuras modelos.
+- Dejas cola de generación.
+- Entregas documentación.
+
+Cobras setup + mantenimiento.
+
+---
+
+## Opción 3: Modelo híbrido con API del cliente
+
+Si el cliente no tiene GPU:
+
+- Que use su propia cuenta de Replicate, Fal.ai, Together, OpenAI, Stability, etc.
+- Tú construyes el flujo.
+- Ellos pagan consumo.
+- Tú cobras gestión.
+
+Esto es importante:
+
+> Con $0, nunca pongas tú el costo variable si aún no tienes margen.
+
+---
+
+## Opción 4: Créditos gratuitos
+
+Puedes buscar créditos para startups:
+
+- AWS Activate.
+- Google for Startups.
+- Microsoft for Startups.
+- NVIDIA Inception.
+- Programas de partners cloud.
+- Créditos promocionales de plataformas GPU.
+
+Pero no bases el negocio en eso. Úsalos solo para demos o pilotos pequeños.
+
+---
+
+# 6. NÚMEROS REALISTAS: DE $0 A FASE 2
+
+Este es un escenario conservador-agresivo, asumiendo que dedicas tiempo real a ventas.
+
+---
+
+## Mes 1: Primeros clientes
+
+Actividad:
+
+- 500 contactos.
+- 15-25 reuniones.
+- 2 pilotos pagos.
+
+Ingresos:
+
+- 2 pilotos × $400 = $800.
+- 1 cliente mensual × $300 = $300 MRR.
+
+Resultado:
+
+- Caja: $1,100.
+- MRR: $300.
+
+Costos:
+
+- Herramientas gratuitas.
+- Comisión de pago: 3%-5%.
+- Tiempo.
+
+Neto aproximado:
+
+> $1,000 - $1,050.
+
+---
+
+## Mes 2: Convertir pilotos en mensualidades
+
+Objetivo:
+
+- Convertir 1-2 pilotos en mensualidades.
+- Cerrar 1 cliente nuevo.
+
+Ingresos:
+
+- 2 renovaciones × $400 = $800 MRR.
+- 1 cliente nuevo × $400 = $400 MRR.
+- 1 setup × $500 = $500.
+
+Resultado:
+
+- Caja: $1,300.
+- MRR: $1,200.
+
+Ya estás cerca de Fase 1.
+
+---
+
+## Mes 3: Primer caso de éxito
+
+Objetivo:
+
+- 2 clientes nuevos.
+- Subir precio a $500/mes.
+- Obtener testimonio.
+
+Ingresos:
+
+- 2 clientes nuevos × $500 = $1,000 MRR.
+- MRR anterior: $1,200.
+- Setup adicional: $500.
+
+Resultado:
+
+- Caja: $1,500.
+- MRR: $2,200.
+
+Aquí ya superaste la entrada de Fase 1.
+
+---
+
+## Mes 4-6: Productizar y subir precio
+
+Ya no vendas pilotos baratos. Vende:
+
+**Agencias:**
+
+- $997/mes.
+- Setup: $997.
+
+**E-commerce:**
+
+- $497/mes.
+- Setup: $300.
+
+Objetivo:
+
+- Conseguir 4 agencias.
+- Mantener 3 e-commerce.
+
+Cálculo:
+
+- 4 agencias × $997 = $3,988.
+- 3 e-commerce × $497 = $1,491.
+- MRR anterior: $2,200.
+- Bajas estimadas: -$500.
+
+MRR aproximado:
+
+> $7,179.
+
+Con upsells, integraciones o soporte premium:
+
+> $8,000 - $9,000 MRR.
+
+---
+
+## Mes 7-9: Pasar a Fase 2
+
+Objetivo:
+
+- 8-10 clientes recurrentes.
+- 2 partners/agencias que revendan.
+- 1 oferta enterprise ligera.
+
+Nuevos clientes:
+
+- 2 agencias más × $997 = $1,994.
+- 1 cliente privado setup × $1,500.
+- Upsells: $800/mes.
+
+MRR estimado:
+
+> $10,000 - $12,000 MRR.
+
+Aquí ya estás en Fase 2.
+
+---
+
+# 7. TABLA FINANCIERA SIMPLE
+
+| Etapa | Clientes objetivo | Precio medio | MRR estimado | Inversión necesaria |
+|---|---:|---:|---:|---:|
+| Inicio | 0 | $0 | $0 | $0 + tiempo |
+| Día 30 | 2-3 | $300-$400 | $300-$1,000 | $0 |
+| Día 60 | 4-5 | $400-$500 | $1,500-$2,500 | $0 |
+| Día 90 | 5-7 | $400-$600 | $2,000-$3,500 | $0 |
+| Mes 6 | 7-9 | $700-$997 | $6,000-$9,000 | Reinvertir ingresos |
+| Mes 9 | 9-12 | $800-$1,200 | $9,000-$12,000 | Reinvertir ingresos |
+
+---
+
+# 8. CÓMO CONSEGUIR CLIENTES SIN PAGAR PUBLICIDAD
+
+Con $0, tu motor de ventas es:
+
+1. Outreach manual.
+2. Alianzas.
+3. Comunidades.
+4. Contenido técnico/demo.
+5. Referidos.
+
+---
+
+## A. Outreach manual
+
+Meta semanal:
+
+- 250 contactos nuevos.
+- 100 seguimientos.
+- 10-15 reuniones.
+- 2-3 propuestas.
+- 1 cierre.
+
+Si mantienes esto 90 días, es realista conseguir los primeros clientes.
+
+---
+
+## B. Alianzas con agencias
+
+Esta es la palanca más fuerte.
+
+Busca:
+
+- Agencias de performance.
+- Agencias de branding.
+- Agencias de social media.
+- Agencias de e-commerce.
+- Freelancers que atienden marcas.
+
+Oferta para partners:
+
+> “Tú revendes mi sistema de IA a tus clientes. Yo implemento y opero. Tú te quedas con 15%-25% del primer año.”
+
+Ejemplo:
+
+Cliente paga $997/mes.  
+Partner gana $200/mes por cliente durante el primer año.  
+Tú recibes $797/mes.
+
+Con 5 partners que traigan 2 clientes cada uno:
+
+> 10 clientes × $797 = $7,970 MRR.
+
+Sin publicidad.
+
+---
+
+## C. Comunidades
+
+Participa en:
+
+- Grupos de Shopify.
+- Comunidades de agencias.
+- Discord de marketing.
+- Slack de startups.
+- Reddit empresarial.
+- Grupos de Meta Ads.
+- Grupos de e-commerce.
+
+No hagas spam. Publica casos:
+
+> “Cómo una agencia redujo el costo de producción de assets para Meta Ads usando modelos abiertos de IA.”
+
+---
+
+## D. Contenido simple que genera confianza
+
+Publica en LinkedIn/X:
+
+- Antes/después de contenido.
+- Diagramas del pipeline.
+- Comparativa de costos: API pública vs modelo privado.
+- Errores al usar IA en agencias.
+- Cómo mantener consistencia de marca.
+- Cómo automatizar generación de assets.
+
+No necesitas ser influencer. Necesitas parecer competente.
+
+---
+
+# 9. EMBUDO DE VENTAS SIN DINERO
+
+## Embudo recomendado
+
+1. Contacto directo.
+2. Llamada de diagnóstico.
+3. Demo/piloto.
+4. Propuesta.
+5. Cobro por adelantado.
+6. Entrega rápida.
+7. Testimonio.
+8. Referido.
+
+---
+
+## Conversión esperada
+
+Supongamos:
+
+- Contactas 1,000 empresas.
+- 3% responde = 30 respuestas.
+- 30% agenda reunión = 9 reuniones.
+- 33% compra = 3 clientes.
+
+Ese es el mínimo.
+
+Para llegar a Fase 2, necesitarás aproximadamente:
+
+- 3,000-5,000 contactos en 9 meses.
+- 80-150 reuniones.
+- 10-15 clientes.
+- 2-4 partners.
+
+Con disciplina, es alcanzable.
+
+---
+
+# 10. GUION DE VENTAS PARA LLAMADAS
+
+Cuando alguien te responda, no hables de Python ni de modelos. Haz preguntas.
+
+## Preguntas de diagnóstico
+
+1. ¿Cuánto contenido producen al mes para clientes?
+2. ¿Qué herramientas usan hoy para imágenes o video?
+3. ¿Cuánto gastan en diseño, editores o APIs?
+4. ¿Tienen problemas de velocidad o costos?
+5. ¿Les preocupa privacidad o uso de datos?
+6. ¿Necesitan mantener estilo de marca consistente?
+7. ¿Quién aprueba el contenido?
+8. ¿Dónde guardan los assets?
+
+## Problemas que debes detectar
+
+- Gastan mucho en diseño.
+- Tardan demasiado.
+- Dependen de APIs caras.
+- No tienen control de datos.
+- Necesitan muchas variaciones.
+- No pueden escalar contenido.
+
+## Propuesta verbal
+
+> Por lo que me cuentas, su problema no es falta de IA, sino falta de un flujo privado, controlado y escalable.  
+>   
+> Lo que propongo es implementar un sistema de generación de contenido con modelos abiertos, adaptado a su marca, dentro de su infraestructura o con cuentas bajo su control.  
+>   
+> Empezamos con un piloto de 14 días para un cliente. Si funciona, lo dejamos como sistema mensual.
+
+---
+
+# 11. QUÉ NO HACER CON $0
+
+Esto es importante.
+
+## No compres GPU
+
+No hasta tener clientes que paguen.
+
+## No hagas una app pública
+
+No necesitas app móvil, ni login complejo, ni dashboard bonito al inicio.
+
+## No entrenes modelos
+
+No tienes dinero ni datos suficientes.
+
+## No ofrezcas video ilimitado
+
+LTX y video generan consumo alto. Con $0, puede destruirte.
+
+## No aceptes proyectos sin anticipo
+
+Regla:
+
+> 50% antes de empezar, 50% antes de entregar.
+
+Si es mensualidad:
+
+> Primer mes por adelantado.
+
+## No prometas privacidad total si usas APIs externas
+
+Sé transparente:
+
+> “Si usamos una API externa, los datos pasan por ese proveedor. Si requieren privacidad total, lo implementamos en su propia infraestructura.”
+
+---
+
+# 12. STACK GRATUITO RECOMENDADO
+
+Con $0, usa solo herramientas gratuitas hasta tener ingresos.
+
+| Función | Herramienta gratuita |
+|---|---|
+| Web simple | GitHub Pages, Notion, Carrd free |
+| CRM | HubSpot Free, Notion, Airtable free |
+| Email | Gmail / Zoho free |
+| Documentos | Google Docs |
+| Facturación | Stripe / PayPal / Mercado Pago |
+| Código | GitHub |
+| Comunicación | WhatsApp / Telegram / Google Meet |
+| Gestión | Trello / Notion |
+| Almacenamiento | Google Drive / Dropbox básico |
+| Monitoreo simple | UptimeRobot free |
+| Automatización | n8n self-hosted si tienes servidor, o Make free |
+
+Cuando tengas ingresos, reinvierte en:
+
+1. Dominio.
+2. Email profesional.
+3. CRM pagado.
+4. Contratos.
+5. Soporte.
+6. GPU de prueba.
+7. Backup.
+8. Seguridad.
+
+---
+
+# 13. CÓMO CONVERTIR TU SERVICIO EN PRODUCTO
+
+Al principio harás cosas manualmente. Está bien.
+
+Pero debes convertir cada entrega en un proceso.
+
+## Proceso inicial
+
+1. El cliente llena formulario de marca.
+2. Sube productos/logo.
+3. Tú creas plantilla de prompts.
+4. Generas assets.
+5. Revisas calidad.
+6. Entregas carpeta.
+7. Registras feedback.
+8. Optimizas prompts.
+
+Cuando repitas esto 5 veces, automatiza:
+
+- Formulario de entrada.
+- Plantillas por industria.
+- Nomenclatura de archivos.
+- Carpeta automática.
+- Cola de tareas.
+- Dashboard simple.
+- Reporte mensual.
+
+---
+
+# 14. MÉTRICAS QUE DEBES MEDIR
+
+Aunque empieces con $0, mide esto semanalmente:
+
+## Ventas
+
+- Contactos enviados.
+- Respuestas.
+- Reuniones.
+- Propuestas.
+- Clientes cerrados.
+- Ingreso nuevo.
+- MRR.
+
+## Entrega
+
+- Tiempo por asset.
+- Costo por asset.
+- Rechazos.
+- Revisiones.
+- Satisfacción del cliente.
+
+## Negocio
+
+- Churn mensual.
+- Margen bruto.
+- Ingreso por cliente.
+- Costo de infraestructura.
+- Tiempo dedicado por cliente.
+- LTV estimado.
+
+Fórmula simple:
+
+> Beneficio mensual = MRR - costos variables - comisiones.
+
+Si tu margen es menor a 70%, sube precios o reduce costos.
+
+---
+
+# 15. PLAN SEMANA A SEMANA
+
+## Semana 1
+
+- Definir nicho.
+- Crear oferta.
+- Crear demo.
+- Preparar página simple.
+- Crear lista de 300 prospectos.
+- Preparar mensajes.
+
+## Semana 2
+
+- Contactar 250 prospectos.
+- Hacer seguimientos.
+- Agendar reuniones.
+- Ajustar mensaje.
+
+## Semana 3
+
+- Hacer llamadas.
+- Cerrar 2 pilotos.
+- Cobrar anticipo.
+- Entregar rápido.
+
+## Semana 4
+
+- Convertir pilotos en mensualidad.
+- Pedir testimonio.
+- Publicar caso.
+- Pedir referidos.
+- Subir precio.
+
+## Semana 5-8
+
+- Repetir outbound.
+- Crear 2 casos de éxito.
+- Contactar 20 posibles partners.
+- Cerrar 1 partner.
+
+## Semana 9-12
+
+- Productizar entrega.
+- Crear plantilla de onboarding.
+- Crear propuesta estándar.
+- Cerrar clientes a $500-$997/mes.
+
+## Mes 4-6
+
+- Conseguir 4 agencias.
+- Subir precio.
+- Automatizar entrega.
+- Crear upsells.
+- Llegar a $7k-$9k MRR.
+
+## Mes 7-9
+
+- Activar partners.
+- Vender implementación privada.
+- Cerrar clientes enterprise ligeros.
+- Llegar a $10k-$12k MRR.
+
+---
+
+# 16. CÓMO SUBIR PRECIOS SIN PERDER CLIENTES
+
+Cuando tengas 3 casos de éxito, sube precios.
+
+No digas:
+
+> “Ahora cobro más.”
+
+Di:
+
+> “Estamos abriendo nuevos cupos con una versión mejorada del servicio, que incluye más control de marca, automatización y soporte.”
+
+Precios sugeridos:
+
+| Etapa | Precio mensual |
+|---|---:|
+| Primeros 2 clientes | $297-$397 |
+| Clientes 3-5 | $497-$697 |
+| Clientes 6-10 | $797-$997 |
+| Agencias medianas | $1,200-$2,500 |
+| Implementación privada | $2,500-$10,000 setup |
+
+---
+
+# 17. CÓMO MANEJAR LA INFRAESTRUCTURA SIN CAPITAL
+
+## Regla de oro
+
+> El cliente paga la infraestructura.
+
+Ejemplos:
+
+### Cliente pequeño
+
+- Usa cuenta de API del cliente.
+- Tú gestionas flujo.
+- Cliente paga consumo directo.
+
+### Cliente mediano
+
+- Cliente contrata RunPod/Lambda/Vast.
+- Tú instalas pipeline.
+- Tú cobras gestión mensual.
+
+### Cliente enterprise ligero
+
+- Cliente usa AWS/GCP/Azure.
+- Tú despliegas en su VPC.
+- Tú cobras setup + mantenimiento.
+
+---
+
+# 18. QUÉ HACER SI NO TIENES EXPERIENCIA VENDIENDO
+
+No necesitas ser experto. Necesitas proceso.
+
+## Método simple
+
+1. Escucha el problema.
+2. Resume el problema.
+3. Propón piloto pequeño.
+4. Cobra poco pero cobra.
+5. Entrega rápido.
+6. Pide feedback.
+7. Mejora.
+8. Sube precio.
+
+No intentes cerrar un contrato de $10,000 el primer día.  
+Cierra un piloto de $300.
+
+---
+
+# 19. RIESGOS PRINCIPALES Y SOLUCIONES
+
+## Riesgo 1: No conseguir clientes
+
+Solución:
+
+- Aumentar volumen de contacto.
+- Cambiar nicho.
+- Mejorar oferta.
+- Ofrecer piloto pago de bajo riesgo.
+
+---
+
+## Riesgo 2: Cliente no tiene GPU ni API
+
+Solución:
+
+- Usar cuenta API del cliente.
+- Empezar solo con imagen.
+- Vender implementación cuando haya presupuesto.
+
+---
+
+## Riesgo 3: Costos de generación suben
+
+Solución:
+
+- Nunca incluir consumo ilimitado.
+- Poner límites claros.
+- Cobrar packs adicionales.
+- Migrar a infraestructura del cliente.
+
+---
+
+## Riesgo 4: Cliente pide cambios infinitos
+
+Solución:
+
+- Definir alcance por escrito.
+- Número máximo de assets.
+- Número máximo de revisiones.
+- Horas extra pagadas.
+
+---
+
+## Riesgo 5: Problemas legales por contenido IA
+
+Solución:
+
+- No usar marcas famosas sin permiso.
+- No generar personas reales sin consentimiento.
+- No prometer derechos absolutos.
+- Usar modelos con licencia permisiva.
+- Incluir cláusula de uso responsable.
+
+---
+
+# 20. CONTRATO BÁSICO QUE DEBES USAR
+
+No necesitas un contrato gigante al inicio, pero sí dejar claro:
+
+1. Qué incluye el servicio.
+2. Qué no incluye.
+3. Límite de assets.
+4. Costos de infraestructura aparte.
+5. Pago por adelantado.
+6. Propiedad del contenido entregado.
+7. Confidencialidad.
+8. Uso responsable.
+9. Cancelación.
+10. Soporte disponible.
+
+Ejemplo de alcance:
+
+> El servicio incluye hasta 50 imágenes generadas al mes, 10 variaciones creativas y entrega en carpeta compartida. No incluye edición manual avanzada, generación ilimitada, costos de GPU/API externa ni integración personalizada fuera del alcance acordado.
+
+---
+
+# 21. SI TU IDEA ES PASAR DE $1M A $2M CON $0
+
+Si con “del uno al dos” te referías a pasar de **$1 millón a $2 millones de dólares**, entonces la conversación cambia.
+
+Con $0 no puedes pasar directamente de $1M a $2M porque esa etapa requiere:
+
+- Equipo comercial.
+- Infraestructura.
+- Cumplimiento legal.
+- Soporte enterprise.
+- Capital de trabajo.
+- Ciclo de ventas largo.
+
+Si estás en $0, el camino realista es:
+
+## Paso 1: $0 → $10k MRR
+
+Con servicios productizados.
+
+## Paso 2: $10k MRR → $100k ARR
+
+Con clientes recurrentes y partners.
+
+## Paso 3: $100k ARR → $500k ARR
+
+Con nicho específico, casos de éxito y automatización.
+
+## Paso 4: $500k ARR → $1M ARR
+
+Con ventas enterprise ligeras, contratos de $20k-$100k.
+
+## Paso 5: $1M ARR → $2M ARR
+
+Con equipo de ventas, canales y financiamiento.
+
+Para pasar de $1M a $2M con $0, necesitas una de estas tres vías:
+
+### Vía A: Revenue-based financing
+
+Si ya facturas $1M ARR, puedes conseguir financiamiento basado en ingresos.
+
+### Vía B: Clientes enterprise que pagan adelantado
+
+Contratos anuales con pago por adelantado.
+
+Ejemplo:
+
+- 20 clientes × $100k = $2M.
+- Si pagan anual por adelantado, obtienes caja.
+
+### Vía C: Partner estratégico
+
+Una consultora grande vende tu solución y financia parte del despliegue.
+
+Pero si hoy tienes $0, no empieces pensando en $2M. Empieza pensando en:
+
+> **$0 → $10k MRR → $100k ARR → $500k ARR → $1M ARR**
+
+---
+
+# 22. LA RUTA MÁS REALISTA CON $0
+
+Tu ruta debe ser esta:
+
+## Etapa 0: Caja rápida
+
+Vender servicios pequeños.
+
+Meta:
+
+> $500 - $2,000 en los primeros 30-60 días.
+
+## Etapa 1: Recurrencia
+
+Convertir servicios en mensualidades.
+
+Meta:
+
+> $1,000 - $3,000 MRR.
+
+## Etapa 2: Productización
+
+Convertir entrega manual en sistema repetible.
+
+Meta:
+
+> $8,000 - $12,000 MRR.
+
+## Etapa 3: Escala con partners
+
+Agencias y consultoras revenden tu solución.
+
+Meta:
+
+> $20,000 - $50,000 MRR.
+
+## Etapa 4: Enterprise ligero
+
+Implementaciones privadas más grandes.
+
+Meta:
+
+> $250k - $1M ARR.
+
+---
+
+# 23. PLAN MÍNIMO EJECUTABLE DESDE HOY
+
+Si hoy tienes $0, haz exactamente esto durante 14 días:
+
+## Día 1
+
+Elige nicho: agencias de marketing.
+
+## Día 2
+
+Define oferta:
+
+> “Implementamos un sistema privado de generación de imágenes con IA para agencias.”
+
+## Día 3
+
+Crea página simple en Notion o GitHub Pages.
+
+## Día 4
+
+Crea PDF de 1 página con oferta.
+
+## Día 5
+
+Haz lista de 300 agencias.
+
+## Día 6-10
+
+Contacta 50 agencias por día.
+
+## Día 11-12
+
+Haz llamadas con interesados.
+
+## Día 13
+
+Envía 5 propuestas.
+
+## Día 14
+
+Cierra 1-2 pilotos de $300-$500.
+
+Ese es tu primer paso real.
+
+---
+
+# 24. CONCLUSIÓN DURA PERO REALISTA
+
+Con $0 no puedes construir una empresa de $70M en 3 años directamente.  
+Pero sí puedes construir la base que luego permita levantar capital o crecer con ingresos.
+
+Tu plan no debe ser:
+
+> “Quiero llegar a $70M.”
+
+Tu plan debe ser:
+
+> “Voy a conseguir mis primeros 3 clientes pagos usando mi código y mi tiempo.”
+
+Después:
+
+> “Voy a convertir esos clientes en mensualidades.”
+
+Después:
+
+> “Voy a repetir el proceso con agencias.”
+
+Después:
+
+> “Voy a usar casos de éxito para vender implementaciones más caras.”
+
+Y después:
+
+> “Voy a escalar con partners, contratos enterprise y, si hace falta, capital.”
+
+Con $0, tu primera meta no es la escala.  
+Tu primera meta es **la caja**.
+
+Una vez tienes caja, puedes construir producto.  
+Una vez tienes producto, puedes escalar.  
+Una vez escalas, puedes pensar en millones.

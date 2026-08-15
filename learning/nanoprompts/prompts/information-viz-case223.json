@@ -1,0 +1,15 @@
+{
+  "id": "information-viz-case223",
+  "slug": "223",
+  "url": "/es/prompt-handbook/information-viz/#case223",
+  "title": "Diseño de Calendario Japonés 2026: Diseño Vertical de 12 Meses con Festivos y Espacios de Escritura",
+  "prompt": "Create a 2026 calendar for me. The calendar consists of 12 pages, one page per month. Each day must have a small box for writing, and no images should be placed inside the daily boxes. There should be a general notes section at the bottom of each month. All writing areas must remain mostly empty, as they are meant for recording. The 2026 calendar must include marked Japanese holidays (written in Japanese). Ensure the style is consistent and designed using the Nano Banana Pro model. The calendar should be in a vertical layout.",
+  "category": "information-viz",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20251216-13-output.webp"
+  ],
+  "local_image": null
+}

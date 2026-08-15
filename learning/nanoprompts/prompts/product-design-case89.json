@@ -1,0 +1,15 @@
+{
+  "id": "product-design-case89",
+  "slug": "89",
+  "url": "/es/prompt-handbook/product-design/#case89",
+  "title": "Tienda en Miniatura",
+  "prompt": "Tiny diorama shop for [BRAND]. Roof made of oversized [PRODUCT], big [BRAND] logo sign above the window, vendor handing a [PRODUCT] to a customer, ground covered with many [PRODUCT]. Hand-made polymer-clay look, studio macro photo, soft light, shallow depth of field, vertical 3:4",
+  "category": "product-design",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/case89_output.webp"
+  ],
+  "local_image": null
+}

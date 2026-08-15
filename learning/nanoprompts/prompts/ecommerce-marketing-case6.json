@@ -1,0 +1,15 @@
+{
+  "id": "ecommerce-marketing-case6",
+  "slug": "6",
+  "url": "/es/prompt-handbook/ecommerce-marketing/#case6",
+  "title": "Generación de Imagen con Múltiples Referencias",
+  "prompt": "A model is posing and leaning against a pink bmw. She is wearing the following items, the scene is against a light grey background. The green alien is a keychain and it's attached to the pink handbag. The model also has a pink parrot on her shoulder. There is a pug sitting next to her wearing a pink collar and gold headphones.",
+  "category": "ecommerce-marketing",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/case6_output.webp"
+  ],
+  "local_image": null
+}

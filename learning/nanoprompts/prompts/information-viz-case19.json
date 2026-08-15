@@ -1,0 +1,15 @@
+{
+  "id": "information-viz-case19",
+  "slug": "19",
+  "url": "/es/prompt-handbook/information-viz/#case19",
+  "title": "Razonamiento de Problemas Matemáticos",
+  "prompt": "Write the answer to the problem in the corresponding position based on the question",
+  "category": "information-viz",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/case19_output.webp"
+  ],
+  "local_image": null
+}

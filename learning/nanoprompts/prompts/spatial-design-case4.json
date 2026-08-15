@@ -1,0 +1,16 @@
+{
+  "id": "spatial-design-case4",
+  "slug": "4",
+  "url": "/es/prompt-handbook/spatial-design/#case4",
+  "title": "Extraer Edificios 3D / Crear Modelos Isométricos",
+  "prompt": "Make Image Daytime and Isometric [Building Only]",
+  "category": "spatial-design",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/case4_output2.webp",
+    "https://banana-prompt.nanoprompts.org/handbook/case4_output4.webp"
+  ],
+  "local_image": null
+}

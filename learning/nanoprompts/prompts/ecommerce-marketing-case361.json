@@ -1,0 +1,15 @@
+{
+  "id": "ecommerce-marketing-case361",
+  "slug": "361",
+  "url": "/es/prompt-handbook/ecommerce-marketing/#case361",
+  "title": "Póster Tributo Conceptual a Lorde: Composición de Fotomontaje en Cuadrícula",
+  "prompt": "Lorde. \\nAct as a high-end sports/music graphic designer creating a conceptual tribute poster. The style is a complex \"dual exposure photo-grid composite\" with mixed-media textures.\\nCENTRAL STRUCTURE (THE VESSEL):\\nThe central focus is a large-scale, high-contrast black and white portrait silhouette of Lorde (Ella Yelich-O\"Connor). This main portrait acts as the container.\\nTHE GRID FILL & TEXTURES (MIXED MEDIA):\\nThe interior of the silhouette is populated by a dense \"photo mosaic grid\" of concert shots and music video scenes from her career.\\nCRITICAL TEXTURE INSTRUCTION: Do not just paste flat photos. Apply artistic textures to various grid cells to create a tactile, collage feel. Use effects like:\\nHalftone Dots: Comic-book style raster patterns on some cells.\\nFabric/Embroidery: Subtle thread or canvas textures suggesting a stage outfit.\\nFilm Grain: Heavy noise on specific high-contrast action shots.\\nCOLOR STRATEGY:\\nThe base is Monochrome B&W. Use selective color overlays (Deep Violet and Neon Green for \"Melodrama\"/\"Solar Power\" vibes) ONLY on specific grid cells to create a rhythm.\\nTYPOGRAPHY & BRANDING (STRICT MICRO-SCALING):\\nTop Left (The Name): Write \"LORDE\" strictly using the font Inter Semibold.\\nKerning: Tight negative kerning (-4%).\\nSize: SMALL and discreet. It must occupy MAXIMUM 20% of the canvas width. Do NOT make it large or loud.\\nTop Right (The Symbol): Place a small fern symbol.\\nSize: VERY SMALL. It must occupy MAXIMUM 10% of the canvas width.\\nCOMPOSITION & BACKGROUND:\\nBackground: Off-white or light grey with a visible high-quality paper or concrete texture. It should not be flat digital white.\\nAlignment: Center the figure perfectly. Maintain wide negative space around the object. --ar 2:3",
+  "category": "ecommerce-marketing",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20260110-7-output.webp"
+  ],
+  "local_image": null
+}

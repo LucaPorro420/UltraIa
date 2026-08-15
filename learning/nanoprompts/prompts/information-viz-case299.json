@@ -1,0 +1,15 @@
+{
+  "id": "information-viz-case299",
+  "slug": "299",
+  "url": "/es/prompt-handbook/information-viz/#case299",
+  "title": "Anotación de Foto de Outfit de Moda: Pantalla de Teléfono en Primera Persona con Etiquetas de Marca y Precio",
+  "prompt": "A first-person perspective photograph of a hand holding a smartphone, showing a fashion outfit photo on its screen. The phone screen displays a full-body shot of a young woman with a ponytail in a park, wearing a grey puffer jacket, a beige cutout turtleneck, a white skirt, and black boots. Handwritten white text and arrows on the screen point to each item with brand names and prices in Japanese Yen (e.g., \"しまむら ¥5,980\", \"ユニクロ ¥2,290\"). The phone's camera app interface with a shutter button is visible. The background behind the phone is a slightly blurred autumn park with a wooden bench and fallen leaves.",
+  "category": "information-viz",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20251222-16-output.webp"
+  ],
+  "local_image": null
+}

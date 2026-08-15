@@ -1,0 +1,15 @@
+{
+  "id": "map-navigation-case47",
+  "slug": "47",
+  "url": "/es/prompt-handbook/map-navigation/#case47",
+  "title": "Vista Explosionada de Hardware",
+  "prompt": "Exploded view of a DSLR showing all its accessories and internal components such as lens, filter,  internal components, lens, sensor, screws, buttons, viewfinder, housing, and circuit board. Maintain red accents of the DSLR",
+  "category": "map-navigation",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/case47_output.webp"
+  ],
+  "local_image": null
+}

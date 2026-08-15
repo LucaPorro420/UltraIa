@@ -1,0 +1,15 @@
+{
+  "id": "product-design-case127",
+  "slug": "127",
+  "url": "/es/prompt-handbook/product-design/#case127",
+  "title": "Instrucciones de Ensamblaje de Muebles Estilo IKEA",
+  "prompt": "IKEA style furniture assembly instructions, full page layout, black and white line drawing, minimalist vector style. 1. Top title area: In the center of the top of the paper, clearly write the product name in bold black text: \"Simple Round Stool\". Next to it, draw a classic cartoon character smiling and giving a thumbs up.\n2. Step breakdown (2x2 grid layout):\nTop left (Step 1): The screen displays the parts list. It shows 1 round wooden board (seat), 4 identical cylindrical wooden legs, and 6 screws. Next to it, label in Chinese: \"Prepare Parts\".\nTop right (Step 2): The chair seat is flipped upside down. A hand is inserting a wooden leg into a hole in the base. There is a magnifying glass bubble next to it showing details of the screw aligned with the hole.\nBottom left (Step 3): All 4 legs are inserted, and a hand is holding an L-shaped wrench to tighten the last screw. The action has dynamic lines.\nBottom right (Step 4): Assembly complete. The chair is flipped back to the front and stands firmly on the ground. Next to it is a large Chinese text: \"Done!\".\nOverall texture: The paper surface has slight creases, even lighting, sharp and clear text and lines.\nRatio 16:9",
+  "category": "product-design",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/1126-1-output.webp"
+  ],
+  "local_image": null
+}

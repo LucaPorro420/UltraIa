@@ -1,0 +1,15 @@
+{
+  "id": "information-viz-case227",
+  "slug": "227",
+  "url": "/es/prompt-handbook/information-viz/#case227",
+  "title": "Diseño de Pantalla de Equipamiento: Guerrero Cyberpunk con Desglose Detallado de Equipo",
+  "prompt": "Make the layout resemble an equipment screen in a game. Divide the image into two sections: on the left, display the character, a cyberpunk warrior in futuristic armor. On the right, place every piece of clothing and equipment the character is wearing into separate grid slots, each with a label and a short description of its function below it.",
+  "category": "information-viz",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20251216-17-output.webp"
+  ],
+  "local_image": null
+}

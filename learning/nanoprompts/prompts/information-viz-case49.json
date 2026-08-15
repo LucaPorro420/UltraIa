@@ -1,0 +1,15 @@
+{
+  "id": "information-viz-case49",
+  "slug": "49",
+  "url": "/es/prompt-handbook/information-viz/#case49",
+  "title": "Extraer Sujeto y Colocar en Capa Transparente",
+  "prompt": "extract the [samurai] and put transparent background",
+  "category": "information-viz",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/case49_output.webp"
+  ],
+  "local_image": null
+}

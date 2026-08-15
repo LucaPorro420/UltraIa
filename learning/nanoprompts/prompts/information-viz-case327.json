@@ -1,0 +1,15 @@
+{
+  "id": "information-viz-case327",
+  "slug": "327",
+  "url": "/es/prompt-handbook/information-viz/#case327",
+  "title": "Especificación Técnica de Ropa para Mascotas Arabian Saluki: Ilustración de Confección de Patrones y Artesanía",
+  "prompt": "Professional-grade pet apparel pattern making and craft technical specification illustration (Pet Apparel Tech Pack Illustration), horizontal composition, left-right column layout. Left side: An Arabian Saluki dog, realistic body proportions, full body display. Pet wearing royal Arabian ceremonial robe with golden embroidery and traditional patterns, garment structure strictly conforms to pet body type. Clearly shows: back length covers but does not press tail root, chest girth loose, abdomen significantly shortened, front leg armpit allowance for movement, neckline front low back high. Commercial photography studio lighting, solid color background. Right side (Technical information area): Upper section - Pet garment pattern layout displaying complete pattern pieces: Back Panel with Arabian embroidery detail, Chest Panel with royal motifs, Sleeve Panel for front legs, Neck Binding with golden trim. Each pattern piece with clear dimension markings including length (cm), width (cm), seam allowance: 1cm, grain line arrows. Middle section - Finished garment flat lay view (Front View / Back View), realistic fabric texture, using fine lines and arrows to mark back length, chest girth, neck girth, front leg opening. Lower section - Pet garment sewing and craft diagram clearly marked with stitch type (overlocking / flat seam / double line reinforcement), sewing order (numbered sequence), reinforced areas (armpit, neckline), closure type (velcro / buckle strap), using dashed lines, solid lines and arrows to express sewing paths. Overall style: Industrial-grade apparel technical drawing style, similar to apparel CAD / Tech Pack, minimalist white or light grey background, high resolution, information clear and professionally rigorous.",
+  "category": "information-viz",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20251224-7-output.webp"
+  ],
+  "local_image": null
+}

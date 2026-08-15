@@ -1,0 +1,15 @@
+{
+  "id": "artistic-style-case110",
+  "slug": "110",
+  "url": "/es/prompt-handbook/artistic-style/#case110",
+  "title": "Retrato Estilo Pixar",
+  "prompt": "3D avatar of the young man in the image attached, smiling happily, clean white background, conceptual digital art in Pixar-style, high quality, soft lighting, smooth textures, vibrant colors, realistic proportions with a cartoon touch & studio render look.",
+  "category": "artistic-style",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/case110_output.webp"
+  ],
+  "local_image": null
+}

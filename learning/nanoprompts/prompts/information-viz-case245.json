@@ -1,0 +1,15 @@
+{
+  "id": "information-viz-case245",
+  "slug": "245",
+  "url": "/es/prompt-handbook/information-viz/#case245",
+  "title": "Armored Trooper Scopedog Visión Térmica de Rayos X: Render Técnico Industrial Militar",
+  "prompt": "Armored Trooper ATM-09-ST Scopedog, classic first-generation AT from Armored Trooper VOTOMS. Tight frontal view, perfect orthographic projection, zero perspective distortion, strict symmetrical composition. High-contrast military-industrial scientific render, cold war-era weapons lab visualization. Pure black void background, absolute vacuum environment, no reflections, no floor, no shadows except self-emission. False-color thermal X-ray hybrid imaging with heavy mechanical wear. Semi-transparent heavy armor plating revealing extremely sharp and brutally detailed internal skeleton and systems: central torso-mounted turbo-custom plasma fusion reactor, exposed hydraulic muscle cylinders, high-pressure fluid lines, belt-fed 30mm gatling arm punch, rear skirt-mounted rocket thrusters, dense array of infrared/optical sensors. Heatmap gradient from cold blues to molten red hotspots. Harsh cyan-white plasma glow from reactor vents. Authentic battle damage, bullet dents, scorch marks, chipped paint, visible weld lines, rivets. 8K resolution, ultra-detailed mechanical realism, military technical manual aesthetic.",
+  "category": "information-viz",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20251217-2-output.webp"
+  ],
+  "local_image": null
+}

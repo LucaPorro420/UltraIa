@@ -1,0 +1,15 @@
+{
+  "id": "artistic-style-case34",
+  "slug": "34",
+  "url": "/es/prompt-handbook/artistic-style/#case34",
+  "title": "La Imagen de Referencia Controla la Expresión del Personaje",
+  "prompt": "Character reference from Image 1 / Change to the expression from Image 2",
+  "category": "artistic-style",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/case34_output.webp"
+  ],
+  "local_image": null
+}

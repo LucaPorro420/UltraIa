@@ -1,0 +1,15 @@
+{
+  "id": "information-viz-case14",
+  "slug": "14",
+  "url": "/es/prompt-handbook/information-viz/#case14",
+  "title": "Infografía de Artículo",
+  "prompt": "Generate an infographic for the article content\nRequirements:\n1. Translate the content into English and extract key information from the article\n2. Keep the content in the image concise, only retaining the main title\n3. Use English text in the image\n4. Add rich and cute cartoon characters and elements",
+  "category": "information-viz",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/case14_output.webp"
+  ],
+  "local_image": null
+}

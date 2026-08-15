@@ -1,0 +1,15 @@
+{
+  "id": "information-viz-case122",
+  "slug": "122",
+  "url": "/es/prompt-handbook/information-viz/#case122",
+  "title": "Notas Dibujadas a Mano del Tutorial del Cubo Rubik",
+  "prompt": "Hand-drawn notes for Rubik's Cube tutorial. Including cube structure, basic symbols, beginner's method and common formulas. 9:16, 2k",
+  "category": "information-viz",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/1124-7-output.webp"
+  ],
+  "local_image": null
+}

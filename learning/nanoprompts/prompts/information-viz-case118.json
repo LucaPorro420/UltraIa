@@ -1,0 +1,15 @@
+{
+  "id": "information-viz-case118",
+  "slug": "118",
+  "url": "/es/prompt-handbook/information-viz/#case118",
+  "title": "Arte Floral de Cálculo",
+  "prompt": "A hard calculus integration problem written and solved on a blackboard, but the text itself and the chalk is sort of turned into this coloured artwork that looks like a flower. (as a photo)",
+  "category": "information-viz",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/1123-11-output.webp"
+  ],
+  "local_image": null
+}

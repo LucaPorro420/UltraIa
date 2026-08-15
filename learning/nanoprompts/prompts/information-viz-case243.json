@@ -1,0 +1,15 @@
+{
+  "id": "information-viz-case243",
+  "slug": "243",
+  "url": "/es/prompt-handbook/information-viz/#case243",
+  "title": "Crítica con Bolígrafo Rojo de Perfil de Redes Sociales: Captura de Pantalla Impresa con Críticas Escritas a Mano",
+  "prompt": "Generate an image of a social media profile page, print it out, then use red ink to wildly add handwritten Chinese annotations, doodles, and scribbles. The doodle content mainly roasts and critiques the content shown on the page with humorous commentary. Also add some small cutout stickers for decoration. The overall style should look like someone printed a screenshot and went crazy marking it up with red pen.",
+  "category": "information-viz",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20251216-33-output.webp"
+  ],
+  "local_image": null
+}

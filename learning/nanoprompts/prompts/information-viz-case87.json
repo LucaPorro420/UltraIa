@@ -1,0 +1,15 @@
+{
+  "id": "information-viz-case87",
+  "slug": "87",
+  "url": "/es/prompt-handbook/information-viz/#case87",
+  "title": "Gráfico de Evolución en Blanco y Negro",
+  "prompt": "Generate an evolutionary progression chart in a minimalist black-and-white style, \nshowing the evolution from the earliest apes to humans and finally into a banana.",
+  "category": "information-viz",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/case87_output.webp"
+  ],
+  "local_image": null
+}

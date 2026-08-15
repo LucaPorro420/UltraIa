@@ -1,0 +1,15 @@
+{
+  "id": "information-viz-case230",
+  "slug": "230",
+  "url": "/es/prompt-handbook/information-viz/#case230",
+  "title": "Diseño de Progresión de Personaje Caballero Fantástico: 4 Etapas de Evolución de Novato a Legendario",
+  "prompt": "Game design illustration. Create beginner, intermediate, advanced, and elite versions of a fantasy knight character, each with a distinct appearance, and arrange them in order. The character names are: Novice Knight, Veteran Knight, Master Knight, Legendary Knight.",
+  "category": "information-viz",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20251216-20-output.webp"
+  ],
+  "local_image": null
+}

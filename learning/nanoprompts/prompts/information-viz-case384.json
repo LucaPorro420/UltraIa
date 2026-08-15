@@ -1,0 +1,15 @@
+{
+  "id": "information-viz-case384",
+  "slug": "384",
+  "url": "/es/prompt-handbook/information-viz/#case384",
+  "title": "Infografía Anatómica Ultra Limpia: Estructura Detallada del Cuerpo Humano",
+  "prompt": "HUMAN BODY ultra-clean anatomy infographic",
+  "category": "information-viz",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20260201-6-output.webp"
+  ],
+  "local_image": null
+}

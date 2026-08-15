@@ -1,0 +1,15 @@
+{
+  "id": "information-viz-case126",
+  "slug": "126",
+  "url": "/es/prompt-handbook/information-viz/#case126",
+  "title": "Notas Dibujadas a Mano del Tutorial del Cubo Rubik (Japonés)",
+  "prompt": "Hand-drawn notes for Rubik's Cube tutorial. Including cube structure, basic symbols, seven-step method and common formulas. 9:16, 2k. Hand-drawn text in [Japanese]",
+  "category": "information-viz",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/1124-11-output.webp"
+  ],
+  "local_image": null
+}

@@ -1,0 +1,15 @@
+{
+  "id": "artistic-style-case252",
+  "slug": "252",
+  "url": "/es/prompt-handbook/artistic-style/#case252",
+  "title": "Símbolos Matemáticos Monumentales como Ruinas Antiguas del Desierto en Cuadrícula 2x2",
+  "prompt": "A 2x2 grid of 4 monumental mathematical symbols built as ancient desert ruins in sandstone [Top Left: The Integral (∫) as a collapsed arch-aqueduct, wind-eroded blocks, carved microtext equations, tiny caravans for scale] [Top Right: The Sigma (Σ) as a stepped fortress-ziggurat with sharp terraces, long shadows, sand drifts collecting in corners] [Bottom Left: The Pi (π) as two colossal pylons and a lintel bridge over a narrow oasis canal, chipped stone, scattered rubble geometry] [Bottom Right: A Penrose Triangle as impossible ruins half-buried in dunes, optical illusion architecture, Escher perspective, sunlight slicing across paradox edges] Aerial oblique view, golden desert haze, crisp hard sunlight, dramatic shadows, photoreal ruins texture, subtle river ribbon, swiss 2x2 grid layout.",
+  "category": "artistic-style",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20251218-1-output.webp"
+  ],
+  "local_image": null
+}

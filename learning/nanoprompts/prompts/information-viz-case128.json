@@ -1,0 +1,15 @@
+{
+  "id": "information-viz-case128",
+  "slug": "128",
+  "url": "/es/prompt-handbook/information-viz/#case128",
+  "title": "Infografía de Cómo Doblar una Grulla de Papel",
+  "prompt": "Create an infographic to illustrate \"How to Fold a Paper Crane\". Include a breakdown diagram of the 6 key folding steps, with the direction of the creases (mountain fold/valley fold) labeled, in a minimalist line style.",
+  "category": "information-viz",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/1126-3-output.webp"
+  ],
+  "local_image": null
+}

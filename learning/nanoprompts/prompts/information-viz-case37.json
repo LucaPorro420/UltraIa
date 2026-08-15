@@ -1,0 +1,15 @@
+{
+  "id": "information-viz-case37",
+  "slug": "37",
+  "url": "/es/prompt-handbook/information-viz/#case37",
+  "title": "Análisis de Maquillaje",
+  "prompt": "Analyze this image. Use a red pen to mark areas that can be improved\nAnalyze this image. Use a red pen to denote where you can improve",
+  "category": "information-viz",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/case37_output.webp"
+  ],
+  "local_image": null
+}

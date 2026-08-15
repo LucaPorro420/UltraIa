@@ -1,0 +1,15 @@
+{
+  "id": "spatial-design-case59",
+  "slug": "59",
+  "url": "/es/prompt-handbook/spatial-design/#case59",
+  "title": "Generación de Escena Estilo Minecraft",
+  "prompt": "Using this location, create an isometric HD-2D Minecraft-style image of the landmark (buildings only).",
+  "category": "spatial-design",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/case59_output.webp"
+  ],
+  "local_image": null
+}

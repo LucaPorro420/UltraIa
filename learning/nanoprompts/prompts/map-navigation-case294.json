@@ -1,0 +1,15 @@
+{
+  "id": "map-navigation-case294",
+  "slug": "294",
+  "url": "/es/prompt-handbook/map-navigation/#case294",
+  "title": "Diorama Post-Apocalíptico de New Zealand: Mapa Miniatura de Mesa con Conexiones de Rastro de Energía Brillante",
+  "prompt": "A detailed miniature diorama photograph of a post-apocalyptic landscape on a tabletop. Overgrown city ruins and forests are traversed by small figures of survivors and zombies, and abandoned vehicles like trucks and Land Rovers. Glowing, swirling energy trails in blue, green, and orange connect glowing labeled points marked \"Auckland,\" \"Wellington,\" \"Christchurch,\" \"Queenstown,\" and \"Fiordland\" across the model. The scene is lit by natural light from a window in the background, with a shallow depth of field giving it a tilt-shift effect.",
+  "category": "map-navigation",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20251222-11-output.webp"
+  ],
+  "local_image": null
+}

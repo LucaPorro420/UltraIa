@@ -1,0 +1,15 @@
+{
+  "id": "ecommerce-marketing-case359",
+  "slug": "359",
+  "url": "/es/prompt-handbook/ecommerce-marketing/#case359",
+  "title": "Noche de Mahjong en Redes Sociales: 4 Personajes en Mesa Flat Lay Surrealista",
+  "prompt": "A 9:16 ultra-wide-angle surreal top-down flat lay photography. A group of 4 characters sitting around a square table, one on each side. Camera pulls back significantly, creating massive negative space (empty floor area) around the characters and table, ensuring clean, minimalist composition.\\n\\nScene: Characters wearing their classic outfits.\\n\\nTable is a custom prop designed like a social media post: only top and bottom edges have solid white strips. \\n- Top white strip: Avatar image with [A pixel art Kiwi bird], Username \"[NZ_Vibes]\", time \"Just now\", \"...\" icon.\\n- Bottom white strip: \"Comment\" icon, \"Like\" icon (thumbs up), separator line.\\n\\nCenter of table is painted [Matte Black #121212]. Objects on table: [Plate of Fish and Chips, Pavlova, and craft beer bottles].\\nImportant: All objects and interacting hands are strictly confined within this central Black painted area. Nothing extends onto white strips or beyond table. Floor background is [Polished Concrete Grey], creating visual separation. Professional studio lighting with distinct cast shadows. 8K, sharp focus.\\n\\nCharacters: Gundam RX-78-2, Godzilla, Totoro, Astro Boy.\\nAction: Playing Mahjong. --ar 9:16",
+  "category": "ecommerce-marketing",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20260110-5-output.webp"
+  ],
+  "local_image": null
+}

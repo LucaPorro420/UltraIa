@@ -1,0 +1,15 @@
+{
+  "id": "artistic-style-case262",
+  "slug": "262",
+  "url": "/es/prompt-handbook/artistic-style/#case262",
+  "title": "Arte Atmosférico Minimalista de Nueva Zelanda en Cuatro Paneles con Estilo de Fotografía Monocromática Desvanecida",
+  "prompt": "Create a four-panel grid featuring minimalist atmospheric art in faded monochrome photography style on high-quality matte paper. The texture should have subtle film grain with soft, creamy beige and desaturated grey tones creating a clean, dreamy, hazy atmosphere with low contrast. The four panels are arranged as follows: Top left shows layered misty mountains of the New Zealand Southern Alps with a tiny sharp silhouette of Auckland city at the very bottom. Top right depicts a lone traveler walking on smooth sand dunes of Te Paki in Northland into the fog, with clean lines and vast negative space. Bottom left features the Wellington waterfront skyline rising faintly from heavy harbor mist, ethereal and ghost-like. Bottom right presents abstract zen geometry with concentric water ripples under a large pale sun, with a lone distant Sky Tower silhouette. The overall mood is contemplative and serene, avoiding torn paper, dirt, stains, grunge, scratches, high contrast, harsh lines, blur, mess, or distortion.",
+  "category": "artistic-style",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20251220-1-output.webp"
+  ],
+  "local_image": null
+}

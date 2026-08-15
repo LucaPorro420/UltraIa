@@ -1,0 +1,15 @@
+{
+  "id": "information-viz-case238",
+  "slug": "238",
+  "url": "/es/prompt-handbook/information-viz/#case238",
+  "title": "Proceso de Construcción de la Sagrada Familia en Vistas de Ingeniería Exquisitas: Viaje de Construcción de 0 a 1",
+  "prompt": "Using exquisite engineering views, recreate the entire construction process of the Sagrada Familia from 0 to 1, not limited to the building itself, but also including the extraction and transportation of engineering materials. Especially highlighting the most breathtaking aspects of that era. Ultra-wide format, 8K resolution. Technical diagrams showing quarrying, stone carving, transportation methods, scaffolding systems, construction phases, and Antoni Gaudí's innovative structural techniques.",
+  "category": "information-viz",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20251216-30-output.webp"
+  ],
+  "local_image": null
+}

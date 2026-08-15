@@ -1,0 +1,15 @@
+{
+  "id": "ecommerce-marketing-case21",
+  "slug": "21",
+  "url": "/es/prompt-handbook/ecommerce-marketing/#case21",
+  "title": "Outfit del Día OOTD",
+  "prompt": "Choose the person in Image 1 and dress them in all the clothing and accessories from Image 2. Shoot a series of realistic OOTD-style photos outdoors, using natural lighting, a stylish street style, and clear full-body shots. Keep the person's identity and pose from Image 1, but show the complete outfit and accessories from Image 2 in a cohesive, stylish way.",
+  "category": "ecommerce-marketing",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/case21_output.webp"
+  ],
+  "local_image": null
+}

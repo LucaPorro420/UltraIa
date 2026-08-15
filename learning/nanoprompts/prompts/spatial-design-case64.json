@@ -1,0 +1,15 @@
+{
+  "id": "spatial-design-case64",
+  "slug": "64",
+  "url": "/es/prompt-handbook/spatial-design/#case64",
+  "title": "Tarjeta Plegable A6 de Escena",
+  "prompt": "Draw an A6 folding card: when opened, it reveals a complete 3D spherical tiny house with a miniature paper garden and a bonsai tree inside.",
+  "category": "spatial-design",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/case64_output.webp"
+  ],
+  "local_image": null
+}

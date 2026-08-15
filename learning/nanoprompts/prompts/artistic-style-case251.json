@@ -1,0 +1,15 @@
+{
+  "id": "artistic-style-case251",
+  "slug": "251",
+  "url": "/es/prompt-handbook/artistic-style/#case251",
+  "title": "Hombre en Miniatura Escribiendo Prompt a Mano en Pantalla de Smartphone con Pluma Diminuta",
+  "prompt": "A miniature photography scene: A small-scale male figure standing on a miniature wooden folding ladder, leaning forward with a focused expression, using a tiny black pen to handwrite text directly in the input box on a smartphone screen, rather than typing it. The phone is an iPhone, placed upright on a smooth light gray surface. The screen shows the Gemini interface, with a large chat input box at the center. The character is handwriting on the screen, and you can clearly see the text being written: \"Prompt: A cute cat with a red \" (incomplete as originally written, the text appears as black handwritten strokes, not keyboard-typed font), the cursor still blinking nearby, with a blue send button on the right side of the input box. This miniature man is dressed in business casual: dark suit jacket with light-colored shirt and gray pants. He holds the small black pen with both hands, the pen tip touching the screen, writing stroke by stroke in the input box, his posture slightly bent, showing dedication and focus. Under his feet, the wooden folding ladder has clear rungs, in light brown color with natural wood grain texture. The lighting is soft, even, and diffused, casting delicate and realistic shadows from the miniature figure and wooden ladder onto the phone screen and background surface. The phone screen emits bright, cool-toned white and interface light. The overall composition is from a slightly overhead angle. The background is minimalist and clean, in uniform light gray. The overall image presents an interesting yet realistic conceptual photography style, maintaining sharp and clear focus on both the miniature elements and phone interface.",
+  "category": "artistic-style",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20251217-8-output.webp"
+  ],
+  "local_image": null
+}

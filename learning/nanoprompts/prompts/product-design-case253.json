@@ -1,0 +1,15 @@
+{
+  "id": "product-design-case253",
+  "slug": "253",
+  "url": "/es/prompt-handbook/product-design/#case253",
+  "title": "Transforma Monumentos de EE.UU. en Dispositivos de Hogar Inteligente: Fotografía de Producto en Cuadrícula 3x3",
+  "prompt": "Step 1: Select 3 famous architectural landmarks of the United States (Statue of Liberty, Golden Gate Bridge, Empire State Building)\nStep 2: Deeply analyze geometry, structural principles, material appearances, proportions, and symbolic features.\nStep 3: Scale concepts down dramatically and fuse elements into 9 distinct everyday high-tech home or personal devices (kitchen, desk, wellness, garden).\nStep 4: Ensure each invention solves a real 2025 consumer pain point with smart features (app control, sustainability, modularity).\nStep 5: Produce a 3x3 grid of premium product photography on relevant surfaces (marble counter, oak desk), shallow DOF, luxurious lighting, catchy inventive names underneath. Include subtle UI glows or motion hints for functionality. include names",
+  "category": "product-design",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20251218-2-output.webp"
+  ],
+  "local_image": null
+}

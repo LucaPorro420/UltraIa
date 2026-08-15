@@ -1,0 +1,15 @@
+{
+  "id": "manga-comic-case201",
+  "slug": "201",
+  "url": "/es/prompt-handbook/manga-comic/#case201",
+  "title": "Portada de Manga Japonés Realista en Perspectiva en Primera Persona de Librería",
+  "prompt": "A real-life photograph shot from a first-person perspective, showing someone in a bookstore holding a Japanese manga. The manga content will be an exaggerated interpretation of important elements from the reference image. The manga title will be highly original, lengthy, and engaging. The cover design will be extremely high-end, original, unexpected, with extraordinary sensory experience (while faithfully recreating the reference image). Title text layout is dynamic. Inspired by 'Narou' genre (but will never use the name 'Narou' and will absolutely not use simple titles). The manga will have a dust jacket, with profound and inspiring content. Manga author name: 'Pocket Camera'. Character name: zlbigger. Manga character design can reference the uploaded image. Japanese text style.",
+  "category": "manga-comic",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20251215-8-output.webp"
+  ],
+  "local_image": null
+}

@@ -1,0 +1,15 @@
+{
+  "id": "artistic-style-case357",
+  "slug": "357",
+  "url": "/es/prompt-handbook/artistic-style/#case357",
+  "title": "Esperanza Tras la Lluvia: Ilustración Puzzle en Cuadrícula 3x3 de Múltiples Estilos",
+  "prompt": "A 3x3 grid illustration puzzle. The overall atmosphere is warm, healing, inspiring, and comfortable. A unified warm color palette coordinates the entire grid. \\n\\nTheme: The first rainbow appearing over Milford Sound, New Zealand after a gentle rain.\\n\\nRow 1: Gentle & Magical\\n1-1 (Puuung Style): A couple sitting on a wooden dock at Milford Sound, sharing a hot drink under the rainbow, warm golden light.\\n1-2 (Soosh Style): A giant, gentle misty mountain spirit protecting a tiny hiker from the lingering drizzle, watercolor texture.\\n1-3 (Taryn Knight Style): Glowworms in a nearby cave illuminating the scene with soft bioluminescence, whimsical nature.\\n\\nRow 2: Philosophy & Center\\n2-1 (Mari Andrew Style): A simple hand-drawn chart showing \"Rain + Sun = Rainbow\", exploring the necessity of hardships for beauty.\\n2-2 (Center Title): A hand-drawn round badge with the text \"Hope After Rain\" in a beautiful font, surrounded by fern motifs.\\n2-3 (Ming Mirin Style): A bright, pastel scene of a kiwi bird looking up at the rainbow happily.\\n\\nRow 3: Healing & Company\\n3-1 (Big Orange Style): A very round, chubby sheep looking incredibly fluffy and satisfied under the rainbow.\\n3-2 (Kubomono Style): A tiny human leaning against a giant, realistic but soft Kea parrot, finding peace in the landscape.\\n3-3 (Charlene Chua Style): Anthropomorphic native birds (Tui, Fantail) celebrating the sunshine and rainbow in a storybook style. --ar 1:1",
+  "category": "artistic-style",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20260110-3-output.webp"
+  ],
+  "local_image": null
+}

@@ -1,0 +1,15 @@
+{
+  "id": "manga-comic-case183",
+  "slug": "183",
+  "url": "/es/prompt-handbook/manga-comic/#case183",
+  "title": "Ilustración Multi-Panel de Mujer Realista en Aventura de Compras de Cómic",
+  "prompt": "{PROMPT 👇🏻\n  \"title\": \"Shopping Version\",\n  \"description\": {\n    \"real_woman\": {\n      \"appearance\": \"A real human woman wearing a stylish polka dot dress\",\n      \"pose\": \"Holding shopping bags with a happy expression\",\n      \"style\": \"Full photorealistic photography\",\n      \"details\": \"Vibrant colors, sharp detail, realistic skin texture, natural lighting\",\n      \"restriction\": \"Must remain photorealistic and not cartoon\"\n    },\n    \"background_comic\": {\n      \"style\": \"Intricately detailed multi-panel black-and-white comic strip\",\n      \"character\": \"Same woman depicted as a cartoon\",\n      \"story_panels\": [\n        \"Entering the store excitedly\",\n        \"Fighting over sale items\",\n        \"Trying ridiculous outfits\",\n        \"Struggling with an overflowing cart\",\n        \"Checking an empty wallet with a shocked expression\"\n      ],\n      \"connection\": \"Comic narrative continues directly from her realistic shopping pose\"\n    },\n    \"overall_goal\": \"Create a seamless story where the photorealistic woman is the 'real moment' inside her own comic adventure\"\n  }\n}",
+  "category": "manga-comic",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20251213-7-output.webp"
+  ],
+  "local_image": null
+}

@@ -1,0 +1,15 @@
+{
+  "id": "artistic-style-case341",
+  "slug": "341",
+  "url": "/es/prompt-handbook/artistic-style/#case341",
+  "title": "Set de Stickers de Vida Cotidiana: Cuadrícula 3x3 de Escenas de Estilo de Vida Europeo-Asiático en Estilo Doodle Plano",
+  "prompt": "Create a 3x3 grid of nine distinct circular stickers, each depicting a different daily life scene with European and Asian cultural elements. Each sticker should have a flat doodle style with a bold black outline, bright pastel colors, simple flat shapes, minimal shading, and cute rounded proportions. Each sticker should be isolated on a white background and be high resolution. Below each sticker, add a short descriptive text label in a cute readable font. The nine scenes should be: 1. A person happily tending to a balcony garden with Swiss Alpine flowers, titled 'Alpine Garden'. 2. Someone reading a book comfortably on a Scandinavian-style sofa with a cup of Japanese matcha tea, titled 'Hygge Reading'. 3. A person cooking French ratatouille in a cozy kitchen, titled 'French Cooking'. 4. Someone enjoying a walk in a Parisian park with a small dog near the Eiffel Tower in background, titled 'Paris Stroll'. 5. A person doing yoga or tai chi gracefully in a Japanese zen garden setting, titled 'Mindful Movement'. 6. Someone working on origami or Nordic knitting crafts, titled 'Creative Crafts'. 7. A person enjoying a quiet espresso break at an Italian cafe with a tiny croissant, titled 'Espresso Break'. 8. Someone listening to classical music with headphones in front of a Viennese concert hall illustration, titled 'Vienna Sounds'. 9. A person tidying up their minimalist Japanese-inspired room with a smile, titled 'Zen Space'. Color palette should include soft pastels with European and Asian aesthetic influences - lavender, mint green, peachy pink, sky blue, warm cream.",
+  "category": "artistic-style",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20251227-11-output.webp"
+  ],
+  "local_image": null
+}

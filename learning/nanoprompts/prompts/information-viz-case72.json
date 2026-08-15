@@ -1,0 +1,15 @@
+{
+  "id": "information-viz-case72",
+  "slug": "72",
+  "url": "/es/prompt-handbook/information-viz/#case72",
+  "title": "Extracción de Componentes",
+  "prompt": "Cut out each component and create a model sheet that retains the hologram.",
+  "category": "information-viz",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/case72_output.webp"
+  ],
+  "local_image": null
+}

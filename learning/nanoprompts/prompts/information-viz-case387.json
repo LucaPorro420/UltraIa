@@ -1,0 +1,15 @@
+{
+  "id": "information-viz-case387",
+  "slug": "387",
+  "url": "/es/prompt-handbook/information-viz/#case387",
+  "title": "Interfaz AR de Venta Minorista Futurista: Experiencia de Compra en Realidad Mixta de Nueva Generación",
+  "prompt": "First-person perspective inside a brightly lit supermarket aisle or section. Realistic human hands are holding Nissin Cup Noodles close to the camera. The product’s iconic white styrofoam cup, red lettering, steam rising are clearly visible under natural store lighting.\n\nThe Cup Noodles is surrounded by a multi-layered holographic augmented reality interface displaying relevant product information, including calories, sodium, spice level.\n\nThe AR UI elements smoothly shift and reorganize based on the viewer’s gaze direction, as if dynamically responding to user focus. In the left peripheral vision, a vertical semi-transparent shopping list is visible with checked-off items, where Pocari Sweat is highlighted as the currently active selection.\n\nHyper-realistic mixed reality, clean futuristic AR design, glass-like UI panels, soft ambient glow, realistic lighting and shadows, natural depth of field, immersive first-person interface, showcasing next-generation retail technology.",
+  "category": "information-viz",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20260201-9-output.webp"
+  ],
+  "local_image": null
+}

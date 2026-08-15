@@ -1,0 +1,15 @@
+{
+  "id": "information-viz-case382",
+  "slug": "382",
+  "url": "/es/prompt-handbook/information-viz/#case382",
+  "title": "Infografía de Receta Moderna: Focaccia Italiana Auténtica con Romero",
+  "prompt": "\"style\": \"ultra_clean_modern\",\n  \"dish\": \"Authentic Italian Focaccia with Rosemary\",\n  \"presentation\": {\n    \"form\": \"sliced into squares\",\n    \"serving\": \"minimal board or plate\",\n    \"perspective\": \"slightly elevated, dynamic angled view\"\n  },\n  \"hero_visual\": {\n    \"main_item\": \"golden dimpled focaccia\",\n    \"toppings\": [\"blistered cherry tomatoes\", \"fresh rosemary\", \"glossy olive oil\"]\n  },\n  \"layout\": {\n    \"ingredients\": \"neatly arranged around main image\",\n    \"steps\": \"step-by-step instructions\",\n    \"tips\": \"helpful cooking tips\"\n  },\n  \"composition\": {\n    \"lighting\": \"bright, appetizing\",\n    \"balance\": \"visually balanced\",\n    \"focus\": \"clarity and modern design\"\n  }",
+  "category": "information-viz",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20260201-1-output.webp"
+  ],
+  "local_image": null
+}

@@ -1,0 +1,15 @@
+{
+  "id": "information-viz-case386",
+  "slug": "386",
+  "url": "/es/prompt-handbook/information-viz/#case386",
+  "title": "Estilo de Anotación Técnica: Análisis del Tocadiscos Vintage Braun SK4",
+  "prompt": "Create an infographic image of A vintage Braun SK4 record player, combining a realistic photograph or photorealistic render of the object with technical annotation overlays placed directly on top.\n\nUse black ink–style line drawings and text (technical pen / architectural sketch look) on a pure white studio background.\n\nInclude:\n•Key component labels\n•Internal cutaway or exploded-view outlines (where relevant)\n•Measurements, dimensions, and scale markers\n•Material callouts and quantities\n•Arrows indicating function, force, or flow (air, sound, power, pressure, movement)\n•Simple schematic or sectional diagrams where applicable\n\nPlace the title Braun SK4 inside a hand-drawn technical annotation box in one corner.\n\nStyle & layout rules:\n•The real object remains clearly visible beneath the annotations\n•Annotations look hand-sketched, technical, and architectural\n•Clean composition with balanced negative space\n•Educational, museum-exhibit / engineering-manual vibe\n\nVisual style:\nMinimal technical illustration aesthetic.\nBlack linework layered over realistic imagery.\nPrecise but slightly hand-drawn feel.\n\nColor palette:\nPure white background.\nBlack annotation lines and text only.\nNo colors.\n\nOutput:\n1080 × 1080 resolution\nUltra-crisp\nSocial-feed optimized\nNo watermark",
+  "category": "information-viz",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20260201-8-output.webp"
+  ],
+  "local_image": null
+}

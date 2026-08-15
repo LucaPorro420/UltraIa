@@ -1,0 +1,15 @@
+{
+  "id": "information-viz-case219",
+  "slug": "219",
+  "url": "/es/prompt-handbook/information-viz/#case219",
+  "title": "Pizarra de Tropos Clásicos del Cine Hollywood: 12+ Escenas Cinematográficas Icónicas Explicadas",
+  "prompt": "Whiteboard layout explaining classic Hollywood movie tropes and iconic scenes. At the top of the board, pin a paper label with the handwritten title: 'Hollywood Classic Scenes Explained' in large bold characters. Below the title, begin listing 12 or more classic cinematic tropes or storytelling moments in a clean academic format. Under each listed trope, include a small movie still (film screenshot) representing the scene, along with a brief handwritten-style explanation summarizing its meaning, emotional impact, or narrative purpose. Use colored marker lines (red, blue, yellow) to highlight important keywords, arrows, and structural connections—similar to film theory notes from a screenwriting lecture. Create a warm nostalgic lighting mood with soft shadows to give the whiteboard a lived-in, cinematic classroom feel. Overall visual tone: vintage, textured, cozy yet scholarly academy style, with a sense of curated film analysis. Ensure the layout is high-contrast, highly readable, and clearly framed within the 1080x1080 resolution.",
+  "category": "information-viz",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20251216-9-output.webp"
+  ],
+  "local_image": null
+}

@@ -1,0 +1,15 @@
+{
+  "id": "artistic-style-case295",
+  "slug": "295",
+  "url": "/es/prompt-handbook/artistic-style/#case295",
+  "title": "Ilusión Fotográfica de Caja de Regalo de Navidad: Composición Surreal 3D con Efecto de Realidad dentro de Foto",
+  "prompt": "A surreal, festive 3D photographic work combining \"reality within photo\" and visual illusion effects, with a warm, cozy, and playful atmosphere. The image uses a 3:4 vertical aspect ratio.\n\nIn the foreground, a woman with a warm, charming smile comfortably leans on the top edge of a giant, upright opened gift box, looking directly at the camera. This giant gift box is the core of the composition, its surface covered with deep red velvet material, featuring extremely realistic pile depth, soft light absorption, and subtle directional sheen, absolutely not flat or synthetic texture.\n\nInside the gift box displays a stunning visual illusion: a 5-panel photo collage appears to be physically printed and placed inside the box. These photos must present the effect of high-resolution physical prints, with visible paper texture, slightly curled edges, and perfectly integrated natural lighting of the scene, with absolutely no electronic screen glow or digital overlay feel.\n\nThe protagonist in this 5-panel collage (top 2 squares, bottom 3 vertical rectangles) is the same person leaning outside the box, with deep brown bob haircut, wearing red knitted reindeer antler headband, dressed in beige ribbed knit cardigan. Collage content details as follows: [Top Left] Winking peace sign gesture, holding candy cane; [Top Right] Extending a wrapped small gift toward the camera; [Bottom Left] Making heart gesture, eating gingerbread cookie; [Bottom Center] Giggling, shyly covering mouth with hand; [Bottom Right] Looking back over shoulder, with \"Merry Christmas\" text overlay.\n\nScene is set on a cozy living room wooden floor with realistic texture and subtle wear marks. Background is soft focus with a Christmas tree with warm yellow/gold bokeh lights and scattered gifts.\n\nLighting uses warm (3200K - 4000K) soft studio lighting, with rim light on the character's hair, and realistic shadow transitions and skin subsurface scattering effects. Uses shallow depth of field (f/1.8), focus sharply concentrated on foreground character, velvet box, and internal paper photo texture, with background naturally blurred. All materials (velvet, knitwear, paper, wood) require extremely high texture fidelity and microscopic detail, avoiding any digital artifacts, moiré, or uncanny valley effects, ensuring ultimate photorealism.",
+  "category": "artistic-style",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20251222-12-output.webp"
+  ],
+  "local_image": null
+}

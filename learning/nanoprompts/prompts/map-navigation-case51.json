@@ -1,0 +1,15 @@
+{
+  "id": "map-navigation-case51",
+  "slug": "51",
+  "url": "/es/prompt-handbook/map-navigation/#case51",
+  "title": "Mapa Antiguo → Foto de Escena Histórica",
+  "prompt": "full colour photograph. New Amsterdam in 1660. make sure it's full modern colors as if it's a photograph taken today.",
+  "category": "map-navigation",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/case51_output.webp"
+  ],
+  "local_image": null
+}

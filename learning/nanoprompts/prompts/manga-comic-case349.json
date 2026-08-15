@@ -1,0 +1,15 @@
+{
+  "id": "manga-comic-case349",
+  "slug": "349",
+  "url": "/es/prompt-handbook/manga-comic/#case349",
+  "title": "Estilo Guía de Estrategia JRPG Vintage: Diseño de Personajes y Árbol de Habilidades",
+  "prompt": "A layout page from a vintage Japanese RPG strategy guide book, printed on aged parchment paper with visible texture, stains, and faint arcane symbol watermarks. The dominant style is 'sketchy ink and watercolor wash illustration.' The main subject on the left is a female anime mage with blonde bob hair, wearing a hooded indigo robe and leather gear, holding an open glowing grimoire, casting swirling fire magic. Her art style shows visible pencil lines and watercolor texture bleeding. To her left is a vertical column of retro RPG UI stats bars (HP/MP/ATK/DEF) designed as glass tubes in ornate metal frames, and below that a branching skill tree diagram with circular icons and glowing connecting lines. The top right features a contrasting 16-bit isometric pixel art sprite of the same character. The bottom right contains small, low-resolution gameplay screenshots of turn-based combat. Dense Japanese serif typography text describing the character and skills fills the remaining spaces. The overall aesthetic is historical fantasy, mixed media graphic design, official art book quality. --ar 2:3 --v 6.0 --stylize 250",
+  "category": "manga-comic",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20251231-3-output.webp"
+  ],
+  "local_image": null
+}

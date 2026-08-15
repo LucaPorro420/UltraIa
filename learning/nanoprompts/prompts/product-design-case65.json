@@ -1,0 +1,15 @@
+{
+  "id": "product-design-case65",
+  "slug": "65",
+  "url": "/es/prompt-handbook/product-design/#case65",
+  "title": "Diseña un Juego de Ajedrez",
+  "prompt": "Draw a chessboard and a set of 3D-printable chess pieces inspired by this image.",
+  "category": "product-design",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/case65_output.webp"
+  ],
+  "local_image": null
+}

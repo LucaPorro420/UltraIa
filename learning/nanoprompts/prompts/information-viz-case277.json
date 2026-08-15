@@ -1,0 +1,15 @@
+{
+  "id": "information-viz-case277",
+  "slug": "277",
+  "url": "/es/prompt-handbook/information-viz/#case277",
+  "title": "Infografía Educativa de Composición Fotográfica con Estéticas de Diseño Japonés y Nórdico",
+  "prompt": "A clean educational infographic slide presented on a light Nordic birch wood table surface background. At the top, a large bold sans-serif title in both Japanese and Swedish explains a technical photography concept about composition techniques. The central diagram features minimalist Scandinavian design icons and arrows showing a progression from basic to advanced framing methods. Below the main diagram, a horizontal row of four distinct example photographs is arranged, each showing different composition styles shot in locations across Japan and Scandinavia - from Kyoto temples to Stockholm architecture. Each photo has a clean white border and a soft drop shadow, resembling printed cards laid on the table, with clear, concise explanatory text in both Japanese and English underneath each one. The overall aesthetic is organized, bright, modern, and designed for a professional educational presentation with Nordic design sensibility.",
+  "category": "information-viz",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20251221-4-output.webp"
+  ],
+  "local_image": null
+}

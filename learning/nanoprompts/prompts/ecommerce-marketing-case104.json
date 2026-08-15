@@ -1,0 +1,15 @@
+{
+  "id": "ecommerce-marketing-case104",
+  "slug": "104",
+  "url": "/es/prompt-handbook/ecommerce-marketing/#case104",
+  "title": "Diseño de Logotipo Tipográfico",
+  "prompt": "Create a typographic illustration shaped like a {OBJECT}, where the text itself forms the shape — bold and playful lettering style that fills the entire silhouette — letters adapt fluidly to the curves and contours of the object — vibrant and contrasting color palette that fits the theme — background is solid and enhances the focus on the main shape — vector-style, clean, high resolution, poster format, 1:1 aspect ratio.",
+  "category": "ecommerce-marketing",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/case104_output.webp"
+  ],
+  "local_image": null
+}

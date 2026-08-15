@@ -1,0 +1,15 @@
+{
+  "id": "ecommerce-marketing-case261",
+  "slug": "261",
+  "url": "/es/prompt-handbook/ecommerce-marketing/#case261",
+  "title": "Portada de Fotobook de Revista de Viajes: Persona en la Torre Eiffel con Coordenadas de París",
+  "prompt": "Create a beautiful, photo book style magazine cover that fully utilizes the 9:16 aspect ratio. Place the attached person at the precise coordinates of the Eiffel Tower in Paris, France (48.8584°N, 2.2945°E), seamlessly blending them into the scene as if they are sightseeing. Approach this task with the understanding that this is a critical page that will significantly influence visitor numbers. NEGATIVE: coordinate texts",
+  "category": "ecommerce-marketing",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20251218-10-output.webp"
+  ],
+  "local_image": null
+}

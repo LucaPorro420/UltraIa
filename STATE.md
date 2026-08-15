@@ -1,6 +1,6 @@
 # Loop State — UltraIa
 
-Last run: 15/08/2026 — Iteración 8 (AutoPub F3 presentación unificada ✅)
+Last run: 15/08/2026 — Iteración 9 (AutoPub F4 paso 1: PublisherAdapter + YouTube/TikTok ✅)
 Última triage: 15/08/2026 (report-only — sin edición de código)
 
 ## Backlog priorizado (orden de ejecución)
@@ -15,8 +15,8 @@ Last run: 15/08/2026 — Iteración 8 (AutoPub F3 presentación unificada ✅)
 | 6 | Gen-Engine: entrenamiento roadmap F5 (E0–E5, CreationsApp plan-de-implementacion.md) | gen-engine | pytest | pendiente — requiere GPU/decisión humana (no es ciclo de código npm) |
 | 7 | **AutoPub F1**: tool `topics` en core + `scripts/topics.py --dry-run` (RSS + DuckDuckGo, dedupe, briefs JSON) | packages/core + scripts | FULL | ✅ DONE 2026-08-15 (tool topics.ts + CLI topics.py; 14 tests; core 232/232, repo 424/424). Pendiente F1: cola de briefs persistente (Prisma) |
 | 8 | **AutoPub F3**: schema `PublicationPackage` + tool `present` (formato por canal, captions/hashtags) | packages/core | FULL | ✅ DONE 2026-08-15 (tool present.ts + capability `present` → `present_package`; 13 tests; repo 437/437) |
-| 9 | **AutoPub F4**: `PublisherAdapter` + adaptadores YouTube/TikTok en TS (port RF-12) + tests con mocks | packages/core | FULL | pendiente — SIGUIENTE |
-| 10 | **AutoPub F4**: cola `Publication` (Prisma) + endpoints API + aprobación por paquete | packages/core + apps/web | FULL | pendiente |
+| 9 | **AutoPub F4**: `PublisherAdapter` + adaptadores YouTube/TikTok en TS (port RF-12) + tests con mocks | packages/core | FULL | ✅ DONE 2026-08-15 (tool publish.ts + wiring publish_submit; 15 tests; repo 452/452) |
+| 10 | **AutoPub F4**: cola `Publication` (Prisma) + endpoints API + aprobación por paquete | packages/core + apps/web | FULL | pendiente — SIGUIENTE |
 | 11 | **AutoPub F4**: calendario (start.py o scheduler runtime) + blog propio (publicar en /recursos) | scripts + apps/web | FULL | pendiente |
 | 12 | **AutoPub F2**: enrutamiento brief→Redactor/Guionista vía Orquestador + manifest JSON | packages/core | FULL | pendiente |
 | 13 | **AutoPub F5**: KPIs + media_score pre-pub + feedback → mejora de agentes | packages/core + scripts | FULL | pendiente |
@@ -42,8 +42,8 @@ Last run: 15/08/2026 — Iteración 8 (AutoPub F3 presentación unificada ✅)
 - **Typecheck transitorio (1 vez)**: primer run de una triage falló "command failed" en
   packages/runtime SIN errores TS; re-run EXIT=0. Posible lock/transitorio o caché stale
   `node_modules/.vite` — vigilar si se repite antes de diagnosticar.
-- **Runtime tests 192/192** (Fase A 132 + Fase B 20 + Fase C 34 + wiring system-core 5 + spike launcher 1). Total repo: 437/437 PASS
-  (core 245 + runtime 192).
+- **Runtime tests 192/192** (Fase A 132 + Fase B 20 + Fase C 34 + wiring system-core 5 + spike launcher 1). Total repo: 452/452 PASS
+  (core 260 + runtime 192).
 - `npx @cobusgreyling/loop doctor` y `loop status` — validar salida del CLI contra LOOP.md (v0.1.2).
 - `.vscode/settings.json` fix Pylance (local-only, gitignored) — no commitear.
 - Verificación FULL en cada commit: typecheck → lint → test → build (437/437 esperado).

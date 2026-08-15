@@ -1,0 +1,15 @@
+{
+  "id": "information-viz-case106",
+  "slug": "106",
+  "url": "/es/prompt-handbook/information-viz/#case106",
+  "title": "Convertir Diagrama de Texto a Pictogramas",
+  "prompt": "Convert this explanatory diagram into pictograms.",
+  "category": "information-viz",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/case106_output.webp"
+  ],
+  "local_image": null
+}

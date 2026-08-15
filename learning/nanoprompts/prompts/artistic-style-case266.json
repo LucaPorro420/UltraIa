@@ -1,0 +1,15 @@
+{
+  "id": "artistic-style-case266",
+  "slug": "266",
+  "url": "/es/prompt-handbook/artistic-style/#case266",
+  "title": "Retrato de Rostro Oculto con Objetos Dispersos: Naturaleza Muerta de Botones, Monedas y Elementos Naturales",
+  "prompt": "Create an image that looks like a tabletop still-life arrangement of many small objects including buttons, screws, New Zealand coins, native silver fern leaves, matchsticks, and pounamu jade fragments scattered naturally on a surface. From a top-down view, these objects are carefully arranged to form a clear human face portrait through intentional placement and shading. Use neutral tones with soft overhead light and gentle vignette. The face should emerge at mid-distance viewing: when viewed close up it appears as just scattered objects, but when zoomed out it becomes unmistakably a portrait. Add realistic cast shadows under each object to enhance depth. The background is a worn rimu wood table with natural scratches and aged patina. Keep the arrangement organic and not too symmetrical. Avoid text, obvious outlines, and artificial glow.",
+  "category": "artistic-style",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20251220-5-output.webp"
+  ],
+  "local_image": null
+}

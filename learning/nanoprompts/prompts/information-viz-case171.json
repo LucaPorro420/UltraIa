@@ -1,0 +1,15 @@
+{
+  "id": "information-viz-case171",
+  "slug": "171",
+  "url": "/es/prompt-handbook/information-viz/#case171",
+  "title": "Mapa Mental de Negocios Dibujado a Mano: Hoja de Ruta de Progreso en Tres Etapas",
+  "prompt": "A high-quality hand-drawn business mind map, Sketch-note style, white paper background.\n\nImage structure:\n\nThree horizontally arranged stage progression cards.\n\nLeft card (Stage 1): Orange main color, rocket icon at top, contains text list.\n\nMiddle card (Stage 2): Cyan/teal main color, stacked boxes/asset icon at top, contains text list.\n\nRight card (Stage 3): Deep blue main color, mountain with flag icon at top, contains text list.\n\nDecorative elements: Background has a diagonal arrow line growing from bottom-left to top-right, dotted with stars, dashed lines, checkmarks and other doodle elements. Bottom has a yellow banner with call-to-action text.\n\nArtistic style: Marker hand-drawn texture, smooth lines, vibrant colors (orange, cyan, blue, yellow), flat illustration, clear visuals, business education style.\n\nTopic: Product yourself",
+  "category": "information-viz",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20251212-9-output.webp"
+  ],
+  "local_image": null
+}

@@ -1,0 +1,15 @@
+{
+  "id": "information-viz-case120",
+  "slug": "120",
+  "url": "/es/prompt-handbook/information-viz/#case120",
+  "title": "Pixel Art Isométrico - Carrera de Guillaume Vernade",
+  "prompt": "Search the web then generate an image of isometric perspective, detailed pixel art that shows the career of [Guillaume Vernade]",
+  "category": "information-viz",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/1124-2-output.webp"
+  ],
+  "local_image": null
+}

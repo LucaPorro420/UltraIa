@@ -1,0 +1,15 @@
+{
+  "id": "spatial-design-case82",
+  "slug": "82",
+  "url": "/es/prompt-handbook/spatial-design/#case82",
+  "title": "Estante de Exhibición de Mercancía",
+  "prompt": "Remove the background from this illustration and turn it into merchandise like figurines.\nImage: Photorealistic\nLocation:\nThe shelves of a fictional convenience store that doesn't exist in Japan. The cute, pop atmosphere is complemented by neatly arranged merchandise featuring the illustration. The store's interior is dreamily bright and special, creating a special space that excites fans.\n\nCharacters:\nThese merchandise are displayed on the shelves.\n\nMerchandise Lineup:\nTwo large, approximately 50cm-long figures in the center of the screen (for a striking display)\nAcrylic stands (deformed versions of the original artwork)\n\nChibi figures (deformed versions of the original artwork)\n\nDakimakura pillows (large prints for a striking presence)\n\nJigsaw puzzles (visual art of the characters)\n\nStationery (notebooks, pens, clear files, etc., deformed versions of the original artwork)\n\nCardboards (deformed versions of the original artwork)\n\nPlush toys (deformed versions of the original artwork)\n\nDisplay:\nThe merchandise are neatly arranged on the shelves, maintaining the atmosphere of a convenience store while still filling the space with love for the characters. They're arranged in a way that teenage female fans can't help but want to pick them up.\n\nOverall tone:\nA dreamlike merchandise sales space. Cuteness and pop are at the forefront, and despite being a convenience store, it's presented as a \"holy land for fan activities.\"\nResolution: 4K, 4000px: 3000px",
+  "category": "spatial-design",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/case82_output.webp"
+  ],
+  "local_image": null
+}

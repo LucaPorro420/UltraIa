@@ -1,0 +1,15 @@
+{
+  "id": "spatial-design-case102",
+  "slug": "102",
+  "url": "/es/prompt-handbook/spatial-design/#case102",
+  "title": "Diseño de Interiores de Superhéroes",
+  "prompt": "A hyper-realistic, professional interior design photograph of a modern living room inspired by a [Superhero]. The room has clean lines, a neutral color palette of greys, blacks, and whites, with accents of [Theme Color]. A large, stylized 3D wall sculpture of the [Superhero] dominates the main wall. Subtle thematic details are placed throughout the room, such as framed art prints of blueprints, a floor lamp designed to resemble a specific motif (e.g., a shield or logo), and a side table with a few well-placed props (e.g., a stylized helmet). The furniture is contemporary and minimalist, with a large, comfortable sofa and a low coffee table. Dramatic, focused lighting highlights the main wall sculpture, while warm ambient light from windows and lamps creates an inviting atmosphere. The overall style is sophisticated and elegant, a subtle homage rather than an overt fan-tribute.",
+  "category": "spatial-design",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/case102_output.webp"
+  ],
+  "local_image": null
+}

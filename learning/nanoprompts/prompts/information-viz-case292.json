@@ -1,0 +1,15 @@
+{
+  "id": "information-viz-case292",
+  "slug": "292",
+  "url": "/es/prompt-handbook/information-viz/#case292",
+  "title": "Caja de Invención de la Bombilla de Edison: Exhibición de Museo Steampunk con Prototipo y Herramientas Históricas",
+  "prompt": "Input A is a lightbulb (world-changing invention).\nAnalyze the inventor (Thomas Edison), eureka moment, prototype design, and societal impact.\nStyle reference: steampunk-meets-modern museum aesthetic.\nGoal: Wooden display box with brass hinges containing the miniature \"first prototype\" surrounded by inventor's tools, failed attempts, and blueprint fragments.\nRules:\n- Center: tiny working-looking carbon filament lightbulb prototype\n- Include inventor figurine at miniature workbench\n- Surround with 10-15 period tools (glass blowers, vacuum pumps, sketches, bamboo filament samples, failed carbonized thread attempts)\n- Add aged paper \"patent document\" visible through glass top\n- Materials: dark wood, brass accents, vintage glass\n- Plaque with invention name \"Electric Light Bulb\", inventor \"Thomas Edison\", patent year \"1879\"\nOutput: ONE image, 1:1 inventor's journal aesthetic",
+  "category": "information-viz",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20251222-9-output.webp"
+  ],
+  "local_image": null
+}

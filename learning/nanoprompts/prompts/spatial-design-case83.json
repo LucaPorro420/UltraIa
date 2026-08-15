@@ -1,0 +1,15 @@
+{
+  "id": "spatial-design-case83",
+  "slug": "83",
+  "url": "/es/prompt-handbook/spatial-design/#case83",
+  "title": "Stand de Convención de Cómics",
+  "prompt": "Erase the background and replace the characters with the following:\n\nCosplayers and Character Goods\n\nCharacter/Motif:\nCharacter goods based on the illustration\n\nHairstyle, Eyes, and Appearance:\n(Focus on merchandise, not the character itself.)\n\nMain Character: A cosplayer is holding a figurine in the center of the screen.\n\nLocation:\nComic Market (a doujinshi sales event).\nA spacious booth is filled with merchandise lined up on tables and shelves. The atmosphere is filled with excitement and anticipation.\n\nMerchandise Lineup:\n• A large, approximately 100cm figure is displayed in the center of the booth, creating an eye-catching display.\n• The character is displayed on an 80-inch LCD panel.\n• Acrylic Stands\n• Chibi Figures (Deformed)\n• Body Pillows (Large, Full-Length Character Print)\n• Jigsaw Puzzles (Using Character Artwork)\n• Stationery (Notebooks, Pens, Clear Files, etc.)\n• Desk Pads\n• Plush Toys (Deformed)\nExhibition/Display:\n• Goods neatly arranged throughout the booth, creating a unified look.\n• Utilizing desks and shelves reminiscent of doujinshi sales events, the layout encourages fans to pick up items.\n• With the energy of the visitors as a backdrop, the venue is presented as a special \"fan sanctuary.\"\nOverall Tone:\nA dreamlike sales space.\nWhile emphasizing cuteness and pop, the space evokes the unique enthusiasm of doujin events and the feeling of a \"sanctuary for fan activities.\"\nSwarms of people.\n\nImage Quality:\nPhotorealistic, 4K (4000px x 3000px)",
+  "category": "spatial-design",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/case83_output.webp"
+  ],
+  "local_image": null
+}

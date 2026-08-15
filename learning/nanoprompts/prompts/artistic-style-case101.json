@@ -1,0 +1,15 @@
+{
+  "id": "artistic-style-case101",
+  "slug": "101",
+  "url": "/es/prompt-handbook/artistic-style/#case101",
+  "title": "Ilustración de Mirilla Ojo de Pez",
+  "prompt": "ultra-detailed anime illustration, fisheye lens peephole perspective, circular distorted view as if looking through a door peephole, warped wide-angle effect with curved edges, darkened vignette around the circular\nframe, two people leaning their faces close to the peephole trying to peek through, both with mischievous playful smiles, exaggerated perspective distortion making their features appear larger and curved, faces\napproaching the peephole lens, hallway or room interior bent by the lens effect, slightly blurry edges mimicking actual peephole optics, playful atmosphere, 8k resolution",
+  "category": "artistic-style",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/case101_output.webp"
+  ],
+  "local_image": null
+}

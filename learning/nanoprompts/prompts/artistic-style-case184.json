@@ -1,0 +1,15 @@
+{
+  "id": "artistic-style-case184",
+  "slug": "184",
+  "url": "/es/prompt-handbook/artistic-style/#case184",
+  "title": "Arte de Retrato Doodle con Bolígrafo en Cuaderno y Marcadores de Neón",
+  "prompt": "{\n  \"image_generation_task\": {\n    \"task_type\": \"img2img\",\n    \"input_source\": \"uploaded_user_image\",\n    \"constraint\": \"preserve_full_likeness\",\n    \n    \"base_configuration\": {\n      \"medium\": {\n        \"substrate\": \"lined notebook paper\",\n        \"tools\": [\"ballpoint pen\", \"neon markers\", \"ink\"],\n        \"texture_details\": [\n          \"realistic ink absorption\",\n          \"layered pen pressure\",\n          \"stained edges\",\n          \"smudges\",\n          \"subtle paper wrinkles\"\n        ]\n      },\n      \"art_style\": {\n        \"genre\": [\"doodle art\", \"comic annotations\", \"sketch\"],\n        \"line_work\": \"thick-thin variation, loose freestyle, messy strokes, dynamic hatch shading\",\n        \"atmosphere\": \"chaotic, energetic, spontaneous, dense\"\n      },\n      \"rendering\": {\n        \"resolution\": \"4K\",\n        \"detail_level\": \"high\",\n        \"lighting\": \"bold outer glow, vibrant contrast\"\n      }\n    },\n\n    \"composition_elements\": {\n      \"framing\": \"portrait with thick border line around head\",\n      \"surrounding_elements\": [\n        \"messy arrows\",\n        \"stars\",\n        \"underlines\",\n        \"random scribbles\",\n        \"speech bubbles\",\n        \"overlapping annotations\",\n        \"checkboxes\"\n      ],\n      \"iconography\": [\n        \"lightning bolt\",\n        \"lightbulb\",\n        \"music note\",\n        \"mini self-caricature\"\n      ],\n      \"typography\": {\n        \"style\": \"handwritten comic notes\",\n        \"sound_effects\": [\"ZAP!\", \"WHOOSH!\"]\n      }\n    },\n\n    \"style_variations\": [\n      {\n        \"id\": \"variant_01_pop_bold\",\n        \"color_palette\": [\"bold cyan\", \"magenta\"],\n        \"specific_vibe\": \"vibrant pop, stylish comic notes\"\n      },\n      {\n        \"id\": \"variant_02_neon_highlight\",\n        \"color_palette\": [\"neon pink\", \"neon yellow\"],\n        \"specific_vibe\": \"highlighter aesthetic, expressive gestures\"\n      },\n      {\n        \"id\": \"variant_03_electric_graffiti\",\n        \"color_palette\": [\"hot electric blue\", \"neon red\"],\n        \"specific_vibe\": \"graffiti-styled, exaggerated outline, playful highlights\"\n      },\n      {\n        \"id\": \"variant_04_dense_sketch\",\n        \"color_palette\": [\"blue linework\", \"red accents\"],\n        \"specific_vibe\": \"densely packed, horror vacui (no blank space), alive and messy\"\n      }\n    ]\n  }\n}",
+  "category": "artistic-style",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20251213-8-output.webp"
+  ],
+  "local_image": null
+}

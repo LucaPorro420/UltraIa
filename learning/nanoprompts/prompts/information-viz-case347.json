@@ -1,0 +1,15 @@
+{
+  "id": "information-viz-case347",
+  "slug": "347",
+  "url": "/es/prompt-handbook/information-viz/#case347",
+  "title": "Diorama 3D y Códice Vintage: Visualización del Descubrimiento Científico",
+  "prompt": "A hyper-realistic 4:5 macro photograph of an ancient scientific codex opened flat on a dark velvet museum plinth. The left page 'The Living Discovery' features a deep 3D diorama of the discovery of the atomic nucleus. Ernest Rutherford, a realistic 3D human figure in early 20th-century suit, stands in a dark laboratory in Manchester, looking at a gold foil experiment setup. Subtle glowing orbits and nucleus symbols float in the air. A warm amber glow. The right page 'The Scientific Record' is aged parchment with the text 'Discovery of the Atomic Nucleus' and 'Ernest Rutherford' clearly written. Diagrams of the gold foil experiment and the atomic model are drawn in ink. 1911. Detailed texture.",
+  "category": "information-viz",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20251231-1-output.webp"
+  ],
+  "local_image": null
+}

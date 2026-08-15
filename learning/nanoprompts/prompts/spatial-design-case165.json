@@ -1,0 +1,15 @@
+{
+  "id": "spatial-design-case165",
+  "slug": "165",
+  "url": "/es/prompt-handbook/spatial-design/#case165",
+  "title": "Pantalla Dividida de Viaje en el Tiempo: Fusión de Escenas de Épocas Pasadas y Presentes",
+  "prompt": "A horizontal split-screen cinematic shot of Times Square, New York, seamlessly blending two different eras: 1920s on the left and present day on the right.\n\nOn the left side (1920s): show era-appropriate architecture, interior or environment design, materials, vehicles, and props that clearly belong to that historical period. People wear authentic clothing from 1920s, including hairstyles, accessories, and typical items in their hands (such as books, umbrellas, instruments, letters, newspapers, etc.). The overall mood feels nostalgic and historically accurate.\n\nOn the right side (present day): show the same scene in the modern era, with updated architecture or renovated structures, contemporary materials (glass, steel, LED screens, modern furniture), modern vehicles or equipment, and current technology (smartphones, laptops, cameras, etc.). People wear contemporary fashion that matches today's style in this setting.\n\nIn the center: the two eras merge and overlap organically, without a hard dividing line. Elements from 1920s and present day visually interact: people from different times look at each other, walk through each other's space, or seem surprised by the other era's technology and objects. Architecture and environment smoothly morph from old to new (for example, stone gates turning into modern campus gates, classical concert hall décor fading into a futuristic stage, old street shops transforming into neon-lit storefronts).\n\nMake sure the scene is not just a simple left/right comparison but a dynamic time-travel interaction where buildings, clothing, props, and human gestures clearly emphasize the contrast and fusion between the two eras. Photorealistic, 8k resolution, cinematic lighting, wide angle, highly detailed textures, rich sense of time-travel storytelling. Aspect Ratio: 4:3",
+  "category": "spatial-design",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20251212-1-output.webp"
+  ],
+  "local_image": null
+}

@@ -1,0 +1,15 @@
+{
+  "id": "information-viz-case267",
+  "slug": "267",
+  "url": "/es/prompt-handbook/information-viz/#case267",
+  "title": "Tarjetas Educativas de Vocabulario de Generación de Imágenes IA: Tarjetas Educativas Estilo Gacha Anime con Términos Bilingües",
+  "prompt": "Design a set of four educational vocabulary flashcards. Each card should include one English word related to AI image generation technology, its Japanese katakana equivalent, phonetic transcription, a simple text explanation, an image-based visual explanation, and an example sentence demonstrating usage. The card design should follow a 2D anime-style aesthetic inspired by Japanese mobile gacha games featuring beautiful character artwork. The four AI terms to feature are: Diffusion, Latent Space, Inference, and Checkpoint. Each card should have vibrant colors, elegant typography, decorative borders, and a character illustration that thematically represents the concept.",
+  "category": "information-viz",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20251220-6-output.webp"
+  ],
+  "local_image": null
+}

@@ -1,0 +1,15 @@
+{
+  "id": "map-navigation-case134",
+  "slug": "134",
+  "url": "/es/prompt-handbook/map-navigation/#case134",
+  "title": "Escena Climática de Ciudad Isométrica",
+  "prompt": "Present a clear, 45° top-down isometric miniature 3D cartoon scene of [CITY], featuring its most iconic landmarks and architectural elements. Use soft, refined textures with realistic PBR materials and gentle, lifelike lighting and shadows. Integrate the current weather conditions directly into the city environment to create an immersive atmospheric mood.\nUse a clean, minimalistic composition with a soft, solid-colored background.\n\nAt the top-center, place the title \"[CITY]\" in large bold text, a prominent weather icon beneath it, then the date (small text) and temperature (medium text).\nAll text must be centered with consistent spacing, and may subtly overlap the tops of the buildings.\nSquare 1080x1080 dimension.",
+  "category": "map-navigation",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/1127-1-output.webp"
+  ],
+  "local_image": null
+}

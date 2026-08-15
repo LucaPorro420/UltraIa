@@ -1,0 +1,15 @@
+{
+  "id": "manga-comic-case24",
+  "slug": "24",
+  "url": "/es/prompt-handbook/manga-comic/#case24",
+  "title": "Storyboard de Película",
+  "prompt": "Create a gripping 12-part story with 12 images, using these two characters, telling a classic film noir detective story. The story is about their search for clues and ultimately the lost treasure they discover. The whole story is thrilling, with emotional ups and downs, ending with an exciting twist and climax. Do not include any words or text in the images, tell the story purely through the images themselves",
+  "category": "manga-comic",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/case24_output.webp"
+  ],
+  "local_image": null
+}

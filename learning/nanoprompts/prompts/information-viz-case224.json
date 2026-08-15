@@ -1,0 +1,15 @@
+{
+  "id": "information-viz-case224",
+  "slug": "224",
+  "url": "/es/prompt-handbook/information-viz/#case224",
+  "title": "Animación Loop de VFX de Magia Relámpago: Textura de Asset de UI de Juego de 16 Fotogramas",
+  "prompt": "Lightning magic effect, looping animation, 16-frame sequence texture, game UI VFX asset, stylized fantasy magic effect, black background, no UI, no watermark, no text, high contrast, clear edges, ready for VFX use.",
+  "category": "information-viz",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20251216-14-output.webp"
+  ],
+  "local_image": null
+}

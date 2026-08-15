@@ -1,0 +1,15 @@
+{
+  "id": "information-viz-case385",
+  "slug": "385",
+  "url": "/es/prompt-handbook/information-viz/#case385",
+  "title": "Estilo de Guía de Proceso Minimalista: Diseño de Recorrido del Usuario con Líneas Ortogonales",
+  "prompt": "Generate image, 1. Style Core Parameter Extraction (Style Guide)\nPlease refer to the following parameters:\nColor Palette:\nBackground: Pure white (#FFFFFF)\nLines/Borders: Dark gray or pure black (#333333 or #000000)\nText: Dark gray (#333333), regular weight, no bold.\nFill: No fill (transparent) or pure white fill, to cover lines behind.\nLines/Connectors:\nType: Orthogonal/Elbow lines, meaning only vertical and horizontal lines, with right-angle corners.\nThickness: Extremely thin (1px).\nArrow: Solid small triangle (Solid Arrowhead), black.\nShapes:\nNormal Node: Rounded Rectangle, very small corner radius (approx. 4px - 8px).\nDecision Node: Diamond.\nStart/End: Capsule shape or rectangle with larger rounded corners.\nTypography:\nAlignment: Center aligned.\nFont: Sans-serif font, such as Arial, Roboto, or Source Han Sans. Small font size (approx. 12px-14px).\n\nApply the style above along with your user journey/process to Gemini, and it will present the corresponding effect without needing adjustments.",
+  "category": "information-viz",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20260201-7-output.webp"
+  ],
+  "local_image": null
+}

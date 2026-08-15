@@ -1,0 +1,15 @@
+{
+  "id": "information-viz-case380",
+  "slug": "380",
+  "url": "/es/prompt-handbook/information-viz/#case380",
+  "title": "Visualización en Miniatura 3D de Cervecería de Sake Japonés con Siete Etapas",
+  "prompt": "A 3D miniature Sake Brewery visualization, no human models, showcasing seven artistic miniature stages: bustling Kyoto sake district streets kissed by sunrise, tiny worker figurines harvesting rice in terraced paddies, dimly lit underground koji fermentation rooms with precise rows of wooden boxes, intimate tasting room gatherings with low tables, ethereal misty morning mountain spring water source ambiance. Each tier displays sake grade name, rice polishing percentage, and Sake Sommelier Association tasting notes designed like precious gems. Backdrop evokes an expensive traditional kura storehouse setting, utilizing strong chiaroscuro lighting to create a high-fashion editorial ambiance. Shot with Hasselblad H6D-100c, 100mm f/2.2, extremely shallow depth of field with exquisite bokeh. Holographic displays of sake pairing suggestions drift subtly, featuring artisanal Japanese cuisine pairings - sashimi for junmai, grilled yakitori for honjozo, delicate wagashi sweets for daiginjo. The color palette shifts from deep earth tones and amber jewel tones for full-bodied sake to icy blues, silvery whites, and crystal clear hues for crisp varieties.",
+  "category": "information-viz",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20260118-15-output.webp"
+  ],
+  "local_image": null
+}

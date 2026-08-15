@@ -1,0 +1,15 @@
+{
+  "id": "map-navigation-case362",
+  "slug": "362",
+  "url": "/es/prompt-handbook/map-navigation/#case362",
+  "title": "Diorama Geográfico 3D: Queenstown Emergiendo del Mapa de New Zealand",
+  "prompt": "A realistic, highly detailed geographic map viewed from above, accurately representing the region where New Zealand is located. Rising from the map is a miniature 3D diorama of Queenstown, precisely positioned at its real geographic location. The diorama features iconic architecture, Lake Wakatipu, The Remarkables mountain range, and cultural elements seamlessly emerging from the map surface. Ultra-realistic materials, fine textures, and depth of field. Soft studio lighting with subtle shadows, cinematic composition, premium macro photography style. Square 1:1 format, high detail, realistic scale. --ar 1:1",
+  "category": "map-navigation",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20260110-8-output.webp"
+  ],
+  "local_image": null
+}

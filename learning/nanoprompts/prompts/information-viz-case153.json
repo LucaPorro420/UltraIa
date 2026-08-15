@@ -1,0 +1,15 @@
+{
+  "id": "information-viz-case153",
+  "slug": "153",
+  "url": "/es/prompt-handbook/information-viz/#case153",
+  "title": "Escena Empresarial Cartoon 3D con Visualización de Datos del Mercado de Valores en Tiempo Real",
+  "prompt": "Present an exquisite, miniature 3D cartoon-style scene of the company corresponding to the user-specified company name or stock ticker, clearly viewed from a 45° top-down perspective.\n\nPlace the company's most iconic building or campus prominently at the center, complemented by proportionally-sized icons of its key products, charming cartoon-style figures, vehicles, and other elements illustrating everyday company activities. The scene should be detailed, finely crafted, and playful.\n\nRendered with Cinema 4D, the modeling should be refined, smoothly rounded, and rich in texture, accurately capturing realistic PBR materials. Gentle, lifelike lighting and soft shadows should create a warm, comfortable ambiance.\n\nCreatively integrate the company's real-time stock market data for the user-specified date (or automatically retrieved current date) into the scene, maintaining a clean, minimalist layout and a solid-color background to highlight the primary content.\n\nAt the top-center of the scene, prominently display the company name or stock ticker in a large font size, followed by the specified date in extra-small font, and the stock price range in a medium-sized font. Include clear, intuitive stock trend icons and charts.\n\nAll texts should be displayed in the language specified or entered by the user, without any background, and may subtly overlap with the scene elements to enhance overall design integration.\n\nVery Important:\nBefore generating, ensure accurate and up-to-date stock market data based on the user-inputted company name or stock ticker and the specified date. If such data is unavailable, notify the user immediately and stop the generation process.\n\nParameters:\n\n* Aspect ratio: {User input, default 1:1}\n* Date: {User input, current date}\n* Company name or stock ticker: {User input}\n\n---\n\nCompany Name / Stock Ticker: Google\nDate: 12/3/2025",
+  "category": "information-viz",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/1206-2-output.webp"
+  ],
+  "local_image": null
+}

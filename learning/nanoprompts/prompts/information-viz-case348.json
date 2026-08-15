@@ -1,0 +1,15 @@
+{
+  "id": "information-viz-case348",
+  "slug": "348",
+  "url": "/es/prompt-handbook/information-viz/#case348",
+  "title": "Diseño de Infografía Médica: Diseño Limpio para Datos Farmacéuticos",
+  "prompt": "A high-quality educational infographic poster about Oseltamivir Capsules, 9:16 vertical. Modular Bento Grid layout with a clean medical UI/UX design. Clinical White, Medical Blue, and Slate Grey color palette. Top header with 'Oseltamivir' title. Top center features a hyper-realistic macro photo of an Oseltamivir capsule. Minimalist chemical structure diagram in the corner. Sections include: 1. Data visualization of active ingredients with ring charts. 2. Indications with minimalist line icons. 3. Dosage matrix (Oral, Frequency) with icons. 4. Pharmacokinetics timeline graph. 5. Warning grid (Interactions, Side Effects) with simple icons. 6. Patient suitability icons (Adults, Children). 7. Storage guide with thermometer icon. Bright shadowless laboratory lighting, frosted glass cards effect.",
+  "category": "information-viz",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20251231-2-output.webp"
+  ],
+  "local_image": null
+}

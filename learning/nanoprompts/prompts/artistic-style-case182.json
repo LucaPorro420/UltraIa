@@ -1,0 +1,15 @@
+{
+  "id": "artistic-style-case182",
+  "slug": "182",
+  "url": "/es/prompt-handbook/artistic-style/#case182",
+  "title": "Huevo Agrietado Fotorrealista con Contorno de Forma Simple sobre Fondo Oscuro",
+  "prompt": "photorealistic image of a white egg with cracks forming the basic simple cracked outline of a [SHAPE] shape. The egg should appear freshly cracked, with sharp, clean lines defining the simple shape of the [SHAPE] outline. Emphasize the contrast between the smooth, intact surface of the egg and the jagged edges of the cracks against a dark background.",
+  "category": "artistic-style",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20251213-6-output.webp"
+  ],
+  "local_image": null
+}

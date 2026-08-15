@@ -1,0 +1,15 @@
+{
+  "id": "information-viz-case322",
+  "slug": "322",
+  "url": "/es/prompt-handbook/information-viz/#case322",
+  "title": "Vista Explosionada Anatómica del Arabian Oryx: Infografía Biológica por Capas con Detalle Científico",
+  "prompt": "Ultra-detailed anatomical exploded view (exploded-view) and layered biological infographic of Arabian Oryx, presented as an educational, clinical-clear scientific visual. Species-accuracy rule (mandatory): Automatically infer the correct anatomy for Arabian Oryx. If it is a vertebrate, show an internal skeleton (skull, spine, ribs, limb bones as applicable). Automatically choose the correct respiratory organs (lungs). Depict the reproductive system in a measured, educational manner. Camera and composition: 3/4 front isometric angle, scientific product/anatomy render perspective. Main body centered; outer body partially transparent and opened. Anatomical layers and major systems are separated and floating around the main body in a clean, symmetric, hierarchical exploded layout. Even spacing between layers; no clutter. Callout leader lines never cross; labels stay inside the frame and remain highly legible. Layers and systems (outer to inner, species-appropriate): 1) Outer surface: skin 2) Support system: skeleton 3) Muscular system 4) Circulatory system 5) Respiratory system 6) Digestive system 7) Nervous system 8) Reproductive system 9) Signature anatomy: highlight Arabian Oryx-specific distinctive structures (horns, hooves, desert adaptations) as separate emphasized layers. Labeling (mandatory): Thin white leader lines + numbered labels. Typeface: minimalist sans-serif. Label format: ## Part Name (System). Use 12-24 labels total. Visual style: Photorealistic 3D medical/anatomy render + textbook infographic aesthetic. Clinical clarity, high contrast, razor-sharp detail, 8K. Lighting: Soft, even studio lighting. Background: seamless smooth dark gray or dark navy scientific studio backdrop.",
+  "category": "information-viz",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20251224-2-output.webp"
+  ],
+  "local_image": null
+}

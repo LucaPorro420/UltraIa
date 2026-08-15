@@ -1,0 +1,17 @@
+{
+  "id": "information-viz-case18",
+  "slug": "18",
+  "url": "/es/prompt-handbook/information-viz/#case18",
+  "title": "Cocinar Según los Ingredientes",
+  "prompt": "make me a delicious lunch with these ingredients, and put it on a plate , zoomed in view of the plate, remove the other plates and ingredients.",
+  "category": "information-viz",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/case18_output2.webp",
+    "https://banana-prompt.nanoprompts.org/handbook/case18_output4.webp",
+    "https://banana-prompt.nanoprompts.org/handbook/case18_output6.webp"
+  ],
+  "local_image": null
+}

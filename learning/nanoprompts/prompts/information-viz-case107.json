@@ -1,0 +1,15 @@
+{
+  "id": "information-viz-case107",
+  "slug": "107",
+  "url": "/es/prompt-handbook/information-viz/#case107",
+  "title": "Visualización de Pronóstico del Tiempo con Sugerencias de Vestimenta",
+  "prompt": "Visualize the current weather forecast for the next 5 days in San Francisco as a clean, modern weather chart. Add a visual on what I should wear each day",
+  "category": "information-viz",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/1123-1.webp"
+  ],
+  "local_image": null
+}

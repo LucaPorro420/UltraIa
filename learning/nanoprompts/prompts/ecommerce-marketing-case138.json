@@ -1,0 +1,15 @@
+{
+  "id": "ecommerce-marketing-case138",
+  "slug": "138",
+  "url": "/es/prompt-handbook/ecommerce-marketing/#case138",
+  "title": "Imágenes con Etiquetas en Inglés por Escenario",
+  "prompt": "Generate photos of various scenarios, such as the kitchen, living room, airport, hotel, train station, etc. All objects, characters, and items appearing in these scenarios should be labeled in English, with their English meanings attached, along with phonetic symbols, in a cartoon comic style.",
+  "category": "ecommerce-marketing",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/1130-1-output.webp"
+  ],
+  "local_image": null
+}

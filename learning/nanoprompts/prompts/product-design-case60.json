@@ -1,0 +1,15 @@
+{
+  "id": "product-design-case60",
+  "slug": "60",
+  "url": "/es/prompt-handbook/product-design/#case60",
+  "title": "Aplicar Esfera de Material a Logo",
+  "prompt": "Apply the material from Image 2 to the logo in Image 1, present it as a 3D object, render in a C4D-like style, with a solid-color background.",
+  "category": "product-design",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/case60_output.webp"
+  ],
+  "local_image": null
+}

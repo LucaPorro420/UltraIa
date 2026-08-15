@@ -1,0 +1,15 @@
+{
+  "id": "ecommerce-marketing-case198",
+  "slug": "198",
+  "url": "/es/prompt-handbook/ecommerce-marketing/#case198",
+  "title": "Miniatura Viral de Transformación Antes y Después para Desafío de 30 Días",
+  "prompt": "Create a viral 'before and after' style thumbnail. Facial consistency: Use the person from the image, keeping facial features completely identical. Layout: Vertically split frame with jagged dividing line. Left side: Person with dejected/tired expression, black and white filter, slightly dim. Right side: Same person with confident/happy expression, high saturation color, bright lighting. Text elements: Top left red text: 'BEFORE', Top right green text: 'AFTER', Bottom center large text: '30-Day Challenge Transformed My Life!' Visual elements: Add thick arrow pointing right from left to right side, symbolizing transformation. Style: High contrast, dramatic lighting effects.",
+  "category": "ecommerce-marketing",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20251215-5-output.webp"
+  ],
+  "local_image": null
+}

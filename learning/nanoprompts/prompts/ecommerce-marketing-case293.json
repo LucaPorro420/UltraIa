@@ -1,0 +1,15 @@
+{
+  "id": "ecommerce-marketing-case293",
+  "slug": "293",
+  "url": "/es/prompt-handbook/ecommerce-marketing/#case293",
+  "title": "Nike Lumina: Anuncio de Moda Dinámico con Modelo Hiperrealista y Degradado Prismático",
+  "prompt": "A dynamic fashion advertisement for Nike showing a hyper-realistic model mid-twist jump, light trails following her limbs. Background: prism-shifting gradient (hot magenta to sapphire) with refracted lens flares. The model wears iridescent Nike runner tights and a cropped tech hoodie in holographic white. Bold serif \"NIKE\" and motion-glitched \"LUMINA\" in layered text behind. High-energy, futuristic aesthetic with fashion gloss. --ar 3:4 --raw --stylize 750",
+  "category": "ecommerce-marketing",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20251222-10-output.webp"
+  ],
+  "local_image": null
+}

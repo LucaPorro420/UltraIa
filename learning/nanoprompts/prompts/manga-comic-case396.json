@@ -1,0 +1,15 @@
+{
+  "id": "manga-comic-case396",
+  "slug": "396",
+  "url": "/es/prompt-handbook/manga-comic/#case396",
+  "title": "Manga de Cuatro Paneles: La Vida Cotidiana de un Artista de Manga Japonés",
+  "prompt": "Please create a full-color four-panel manga. The main character is a \"Japanese Manga Artist\".\nPanel 1: The protagonist (female) is waiting for the train. With a bored expression, she says, \"Ah, 1 minute...\"\nPanel 2: The protagonist (female) takes out her smartphone and says, \"What should I do?\"\nPanel 3: A scene where the protagonist (female) is holding her smartphone. Icons are displayed on the screen.\n\"Lovart\" is displayed below the icon. The protagonist (female) clicks the \"Start Creation\" button.\nPanel 4: The protagonist (female) is holding her smartphone, looking up at the sky in surprise. Black and white manga created by the protagonist are displayed around her, surrounding her as she says, \"...Ah, it's done!\"\nThis is a four-panel manga. The fourth panel can be emphasized by taking up more space than the other three panels. The aspect ratio is 3:4.",
+  "category": "manga-comic",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20260201-15-output.webp"
+  ],
+  "local_image": null
+}

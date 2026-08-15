@@ -1,0 +1,15 @@
+{
+  "id": "artistic-style-case360",
+  "slug": "360",
+  "url": "/es/prompt-handbook/artistic-style/#case360",
+  "title": "Choque de Espíritus: Guerrero Maorí vs Cyber-Samurái en Estilo de Tinta Pesada",
+  "prompt": "**Art Style:** Masterpiece Chinese heavy ink and mineral color painting. Extremely rough, expressive calligraphy brushstrokes, bold \"flying white\" (feibai) effects. Rich, aged Xuan paper texture visible. Splashed ink (Pomo) energy.\\n\\n**Composition:** Strong diagonal clash from top-left to bottom-right. High-contrast dynamic angle.\\n\\n**Top-Left (The Attacker/Dominant Force):**\\n* **Character:** A Maori Warrior Spirit with glowing moko tattoos, diving downwards with gravity.\\n* **Weapon/Magic:** Wielding a massive Jade Mere (club) surrounded by green spiritual energy leaving a trail of light.\\n* **Aura:** Surrounded by silver fern frond patterns and mist.\\n\\n**Bottom-Right (The Defender/Challenger):**\\n* **Character:** A Cyber-Samurai from Neo-Tokyo, looking upwards, bracing for impact.\\n* **Weapon/Magic:** Raising a high-tech energy shield to resist the attack.\\n* **Aura:** Engulfed in neon blue digital glitch effects.\\n\\n**The Clash:** The Green spiritual energy collides violently with the Neon Blue digital energy. Explosion of chaotic brushstrokes, sparks, and shockwaves. --ar 3:4",
+  "category": "artistic-style",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20260110-6-output.webp"
+  ],
+  "local_image": null
+}

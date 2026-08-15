@@ -1,0 +1,15 @@
+{
+  "id": "information-viz-case228",
+  "slug": "228",
+  "url": "/es/prompt-handbook/information-viz/#case228",
+  "title": "Iconos de UI para Juego Casual de Granja: 16 Elementos de Interfaz Etiquetados en Estilo Consistente",
+  "prompt": "Generate 16 casual farming-game-style UI interface icons with text labels, keeping the visual style consistent. Icons should include: seeds, watering can, harvest basket, tractor, barn, fertilizer, scarecrow, market stall, chicken coop, cow, wheat field, fruit tree, windmill, storage shed, vegetable garden, and fishing pond.",
+  "category": "information-viz",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20251216-18-output.webp"
+  ],
+  "local_image": null
+}

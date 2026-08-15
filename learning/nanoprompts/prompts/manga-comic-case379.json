@@ -1,0 +1,15 @@
+{
+  "id": "manga-comic-case379",
+  "slug": "379",
+  "url": "/es/prompt-handbook/manga-comic/#case379",
+  "title": "Cómic de Boceto Minimalista en Tinta: Visualizando Conceptos Filosóficos",
+  "prompt": "Minimalist black and white sketch style comic strip page. Expressive, rough, sparse ink lines. High contrast, no mid-tones. Layout: Multi-panel comic with hand-drawn irregular borders. 2D flat perspective with negative space. Subject: A philosophical story about decision making. Panel 1: A character looking contemplative. Panel 2: Doing something happy (reading a book). Panel 3: Doing something difficult (climbing a mountain). Text bubbles in English: 'Two standards for what to do: 1. Things you enjoy and won't regret. 2. Things you might not enjoy but will regret if you don't.' Background: Off-white paper texture. Ink style: Rough, unclosed lines.",
+  "category": "manga-comic",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20251231-8-output.webp"
+  ],
+  "local_image": null
+}

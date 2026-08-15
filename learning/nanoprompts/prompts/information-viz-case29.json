@@ -1,0 +1,15 @@
+{
+  "id": "information-viz-case29",
+  "slug": "29",
+  "url": "/es/prompt-handbook/information-viz/#case29",
+  "title": "Anotaciones con Bolígrafo Rojo",
+  "prompt": "Analyze this image. Use red pen to denote where you can improve.",
+  "category": "information-viz",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/case29_output.webp"
+  ],
+  "local_image": null
+}

@@ -1,0 +1,15 @@
+{
+  "id": "ecommerce-marketing-case365",
+  "slug": "365",
+  "url": "/es/prompt-handbook/ecommerce-marketing/#case365",
+  "title": "Lookbook de Moda en Cuadrícula: 9 Poses Dinámicas de una Modelo en Cielo Azul",
+  "prompt": "A high-resolution 3x3 grid photo collage featuring 9 different dynamic poses of a female model, set against a vibrant blue sky dotted with white clouds. Strong, natural sunlight creates clear, sharp shadows. The model wears a knit sweater paired with a skirt and a thin silver necklace. Photography utilizes various focal lengths, transitioning freely from 35mm wide-angle full-body shots to 85mm close-up portraits. Poses are diverse and rich, including: a powerful stance with legs apart and hands behind head; a perspective shot with palm pointing directly at the camera; a playful close-up peering through an OK hand gesture over one eye; a cheerful mid-shot with chin resting in hands; and a melancholic pose with one hand covering half the face. Image quality is 8K resolution, presenting ultra-realistic effects, showcasing delicate skin texture, subsurface scattering, realistic clothing folds, and distinct hair strands, embodying the refined aesthetic of a high-end commercial fashion lookbook or lifestyle campaign. Background is the Southern Alps of New Zealand. --ar 3:4",
+  "category": "ecommerce-marketing",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20260110-11-output.webp"
+  ],
+  "local_image": null
+}

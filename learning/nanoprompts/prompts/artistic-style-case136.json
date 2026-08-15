@@ -1,0 +1,15 @@
+{
+  "id": "artistic-style-case136",
+  "slug": "136",
+  "url": "/es/prompt-handbook/artistic-style/#case136",
+  "title": "Ilustración de Ropa Estilo Pop Art",
+  "prompt": "You are editing the uploaded real photograph.\n\nKeep the person's body, face, hair, skin texture, and the background exactly as they are.  \nDo NOT alter the person's identity or any real-life details.\n\nTransform ONLY the clothing into a clean, bold pop-art style illustration, while preserving the original outfit's:\n- shape\n- silhouette\n- color scheme\n- pattern placement\n- pocket positions\n- neckline and seams\n- major visual design elements\n\nIllustration requirements:\n- Use thick, smooth black outlines around the edges of the clothing.\n- Convert folds and wrinkles into simplified cartoon-style linework.\n- Preserve the original color palette, but make it brighter, cleaner, and more graphic.\n- Convert textures, logos, or patterns into flat, vector-like versions.\n- Add small stylish accents such as white highlight strokes or minimal motion lines around the clothing for a pop-art effect.\n- Make the illustrated clothing look intentionally \"drawn on top\" of the real person, with crisp edges and solid colors.\n- Ensure the illustration wraps naturally around the body as real fabric would.\n\nRestrictions:\n- Do NOT add any characters, animals, creatures, or mascots.\n- Do NOT introduce any copyrighted elements.\n- Only convert the clothing itself into stylized illustration; keep everything else fully realistic.\n\nGoal:\nCreate a hybrid artwork where the person remains photorealistic, but the clothing is redrawn as a vibrant, vector-style pop-art illustration based on the original outfit's design.",
+  "category": "artistic-style",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/1127-3-output.webp"
+  ],
+  "local_image": null
+}

@@ -1,0 +1,15 @@
+{
+  "id": "spatial-design-case178",
+  "slug": "178",
+  "url": "/es/prompt-handbook/spatial-design/#case178",
+  "title": "Habitación Miniatura en Cubo Isométrico 3D con Figura de Personaje Chibi",
+  "prompt": "An isometric 3D cube-shaped miniature room (shallow cutaway true cube; everything strictly contained within the cube). The room is [ROOM DESCRIPTION: Describe the theme, furniture, specific clutter, wall decorations, and key items in detail].\nCharacter: a chibi/figurine-style — [INSERT DESCRIPTION OF THE PERSON FROM YOUR UPLOADED PHOTO HERE]. The character is [ACTION: e.g., sitting on a chair typing, standing and cooking, playing guitar], with a [EXPRESSION: e.g., focused, happy, smiling] expression. Figure material looks like matte PVC, with big head / small body proportions. Lighting: [ATMOSPHERE NAME]: [LIGHT SOURCES: e.g., neon blue glow, warm sunlight, golden lamp light]; realistic reflections and colored shadows. Camera: slightly elevated isometric three-quarter view, front cube edge centered; no elements protruding outside the cube. Photoreal materials with fine detail; neutral backdrop. Ultra-detailed, clean composition; no watermark.",
+  "category": "spatial-design",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20251213-2-output.webp"
+  ],
+  "local_image": null
+}

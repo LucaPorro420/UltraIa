@@ -1,0 +1,15 @@
+{
+  "id": "spatial-design-case75",
+  "slug": "75",
+  "url": "/es/prompt-handbook/spatial-design/#case75",
+  "title": "Generar Escena Miniatura desde Imagen",
+  "prompt": "Convert the image to isometric view",
+  "category": "spatial-design",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/case75_output.webp"
+  ],
+  "local_image": null
+}

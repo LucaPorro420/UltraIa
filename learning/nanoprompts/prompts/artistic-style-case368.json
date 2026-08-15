@@ -1,0 +1,15 @@
+{
+  "id": "artistic-style-case368",
+  "slug": "368",
+  "url": "/es/prompt-handbook/artistic-style/#case368",
+  "title": "Efecto Droste Recursivo: Gato Sosteniendo iPad en Bucle Infinito",
+  "prompt": "Recursive image of an orange tabby cat sitting in an office chair holding up an iPad. On the iPad screen is the exact same scene - the same cat in the same chair holding up the same iPad, showing the same recursive image. This pattern repeats infinitely on each nested iPad screen, creating a Droste effect.",
+  "category": "artistic-style",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20260118-3-output.webp"
+  ],
+  "local_image": null
+}

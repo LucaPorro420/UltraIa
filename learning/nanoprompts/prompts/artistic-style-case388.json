@@ -1,0 +1,15 @@
+{
+  "id": "artistic-style-case388",
+  "slug": "388",
+  "url": "/es/prompt-handbook/artistic-style/#case388",
+  "title": "Torre Helicoidal de Evolución Histórica: Instalación de Museo Arte 3D para Literatura",
+  "prompt": "Do this for literature: <instruction>\n \nInput A is a Topic with a clear historical progression (e.g., German Automotive Engineering, Medicine, Flight, Computing).\nDeconstruct the history into   4 Vertical Eras  :\n     Level 1 (The Foundation - Bottom):  The Ancient Origin.\n         (e.g., Literature -> Stone Tablets & Scrolls. Flight -> Da Vinci Wings & Kites). \n     Level 2 (The Tradition - Lower Mid):  The Medieval/Renaissance Era.\n         (e.g., Literature -> Scriptorium & Monks. Flight -> Hot Air Balloons). \n     Level 3 (The Revolution - Upper Mid):  The Industrial Age.\n         (e.g., Literature -> Printing Press & Newspapers. Flight -> Propeller Planes). \n     Level 4 (The Horizon - Top):  The Digital/Future Age.\n         (e.g., Literature -> Holographic Data & VR. Flight -> Spacecraft & Ion Thrusters). \n\n  2.  Container (The Rotunda):  \nGoal: \"Museum Installation\" 3D Art.\n     The Object:  A massive, freestanding   Helical Tower Sculpture   standing in a dark museum hall.\n     The Base:  A circular Bronze Plinth with a gold plaque reading: \"THE EVOLUTION OF [German Automotive Engineering]\".\n\n  3. The Structure (The Spiral):  \n     The Spine:  A central mechanical or architectural pillar supports the structure.\n     The Ramp:  A continuous, wide   Spiral Ramp   winds upwards around the central pillar (like the Tower of Babel or DNA).\n     The Vignettes:  Along the ramp at each level, detailed   Architectural Dioramas   are built:\n         Bottom:  Stone arches, caves, or temples.\n         Middle:  Timber frames, brick factories, or iron trusses.\n         Top:  Floating glass platforms, laser grids, or cloud computing nodes.\n\n  4. The Narrative Scale (The Population):  \n     Scale:  1:50 Scale Figures.\n     Action:  At every level, figures are actively \"working\" on the technology of their time (e.g., Scribes writing, Mechanics wrenching, Cyborgs interfacing).",
+  "category": "artistic-style",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20260201-4-output.webp"
+  ],
+  "local_image": null
+}

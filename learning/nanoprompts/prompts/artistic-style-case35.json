@@ -1,0 +1,15 @@
+{
+  "id": "artistic-style-case35",
+  "slug": "35",
+  "url": "/es/prompt-handbook/artistic-style/#case35",
+  "title": "Proceso de Dibujo en Cuatro Paneles",
+  "prompt": "Generate a four-panel drawing process for the character: Step 1: Line art, Step 2: Flat colors, Step 3: Add shadows, Step 4: Refine and complete. No text.",
+  "category": "artistic-style",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/case35_output.webp"
+  ],
+  "local_image": null
+}

@@ -1,0 +1,15 @@
+{
+  "id": "information-viz-case113",
+  "slug": "113",
+  "url": "/es/prompt-handbook/information-viz/#case113",
+  "title": "Diagrama Óptico de Lente de Cámara",
+  "prompt": "Generate a light path structure diagram of a \"DSLR camera lens\" explaining the relationship between aperture and lens elements",
+  "category": "information-viz",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/1123-7-output.webp"
+  ],
+  "local_image": null
+}

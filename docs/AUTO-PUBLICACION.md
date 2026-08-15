@@ -205,6 +205,18 @@ alternativas con pros/cons. Orden sugerido de ejecución (ajustable por el usuar
   a credenciales del proceso). (c) Gen-Engine expone `/publish` (centraliza, pero mezcla
   generación con distribución).
 
+> **F4 tarea 1 implementada 15/08/2026 (iteración 9)**: `packages/core/src/tools/publish.ts`
+> — `PublisherAdapter` (interfaz `publish`/`validate` fail-soft) + `createYouTubeAdapter`
+> (upload resumable v3: POST → Location → PUT, categoryId 28, madeForKids false) +
+> `createTikTokAdapter` (Direct Post 2 pasos: init → PUT al upload_url, title+hashtags ≤150,
+> FILE_UPLOAD 1 chunk) + `buildBilingualMetadata` (título es/ar + tags mixtos, port RF-12) +
+> `publishToAll` (corre todos los adapters, agrega resultados por plataforma) +
+> `createDefaultPublishers`. Tokens: options o env `YOUTUBE_ACCESS_TOKEN`/`TIKTOK_ACCESS_TOKEN`;
+> fetch inyectable (tests con mocks, cero llamadas reales). Capability `publish` → tool
+> `publish_submit` en llm.ts (valida tokens primero, fail-soft con razón clara, `toYoutube`/
+> `toTiktok` opcionales); 15 tests. Pendiente F4: tarea 2 — cola `Publication` (Prisma) +
+> endpoints API + aprobación por paquete (STATE.md #10).
+
 ### F5 — Métricas y mejora (nuevo)
 
 - **Objetivo**: cerrar el loop con datos reales.

@@ -1,0 +1,15 @@
+{
+  "id": "manga-comic-case23",
+  "slug": "23",
+  "url": "/es/prompt-handbook/manga-comic/#case23",
+  "title": "Generación de Resultado Multi-Vista",
+  "prompt": "Generate the Front, Rear, Left, Right, Top, Bottom views on white. Evenly spaced. Consistent subject. Isometric Perspective Equivalence.",
+  "category": "manga-comic",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/case23_output.webp"
+  ],
+  "local_image": null
+}

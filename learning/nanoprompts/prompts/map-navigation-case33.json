@@ -1,0 +1,15 @@
+{
+  "id": "map-navigation-case33",
+  "slug": "33",
+  "url": "/es/prompt-handbook/map-navigation/#case33",
+  "title": "Mapa a Edificios Isométricos",
+  "prompt": "Take this location and make the landmark an isometric image (building only), in the stvle of the game Theme Park",
+  "category": "map-navigation",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/case33_output.webp"
+  ],
+  "local_image": null
+}

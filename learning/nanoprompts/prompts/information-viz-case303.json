@@ -1,0 +1,15 @@
+{
+  "id": "information-viz-case303",
+  "slug": "303",
+  "url": "/es/prompt-handbook/information-viz/#case303",
+  "title": "Especificaciones del Producto NVIDIA RTX 5090 al Estilo Keynote de Apple",
+  "prompt": "A horizontal calendar card design with split-screen composition.\n\nLeft side: Detailed 3D rendered illustration of LABUBU character wearing a thick fluffy white down jacket and blue knitted beanie. LABUBU sits on a snow-covered log, holding a steaming hot cocoa cup with both hands, showing a playful smile. Background is a cozy, snow-laden pine forest with soft cinematic lighting. Has 3D art toy texture.\n\nRight side: Clean, minimalist white background area. Top features large, prominent blue text \"January 1, 2026\". Below is a neat, modern calendar grid layout showing the full month.\n\nStyle: UI design aesthetic, high-quality rendering, card mockup. 16:9 HD output.",
+  "category": "information-viz",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20251223-12-output.webp"
+  ],
+  "local_image": null
+}

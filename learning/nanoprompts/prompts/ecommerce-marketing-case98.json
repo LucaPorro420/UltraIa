@@ -1,0 +1,15 @@
+{
+  "id": "ecommerce-marketing-case98",
+  "slug": "98",
+  "url": "/es/prompt-handbook/ecommerce-marketing/#case98",
+  "title": "Crear un Póster de Película",
+  "prompt": "Analyze the uploaded photo and detect the subject, mood, and atmosphere.  \nAutomatically classify the photo into a suitable movie genre (romance, action, mystery, horror, etc.).  \n\nBased on the detected genre and mood, generate all the following elements in English:  \n- A cinematic movie title (impactful, authentic to the genre).  \n- A short tagline or catchphrase (1–2 lines, dramatic or emotional).  \n- A credit block at the bottom (with fake names for director, producer, music, etc., styled like real movie posters).  \n- A release note such as “COMING SOON” or “In Theaters 2025.”  \n\nOverlay these elements on the image in a movie-poster style layout:  \n- Place the title prominently in the center or lower third.  \n- Place the tagline above or below the title.  \n- Add a credit block at the bottom in small text.  \n- Add the release note at the bottom center.  \n\nFinally, add the starring section at the bottom, always formatted as:  \n“Starring: ”  \n\nTypography should be bold, dramatic, and genre-appropriate.  \nThe final result must look like a genuine movie poster ready for theaters, with all elements harmonized to the photo’s mood.",
+  "category": "ecommerce-marketing",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/case98_output.webp"
+  ],
+  "local_image": null
+}

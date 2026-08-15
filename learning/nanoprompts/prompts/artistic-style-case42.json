@@ -1,0 +1,15 @@
+{
+  "id": "artistic-style-case42",
+  "slug": "42",
+  "url": "/es/prompt-handbook/artistic-style/#case42",
+  "title": "Filtro/Material de Superposición",
+  "prompt": "Overlay the [glass] effect from Image 2 onto the photo in Image 1",
+  "category": "artistic-style",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/case42_output.webp"
+  ],
+  "local_image": null
+}

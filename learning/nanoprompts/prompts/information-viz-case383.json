@@ -1,0 +1,15 @@
+{
+  "id": "information-viz-case383",
+  "slug": "383",
+  "url": "/es/prompt-handbook/information-viz/#case383",
+  "title": "Infografía Comparativa: Características del Shiba Inu, Pastor Alemán y Bulldog Francés",
+  "prompt": "I am considering getting a pet dog but am still struggling to choose a breed. Please help me generate an infographic that centrally displays the characteristics, temperament, common health issues, and feeding guide for the following potential breeds: Shiba Inu, German Shepherd, French Bulldog. The infographic needs to be clear and easy to compare.",
+  "category": "information-viz",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20260201-2-output.webp"
+  ],
+  "local_image": null
+}

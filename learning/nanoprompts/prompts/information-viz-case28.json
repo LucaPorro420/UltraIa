@@ -1,0 +1,15 @@
+{
+  "id": "information-viz-case28",
+  "slug": "28",
+  "url": "/es/prompt-handbook/information-viz/#case28",
+  "title": "Generación de Imágenes por Razonamiento de Conocimiento",
+  "prompt": "Make me an infographic of 5 tallest buildings in the world / Make a colorful infographic of the sweetest things on Earth",
+  "category": "information-viz",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/case28_output.webp"
+  ],
+  "local_image": null
+}

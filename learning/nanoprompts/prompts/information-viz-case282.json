@@ -1,0 +1,15 @@
+{
+  "id": "information-viz-case282",
+  "slug": "282",
+  "url": "/es/prompt-handbook/information-viz/#case282",
+  "title": "Ciencia Ficción Internacional en Cuadrícula 2x2: Dioramas de Libros con Esculturas Cinéticas de Autores No Estadounidenses",
+  "prompt": "Create a 2x2 grid showcasing four famous science fiction novels from non-American authors, presented in a clean high-end photography studio setup with sharp micro-detail and consistent camera angle using shallow depth of field. Panel A features Solaris by Polish author Stanislaw Lem as a kinetic sculptural scene inside an open book, with miniature floating space station and mysterious ocean planet elements crafted from metallic and liquid-like materials. Panel B shows The Three-Body Problem by Chinese author Liu Cixin with a kinetic sculpture depicting the chaotic three-sun system, tiny civilizations, and VR headset elements made from bronze and luminous materials. Panel C presents Roadside Picnic by Russian authors Arkady and Boris Strugatsky, featuring a kinetic diorama of the alien Zone with scattered artifacts and stalker figures made from weathered metals and glowing materials. Panel D displays Blindsight by Canadian author Peter Watts showing a sculptural interpretation of the alien Rorschach vessel and transhuman crew made from crystalline and bio-mechanical materials. Each panel shows iconic characters and elements from their respective stories. The book titles and author names are elegantly displayed underneath each panel in both English and the original language.",
+  "category": "information-viz",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20251221-9-output.webp"
+  ],
+  "local_image": null
+}

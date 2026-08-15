@@ -1,0 +1,15 @@
+{
+  "id": "map-navigation-case38",
+  "slug": "38",
+  "url": "/es/prompt-handbook/map-navigation/#case38",
+  "title": "Vista de Google Maps de la Tierra Media",
+  "prompt": "Dashcam Google Street View shot | [Hobbiton Street] | [hobbits carrying out daily tasks like gardening and smoking pipes] | [Sunny weather]",
+  "category": "map-navigation",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/case38_output.webp"
+  ],
+  "local_image": null
+}

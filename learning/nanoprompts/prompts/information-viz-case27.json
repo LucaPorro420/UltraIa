@@ -1,0 +1,15 @@
+{
+  "id": "information-viz-case27",
+  "slug": "27",
+  "url": "/es/prompt-handbook/information-viz/#case27",
+  "title": "Agregar Marca de Agua a Imagen",
+  "prompt": "Watermark the word ‘TRUMP’ over and over again across the whole image.",
+  "category": "information-viz",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/case27_output.webp"
+  ],
+  "local_image": null
+}

@@ -1,0 +1,15 @@
+{
+  "id": "artistic-style-case143",
+  "slug": "143",
+  "url": "/es/prompt-handbook/artistic-style/#case143",
+  "title": "Paisaje Miniatura Isométrico Estilo Ghibli",
+  "prompt": "{\n\"style_analysis\": {\n\"style_name\": \"Ghibli-esque Isometric Miniature Landscape\",\n\"art_direction\": \"Studio Ghibli Background Art Style (Hayao Miyazaki)\",\n\"medium\": \"Digital painting (mimicking traditional gouache/watercolor texture)\",\n\"mood\": \"Healing, Peaceful, Fresh, Utopian\"\n},\n\"visual_elements\": {\n\"perspective\": {\n\"type\": \"Isometric / 2.5D\",\n\"angle\": \"High-angle view\",\n\"scale\": \"Miniature world scale\"\n},\n\"color_palette\": {\n\"dominant_colors\": [\n\"Lush Grass Green\",\n\"Azure Blue\",\n\"Pure White\"\n],\n\"saturation\": \"High saturation, Vibrant\",\n\"contrast\": \"Soft contrast\"\n},\n\"lighting\": {\n\"source\": \"Bright Daylight\",\n\"shadows\": \"Soft, diffused shadows\",\n\"highlights\": \"Diffuse highlights on surfaces\"\n},\n\"texture\": {\n\"foliage\": \"Hand-painted strokes, fluffy foliage\",\n\"clouds\": \"Anime-style cumulus clouds\",\n\"water\": \"Crystal clear with simple reflections\"\n}\n},\n\"content_composition\": {\n\"theme\": \"Fusion of Modern Brands & Nature Fantasy\",\n\"key_objects\": [\n\"Miniaturized Brand HQs (Apple, IKEA, Starbucks, LV, Nike, Tesla, 7-11)\",\n\"Ghibli classic characters (Totoro, Catbus, Soot Sprites)\",\n\"Winding river and stone paths\",\n\"Giant trees\"\n]\n},\n\"prompt_keywords_suggestion\": [\"Isometric view\",\"Studio Ghibli style\",\"Hayao Miyazaki\",\"Miniature world\",\"Cute modern architecture\",\"Lush forest landscape\",\"Fluffy clouds\",\"Blue sky\",\"Vibrant colors\",\"Digital painting\",\"Whimsical\",\"Fantasy village\"\n]\n}",
+  "category": "artistic-style",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/1205-3-output.webp"
+  ],
+  "local_image": null
+}

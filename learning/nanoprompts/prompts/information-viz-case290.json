@@ -1,0 +1,15 @@
+{
+  "id": "information-viz-case290",
+  "slug": "290",
+  "url": "/es/prompt-handbook/information-viz/#case290",
+  "title": "Código de Terminal con Superposición de Personaje Anime: Visualización Compuesta del Estrés del Desarrollador",
+  "prompt": "A composite image showing a dark terminal screen with code output and a monochrome anime character overlay. The terminal has a black background with colored text (white, blue, grey) showing a shell command execution and JSON response data, including technical details like HTTP headers and status codes. In the bottom right corner, there is a black and white manga-style illustration of a young woman with dark hair and bangs, looking stressed and anxious with her hands clenched. The character overlay is semi-transparent over the code.",
+  "category": "information-viz",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20251222-7-output.webp"
+  ],
+  "local_image": null
+}

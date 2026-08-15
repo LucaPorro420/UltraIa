@@ -1,0 +1,15 @@
+{
+  "id": "information-viz-case377",
+  "slug": "377",
+  "url": "/es/prompt-handbook/information-viz/#case377",
+  "title": "Póster Gráfico Deportivo de Shohei Ohtani con Retrato Compuesto Dinámico",
+  "prompt": "A dynamic composite portrait of Japanese baseball player Shohei Ohtani in his Hokkaido Nippon-Ham Fighters jersey, set against a bold blue background with a stylized silver fox emblem. The composition features a large close-up portrait of Ohtani in the foreground, looking directly at viewer with serious expression, short dark hair and clean-shaven face. Behind him, a smaller action-oriented image shows him mid-celebration with mouth open in triumph, wearing the same blue jersey with team logos. A third smaller inset depicts him batting in full gear mid-swing. He wears a blue long-sleeved jersey with silver accents, white pants, and batting gear. Dramatic studio-like lighting highlighting his features and vibrant blue uniform. Background is deep blue with glowing silver fox logo evoking team identity. Text elements on left display his NPB 2025 stats: 15 innings, 687 runs, 52.85 average, 182.45 strike rate, and 8 fifties. High-impact sports graphic style combining realistic photography with bold typography and graphic design elements.",
+  "category": "information-viz",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20260118-12-output.webp"
+  ],
+  "local_image": null
+}

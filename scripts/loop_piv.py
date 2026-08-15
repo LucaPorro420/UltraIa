@@ -40,7 +40,8 @@ RUN_LOG = ROOT / "loop-run-log.md"
 LEARNINGS = ROOT / "learning" / "LEARNINGS.md"
 
 KILL_SWITCH = "loop-pause-all"
-TASK_RE = re.compile(r"^\|\s*(\d+)\s*\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|\s*PENDIENTE\s*\|")
+TASK_RE = re.compile(r"^\|\s*(\d+)\s*\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|\s*pendiente\s*\|", re.IGNORECASE)
+DONE_RE = re.compile(r"^\|\s*(\d+)\s*\|")
 
 
 def npm_cmd() -> str:
@@ -108,7 +109,7 @@ def mark_done(task_id: int) -> None:
     out = []
     for line in lines:
         if TASK_RE.match(line):
-            line = line.replace("PENDIENTE", f"DONE {today}")
+            line = re.sub(r"\|\s*pendiente\s*\|", f"| ✅ DONE {today} |", line, flags=re.IGNORECASE)
         out.append(line)
     STATE.write_text("\n".join(out) + "\n", encoding="utf-8")
     print(f"[state] tarea #{task_id} marcada DONE {today}")
@@ -140,4 +141,63 @@ def main() -> int:
         return 0
 
     if args.gate_only:
-        ok 
+        ok = gates(full=True, dry=args.dry_run)
+        print("[gate-only] FULL:", "GREEN" if ok else "RED")
+        return 0 if ok else 1
+
+    oc = opencode_exec()
+    for cycle in range(1, max(1, args.cycles) + 1):
+        task = next_task()
+        if task is None:
+            print("[backlog] vacío — proyecto completado (o sin tareas PENDIENTE)")
+            return 0
+        task_id, title, priority, criteria = task
+        print(f"\n=== Ciclo {cycle} — tarea #{task_id}: {title} [{priority}] ===")
+
+        plan_prompt = (
+            f"Ejecuta la fase P del loop PIVR (skill .opencode/skills/loop-piv) para la tarea "
+            f"#{task_id} '{title}'. Criterios de verificación: {criteria}. "
+            f"Contexto: lee learning/LEARNINGS.md si existe."
+        )
+        code_p, out_p = run(oc + ["run", "--agent", "piv-plan", plan_prompt], args.dry_run)
+        if code_p != 0:
+            log(f"- Ciclo {cycle} tarea #{task_id} '{title}': **P FAIL**\n- Salida:\n{out_p[-1500:]}")
+            print("[P] plan FAIL")
+            return 1
+        plan_tail = out_p.strip()[-2000:] if out_p.strip() else "(plan vacío)"
+
+        build_prompt = (
+            f"Ejecuta las fases I+V del loop PIVR (skill .opencode/skills/loop-piv) para la tarea "
+            f"#{task_id} '{title}': implementa el plan recién escrito en loop-run-log.md, corre los "
+            f"gates (typecheck -> lint -> test -> build) y commitea. Plan del agente P:\n{plan_tail}"
+        )
+        code_i, out_i = run(oc + ["run", "--agent", "piv-build", build_prompt], args.dry_run)
+        if code_i != 0:
+            log(f"- Ciclo {cycle} tarea #{task_id} '{title}': **I FAIL** (exit {code_i})\n- Salida:\n{out_i[-1500:]}")
+            print("[I] build FAIL")
+            return 1
+
+        full = args.full_gate or True
+        ok = gates(full=full, dry=args.dry_run)
+        if not ok:
+            log(f"- Ciclo {cycle} tarea #{task_id} '{title}': **V FAIL** (gates RED)\n- Salida build:\n{out_i[-1200:]}")
+            print("[V] gates RED")
+            return 1
+
+        if not args.dry_run:
+            commit = latest_commit()
+            mark_done(task_id)
+            log(
+                f"- Ciclo {cycle} tarea #{task_id} '{title}': P ✅ I ✅ V ✅ GREEN\n"
+                f"- Commit: {commit}\n- Gates: FULL"
+            )
+            print(f"[R] ciclo {cycle} completo (commit {commit})")
+        else:
+            print(f"[R] (dry-run) ciclo {cycle} completo — sin cambios en STATE/run-log")
+
+    print("\n[fin] ciclos ejecutados. Siguiente: python scripts/loop_piv.py de nuevo (o ciclo en-sesión).")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

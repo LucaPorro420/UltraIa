@@ -1,0 +1,15 @@
+{
+  "id": "artistic-style-case181",
+  "slug": "181",
+  "url": "/es/prompt-handbook/artistic-style/#case181",
+  "title": "Bebida con Ilustración en Estilo de Pintura Regional y Composición con Etiqueta Cultural",
+  "prompt": "Location: Barcelona\n\nA vertical composition (3:4 ratio) overhead photo. A [VESSEL TYPE] with distinct regional characteristics, holding [DRINK NAME], presented authentically in the traditional [LOCATION] style, with its central point precisely at the golden ratio intersection (e.g., upper left).\n\nThis cup/container physically overlaps and presses against the inner corner of a large, single painting-style illustration block. The subject of this illustration is intentionally arranged off-center, with visual weight leaning toward the corner opposite the cup. This is not a collage or repeating pattern, but a unified, coherent scene, enclosed within a flowing, organic, or irregular geometric boundary (never a rigid rectangle). This unique illustration adopts the distinctive painting style of [FAMOUS LOCAL ART STYLE/ARTIST], depicting the iconic natural landscapes or urban scenery of [LOCATION].\n\nCrucially: Between the outer contour of this unique illustration shape and the physical edges of the entire square frame, there is a clear \"white space margin\" (about 1/3 of the frame's width/height), which serves as textured negative space. The surrounding large areas of textured, soft background tones are elegantly and directly derived from the color of [DRINK NAME] itself. In the prominent negative space, place a small, culturally characteristic auxiliary label object (such as a seal, postmark, etc.), subtly inscribed in the local language/script with \"[LOCATION]\" and \"[DRINK NAME]\".\n\nSome unprocessed [INGREDIENT] raw materials are artistically scattered around the cup/container and along the edges of the illustration boundary. The lighting is soft, natural top lighting.",
+  "category": "artistic-style",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20251213-5-output.webp"
+  ],
+  "local_image": null
+}

@@ -1,0 +1,15 @@
+{
+  "id": "manga-comic-case76",
+  "slug": "76",
+  "url": "/es/prompt-handbook/manga-comic/#case76",
+  "title": "Cómic Educativo",
+  "prompt": "Help me generate multiple 16:9 doodle-style images to explain the concept of \"futures\" to middle school students. The images should have a consistent colorful, thick-pencil hand-drawn style, be rich in information, feature English text, use solid color backgrounds, have outlines around the cards, and include uniform titles, similar to a PowerPoint presentation.",
+  "category": "manga-comic",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/case76_output.webp"
+  ],
+  "local_image": null
+}

@@ -1,0 +1,15 @@
+{
+  "id": "information-viz-case170",
+  "slug": "170",
+  "url": "/es/prompt-handbook/information-viz/#case170",
+  "title": "Póster de Escena en Miniatura 3D de Momentos Famosos de Películas/Novelas",
+  "prompt": "Please design a high-quality 3D poster for the film/TV series/novel 'The Three-Body Problem'. First, retrieve information about the film/TV series/novel and find a representative famous scene or core location. In the center of the image, build this scene as an exquisite axonometric 3D miniature model. The style should adopt DreamWorks Animation's delicate and soft rendering style. You need to restore the architectural details, character dynamics, and environmental atmosphere of the time, whether it's a storm or a quiet afternoon, naturally integrating them into the model's light and shadow. For the background, don't use a simple pure white bottom. Please create a void environment around the model with a light ink halo and flowing light mist, with elegant tones, making the image look breathable and deep, setting off the preciousness of the central model. Finally, for the bottom typography, please generate Chinese text. Write the novel name centered, with a font design that matches the original style. Below the title, automatically retrieve and typeset a classic description or line from the original work about this scene, using an elegant serif font. The overall layout should be as exquisite and balanced as a high-end museum collection plaque.",
+  "category": "information-viz",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20251212-8-output.webp"
+  ],
+  "local_image": null
+}

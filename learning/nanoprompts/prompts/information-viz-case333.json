@@ -1,0 +1,15 @@
+{
+  "id": "information-viz-case333",
+  "slug": "333",
+  "url": "/es/prompt-handbook/information-viz/#case333",
+  "title": "Fotografía Kawaii de Gatito Esponjoso 3D Knolling: Personaje de Gato Lindo en Disposición Plana con Gráfico Radar de Atributos",
+  "prompt": "Knolling photography, flat lay composition featuring a cute 3D fluffy white kitten character in the center, wearing a pastel pink lace dress with a bow. The kitten has an adorable kawaii aesthetic inspired by Japanese character design. Surrounding the cat is a deconstructed arrangement of belongings organized in a precise grid-like Knolling structure: pink Parisian fashion accessories including miniature berets and scarves, French perfume bottles with elegant glass designs, gourmet cat food from Italy, Nordic design toys, a Japanese smartphone with cute charm, a German precision camera, and a decorative ring light. Items are arranged neatly with thin dotted lines connecting them to the center character. At the bottom is a pentagon radar chart showing attributes. The scene includes UI text boxes with French-inspired typography. Color palette of cream, pastel pink, and rose gold with gold metallic accents. Soft studio lighting with professional diffusion. Clean beige background with subtle texture. High definition rendering using C4D and Octane render, commercial product photography quality, 8k resolution --ar 16:9",
+  "category": "information-viz",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20251227-3-output.webp"
+  ],
+  "local_image": null
+}

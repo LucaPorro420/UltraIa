@@ -1,0 +1,15 @@
+{
+  "id": "information-viz-case220",
+  "slug": "220",
+  "url": "/es/prompt-handbook/information-viz/#case220",
+  "title": "Pizarra de Elementos Bíblicos del Anime: 50+ Tropos y Patrones Clásicos de Narrativa",
+  "prompt": "Whiteboard layout presenting the core anime Bible elements — the classic genetic structure of anime storytelling. At the top of the board, pin a paper label with the title 'バイブル要素' (Bible Elements) written in large, handwritten characters. Below the title, begin listing a full expanded set of tropes (50+ items) in a structured outline format. Each item includes a short handwritten-style explanation or note underneath, as if written during a lecture or creative workshop. Highlight important keywords and directional notes using colored markers or lines (red, blue, yellow) to emphasize connections between themes, characters, and narrative patterns. Create warm, nostalgic lighting with soft shadows, giving the board a slightly used but academic feel — as if part of a long-term research project. Overall aesthetic: vintage, textured, scholarly academy vibe, yet cozy and thoughtful. Maintain high legibility, strong contrast, and a clean, organized composition suitable for a 1080x1080 resolution.",
+  "category": "information-viz",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20251216-10-output.webp"
+  ],
+  "local_image": null
+}

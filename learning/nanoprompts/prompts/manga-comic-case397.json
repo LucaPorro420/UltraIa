@@ -1,0 +1,15 @@
+{
+  "id": "manga-comic-case397",
+  "slug": "397",
+  "url": "/es/prompt-handbook/manga-comic/#case397",
+  "title": "Storyboard Continuo: Estilo Documental Realista Cinematográfico",
+  "prompt": "Horizontal 16:9 cinematic continuous storyboard, realistic documentary style. Reference Image 1 for character spatial relationship, position, and style; Reference Image 2 for character appearance. This prompt includes four specific frame instructions:\n\nPanel 1 (Side Profile Close-up): Focus on the facial features (platinum blonde hair, green eyes) of the character from Image 2 reading in bed, referencing Image 1. Apply background blur and retain the cool-toned lighting from Image 1.\n\nPanel 2 (Reading Back View): Recreate the action of “lying on the bed reading” from Image 1, but use the clothing of the character from Image 2, emphasizing the cherry blossom season outside the window.\n\nPanel 3 (Medium Shot Low Angle): Reference Image 1 for the action position. This is a highly dramatic perspective, reflecting the narrowness of the room and the spatial relationship of the character, highlighting details of the bookshelf and poster wall.\n\nPanel 4 (Full View/Fisheye): Add a wide-angle shot (referencing the perspective of Image 1) to establish the overall environment and set the mood of “staying home on a snowy day.”",
+  "category": "manga-comic",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20260201-16-output.webp"
+  ],
+  "local_image": null
+}

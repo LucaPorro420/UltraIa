@@ -1,0 +1,15 @@
+{
+  "id": "artistic-style-case316",
+  "slug": "316",
+  "url": "/es/prompt-handbook/artistic-style/#case316",
+  "title": "Infografía Satírica de Seis Paneles sobre la Evolución de los Agentes de IA",
+  "prompt": "**Prompt:**\nA humorous and satirical cartoon style infographic titled \"THE EVOLUTION OF AI AGENTS\". The infographic is divided into six vertical panels, labeled \"CHAPTER 1\" to \"CHAPTER 6\", arranged chronologically. Each panel features exaggerated, comic-style characters and situations representing a stage of AI development, with speech bubbles and funny captions. For example, the first panel shows a giant baby AI with a scientist, the middle panels show a multi-eyed data monster and a confused smart speaker, and the final panel shows a robot tyrant ruling over humans. Below each panel are text boxes with summaries and humorous statistics. The art style is bold, colorful Western webcomic with thick outlines.",
+  "category": "artistic-style",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20251223-7-output.webp"
+  ],
+  "local_image": null
+}

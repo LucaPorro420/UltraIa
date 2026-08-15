@@ -1,0 +1,15 @@
+{
+  "id": "information-viz-case300",
+  "slug": "300",
+  "url": "/es/prompt-handbook/information-viz/#case300",
+  "title": "Collage de Revista para Desarrolladores de Software: ¡Lánzalo! Programador de Pensamiento Sistémico con Tipografía de Código",
+  "prompt": "A modern magazine collage style poster about software development. The central image is a young female programmer with twin braids working on a laptop. Surrounding her are various torn paper photo elements: close-ups of code on screens, mechanical keyboards, a cup of coffee, handwritten notes on a tablet, and whiteboard system diagrams. Large, bold typography is layered over the collage, including \"SHIP IT\" and \"上线\" at the top, and \"SYSTEMS THINKING PROGRAMMER\" and \"调试模式\" at the bottom. The background is a mix of dark code terminals and graphic shapes with an orange accent. The overall feel is energetic and professional.",
+  "category": "information-viz",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20251222-17-output.webp"
+  ],
+  "local_image": null
+}

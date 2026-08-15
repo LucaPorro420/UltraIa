@@ -1,0 +1,15 @@
+{
+  "id": "information-viz-case133",
+  "slug": "133",
+  "url": "/es/prompt-handbook/information-viz/#case133",
+  "title": "Infografía Estilo Pizarrón",
+  "prompt": "Extract core themes and key points from the above content, and generate a chalkboard-style infographic:\nUse a black chalkboard background with chalk hand-drawn style, landscape (16:9) composition.\nKeep information concise, highlight keywords and core concepts, leave ample white space, easy to grasp the main points at a glance.\nAdd a small amount of simple cartoon elements, icons, or famous portraits to enhance interest and visual memory.\nAll images and text must be drawn with colored chalk, no realistic style elements.\nUnless specifically requested, the language should match the input content language.",
+  "category": "information-viz",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/1126-7-output.webp"
+  ],
+  "local_image": null
+}

@@ -1,0 +1,15 @@
+{
+  "id": "spatial-design-case166",
+  "slug": "166",
+  "url": "/es/prompt-handbook/spatial-design/#case166",
+  "title": "Barco en una Botella - Fotografía de Escena Miniatura de Barco Pirata",
+  "prompt": "A detailed photograph captures a glass bottle containing a miniature scene. Inside is the 'Black Pearl,' a weathered pirate ship with torn black sails and Jolly Roger flags, sailing on rough turquoise waves. \nAbove is a sunny sky with white clouds, a bright sun flare, and flying seagulls. The exterior of the glass bottle is covered in water droplets. It rests on a rustic, wet wooden surface with sunlight reflecting off the glass and water. The scene is photorealistic and highly detailed. --ar 3:2",
+  "category": "spatial-design",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20251212-5-output.webp"
+  ],
+  "local_image": null
+}

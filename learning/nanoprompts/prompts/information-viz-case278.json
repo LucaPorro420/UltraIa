@@ -1,0 +1,15 @@
+{
+  "id": "information-viz-case278",
+  "slug": "278",
+  "url": "/es/prompt-handbook/information-viz/#case278",
+  "title": "Gráfico Educativo Vintage de los Años 70: Guía Técnica de Estilo Ingeniería Japonesa-Alemana",
+  "prompt": "A vintage-style educational chart on a textured, aged washi paper background with subtle retro mechanical elements inspired by Japanese and German engineering in the corners. The layout is a structured grid of multiple rectangular information panels, resembling a collection of technical data cards or museum plaques. Each panel has a rounded beige border with a slight embossed depth effect. Inside each panel, a sample photograph showcasing traditional crafts from Japan, Switzerland, and Denmark is positioned on the left, while clear explanatory text in Japanese with furigana, a bold title, and a small iconic symbol is placed on the right. The aesthetic is retro, informative, meticulously organized, and looks like a page from a classic 1970s technical guidebook or educational poster, with typography inspired by Swiss design principles and Japanese technical manuals.",
+  "category": "information-viz",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20251221-5-output.webp"
+  ],
+  "local_image": null
+}

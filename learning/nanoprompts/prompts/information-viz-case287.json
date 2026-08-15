@@ -1,0 +1,15 @@
+{
+  "id": "information-viz-case287",
+  "slug": "287",
+  "url": "/es/prompt-handbook/information-viz/#case287",
+  "title": "Isla Flotante de Wellington: Diorama de Ciudad en Miniatura 3D con Mar de Nubes Cultural y Tipografía Geográfica",
+  "prompt": "A digital art poster of urban rendering for Wellington, New Zealand.\n\nThe core subject of the image is a miniature island floating above white clouds, shaped like the selected city and occupying most of the frame. The island's shape resembles the city's map outline, seamlessly integrating the city's unique iconic landmarks, natural landscapes, and cultural elements. Include the city's native birds (such as tui and kererū), cinematic lighting and shadows, vibrant colors, aerial perspective, and sunlight reflection effects. Buildings should not be too numerous or dense.\n\nThe island showcases a seamless blend of history and modernity. One part features the city's most representative ancient historical buildings; another part smoothly transitions to the city's landmark buildings and skyline.\n\nThe island floats above a vast sea of clouds. The cloud sea is rendered in the traditional art style of the city's cultural sphere - in this case, incorporating Māori and Pacific Islander artistic patterns.\n\nThree-dimensional 3D text of the city name \"WELLINGTON\" floats above the miniature island, appearing like a miniature ecological installation where ecology and culture coexist.\n\nAround the edges of the frame and surrounding the main subject, overlay a layer of minimalist, elegant, museum exhibition board-quality information typography. Retrieve relevant city information: primary information uses classic serif fonts, supplementary data can use ultra-fine minimalist sans-serif. In the corners of the frame, layout in a manner similar to classical atlases or premium magazine title pages. Use serif fonts to annotate the city's geographic coordinates, nickname or founding year, and current weather as decorative background information. Overall typography has abundant white space, restrained, clean, and balanced, as if appreciating a precious work of art.\n\nStyle requirements: Octane Render, C4D, Isometric City, Micro World, Living Ecosystem, 8K resolution. DreamWorks style, 3D modeling, delicate, soft light projection.",
+  "category": "information-viz",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20251222-4-output.webp"
+  ],
+  "local_image": null
+}

@@ -1,0 +1,15 @@
+{
+  "id": "manga-comic-case394",
+  "slug": "394",
+  "url": "/es/prompt-handbook/manga-comic/#case394",
+  "title": "Estilo Manga Educativo: La Evolución de la Historia del Sushi",
+  "prompt": "For NanoBanaPro (via GeminiPro), I define the direction, such as the design structure, in the prompt.\n\nUsing the attached image as the main visual, create an educational manga about Japan based on the following prompt:\n<The Evolution of Sushi>",
+  "category": "manga-comic",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20260201-3-output.webp"
+  ],
+  "local_image": null
+}

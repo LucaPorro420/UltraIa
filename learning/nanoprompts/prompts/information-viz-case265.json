@@ -1,0 +1,15 @@
+{
+  "id": "information-viz-case265",
+  "slug": "265",
+  "url": "/es/prompt-handbook/information-viz/#case265",
+  "title": "Infografía Visual de la Evolución Biológica: Línea de Tiempo, Selección Natural y Evidencia del ADN",
+  "prompt": "Design a comprehensive infographic that explains the concept of biological evolution through visual storytelling. The infographic should transform complex evolutionary knowledge into a clear, structured, and content-rich visual presentation that helps readers quickly grasp and deeply understand evolution. The design should include multiple modules covering key aspects such as: timeline of life on Earth, mechanisms of natural selection, evidence from fossils and DNA, adaptive radiation examples from New Zealand endemic species like kiwi birds and tuatara, human evolution milestones, and modern evolutionary theory. The visual style should be sophisticated and thematically appropriate, with an eye-catching design that immediately engages readers. Use clear icons, flowing diagrams, color-coded sections, and explanatory text that makes learning both informative and enjoyable. The color palette should evoke natural tones reflecting evolutionary themes.",
+  "category": "information-viz",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20251220-4-output.webp"
+  ],
+  "local_image": null
+}

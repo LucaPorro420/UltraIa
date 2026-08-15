@@ -1,0 +1,15 @@
+{
+  "id": "information-viz-case304",
+  "slug": "304",
+  "url": "/es/prompt-handbook/information-viz/#case304",
+  "title": "Visualización de Datos Climáticos del Calentamiento Global 1900-2025",
+  "prompt": "Create an illustrated travel itinerary guide for a 3-day 2-night efficient tour of Sydney, Australia, using Doraemon characters and related theme elements. The guide should include route maps, time schedules, and be visually engaging with both text and images. Feature iconic Sydney landmarks like the Opera House, Harbour Bridge, Bondi Beach, and Taronga Zoo, with Doraemon and friends appearing throughout the itinerary. Include time allocations, transportation methods, and practical travel tips. Design should be colorful, fun, and easy to follow with clear daily schedules and route optimization to avoid backtracking.",
+  "category": "information-viz",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20251223-13-output.webp"
+  ],
+  "local_image": null
+}

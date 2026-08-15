@@ -1,0 +1,15 @@
+{
+  "id": "manga-comic-case132",
+  "slug": "132",
+  "url": "/es/prompt-handbook/manga-comic/#case132",
+  "title": "Tablero de Corcho con Historia en Polaroid - One Piece",
+  "prompt": "Create an image about \"[one piece]\" retold through a series of Polaroid photos pinned to a cork board. Each photo captures a key moment, with simple captions below. Arrange the photos in a loosely chronological path across the board, using colored strings to connect events and characters. Light the scene warmly to evoke nostalgia. Include incidental details, coffee cup rings, paper clips, handwritten notes, for authenticity.",
+  "category": "manga-comic",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/1126-6-output.webp"
+  ],
+  "local_image": null
+}

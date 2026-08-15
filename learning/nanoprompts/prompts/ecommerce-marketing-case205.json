@@ -1,0 +1,15 @@
+{
+  "id": "ecommerce-marketing-case205",
+  "slug": "205",
+  "url": "/es/prompt-handbook/ecommerce-marketing/#case205",
+  "title": "Escena de Atmósfera Meteorológica en Tiempo Real con Superposición de Coordenadas GPS",
+  "prompt": "Create an image that matches the current time atmosphere and real-time weather at coordinates 40.00023661635351, 116.27808154448789 (Beijing, China). In the bottom left corner, use elegant typography to display current coordinates, location information with weather icon, and add a Chinese location description text: '北京·颐和园 晴朗的午后时光'. Photorealistic scene showing the iconic Summer Palace landscape with current weather conditions.",
+  "category": "ecommerce-marketing",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20251215-12-output.webp"
+  ],
+  "local_image": null
+}

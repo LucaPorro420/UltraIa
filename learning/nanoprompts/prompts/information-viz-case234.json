@@ -1,0 +1,15 @@
+{
+  "id": "information-viz-case234",
+  "slug": "234",
+  "url": "/es/prompt-handbook/information-viz/#case234",
+  "title": "Tabla de Elaboración de Herramientas para Juego de Supervivencia con Requisitos de Recursos de 4 Niveles",
+  "prompt": "Crafting chart for tools in a survival game. The first tier requires only one type of resource. The second tier requires 2–3 different resources. The third tier requires 4 resources plus a special token. The fourth tier requires 5 different resources.",
+  "category": "information-viz",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20251216-24-output.webp"
+  ],
+  "local_image": null
+}

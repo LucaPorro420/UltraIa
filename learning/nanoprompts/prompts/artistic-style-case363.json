@@ -1,0 +1,15 @@
+{
+  "id": "artistic-style-case363",
+  "slug": "363",
+  "url": "/es/prompt-handbook/artistic-style/#case363",
+  "title": "Momentos Aéreos: Diseño de Cuadrícula de 9 Paneles de Fotolibro Japonés",
+  "prompt": "**[Type]:** A scanned page from a high-end Japanese photobook (Shashin-shu). **A 9-grid photo layout printed on textured matte art paper.**\\n**[Layout Design]:** The 9 photos are arranged in a clean grid with **wide white margins** at the bottom to accommodate typography.\\n\\n**[Subject Consistency - STRICT]:**\\n* **Source:** A young Japanese woman with bob hair. **[SAME CHARACTER IN ALL PANELS]**.\\n* **Styling Strategy:** **{Soft}:** Beige knit cardigan + camisole.\\n\\n**[Typography & Japanese Elements - THE ARTISTIC TOUCH]:**\\n*(AI must render a title text in the bottom white margin)*\\n**[Title Theme]:**\\n**{Theme: Air}:** Large Japanese text **\"空気感\"** with small English text **\"AIRY MOMENTS\"** below it.\\n* **Signature:** The handwritten text **\"By : Nanoprompts\"** is placed artistically next to the title or in the corner like a watermark.\\n\\n**[Grid Narrative - The \"Day to Night\" Journey]:**\\n\\n**Row 1: Outdoor Breath (Wind & Light)**\\n1.  **Top-Left (Wide):** Subject standing in wind near Kyoto Kamo River, hair blowing, **backlit by sun**.\\n2.  **Top-Middle (Detail):** Close-up of **hand holding a glass bottle of Ramune**.\\n3.  **Top-Right (Motion):** Blurry candid shot of subject **walking away on a Gion street**.\\n\\n**Row 2: Indoor Play (Props & \"Hiding\")**\\n4.  **Center-Left (Hiding):** Subject sitting on tatami, **using a folding fan to cover one eye**.\\n5.  **Center (Candid):** Subject **lying upside down on a sofa**, reading a manga, face relaxed.\\n6.  **Center-Right (Interactive):** Subject looking through a clear glass cup, face distorted funnily/cutely.\\n\\n**Row 3: Evening/Mood (Texture & Gaze)**\\n7.  **Bottom-Left (Atmosphere):** Subject near a vending machine at night, neon light reflection.\\n8.  **Bottom-Middle (Texture):** Wet hair texture after bath, wearing a white towel/robe, soft skin focus.\\n9.  **Bottom-Right (Gaze):** Direct eye contact with camera, soft smile, holding a sparkler (Hanabi). --ar 2:3",
+  "category": "artistic-style",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20260110-9-output.webp"
+  ],
+  "local_image": null
+}

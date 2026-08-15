@@ -1,0 +1,15 @@
+{
+  "id": "artistic-style-case39",
+  "slug": "39",
+  "url": "/es/prompt-handbook/artistic-style/#case39",
+  "title": "Generación de Ilustración Tipográfica",
+  "prompt": "Create a minimalist black-and-white typographic illustration of the scene riding a bicycle using only the letters in the phrase ['riding a bicycle'] . Each letter should be creatively shaped or positioned to form the rider, the bicycle, and a sense of motion. The design should be clean, ultra-minimalist, and entirely composed of the modified ['riding a bicycle'] letters without adding any extra shapes or lines. The letters should flow or curve to mimic the natural form of the scene, while still remaining legible.",
+  "category": "artistic-style",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/case39_output.webp"
+  ],
+  "local_image": null
+}

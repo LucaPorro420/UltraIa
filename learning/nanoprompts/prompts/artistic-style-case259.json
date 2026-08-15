@@ -1,0 +1,15 @@
+{
+  "id": "artistic-style-case259",
+  "slug": "259",
+  "url": "/es/prompt-handbook/artistic-style/#case259",
+  "title": "Silueta de Mago en Formación de Nubes sobre el Golden Gate Bridge en Paisaje de San Francisco",
+  "prompt": "Create an ultra-realistic sky scene where soft, natural clouds organically coalesce to form a clearly recognizable silhouette of a majestic wizard on horseback accompanied by three mystical traveling companions - reminiscent of fantasy adventure tales. The cloud formation floats high in a bright azure sky, naturally suspended. Below is a clearly recognizable landscape of the San Francisco Golden Gate Bridge and bay, providing a solid visual foundation for the composition.\n\nThe composition is square format (1080×1080), with the cloud formation positioned in the upper half of the frame, and the landscape below balancing the overall scene. Lighting is clear and bright, presenting direct sunlight effects. The clouds have sunlit highlights, enhancing depth, softness, and realism.\n\nThe overall atmosphere should be serene, uplifting, and visually striking, with high color saturation, clean and pure imagery, creating a peaceful yet fresh feeling.",
+  "category": "artistic-style",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20251218-8-output.webp"
+  ],
+  "local_image": null
+}

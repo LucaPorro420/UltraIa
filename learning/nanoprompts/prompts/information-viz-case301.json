@@ -1,0 +1,15 @@
+{
+  "id": "information-viz-case301",
+  "slug": "301",
+  "url": "/es/prompt-handbook/information-viz/#case301",
+  "title": "Infografía Satírica de la Evolución de la IA en Seis Capítulos de Cómic",
+  "prompt": "An information graphic slide showcasing NVIDIA RTX 5090 technical specifications, designed in a style completely consistent with Apple keynote Bento grid layout. The background is a clean unified dark mode (nearly black, #0d0d0d). The composition consists of modular rectangles and squares forming a compact grid with smooth rounded corners and subtle dark borders.\n\nCore focus module: A monolithic three-slot NVIDIA GeForce RTX 5090 Founders Edition graphics card. Captured from a premium three-quarter angle, showcasing its massive and exquisite flow-through cooling solution, equipped with polished titanium frame, matte black heat sink fins, with an illuminated \"GeForce RTX\" logo on the side. Dramatic edge lighting highlights its industrial design.\n\nKey Spec Module 1 (Top left, square): Features a minimalist abstract silicon chip icon with light refracting from it. Below in huge, bold, sans-serif white text: \"Blackwell GB202\". Beneath in smaller gray subtitle: \"Next-Gen Tensor Core Architecture\".\n\nKey Spec Module 2 (Top right, square): Features a minimalist stacked memory block icon. Huge, bold white text: \"32GB GDDR7\". Beneath in smaller gray subtitle: \"Ultra High-Speed Memory Interface\".\n\nSecondary spec modules (peripheral blocks):\n- A vertical rectangular block with stylized speedometer pointer icon and bold text: \"24,576 CUDA Cores\". Subtitle: \"Unmatched Parallel Processing Power\".\n- A square block with stylized brain icon with network nodes and text: \">1300 AI TOPS\". Subtitle: \"Generative AI Supercharger\".\n- A horizontal rectangular block with minimalist port connector icon (showing multiple channels) and text: \"DisplayPort 2.1 & PCIe 5.0\". Subtitle: \"Future-Proof 8K HDR Connectivity\".\n\nOverall aesthetic is extremely clean, minimalist, and premium. Typography is the primary design element. Accent colors are strictly limited to pure white, various light gray tones for subtitles, and vibrant NVIDIA electric green (#76b900) only for subtle glows around icons and product illumination. 8K resolution, high detail, crisp graphical user interface rendering.",
+  "category": "information-viz",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20251223-10-output.webp"
+  ],
+  "local_image": null
+}

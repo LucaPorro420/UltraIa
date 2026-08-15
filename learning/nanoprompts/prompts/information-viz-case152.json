@@ -1,0 +1,15 @@
+{
+  "id": "information-viz-case152",
+  "slug": "152",
+  "url": "/es/prompt-handbook/information-viz/#case152",
+  "title": "Lectura Mágica del Horóscopo Diario con Tarot",
+  "prompt": "Please generate a magical tarot reading image following the rules below:\n\n【INPUT】\n\n- User Birthday: {user_birthday}\n- Today's Date: Automatically retrieved from system ({today_date})\n- Language: {language, defaults to user's preferred language}\n\n---\n\n【OVERALL IMAGE STYLE】\n\n- The artwork should present a fantasy aesthetic with magic, astrology, glowing effects, and floating runes\n- Main color palette: deep blue + purple starlit sky, accented with golden magical patterns\n- A glowing divination circle should be placed at the center, with 4 tarot cards arranged on the circle\n- The visual style should be elegant, mysterious, ritualistic\n---\n\n【ZODIAC FORTUNE GENERATION RULES】\n\n1. Automatically calculate the user's zodiac sign based on their birthday  \n2. Display in magical handwritten typography:\n   - At the top center, a large, glowing illustration of the {calculated_zodiac} symbol. \n   - Today's Overall Fortune Score: randomly generated from astrology (1–100)\n   - Three keywords (e.g., \"Opportunity\", \"Breakthrough\", \"Healing\")\n---\n\n【TAROT CARD GENERATION RULES】\nGenerate four tarot cards:\n1. Love Tarot  \n2. Career Tarot  \n3. Wealth Tarot  \n4. Health Tarot  \nEach tarot card should include:\n- A symbolic card face (determined automatically, e.g., \"The Lovers\", \"Seven of Pentacles\", \"King of Wands\", etc.)\n- Upright or Reversed orientation  \n- A themed magical interpretation paragraph (slightly detailed)\nSuggested layout of the four cards:\n- Positioned around the magic circle:\n  - East: Love  \n  - South: Career  \n  - West: Wealth  \n  - North: Health  \n- Each card should emit magical light and match its theme color:\n  - Love: pink  \n  - Career: gold  \n  - Wealth: green  \n  - Health: aqua blue  \n---\n【TEXT PRESENTATION】\nDisplay in handwritten magical calligraphy:\n- Today's date: {today_date}\n- Zodiac and fortune score  \n- Each tarot card's name + orientation (Upright/Reversed)  \n- Interpretation text for each card  \n\n---\n【IMAGE ATMOSPHERE REQUIREMENTS】\n- Filled with magical particles, radiant light, and swirling star vortexes  \n- Ancient, mysterious divination ritual ambience  \n- High-quality fantasy magic rendering  \n- Subtle illusion of motion, such as flowing magical light (for static image visual effect)\n---\nuser_birthday: 1999-01-01",
+  "category": "information-viz",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/1206-1-output.webp"
+  ],
+  "local_image": null
+}

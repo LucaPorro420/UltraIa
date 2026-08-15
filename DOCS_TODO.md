@@ -126,3 +126,47 @@ Cada commit agrega una sección con fecha y la lista de archivos `.ts/.tsx` toca
 - [ ] packages/runtime/src/index.ts
 - [ ] packages/runtime/src/runtime.test.ts
 - [ ] packages/runtime/src/runtime.ts
+
+## 2026-08-15T05:55:39.776Z
+- [ ] packages/runtime/src/adapters/ai.test.ts
+- [ ] packages/runtime/src/adapters/ai.ts
+- [ ] packages/runtime/src/adapters/core.test.ts
+- [ ] packages/runtime/src/adapters/core.ts
+- [ ] packages/runtime/src/adapters/db.test.ts
+- [ ] packages/runtime/src/adapters/db.ts
+- [ ] packages/runtime/src/adapters/ports.ts
+- [ ] packages/runtime/src/index.ts
+
+## 2026-08-15T06:13:28.713Z
+- [ ] packages/core/src/omag/index.ts
+- [ ] packages/runtime/src/adapters/core.test.ts
+- [ ] packages/runtime/src/adapters/core.ts
+- [ ] packages/runtime/src/adapters/omag.test.ts
+- [ ] packages/runtime/src/adapters/omag.ts
+- [ ] packages/runtime/src/adapters/ports.ts
+- [ ] packages/runtime/src/adapters/tools.test.ts
+- [ ] packages/runtime/src/adapters/tools.ts
+- [ ] packages/runtime/src/index.ts
+
+## 2026-08-15T06:37:23.081Z
+- [ ] packages/runtime/src/runtime.test.ts
+- [ ] packages/runtime/src/runtime.ts
+
+## 2026-08-15T06:58:16.648Z
+- [ ] packages/runtime/src/launcher.test.ts
+
+## 2026-08-15T07:12:46.742Z
+- [ ] packages/core/src/ai/llm.ts
+- [ ] packages/core/src/tools/index.ts
+- [ ] packages/core/src/tools/topics.test.ts
+- [ ] packages/core/src/tools/topics.ts
+
+## 2026-08-15T08:00:43.032Z
+- [ ] packages/core/src/ai/llm.ts
+- [ ] packages/core/src/tools/index.ts
+- [ ] packages/core/src/tools/present.test.ts
+- [ ] packages/core/src/tools/present.ts
+
+## 2026-08-15T08:05:31.831Z
+- [ ] packages/core/src/ai/llm.ts
+- [ ] packages/core/src/tools/index.ts

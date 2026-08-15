@@ -1,0 +1,15 @@
+{
+  "id": "spatial-design-case95",
+  "slug": "95",
+  "url": "/es/prompt-handbook/spatial-design/#case95",
+  "title": "Parque Temático Personalizado",
+  "prompt": "Generates a photorealistic theme park image based on the original image.\nThe theme park and the people enjoying it are depicted in an extremely photorealistic style. Daytime. Sunny.\nThe color scheme and design are extracted from the original image and applied to the color scheme and design of various facilities.\nVehicles and buildings based on the original image, mascot costumes that are a distorted version of the original image, and signs with the original image printed on them are placed within the image.\nThe mascot costume design should use the original image as a motif, but be moderately distorted to create a photorealistic look.\nThe sizes of the people and mascot costumes must not be unrealistic.\nEven if the original image is anime-style, the final image must be a photorealistic theme park. Be sure to follow these rules.",
+  "category": "spatial-design",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/case95_output.webp"
+  ],
+  "local_image": null
+}

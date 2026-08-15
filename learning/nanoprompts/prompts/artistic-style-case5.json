@@ -1,0 +1,15 @@
+{
+  "id": "artistic-style-case5",
+  "slug": "5",
+  "url": "/es/prompt-handbook/artistic-style/#case5",
+  "title": "Fotos de Ti Mismo en Diferentes Épocas",
+  "prompt": "Change the characer's style to [1970]'s classical [male] style\n\nAdd [long curly] hair, \n[long mustache], \nchange the background to the iconic [californian summer landscape]\n\nDon't change the character's face",
+  "category": "artistic-style",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/case5_output.webp"
+  ],
+  "local_image": null
+}

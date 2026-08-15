@@ -1,0 +1,15 @@
+{
+  "id": "information-viz-case358",
+  "slug": "358",
+  "url": "/es/prompt-handbook/information-viz/#case358",
+  "title": "Una Leyenda se Retira: Diseño de Póster Infográfico Financiero Vintage",
+  "prompt": "(masterpiece, best quality, ultra-detailed), (infographic poster design:1.3), A Legend Retires, vintage financial style, Rich English text information.\\n\\n### 1. Frame & Background:\\nPoster background texture set as yellowish vintage parchment stock certificate, surrounded by a fine dark green Guilloche pattern frame, blending perfectly with the background, establishing a classic financial and historical tone.\\n\\n### 2. Top Header Module:\\nGrand bilingual art font design at the top center. Core is the striking serif English main title \"A LEGEND RETIRES\", naturally integrating smaller text below. Flanked by vintage Bull and Bear badges on left and right.\\n\\n### 3. Core Visual Center:\\nHalf-body portrait of a distinguished elderly European investor (resembling a wise sage from Zurich), wearing rimless glasses, a wise and kind smile, in a classic dark suit. Rembrandt lighting, with rising candlestick chart shadows faintly emerging in the background, symbolizing glorious performance.\\n\\n### 4. Info Columns:\\nLeft Column: 3 vertical vintage etching style round icons. Each with text labels.\\n1. A rolling giant snowball (Snowball Effect)\\n2. A castle surrounded by water (Economic Moat)\\n3. A complex mathematical formula (Compound Interest)\\n\\nRight Column: 3 vertical film-grain texture square illustrations. Each with subtitle text.\\n1. Two elderly men talking (Golden Partnership)\\n2. A crowded stadium meeting (Shareholders Meeting)\\n3. A simple office desk (Simple Life)\\n\\n### 5. Footer Info:\\nBottom area divided into 3 info columns:\\n- Module 1: [Quotes] \"Be fearful when others are greedy.\"\\n- Module 2: [Stats] \"Annual Return 19.8%.\"\\n- Module 3: [Network] Successor info: A handshake icon, text \"Successor: Next Gen.\"\\n\\n### Tech Specs:\\n(clear legible font), (engraving style mixed with realistic photography), 8k resolution, cinematic lighting, matte finish. --ar 2:3",
+  "category": "information-viz",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20260110-4-output.webp"
+  ],
+  "local_image": null
+}

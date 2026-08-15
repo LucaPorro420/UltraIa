@@ -1,0 +1,15 @@
+{
+  "id": "artistic-style-case26",
+  "slug": "26",
+  "url": "/es/prompt-handbook/artistic-style/#case26",
+  "title": "Generar Imagen desde Dibujo Lineal",
+  "prompt": "Change the pose of the person in Figure 1 to that of Figure 2, and shoot in a professional studio",
+  "category": "artistic-style",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/case26_output.webp"
+  ],
+  "local_image": null
+}

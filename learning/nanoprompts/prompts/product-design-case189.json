@@ -1,0 +1,15 @@
+{
+  "id": "product-design-case189",
+  "slug": "189",
+  "url": "/es/prompt-handbook/product-design/#case189",
+  "title": "Fotografía Comercial Premium de Bebidas con Salpicadura Dinámica de Líquido y Hielo",
+  "prompt": "{\n  \"aspect_ratio\": \"1:1\",\n  \"creative_direction\": {\n    \"style\": \"High-end commercial photography, cinematic, hyper-realistic, luxurious.\",\n    \"mood\": \"Intense refreshment, premium, energetic but controlled, dramatic.\",\n    \"key_focus\": \"The irresistible coldness and explosive taste of the product.\"\n  },\n  \"subject\": {\n    \"hero\": \"A single glass bottle of Coca-Cola, center-stage.\",\n    \"details\": \"Extreme condensation, real water droplets running down the glass, looks incredibly cold and frosty. The liquid inside glows with a rich caramel amber light.\"\n  },\n  \"action_and_fx\": {\n    \"splash\": \"A dynamic, sculptural arch of liquid and ice cubes erupting *around* and *behind* the bottle, framing it rather than obscuring it. The splash is elegant, not chaotic.\",\n    \"ice\": \"Crystal clear, sharp ice cubes caught in motion within the liquid arch, catching the light like diamonds.\",\n    \"particles\": \"Fine mist and effervescent bubbles suspended in the air to enhance atmosphere.\"\n  },\n  \"lighting\": {\n    \"type\": \"Dramatic, high-contrast cinematic lighting (Rembrandt lighting on bottle).\",\n    \"colors\": \"Warm golden backlighting combined with cool, crisp key lighting on the front of the bottle and ice to emphasize temperature contrast.\"\n  },\n  \"environment\": {\n    \"background\": \"Deep, dark, atmospheric mahogany and amber gradient. Subtle, luxurious bokeh effects, no harsh rays or distracting elements. Infinite depth.\",\n    \"surface\": \"The bottle rests on a dark, wet, reflective surface.\"\n  },\n  \"branding & composition\": {\n    \"hierarchy\": \"Product first, Brand second, Message third.\",\n    \"logo_placement\": \"Elegant, white Coca-Cola script logo placed at the top center, smaller than before, refined and premium.\",\n    \"slogan_placement\": \"Subtle 'TASTE THE FEELING' text in white, centered below the bottle, smaller font size.\",\n    \"framing\": \"A tight, powerful central composition optimized for square format, drawing the eye directly to the bottle.\"\n  }\n}",
+  "category": "product-design",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20251214-7-output.webp"
+  ],
+  "local_image": null
+}

@@ -1,0 +1,15 @@
+{
+  "id": "information-viz-case130",
+  "slug": "130",
+  "url": "/es/prompt-handbook/information-viz/#case130",
+  "title": "Diseño de Interfaz de Robot Compañero de Escritorio",
+  "prompt": "Please create 4 UI interface diagrams of the same style for the control app of the \"desktop companion robot\", with a simple and modern design, in light colors, suitable for young people to use.",
+  "category": "information-viz",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/1126-5-output.webp"
+  ],
+  "local_image": null
+}

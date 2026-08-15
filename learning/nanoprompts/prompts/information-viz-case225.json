@@ -1,0 +1,15 @@
+{
+  "id": "information-viz-case225",
+  "slug": "225",
+  "url": "/es/prompt-handbook/information-viz/#case225",
+  "title": "Colección de 16 Efectos de Habilidades Básicas RPG con Imágenes de Vista Previa",
+  "prompt": "16 basic RPG skill effects with preview images.",
+  "category": "information-viz",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20251216-15-output.webp"
+  ],
+  "local_image": null
+}

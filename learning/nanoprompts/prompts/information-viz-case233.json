@@ -1,0 +1,15 @@
+{
+  "id": "information-viz-case233",
+  "slug": "233",
+  "url": "/es/prompt-handbook/information-viz/#case233",
+  "title": "Atlas de Armas RPG: Sistema de 3 Categorías × 5 Tipos × 3 Niveles de Calidad",
+  "prompt": "RPG weapon atlas. Include three categories of weapons: melee, ranged, and mid-range. Each category contains 5 weapon types, and each type has 3 quality tiers, with higher tiers providing better attributes.",
+  "category": "information-viz",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20251216-23-output.webp"
+  ],
+  "local_image": null
+}

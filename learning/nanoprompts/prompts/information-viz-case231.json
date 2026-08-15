@@ -1,0 +1,15 @@
+{
+  "id": "information-viz-case231",
+  "slug": "231",
+  "url": "/es/prompt-handbook/information-viz/#case231",
+  "title": "Accesorios de Juego de Simulación Romántica Japonés: 6 Atuendos con 4 Accesorios Cada Uno",
+  "prompt": "Accessories for a Japanese-style romance simulation game. Design six outfits, and create four different accessories for each outfit, including head, neck, hands, and feet. The accessories should complement the clothing. The composition places four accessories next to each outfit, and each accessory has a name and labeled attributes, including Luck, Beauty, Intelligence, and Cuteness. The style must be unified, and no characters are needed in the image.",
+  "category": "information-viz",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20251216-21-output.webp"
+  ],
+  "local_image": null
+}

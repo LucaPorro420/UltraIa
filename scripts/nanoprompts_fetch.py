@@ -194,9 +194,26 @@ def main() -> int:
 
     index: list[dict[str, Any]] = []
 
+    if args.images_only:
+        if not INDEX_FILE.exists():
+            print("[err] index.json no existe; corre primero sin --images-only")
+            return 1
+        index = json.loads(INDEX_FILE.read_text(encoding="utf-8"))
+        n = 0
+        for prompt in index:
+            if prompt.get("local_image") or not prompt.get("images"):
+                continue
+            fname = f"{prompt['id']}-0.webp"
+            if download_image(prompt["images"][0], IMAGES_DIR / fname):
+                prompt["local_image"] = f"images/{fname}"
+                n += 1
+        INDEX_FILE.write_text(json.dumps(index, ensure_ascii=False, indent=2), encoding="utf-8")
+        print(f"[done] {n} imagenes nuevas -> {IMAGES_DIR}")
+        return 0
+
     def save(prompt: dict[str, Any]) -> None:
         json_path = PROMPTS_DIR / f"{prompt['id']}.json"
-        if prompt["images"]:
+        if prompt["images"] and not args.no_images:
             fname = f"{prompt['id']}-0.webp"
             if download_image(prompt["images"][0], IMAGES_DIR / fname):
                 prompt["local_image"] = f"images/{fname}"

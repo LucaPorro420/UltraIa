@@ -1,0 +1,15 @@
+{
+  "id": "manga-comic-case203",
+  "slug": "203",
+  "url": "/es/prompt-handbook/manga-comic/#case203",
+  "title": "Tira Cómica de Oficina Estilo Dilbert de 4 Paneles",
+  "prompt": "Create a 4-panel Dilbert-style comic strip, maintaining original structure and complete content, easy to understand and funny. Text uses speech bubble backgrounds in English. Theme: Random daily life or workplace scenarios. Classic Dilbert visual style with simplified character designs and office setting.",
+  "category": "manga-comic",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20251215-10-output.webp"
+  ],
+  "local_image": null
+}

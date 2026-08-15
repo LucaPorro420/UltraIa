@@ -1,0 +1,15 @@
+{
+  "id": "product-design-case69",
+  "slug": "69",
+  "url": "/es/prompt-handbook/product-design/#case69",
+  "title": "Proyección Holográfica de Modelo",
+  "prompt": "Ultra-realistic product photo.  \nSubject: virtual holographic character [CHARACTER], floating above a circular hologram projector Ø120 mm placed on a modern desk.  \n\nProjection source rules:  \n- If input reference is a 3D object → show a desktop 3D scanner beside the projector.  \n  Place the reference object on the scanner plate.  \n  The hologram above the projector is generated from this scanned object.  \n- If input reference is a 2D image → show a modern PC with monitor on the desk.  \n  Display the reference image on the monitor screen.  \n  The hologram above the projector is generated from this screen content.  \n\nHologram rendering rules:  \n- Character always appears as a semi-transparent volumetric image, background faintly visible through.  \n- No beams, no particles, no solid statue surfaces.  \n- Balanced anatomy (1/7–1/8 head-to-body ratio), correct proportions.  \n- Natural pose with clear silhouette.  \n- Hair, outfit folds, and accessories visible but translucent.  \n- Face crisp and expressive, readable at 1000 px crop.  \n- No copyrighted characters, no branded designs, no IP logos.  \n\nEnvironment: modern desk with projector base + conditional device (scanner or monitor).  \nCamera: 85–100 mm lens, 3/4 hero angle, eye-level, f/11–f/16, ISO100, tripod.  \nLighting: desk softly illuminated; holographic figure defined only by volumetric light.  \nBackground: seamless black studio with subtle reflections.  \n\nOutput: 4:5, 2048×2560.  \n\nNegative: text-free, watermark-free, logo-free, brand-free, copyrighted characters, franchise IP, trademarked designs, resin, PVC, physical statue, opaque surfaces, toy gloss, beams, scanlines, dots, distortion, extra digits.  \nSampling: deterministic, seed=12345, temperature=0.",
+  "category": "product-design",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/case69_output.webp"
+  ],
+  "local_image": null
+}

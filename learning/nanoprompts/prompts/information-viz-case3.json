@@ -1,0 +1,15 @@
+{
+  "id": "information-viz-case3",
+  "slug": "3",
+  "url": "/es/prompt-handbook/information-viz/#case3",
+  "title": "Información AR del Mundo Real",
+  "prompt": "you are a location-based AR experience generator. highlight [point of interest] in this image and annotate relevant information about it.",
+  "category": "information-viz",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/case3_output.webp"
+  ],
+  "local_image": null
+}

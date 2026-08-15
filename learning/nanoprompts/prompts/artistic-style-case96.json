@@ -1,0 +1,15 @@
+{
+  "id": "artistic-style-case96",
+  "slug": "96",
+  "url": "/es/prompt-handbook/artistic-style/#case96",
+  "title": "Crear Imagen de Constelación",
+  "prompt": "Create an image depicting fictional constellations using the original image as a reference.\n- A photorealistic starry sky. This is maintained even if the original image is anime-style.\n- People, animals, and objects extracted from the original image are placed transparently against the starry sky background. In this case, the extracted target should be a single motif that is the main theme. Also, only one image should be placed.\n- The character design, style, and taste of the original image are faithfully reproduced. The background of the original image can be ignored.\n- An imaginary constellation is created based on the placed motif. This constellation is made up of approximately 5 to 10 stars.\n- The pose of the original image is analyzed, and the stars belonging to the constellation are appropriately positioned in distinctive parts.\n- The stars belonging to the constellation are highlighted, and the stars are connected with glowing lines.",
+  "category": "artistic-style",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/case96_output.webp"
+  ],
+  "local_image": null
+}

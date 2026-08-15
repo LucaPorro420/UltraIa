@@ -1,0 +1,15 @@
+{
+  "id": "map-navigation-case185",
+  "slug": "185",
+  "url": "/es/prompt-handbook/map-navigation/#case185",
+  "title": "Mapa Vintage Isométrico a Vista de Pájaro Pintado a Mano de País con Monumentos",
+  "prompt": "A hand-painted isometric bird's-eye view illustration of [COUNTRY] in a vintage map style, featuring iconic landmarks and natural scenery unique to the country. The landscape should blend seamlessly with a parchment-colored map background, and include detailed miniature architecture, cultural symbols, and geographical elements. The country name '[COUNTRY]' should appear in bold serif text below the scene. Maintain warm, earthy tones and soft lighting for a classic, illustrated map feel. 1080x1080 dimension",
+  "category": "map-navigation",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20251213-9-output.webp"
+  ],
+  "local_image": null
+}

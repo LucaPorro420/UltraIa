@@ -1,0 +1,15 @@
+{
+  "id": "information-viz-case222",
+  "slug": "222",
+  "url": "/es/prompt-handbook/information-viz/#case222",
+  "title": "Sprites de Movimiento de Personaje para Juego de Acción: Animación Loop de 16 Fotogramas para 16 Acciones Principales",
+  "prompt": "Action game character motion. Looping animation. Each image should be 1:1. Include 16 common core actions: stand, meditation, walk, run, jump, roll, crouch, melee attack, ranged attack, block, use item, open chest, hit reaction, gain buff, death, and victory. Each action should generate a consistent animation on a black background with 16 frames, with the first and last frame being the same image. Arrange the frames in a 4×4 format. Use NanoBanana Pro to generate the images. Clean edges. Ensure character consistency. No text on the images. No watermark. No UI.",
+  "category": "information-viz",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20251216-12-output.webp"
+  ],
+  "local_image": null
+}

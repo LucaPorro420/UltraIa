@@ -1,0 +1,15 @@
+{
+  "id": "artistic-style-case338",
+  "slug": "338",
+  "url": "/es/prompt-handbook/artistic-style/#case338",
+  "title": "Ilustración de Calendario Vintage Art Nouveau: Flor de Cerezo Japonesa Marzo 2026 con Templo de Kyoto",
+  "prompt": "You are a master illustrator proficient in Art Nouveau style with rigorous data retrieval capabilities. Create a vintage naturalist style calendar illustration for March 2026 with the theme of Japanese Cherry Blossoms and Spring in Kyoto. Step 1: Calendar data - March 2026 has 31 days, starts on Sunday, includes holidays: Hinamatsuri (Girls' Day) on March 3rd, Vernal Equinox around March 20th. Step 2: Construct the illustration prompt capturing the reference style: OVERALL ATMOSPHERE: Antique aged paper texture, soft earth tones (ochre, deep green, brown, dark red, cherry blossom pink), organic flowing lines characteristic of Art Nouveau. COMPOSITION: Top section features decorative month title 'MARCH 2026' in Art Nouveau typography with cherry blossom motifs; Middle section shows main theme illustration of blooming cherry blossom branches with a Kyoto temple silhouette in background, rendered in organic curves and natural forms; Bottom section displays decorative calendar grid with refined craftsmanship; Outermost layer has complex organic border frame integrated with cherry blossom and Japanese maple leaf patterns. CALENDAR GRID DETAILS: Week headers using decorative font (S M T W T F S), numbers in classical serif typeface. ACCURACY (CRITICAL): Number '1' must be positioned under correct weekday column (Sunday), with accurate date sequence following. Special dates March 3 and March 20 should have decorative highlights - numbers surrounded by glowing golden floral ornaments or colored in red with small festival icons. Empty grid cells filled with small silhouette illustrations matching the theme - pink cherry blossom petals, temple bells, traditional Japanese lanterns. The illustration should have antique paper texture, muted color palette with pinks, greens, and golds, organic Art Nouveau flowing lines, and evoke the spirit of vintage botanical calendar prints. Aspect ratio 3:4 portrait orientation suitable for wall calendar display.",
+  "category": "artistic-style",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20251227-8-output.webp"
+  ],
+  "local_image": null
+}

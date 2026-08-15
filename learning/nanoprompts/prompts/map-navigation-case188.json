@@ -1,0 +1,15 @@
+{
+  "id": "map-navigation-case188",
+  "slug": "188",
+  "url": "/es/prompt-handbook/map-navigation/#case188",
+  "title": "Póster Vertical de Recuerdos de Viaje con Mapa, Fotos Polaroid y Planificación de Ruta",
+  "prompt": "Generate a 2:3 vertical travel memory poster (primarily in Chinese), clean and sophisticated, print-quality clarity and readability.\nLocation: Paris  Character: Tourist  Time: Tourist\nRules:\n1. Map as absolute protagonist: exquisite, information-rich, realistically readable; can connect to the internet to reference Google Maps for data (place names/directions/distances reasonable).\n2. Top banner strip (clearly visible): fills the width; text inside the banner must be crisp and sharp, with sufficient contrast, not blurry or faint.\n  ◦ Title \"Paris · {location in English}\"\n  ◦ Date using December 2025 (randomly select interval if empty)\n  ◦ Background can use location scenery but low contrast and lightly blurred, not affecting text readability.\n3. Integration: only at the banner-map junction, create a narrow foggy connection, the map naturally extends; prohibit hard dividing lines/breaks.\n4. Three larger Polaroids: classic vertical format (vertical window + thicker white bottom edge, not square); placed at the junction but mainly overlapping on the map; middle one slightly larger; thick white border + light shadow + slight tilt; temperature indicator (-5/+3/+6); handwritten \"location subtitle + date\". Content strongly related to location.\n5. Route: Red pin only once each for 1/2/3; single continuous line 1→2→3; distance in dark rounded capsule floating (not written on the line).\n6. Info cards: white rounded card next to each pin, numbers strictly correspond; no overlap, no blocking main route. Contains landmark name + coordinates (monospaced) + thumbnail; thumbnail clear and recognizable but always smaller than Polaroids, lower weight; thin line/arrow pointing to corresponding pin, line end lands on pin.\n7. Character (if filled): only appears in Polaroid or thumbnails, no new pins/routes.\nBottom: dark semi-transparent status bar: weather | altitude | coordinates | total distance (neatly aligned).",
+  "category": "map-navigation",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20251214-2-output.webp"
+  ],
+  "local_image": null
+}

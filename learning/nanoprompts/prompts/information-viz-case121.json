@@ -1,0 +1,15 @@
+{
+  "id": "information-viz-case121",
+  "slug": "121",
+  "url": "/es/prompt-handbook/information-viz/#case121",
+  "title": "Diagrama de Arquitectura Transformer Dibujado a Mano",
+  "prompt": "Draw a technical architecture diagram in hand-drawn style, topic is Transformer, use English",
+  "category": "information-viz",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/1124-6-output.webp"
+  ],
+  "local_image": null
+}
