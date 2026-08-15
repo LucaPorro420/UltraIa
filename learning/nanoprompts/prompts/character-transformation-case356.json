@@ -1,0 +1,15 @@
+{
+  "id": "character-transformation-case356",
+  "slug": "356",
+  "url": "/es/prompt-handbook/character-transformation/#case356",
+  "title": "Editorial Fashion Meetup: Modelo Real con Espíritus de Studio Ghibli",
+  "prompt": "A hyperrealistic, editorial fashion photograph in a studio setting. A real human model with a natural, confident expression and a preserved face stands between giant, photorealistic 3D animated characters, Totoro and No-Face (Spirited Away). The human wears a chunky knitted sweater in warm grey and green tones, high-waisted dark jeans, and clean white minimalist sneakers. Totoro, rendered with incredible fur detail and soft textures, stands protectively holding a leaf umbrella. No-Face, slightly to the side, stands silently with highly detailed semi-transparent textures and a subtle mask reflection. The background is a clean, split studio backdrop of forest green and soft mist grey. Soft, professional studio lighting creates smooth shadows and highlights the contrasting textures of the knitwear, denim, fur, and spirit matter, preserving their animated identity without distortion. 3/4 body framing, magazine-cover quality. --ar 3:4",
+  "category": "character-transformation",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20260110-2-output.webp"
+  ],
+  "local_image": "images/character-transformation-case356-0.webp"
+}

@@ -1,0 +1,21 @@
+{
+  "id": "stand-summoning-vfx",
+  "slug": "stand-summoning-vfx",
+  "url": "/es/prompt-handbook/trending-prompts/stand-summoning-vfx",
+  "title": "Photorealistic Stand Summoning VFX",
+  "prompt": "¡Prompt de \"Invocación de Stand\"!!\n\n[Rol]\nEres un artista conceptual de VFX (efectos visuales) cinematográficos. Integra de forma perfecta un \"Stand\" creado en CGI realista dentro de la foto de acción real proporcionada, sin ningún tipo de incongruencia.\n\n[Instrucciones específicas]\nCrea una imagen fotorrealista donde la persona en la foto proporcionada es el sujeto principal, con un \"Stand\" original apareciendo detrás de ella.\n\nMantenimiento del estilo visual (lo más importante):\nPreserva exactamente la iluminación de la foto original (dirección, intensidad, sombras), el tono de color, la textura de la cámara y la atmósfera tal como están. No se necesitan expresiones estilo manga (trazos de contorno o efectos de sonido) en absoluto.\n\nDiseño y generación del Stand:\nAnálisis: Analiza la \"atmósfera\" percibida a partir de la ropa, pertenencias y expresión facial de la persona en la foto.\nDiseño: Diseña esa atmósfera como una forma abstracta pero física. El Stand aparece con presencia material realista como agua, fuego, hielo, metal, piedra, vidrio, humo, luz o materia orgánica desconocida.\n\nComposición: El Stand emerge detrás de la persona, recibiendo la luz ambiental de la foto para proyectar sombras realistas, y puede distorsionar el aire circundante. Colócalo en una pose que proteja o intimide a la persona.",
+  "category": "🔥 Ultimos y en tendencia",
+  "description": "Learn to generate stunning photorealistic Stand VFX composites with AI. Add cinematic CGI guardians to real photos with perfect lighting and atmosphere matching. Free step-by-step guide for Instagram, X, TikTok.",
+  "difficulty": "⚡ Intermedio",
+  "tags": [
+    "📅 December 13, 2025",
+    "🏷️ VFX & Visual Effects"
+  ],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/new-prompts-lab/trend-1213-1-output.webp",
+    "https://banana-prompt.nanoprompts.org/new-prompts-lab/trend-1213-2-output.webp",
+    "https://banana-prompt.nanoprompts.org/new-prompts-lab/trend-1213-3-output.webp",
+    "https://banana-prompt.nanoprompts.org/new-prompts-lab/trend-1213-4-output.webp"
+  ],
+  "local_image": "images/stand-summoning-vfx-0.webp"
+}

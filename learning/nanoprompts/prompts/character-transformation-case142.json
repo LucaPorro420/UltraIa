@@ -1,0 +1,15 @@
+{
+  "id": "character-transformation-case142",
+  "slug": "142",
+  "url": "/es/prompt-handbook/character-transformation/#case142",
+  "title": "Mascota de Escritorio Superpuesta",
+  "prompt": "os_environment:\n  - Choose one: \"Windows 11 style desktop\" or \"macOS Sonoma style desktop\"\n  - If not specified, let the model choose the most natural OS UI\n  - Use authentic UI elements based on the selected OS\nsubject:\n  - A character based on reference image A\n  - Rendered with semi-3D, anime-style shading\n  - Clear solid shadows and highlights defining volume\n  - Appears as a desktop mascot overlay interacting with real OS UI\ncomposition:\n  - A realistic computer desktop in 16:9 aspect ratio\n  - Include authentic-looking application windows and icons\n  - Character positioned naturally on or around these UI elements\n\naction:\n  - Allow the model to freely choose mascot-like behaviors such as:\n    - lying across the top edge of a window\n    - sitting on a window frame\n    - touching, inspecting, or reacting to icons\n    - peeking from behind folders or apps\n  - Actions should feel physically grounded and slightly playful\nlocation:\n  - Displayed on a real OS-style desktop (Windows/macOS)\n  - Show recognizable UI elements (e.g., Chrome window, folder icons, taskbar/dock)\n  - Icons and windows appear authentic but used only as background elements\nstyle:\n  - Semi-3D anime shading (soft cel-shaded look)\n  - Defined shadows instead of rim lighting\n  - Clean digital rendering that blends naturally with real desktop UI\n\ncamera_lighting:\n  - Neutral frontal or top lighting to create solid, directional shadows\n  - Soft ambient light to keep color harmony with the desktop\n  - Screenshot-like straight-on camera angle\n\ncolors:\n  - Desktop in cool OS-like tones\n  - Character colors follow reference A accurately\n  - Shadows emphasized for 3D volume\ntext:\n  - None unless needed\nedit_instructions:\n  - Use reference A for character accuracy\n  - Emphasize 3D-like volume with clear shadow planes\n  - Ensure the character appears layered above real desktop UI elements\n  - Keep real UI assets unmodified and only as contextual background\nreferences:\n  A: \"Character appearance reference\"\nextras:\n  - high resolution\n  - realistic OS UI rendering\n  - clean compositing and precise layer separation\n  - allow creative mascot-like movement",
+  "category": "character-transformation",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/1205-2-output.webp"
+  ],
+  "local_image": "images/character-transformation-case142-0.webp"
+}

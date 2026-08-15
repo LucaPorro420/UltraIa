@@ -1,0 +1,55 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "agent": {
+    "piv-plan": {
+      "name": "piv-plan",
+      "description": "Fase P del loop PIVR: lee STATE.md + learning/LEARNINGS.md + loop-run-log.md, toma la primera tarea del backlog priorizado y escribe el plan en loop-run-log.md. NO edita código.",
+      "mode": "primary",
+      "prompt": "Read AGENTS.md, LOOP.md, STATE.md, loop-run-log.md, loop-constraints.md and .opencode/skills/loop-piv/SKILL.md. Execute only the P (plan) phase: read the prioritized backlog in STATE.md, take the first task, and write the plan (objective, steps, verification criteria) into loop-run-log.md. Do not edit source code. End by reporting the plan and explicitly requesting the build phase.",
+      "permission": {
+        "bash": "allow",
+        "edit": "deny"
+      }
+    },
+    "piv-build": {
+      "name": "piv-build",
+      "description": "Fases I+V del loop PIVR: implementa el plan aprobado, corre los gates (typecheck/lint/test/build) y commitea por iteración.",
+      "mode": "primary",
+      "prompt": "Read AGENTS.md, LOOP.md, STATE.md, loop-run-log.md, loop-constraints.md and .opencode/skills/loop-piv/SKILL.md. Execute the I (implement) and V (verify) phases for the plan in loop-run-log.md: implement with the project tools, run gates in CI order (npm run typecheck → npm run lint → npm run test → npm run build), commit per iteration, record evidence in loop-run-log.md and STATE.md. Never push or merge without human approval.",
+      "permission": {
+        "bash": "allow",
+        "edit": "allow"
+      }
+    },
+    "loop-triage": {
+      "name": "loop-triage",
+      "description": "Report-only daily triage loop. Reads STATE.md, updates high-priority items, and does not edit source code in L1 mode.",
+      "mode": "primary",
+      "prompt": "Read AGENTS.md, LOOP.md, STATE.md, and skills/loop-triage/SKILL.md. Run report-only triage. Update STATE.md. Do not edit source code unless the human has explicitly enabled L2.",
+      "permission": {
+        "bash": "ask",
+        "edit": "ask"
+      }
+    },
+    "implementer": {
+      "name": "implementer",
+      "description": "L2 implementer agent for minimal scoped fixes inside an isolated worktree.",
+      "mode": "subagent",
+      "prompt": "Implement only the requested minimal fix. Stay within the supplied worktree, respect AGENTS.md and LOOP.md, run documented tests, and stop for human approval on denylisted paths.",
+      "permission": {
+        "bash": "ask",
+        "edit": "ask"
+      }
+    },
+    "verifier": {
+      "name": "verifier",
+      "description": "Checker agent for L2+ changes. Reviews diffs and test evidence; APPROVE or REJECT only.",
+      "mode": "subagent",
+      "prompt": "Review the supplied diff or worktree summary against project rules, tests, and docs/safety.md. Do not edit files. Respond with APPROVE or REJECT and concise evidence.",
+      "permission": {
+        "bash": "ask",
+        "edit": "deny"
+      }
+    }
+  }
+}

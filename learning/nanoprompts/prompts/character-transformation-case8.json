@@ -1,0 +1,15 @@
+{
+  "id": "character-transformation-case8",
+  "slug": "8",
+  "url": "/es/prompt-handbook/character-transformation/#case8",
+  "title": "Dibujo a Mano Controla Poses de Múltiples Personajes",
+  "prompt": "Have these two characters fight using the pose from Figure 3. Add appropriate visual backgrounds and scene interactions,Generated image ratio is 16:9",
+  "category": "character-transformation",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/case8_output.webp"
+  ],
+  "local_image": "images/character-transformation-case8-0.webp"
+}

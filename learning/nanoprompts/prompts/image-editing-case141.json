@@ -1,0 +1,15 @@
+{
+  "id": "image-editing-case141",
+  "slug": "141",
+  "url": "/es/prompt-handbook/image-editing/#case141",
+  "title": "Efecto de Papel Rasgado en Capas",
+  "prompt": "task: \"edit-image: add widened torn-paper layered effect\"\nbase_image:\n    use_reference_image: true\n    preserve_everything:\n      - character identity\n      - facial features and expression\n      - hairstyle and anatomy\n      - outfit design and colors\n      - background, lighting, composition\n      - overall art style\nrules:\n    Only modify the torn-paper interior areas.\n    Do not change pose, anatomy, proportions, clothing details, shading, or scene elements.\neffects:\n    - effect: \"torn-paper-reveal\"\n    placement: \"across chest height\"\n    description:\n        Add a wide, natural horizontal tear across the chest area.\n        The torn interior uses the style defined in interior_style.\n    - effect: \"torn-paper-reveal\"\n      placement: \"lower abdomen height\"\n      description:\n        Add a wide horizontal tear across the lower abdomen.\n        The torn interior uses the style defined in interior_style.\ninterior_style:\n    mode: \"line-art\"\nstyle_settings:\n    line-art:\n        palette: \"monochrome\"\n        line_quality: \"clean, crisp\"\n        paper: \"notebook paper with subtle ruled lines\"",
+  "category": "image-editing",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/1205-1-output.webp"
+  ],
+  "local_image": "images/image-editing-case141-0.webp"
+}

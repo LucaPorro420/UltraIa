@@ -1,0 +1,15 @@
+{
+  "id": "spatial-design-case215",
+  "slug": "215",
+  "url": "/es/prompt-handbook/spatial-design/#case215",
+  "title": "Hoja de Diseño de Boutique de Ropa para Juego 3D con Vistas en Múltiples Ángulos y Desglose de Detalles",
+  "prompt": "3D game, chibi/cartoon style, main city area, boutique clothing store. The layout is divided into two main sections: The front view is centered and occupies about 50% of the space, showcasing the main exterior design. On the left side, include the side view and top-down view to present the overall shape and roof structure. On the right side, include the bottom-up view along with three breakdown diagrams of unique architectural details. The sheet should include multi-angle structural sketches, material references, and detailed callouts suitable for 3D modeling. Lighting should be soft, with a clean layout and high readability.",
+  "category": "spatial-design",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20251216-4-output.webp"
+  ],
+  "local_image": "images/spatial-design-case215-0.webp"
+}

@@ -1,0 +1,15 @@
+{
+  "id": "image-editing-case212",
+  "slug": "212",
+  "url": "/es/prompt-handbook/image-editing/#case212",
+  "title": "Ilusión Fotográfica Creativa: Cabeza de Gato Reemplaza a Wonder Woman en la Pantalla del Portátil",
+  "prompt": "On the desk sits an open laptop. The screen displays Wonder Woman in her iconic costume. Behind the laptop screen, an orange tabby cat happens to peek out from behind. Through precise shooting angle and height alignment, the head of the orange cat visually and perfectly replaces the head of Wonder Woman on the screen, making the entire character appear as if it has become a Wonder Woman with an orange cat head. The overall effect feels like a real photographic coincidence captured at the perfect moment, achieved entirely through composition and perspective, with no obvious post-processing or digital compositing.",
+  "category": "image-editing",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20251216-2-output.webp"
+  ],
+  "local_image": "images/image-editing-case212-0.webp"
+}

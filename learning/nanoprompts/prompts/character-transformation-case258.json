@@ -1,0 +1,15 @@
+{
+  "id": "character-transformation-case258",
+  "slug": "258",
+  "url": "/es/prompt-handbook/character-transformation/#case258",
+  "title": "Collage de Cuadrícula de Película Navideña: Misma Mujer Transformada en 9 Personajes Diferentes",
+  "prompt": "[Global Instructions]: A 3x3 grid collage, where all 9 cells must feature exactly the same woman. Strictly maintain the facial features consistent with the reference image. Do not change her facial features; only alter her expression, makeup, and styling to match each movie's theme.\nCell 1: Love Actually style - airport farewell scene wearing a Christmas hat, holding a wrapped gift, tender embrace, background with a giant airport Christmas tree and colorful light decorations, soft lighting\nCell 2: Home Alone style - surprised exaggerated expression with hands covering cheeks, wearing a crooked Christmas hat, background with a home Christmas tree, pile of gifts, and decorative lights, comedic effect\nCell 3: The Polar Express style - in front of a train window wearing a sleep cap, holding hot cocoa with a candy cane, outside the window a magical snowy landscape and Christmas village, dreamy blue and gold tones\nCell 4: The Nightmare Before Christmas style - real person in green-toned clothing with a red Christmas hat, goofy expression, holding stolen Christmas decorations, background with Christmas village lights and gifts, creative styling\nCell 5: Miracle on 34th Street style - retro department store scene wearing a classic red Christmas dress, holding a Christmas shopping bag, background with a giant Christmas tree and retro decorations, classic Hollywood lighting (center)\nCell 6: Elf style - complete elf outfit (green top, red striped socks, pointed hat with bells), joyful jumping pose, holding a candy cane, background with a candy-colored Christmas workshop\nCell 7: Frozen style - ice blue princess dress with snowflake crown, holding a magical ice crystal, snowflakes swirling, background with an ice crystal castle and a large Christmas tree, special festive candy elements, Disney magical feel\nCell 8: True Lies style - black dress with red Christmas accessories, holding champagne, background with a Christmas party scene featuring lights and decorative balls, elegant and mysterious\nCell 9: Last Christmas style - stylish woman in a red retro coat with a green scarf and gold earrings, holding a Christmas gift box, standing under the lights of a London Christmas market, background with a giant Covent Garden Christmas tree and festive shop windows, warm night scene lighting, expression full of hope, modern romantic movie aesthetic\nEach cell imitates the corresponding movie's color tones, lighting, and atmosphere, with Christmas decorative elements extremely prominent, movie poster composition, adding cinematic title text effects, professional movie still quality, 4K high definition",
+  "category": "character-transformation",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20251218-7-output.webp"
+  ],
+  "local_image": "images/character-transformation-case258-0.webp"
+}

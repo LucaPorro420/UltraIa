@@ -1,0 +1,15 @@
+{
+  "id": "character-transformation-case32",
+  "slug": "32",
+  "url": "/es/prompt-handbook/character-transformation/#case32",
+  "title": "Figura de Acción",
+  "prompt": "make an action figure of me that says [“AI Evangelist - Kris”] and features [coffee, turtle, laptop, phone and headphones]",
+  "category": "character-transformation",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/case32_output.webp"
+  ],
+  "local_image": "images/character-transformation-case32-0.webp"
+}

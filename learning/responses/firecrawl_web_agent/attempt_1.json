@@ -1,0 +1,6 @@
+{
+    "attempt":  1,
+    "source":  "https://github.com/firecrawl/web-agent",
+    "prompt":  "firecrawl_web_agent",
+    "answer":  "firecrawl/web-agent (MIT): agente web open source sobre Deep Agents (LangChain), loop plan-act-observe, subagentes, skills SKILL.md; tools Search/Scrape/Interact"
+}

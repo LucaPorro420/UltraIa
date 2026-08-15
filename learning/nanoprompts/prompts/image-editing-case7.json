@@ -1,0 +1,15 @@
+{
+  "id": "image-editing-case7",
+  "slug": "7",
+  "url": "/es/prompt-handbook/image-editing/#case7",
+  "title": "Edición Automática de Fotos",
+  "prompt": "This photo is very boring and plain. Enhance it! Increase the contrast, boost the colors, and improve the lighting to make it richer,You can crop and delete details that affect the composition.",
+  "category": "image-editing",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/case7_output.webp"
+  ],
+  "local_image": "images/image-editing-case7-0.webp"
+}

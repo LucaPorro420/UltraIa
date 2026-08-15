@@ -1,5 +1,8 @@
 # MODULE_SYSTEM.md — Sistema de módulos
 
+> Cross-ref: versión paralela del autor en `desktopFase/docs/MODULE_SYSTEM.md` (mismo contrato).
+> Historial de movimientos y totales: `docs/HISTORIAL-PROYECTO.md`.
+
 Política: **LOAD ONLY WHEN NEEDED**. El registry guarda metadata; nada carga código en boot.
 El ModuleManager decide cuándo un módulo se carga/arranca (lazy por defecto).
 

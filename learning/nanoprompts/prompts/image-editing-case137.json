@@ -1,0 +1,15 @@
+{
+  "id": "image-editing-case137",
+  "slug": "137",
+  "url": "/es/prompt-handbook/image-editing/#case137",
+  "title": "Composición Tipográfica en Prendas",
+  "prompt": "You are an image-editing agent.\nUsing the uploaded street photo, perform the following steps and use\nthe output of each step as the input for the next one.\n\nSTEP 1 – CLEAN PLATE BACKGROUND (REMOVE PERSON)\n\nRemove the girl completely.\n\nInpaint the missing area with a realistic continuation of the night street:\nextend the asphalt, sidewalk tiles, cars, shop fronts, neon signs, and people behind her.\n\nThe result must look like the original photo was taken with no person,\nno silhouette, no cut-out artifacts, and no blur.\n\nSTEP 2 – TYPOGRAPHIC GARMENT ON SEPARATE LAYER (COLOR-MATCHED)\n\nReturn to the original photo with the girl.\n\nKeep her skin, face, hair, pose, and lighting completely photorealistic.\n\nRemove only the hoodie and shorts fabric, including seams, folds, wrinkles, shadows, and texture.\n\nText Garment Rules:\n\nReplace the hoodie and shorts with a new garment made only of flat hand-drawn text:\n\n[YOUR_TEXT]\n\nColor Matching (important):\n\nAutomatically sample the dominant colors of the original hoodie (pink, red, or any hue).\n→ Use only those sampled colors for all text on the hoodie area.\n\nAutomatically sample the dominant colors of the original shorts (yellow, blue, etc.).\n→ Use only those sampled colors for all text on the shorts area.\n\nDo not mix colors between clothing parts.\n\nThe sampled colors must be applied as flat, solid colors with no gradients.\n\nGarment Fill Rules:\n\nThe letters must densely fill the shape of the hoodie and shorts.\n\nAll non-letter areas inside the garment must be pure chroma green (RGB 0,255,0).\n\nAbsolutely no black, gray, fabric texture, shading, or gradients may remain.\n\nSTEP 3 – COMPOSITE OVER THE CLEAN BACKGROUND\n\nKey out all pure chroma green from STEP 2 → make it fully transparent.\n\nPlace the girl with the color-matched typographic garment onto the STEP 1 clean-plate background.\n\nAlign perfectly with the original camera.\n\nEnsure that the night street shows naturally between the letters, with realistic detail.\n\nRecalculate natural soft shadows from the girl onto the street surface if needed.\n\nFINAL GOAL\n\nA fully photorealistic street photo where:\n\nThe girl remains realistic,\n\nHer clothing is entirely replaced with bold hand-drawn text in colors sampled from her original outfit,\n\nThe real night street background shows cleanly through all letter gaps,\n\nNo trace of the original garment or its shadows remains.\n\n\"Sample color regions precisely using localized averaging, not global averaging.\nApply text colors with zero shading and zero light falloff regardless of photo lighting.\"",
+  "category": "image-editing",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/1127-4-output.webp"
+  ],
+  "local_image": "images/image-editing-case137-0.webp"
+}

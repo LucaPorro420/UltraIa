@@ -83,3 +83,46 @@ Cada commit agrega una sección con fecha y la lista de archivos `.ts/.tsx` toca
 - [ ] apps/web/src/instrumentation.ts
 - [ ] packages/core/src/tools/gen-engine.test.ts
 - [ ] packages/core/src/tools/gen-engine.ts
+
+## 2026-08-15T01:38:08.950Z
+- [ ] packages/runtime/src/command-executor.test.ts
+- [ ] packages/runtime/src/command-executor.ts
+- [ ] packages/runtime/src/config.test.ts
+- [ ] packages/runtime/src/config.ts
+- [ ] packages/runtime/src/context.test.ts
+- [ ] packages/runtime/src/context.ts
+- [ ] packages/runtime/src/event-bus.test.ts
+- [ ] packages/runtime/src/event-bus.ts
+- [ ] packages/runtime/src/health.test.ts
+- [ ] packages/runtime/src/health.ts
+- [ ] packages/runtime/src/index.ts
+- [ ] packages/runtime/src/installer.test.ts
+- [ ] packages/runtime/src/installer.ts
+- [ ] packages/runtime/src/logger.test.ts
+- [ ] packages/runtime/src/logger.ts
+- [ ] packages/runtime/src/memory.test.ts
+- [ ] packages/runtime/src/memory.ts
+- [ ] packages/runtime/src/module-manager.test.ts
+- [ ] packages/runtime/src/module-manager.ts
+- [ ] packages/runtime/src/module-registry.test.ts
+- [ ] packages/runtime/src/module-registry.ts
+- [ ] packages/runtime/src/recovery.test.ts
+- [ ] packages/runtime/src/recovery.ts
+- [ ] packages/runtime/src/resource-manager.test.ts
+- [ ] packages/runtime/src/resource-manager.ts
+- [ ] packages/runtime/src/runtime.test.ts
+- [ ] packages/runtime/src/runtime.ts
+- [ ] packages/runtime/src/task-manager.test.ts
+- [ ] packages/runtime/src/task-manager.ts
+- [ ] packages/runtime/src/types.ts
+- [ ] packages/runtime/vitest.config.ts
+
+## 2026-08-15T03:22:01.824Z
+- [ ] packages/runtime/src/api/runtime-api.test.ts
+- [ ] packages/runtime/src/api/runtime-handlers.ts
+- [ ] packages/runtime/src/api/server.test.ts
+- [ ] packages/runtime/src/api/server.ts
+- [ ] packages/runtime/src/api/ws.ts
+- [ ] packages/runtime/src/index.ts
+- [ ] packages/runtime/src/runtime.test.ts
+- [ ] packages/runtime/src/runtime.ts

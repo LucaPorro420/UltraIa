@@ -1,5 +1,8 @@
 # MEMORY_SYSTEM.md — Memoria estructurada del runtime
 
+> Cross-ref: versión paralela del autor en `desktopFase/docs/MEMORY_SYSTEM.md` (mismo contrato).
+> Historial de movimientos y totales: `docs/HISTORIAL-PROYECTO.md`.
+
 Directorio: `.ultraia/memory/` (default `entries.json`). Complementa — no reemplaza —
 el loop verificado de `learning/` (verdad para prompts; el runtime alimenta sus fuentes,
 no las sobrescribe).

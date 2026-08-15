@@ -1,0 +1,97 @@
+{
+  "id": "web_browse_repos",
+  "type": "facts",
+  "description": "Repositorios GitHub verificados el 15/08/2026 que facilitan la navegacion/busqueda por internet para agentes AI (catalog del AI mode de Google share.google/aimode/IFwSMZTjOGXZx8Rug, query 'repositorios de github que facilitan la navegacion o busqueda por internet'; el AI mode no fue accesible via HTTP - challenge anti-bot - y el catalogo fue recuperado y verificado via busqueda web contra GitHub). Usar para encaminar el stack de browsing/busqueda de AgentReach, OMAG y la Fase B (Local API) del Desktop.",
+  "cases": [
+    {
+      "id": "firecrawl_web_agent",
+      "source": "https://github.com/firecrawl/web-agent",
+      "verified": true,
+      "note": "firecrawl/web-agent (MIT): agente web de datos open source para investigacion estructurada. Orquestador Agent Core sobre Deep Agents de LangChain: loop plan->act->observe, sub-agentes paralelos, carga de SKILL.md on-demand, salida estructurada y streaming. Tools: Search, Scrape, Interact (browser automation via Playwright), bash. SDK Vercel AI SDK (firecrawl-aisdk) y firecrawl-js. API comercial en firecrawl.dev/app/agent con modelos Spark 1.",
+      "usage": "patron de arquitectura de agente web (Deep Agents + skills markdown + loop plan-act-observe) para el pipeline de investigacion de UltraIa; referencia de tools Search/Scrape/Interact",
+      "answer": "firecrawl/web-agent (MIT): agente web open source sobre Deep Agents (LangChain), loop plan-act-observe, subagentes, skills SKILL.md; tools Search/Scrape/Interact",
+      "type": "text"
+    },
+    {
+      "id": "openbrowser",
+      "source": "https://github.com/ntegrals/openbrowser",
+      "verified": true,
+      "note": "ntegrals/openbrowser (MIT, TypeScript): toolkit autonomo de navegacion web para agentes AI sobre Playwright, con soporte OpenAI/Anthropic/Google via Vercel AI SDK (swap de modelo con un flag). Monorepo: open-browser (core: agente, control del browser, analisis DOM, integracion LLM), @open-browser/cli (REPL interactivo: open/click/type/screenshot/eval/extract/state/sessions) y @open-browser/sandbox (ejecucion con limites de CPU/memoria, timeouts y restricciones de dominio). Deteccion de stalls, tracking de costos, replay recording.",
+      "usage": "modelo de REPL + comandos de browser para la Local API del Desktop (Fase B); el sandbox con limites de recursos encaja con el ResourceManager del runtime",
+      "answer": "ntegrals/openbrowser (MIT, TS): agente de browsing autonomo sobre Playwright + Vercel AI SDK; REPL CLI, sandbox con limites, stall detection, multi-modelo",
+      "type": "text"
+    },
+    {
+      "id": "internet_search_mcp",
+      "source": "https://github.com/SufiSR/internet-search-mcp",
+      "verified": true,
+      "note": "SufiSR/internet-search-mcp: backend self-hosted de browsing para agentes con REST API + servidor MCP nativo (JSON-RPC 2.0 + SSE). Stack: SearXNG (agrega DuckDuckGo/Brave/Bing, JSON API) + Redis (rate limiter + job queue) + Firecrawl API/Worker + Playwright. 4 tools: search (titulo/url/snippet sin fetch), fetch (readability + markdownify), crawl (scraping pesado), browse (pipeline automatico: search -> BM25 rank top 3 -> fetch concurrente con fallback). Compatible LibreChat, n8n y cualquier framework MCP.",
+      "usage": "patron del pipeline browse (search + BM25 + fetch concurrente + fallback) para mejorar searchWeb/readWeb de AgentReach (packages/core/src/tools/reach.ts); referencia MCP para la Fase B",
+      "answer": "SufiSR/internet-search-mcp: backend browsing self-hosted, REST + MCP (SearXNG + Redis + Firecrawl + Playwright); browse = search -> BM25 -> fetch concurrente con fallback",
+      "type": "text"
+    },
+    {
+      "id": "browse_master",
+      "source": "https://github.com/sjtu-sai-agents/Browse-Master",
+      "verified": true,
+      "note": "sjtu-sai-agents/Browse-Master: implementacion oficial de BrowseMaster, agente web de busqueda aumentado con tools (Planner-Executor). Separa busqueda code-driven de gran escala (batch_search, check_condition, generate_keywords sobre miles de paginas con overhead minimo de contexto) del razonamiento estrategico de alto nivel. Replanificacion guiada por confianza (reset de estrategia si la confianza es baja). Resultados fuertes en benchmarks BrowseComp y BrowseComp-ZH. Usa modelos DeepSeek desplegados localmente; sandbox en sjtu-sai-agents/mcp_sandbox.",
+      "usage": "patron Planner-Executor + primitivas de busqueda por codigo (batch_search/check_condition) para el diseno de investigacion profunda de AgentReach; metodo de replanificacion por confianza",
+      "answer": "sjtu-sai-agents/Browse-Master: BrowseMaster Planner-Executor, busqueda por codigo (batch_search/check_condition/generate_keywords), replan por confianza; fuerte en BrowseComp",
+      "type": "text"
+    },
+    {
+      "id": "mcpsearch",
+      "source": "https://github.com/JonusNattapong/MCPSearch",
+      "verified": true,
+      "note": "JonusNattapong/MCPSearch: stack self-hosted de investigacion con integracion MCP, gratis y SIN API keys. Busqueda paralela multi-engine (DuckDuckGo, Google, Bing), crawling en 3 modos (fast HTTP / hybrid HTTP+Playwright / stealth anti-bot), extraccion (markdown/texto/tablas/codigo/imagenes/metadata, JSON-LD/OpenGraph/Microdata via extruct), parsing rapido con selectolax, fuentes sociales (Reddit, Twitter/X, YouTube, GitHub), caching HTTP con Hishel opcional, workflows de investigacion (research_agent, investigate, compare, trending) y herramientas unificadas mcpsearch/mcpsearch_multi.",
+      "usage": "candidato self-host de motor de busqueda/browsing para el Gen-Engine o AgentReach (keyless, MCP-native); el modo stealth (multi-browser) es el referente anti-bot",
+      "answer": "JonusNattapong/MCPSearch: investigacion multi-fuente self-host gratis sin API keys; search multi-engine, crawl fast/hybrid/stealth, social (Reddit/X/YT/GitHub), MCP",
+      "type": "text"
+    },
+    {
+      "id": "web_rooter",
+      "source": "https://github.com/baojiachen0214/web-rooter",
+      "verified": true,
+      "note": "baojiachen0214/web-rooter (WebRooter): capa de acceso web 'citable' para asistentes de codigo AI (Claude Code / Cursor / agentes locales) via comando unificado wr: quick (consulta rapida), web (busqueda + scrape), deep (investigacion multi-variante), do (planifica y ejecuta), do-submit/jobs (tareas async de fondo), academic (literatura), social (opiniones), telemetry (salud/presion). El instalador inyecta skills automaticamente en Claude/Cursor/OpenCode/OpenClaw; configuracion de cookies con un comando (Safari/Chrome/Edge/Firefox/Brave) para sitios con login.",
+      "usage": "patron de CLI unificado de browsing (quick/web/deep/do/jobs) para los agentes admin de UltraIa; su instalador de skills multi-agente es el modelo para distribuir habilidades de producto",
+      "answer": "baojiachen0214/web-rooter: capa web citable para Claude Code/Cursor/OpenCode/OpenClaw (wr quick/web/deep/do/jobs/academic/social); inyecta skills automaticamente y configura cookies de login",
+      "type": "text"
+    },
+    {
+      "id": "scrapeagent",
+      "source": "https://github.com/DamiMartinez/scrapeagent",
+      "verified": true,
+      "note": "DamiMartinez/scrapeagent: sistema multi-agente de web scraping open source sobre Google ADK y Agent Skills (agentskills.io). Sin infraestructura cloud: un agente raiz con tools MCP de browser y un SkillToolset; el conocimiento especifico de cada sitio vive en archivos SKILL.md (recetas de selectores CSS), contribuibles sin tocar Python. El agente investiga el sitio, identifica selectores y escribe el SKILL.md via create_skill; reiniciar el agente carga la skill nueva.",
+      "usage": "patron de skills como conocimiento de sitio (SKILL.md de selectores) para el sistema de habilidades de UltraIa; el loop investiga->escribe skill->recarga es el modelo de self-improvement del producto",
+      "answer": "DamiMartinez/scrapeagent (Google ADK): scraping multi-agente sin cloud; conocimiento de cada sitio en archivos SKILL.md creados por el propio agente (create_skill)",
+      "type": "text"
+    },
+    {
+      "id": "agent_browser_workspace",
+      "source": "https://github.com/k-kolomeitsev/agent-browser-workspace",
+      "verified": true,
+      "note": "k-kolomeitsev/agent-browser-workspace: toolkit local-first de deep research y browser-use para agentes: Chrome real con perfil aislado (AgentProfile) via CDP + Playwright, sin Docker ni browsers remotos. Scripts/API: getContent (pagina a Markdown con imagenes y links reescritos), getForms (detecta formularios y genera selectores), getAll (HTML snapshot), googleSearch (SERP snapshot links.json -> abre -> extrae -> pagina). PDF auto-handling, manejo de scroll infinito. Workflow reproducible de deep research con archivo de resultados estable (links.json) y snapshot de paginas en Markdown. IMPORTANTE: el perfil de Chrome es un recurso compartido - tareas de browser en secuencia, un solo proceso a la vez.",
+      "usage": "el workflow reproducible (SERP snapshot + Markdown + archivo de resultados) es el patron para el modulo de deep research de AgentReach; regla de browser single-threaded para el runtime",
+      "answer": "k-kolomeitsev/agent-browser-workspace: deep research local con Chrome CDP + Playwright; scripts getContent/getForms/googleSearch, SERP snapshot reproducible en links.json + Markdown",
+      "type": "text"
+    },
+    {
+      "id": "web_use",
+      "source": "https://github.com/Jeomon/Web-Use",
+      "verified": true,
+      "note": "Jeomon/Web-Use: agente de browsing autonomo sobre Chrome DevTools Protocol con soporte multi-LLM (Anthropic, Gemini, OpenAI, Groq, Ollama, Cerebras, Mistral...). Vision con bounding boxes scroll-aware, arbol semantico del DOM (roles, ids, clases, texto), indice de elementos DOM para click/typing eficientes, descarga de archivos y subida a formularios, manejo de estados de carga/animaciones/CAPTCHA/OTP, OAuth 2.0 + PKCE con token storage persistente. WebMCP: protocolo para que los sitios expongan tools custom al agente (auto-discovery y ejecucion on-the-fly).",
+      "usage": "WebMCP (sitios que exponen tools a agentes) es la direccion futura de MCP para el producto; el manejo de autenticacion OAuth + CAPTCHA es requerimiento del browsing real",
+      "answer": "Jeomon/Web-Use: agente browsing CDP multi-LLM con vision, arbol semantico DOM, OAuth 2.0+PKCE; introduce WebMCP (sitios exponen tools custom al agente)",
+      "type": "text"
+    },
+    {
+      "id": "webharvest",
+      "source": "https://github.com/colaboy519/webharvest",
+      "verified": true,
+      "note": "colaboy519/webharvest: scraper self-hosted, alternativa gratis a Firecrawl, 100% local (sin cloud). Convierte cualquier URL a markdown/HTML/JSON estructurado. Extras pip: stealth (curl_cffi + Patchright + BrowserForge anti-bot), agent (browser-use + Patchright), browser (Playwright JS rendering), search (DuckDuckGo), captcha (2Captcha). Comandos: scrape (URL->markdown/HTML/JSON con metadata), crawl (BFS depth-limited), extract (selectores CSS -> JSON), search (DDG + scrape de cada resultado), agent (tarea en lenguaje natural), agent-extract (extraccion por prompt). Comparativa Firecrawl: gratis vs $16+/mo, local vs sus servidores, BYO API key.",
+      "usage": "alternativa keyless y local a Firecrawl para el stack de browsing de UltraIa; el CLI scrape/crawl/extract/search/agent mapea directo a las tools de AgentReach",
+      "answer": "colaboy519/webharvest: scraper self-hosted gratis (alternativa Firecrawl, 100% local); scrape/crawl/extract/search/agent; anti-bot curl_cffi+Patchright+BrowserForge",
+      "type": "text"
+    }
+  ]
+}

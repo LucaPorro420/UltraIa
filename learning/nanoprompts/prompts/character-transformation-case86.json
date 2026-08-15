@@ -1,0 +1,15 @@
+{
+  "id": "character-transformation-case86",
+  "slug": "86",
+  "url": "/es/prompt-handbook/character-transformation/#case86",
+  "title": "Carta de Tarot Gótico Oscuro",
+  "prompt": "Generate a dark gothic tarot card featuring me from this image. Include [“AI Artist - Shira”] and [coffee, white fluffy chubby cat with pink bow, laptop, phone, headphones] as symbols, with moody shadows, intricate gothic borders, and mystical dark fantasy vibes.",
+  "category": "character-transformation",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/case86_output.webp"
+  ],
+  "local_image": "images/character-transformation-case86-0.webp"
+}

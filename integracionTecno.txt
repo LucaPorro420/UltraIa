@@ -113,3 +113,165 @@ DECISIONES DE INTEGRACIÓN PARA ULTRALA
   referencia de arquitectura (archivado).
 - Patrón Databricks (installer multi-agente + skills oficiales) para distribuir los
   skills/MCP de los agentes admin de UltraIa.
+
+
+  https://share.google/aimode/qXzQTMNvgyiIsWpsd
+
+  https://github.com/ysyecust/everything-claude-code
+
+  https://nanoprompts.org/es prompts con imagenes disenadas para carga en memoria[todo: Igresaras al enlace, obtendras a informacion, la guardaras en el proyecto como local para usar y ver sin conexion=Transformaras los disenos con prompt a lenguaje de programacion para replicar los disenos de esta manera{Realiza las acciones que sean necesarias;
+  Ejemplo:
+    Obtiens el formato texto e img, lo transformas a json => creas el archivo .(Extension que aplique)=> .PyPI/.py/.ts/.***}]
+
+    Para la creación de videos con audio totalmente automatizados mediante prompts, existen dos enfoques principales según tus necesidades: plataformas de IA generativa listas para usar o bibliotecas de programación para construir tu propio sistema personalizado.
+## Plataformas de IA Generativa (Uso Inmediato)
+Estas herramientas permiten convertir texto directamente en video de alta calidad con sonido sincronizado:
+
+* Google Veo: Una de las opciones más potentes, destacada por su alta adherencia a los prompts y fidelidad visual. Soporta diálogos completos y efectos de sonido (SFX) sincronizados. [1] 
+* Adobe Firefly Video Model: Permite generar videos a partir de prompts de texto e imágenes de referencia, facilitando la creación de animaciones y efectos 2D/3D dentro de su ecosistema. [2, 3] 
+* Canva AI (Video Clip): Utiliza el modelo Veo-3 para generar metraje cinematográfico de hasta ocho segundos con audio sincronizado, incluyendo diálogos y diseño sonoro. [4] 
+* Otras alternativas destacadas: Herramientas como Sora, Runway, Pictory y Synthesia también lideran el mercado de generación automática de video en 2025-2026. [5] 
+
+## Bibliotecas de Programación (Para Desarrolladores)
+Dado que utilizas Visual Studio Code, GitHub y Supabase, podrías preferir automatizar el proceso mediante código:
+
+* MoviePy: Es la biblioteca de Python estándar para la edición programática de video. Funciona como un wrapper de FFmpeg y permite automatizar cortes, inserción de títulos y procesamiento de audio. [6, 7] 
+* Diffusers (Hugging Face): Ideal si buscas síntesis de video e imagen desde cero. Soporta modelos de difusión que generan video y música a partir de ruido basándose en prompts de texto. [8] 
+* gTTS y PyDub: Para la parte del audio, puedes usar gTTS para convertir texto a voz (MP3) de forma sencilla y PyDub para manipular, mezclar o superponer pistas de audio antes de integrarlas al video. [9, 10, 11] 
+
+## Arquitectura Recomendada para Automatización Total
+Si decides construir tu propia herramienta, puedes seguir una estructura modular:
+
+   1. Motor de Prompts: Un LLM (como los que ya usas localmente o vía API) para generar el guion y las descripciones visuales.
+   2. Generación de Activos: Usar Diffusers para el visual y gTTS para la voz.
+   3. Ensamblaje: Utilizar MoviePy o fmov (una alternativa de alto rendimiento para creación desde cero) para unir video y audio programáticamente. [12, 13] 
+
+¿Te interesa que te ayude a estructurar un script inicial en Python para conectar estas herramientas, o prefieres explorar una de las plataformas de IA mencionadas?
+
+[1] [https://www.techsmith.com](https://www.techsmith.com/blog/best-ai-video-generator-tools/)
+[2] [https://www.adobe.com](https://www.adobe.com/products/firefly/features/ai-video-generator.html)
+[3] [https://www.adobe.com](https://www.adobe.com/ca/products/firefly/features/ai-video-generator.html)
+[4] [https://www.canva.com](https://www.canva.com/features/ai-video-generator/)
+[5] [https://www.arsys.es](https://www.arsys.es/blog/herramientas-para-crear-videos-con-ia-gratis)
+[6] [https://www.youtube.com](https://www.youtube.com/watch?v=m6chqKlhpPo)
+[7] [https://www.stackbuilders.com](https://www.stackbuilders.com/insights/python-video-generation/)
+[8] [https://datasciencedojo.com](https://datasciencedojo.com/blog/python-libraries-for-generative-ai/)
+[9] [https://www.youtube.com](https://www.youtube.com/watch?v=xDTgziqNwSQ)
+[10] [https://speechify.com](https://speechify.com/blog/gtts/)
+[11] [https://www.youtube.com](https://www.youtube.com/watch?v=B31RiiRt_TE&t=1)
+[12] [https://www.reddit.com](https://www.reddit.com/r/Python/comments/1jyphgr/a_new_powerful_tool_for_video_creation/)
+[13] [https://simondusable.medium.com](https://simondusable.medium.com/prompt-architecture-867df2479dfc)
+
+
+////////////////
+1. Script de Automatización de Benchmarks (Antes/Después)Crea un archivo llamado benchmark.js en la raíz de tu proyecto. Este script mide el rendimiento de tus funciones legacy frente a las modernas usando el módulo nativo perf_hooks.javascriptimport { performance } from 'perf_hooks';
+
+export function runBenchmark(name, oldFn, newFn, args = []) {
+  const iterations = 100000;
+  
+  // Test Legacy
+  const startOld = performance.now();
+  for (let i = 0; i < iterations; i++) {
+    oldFn(...args);
+  }
+  const endOld = performance.now();
+  const oldTime = endOld - startOld;
+
+  // Test Modernizado
+  const startNew = performance.now();
+  for (let i = 0; i < iterations; i++) {
+    newFn(...args);
+  }
+  const endNew = performance.now();
+  const newTime = endNew - startNew;
+
+  console.log(`\n📊 Benchmark: ${name}`);
+  console.log(`❌ ES5 (Callbacks): ${oldTime.toFixed(2)}ms`);
+  console.log(`✨ ES2022+ (Async/TS): ${newTime.toFixed(2)}ms`);
+  console.log(`📈 Diferencia: ${((oldTime - newTime) / oldTime * 100).toFixed(2)}% de cambio`);
+}
+Usa el código con precaución.2. Guía de Refactorización y Equivalencias (ES5 a TS/ES2022)Para realizar la migración de forma manual o mediante scripts de búsqueda y reemplazo, aplica este patrón de conversión:Código Legacy (/src/legacy/users.js)javascript// ES5 con Callbacks y var
+var fs = require('fs');
+
+function obtenerUsuario(id, callback) {
+  var url = 'https://example.com' + id;
+  
+  fs.readFile('./config.json', 'utf-8', function(err, data) {
+    if (err) return callback(err);
+    var config = JSON.parse(data);
+    
+    // Simulación de petición usando el config
+    setTimeout(function() {
+      callback(null, { id: id, name: 'Usuario ' + id, role: config.defaultRole });
+    }, 50);
+  });
+}
+
+module.exports = { obtenerUsuario: obtenerUsuario };
+Usa el código con precaución.Código Modernizado (/src/legacy/users.ts)typescript// ES2022+, Async/Await, ESM y TypeScript Estricto
+import { promises as fs } from 'fs';
+
+interface Usuario {
+  id: number;
+  name: string;
+  role: string;
+}
+
+interface Config {
+  defaultRole: string;
+}
+
+export async function obtenerUsuario(id: number): Promise<Usuario> {
+  try {
+    const data = await fs.readFile('./config.json', 'utf-8');
+    const config: Config = JSON.parse(data);
+    
+    // Reemplazo de setTimeout con una Promesa nativa (ES2022)
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    
+    return {
+      id,
+      name: `Usuario ${id}`,
+      role: config.defaultRole
+    };
+  } catch (error) {
+    throw new Error(`Error al obtener usuario: ${(error as Error).message}`);
+  }
+}
+Usa el código con precaución.3. Registro de Cambios (Changelog de Migración)Te sugiero mantener un archivo MIGRATION_CHANGELOG.md dentro de /src/legacy con la siguiente estructura para documentar los impactos de rendimiento:markdown# Changelog de Auditoría y Migración - /src/legacy
+
+## - 2026-08-14
+
+### usuarios.js -> usuarios.ts
+*   **Sintaxis:** Convertido de `var` y concatenación de strings a `const`/`let` y template literals.
+*   **Módulos:** Cambiado `module.exports` / `require` por `export` / `import` (ESM).
+*   **Asincronía:** Eliminado callback hell; implementado `async/await` con `fs.promises`.
+*   **Tipado:** Añadidas interfaces `Usuario` y `Config`.
+*   **Pruebas:** Cobertura de tests mantenida al 100% adaptando los assertions a promesas (`resolves`).
+*   **Benchmark:** 
+    *   Antes: 524.12ms (100k iteraciones)
+    *   Después: 489.05ms (100k iteraciones)
+    *   Resultado: +6.69% de mejora en rendimiento.
+Usa el código con precaución.4. Estrategia para asegurar que los Tests sigan pasandoSi tus pruebas existentes usan callbacks, fallarán al recibir promesas. Debes envolver los tests viejos o usar las utilidades de tu framework de pruebas:Si usas Jest/Vitest: Cambia los bloques con done() por retornos de promesas o async/await.javascript// Test Viejo
+it('obtiene usuario', (done) => {
+  obtenerUsuario(1, (err, user) => {
+    expect(user.id).toBe(1);
+    done();
+  });
+});
+
+// Test Nuevo
+it('obtiene usuario', async () => {
+  const user = await obtenerUsuario(1);
+  expect(user.id).toBe(1);
+});
+Usa el código con precaución.Para poder ayudarte a escribir el código exacto de la migración, ¿podrías compartirme el contenido de los archivos de la carpeta /src/legacy o el código del archivo más crítico que quieras que refactorice primero
+
+
+
+https://github.com/cobusgreyling/loop-engineering
+
+
+https://github.com/github/spec-kit
+
+

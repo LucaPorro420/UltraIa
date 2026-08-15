@@ -1,0 +1,6 @@
+{
+    "attempt":  1,
+    "source":  "https://github.com/k-kolomeitsev/agent-browser-workspace",
+    "prompt":  "agent_browser_workspace",
+    "answer":  "k-kolomeitsev/agent-browser-workspace: deep research local con Chrome CDP + Playwright; scripts getContent/getForms/googleSearch, SERP snapshot reproducible en links.json + Markdown"
+}

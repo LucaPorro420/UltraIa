@@ -47,3 +47,7 @@ __pycache__/
 # Third-party cloned repos (keep out of this repo)
 FREE-openai-api-keys/
 headroom/
+
+# Vendored reference copies: never re-add an embedded .git dir here
+vendor/**/.git/
+vendor/**/.gitkeep

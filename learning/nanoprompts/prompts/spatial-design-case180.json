@@ -1,0 +1,15 @@
+{
+  "id": "spatial-design-case180",
+  "slug": "180",
+  "url": "/es/prompt-handbook/spatial-design/#case180",
+  "title": "Isla País Miniatura Flotante con Monumentos y Paisajes Naturales",
+  "prompt": "Create an ultra-HD, hyper-realistic digital poster of a floating miniature island shaped like [COUNTRY], resting on white clouds in the sky. Blend iconic landmarks, natural landscapes (like forests, mountains, or beaches), and cultural elements unique to [COUNTRY]. Carve \"[COUNTRY]\" into the terrain using large white 3D letters. Add artistic details like birds (native to [COUNTRY]), cinematic lighting, vivid colors, aerial perspective, and sun reflections to enhance realism. Ultra-quality, 4K+ resolution. 1080x1080 format.\nCOUNTRY: USA",
+  "category": "spatial-design",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20251213-4-output.webp"
+  ],
+  "local_image": "images/spatial-design-case180-0.webp"
+}

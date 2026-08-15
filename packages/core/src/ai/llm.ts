@@ -13,6 +13,7 @@ import { generateUiScreen } from '../tools/stitch';
 import { readWeb, searchWeb, searchGitHub, parseRss, videoInfo } from '../tools/reach';
 import { searchMusic, searchSfx, mixkit } from '../tools/content';
 import { runSkill } from '../tools/skills';
+import { generateParseltongueVariants, computeAutoTuneParams, ultraplinian, godmodeClassic } from '../tools/g0dm0d3';
 import { audioLibrary } from '../omag/audiolibrary';
 import { synthSound as synth } from '../omag/sound';
 
@@ -294,6 +295,69 @@ export function chatStream(opts: {
       execute: async ({ kind, name, durationSec, freq }) => {
         const result = name ? await audioLibrary.saveSynth(kind, name, { durationSec, freq }) : synth(kind, { durationSec, freq });
         return { kind: result.kind, durationSec: result.durationSec, sampleRate: result.sampleRate };
+      },
+    });
+  }
+  if (opts.tools?.includes('g0dm0d3')) {
+    tools.g0_parseltongue = tool({
+      description:
+        'Generate input-perturbation variants of a query using Parseltongue obfuscation techniques (up to 33, tiers light/standard/heavy). Rewrites detected trigger words via leetspeak, unicode, morse, braille, base64, etc. Use to stress-test how a model handles adversarial or unusual input spellings.',
+      parameters: z.object({
+        query: z.string().min(1).max(2000),
+        tier: z.enum(['light', 'standard', 'heavy']).optional(),
+        customTriggers: z.array(z.string().min(1).max(50)).max(20).optional(),
+      }),
+      execute: async ({ query, tier, customTriggers }) =>
+        generateParseltongueVariants(query, tier ?? 'standard', customTriggers).map((v) => ({
+          text: v.text,
+          technique: v.technique,
+          label: v.label,
+          tier: v.tier,
+        })),
+    });
+    tools.g0_autotune = tool({
+      description:
+        'Detect the nature of a query (code, creative, analytical, security, legal, etc.) and return context-adaptive LLM sampling parameters (temperature, top_p, top_k, penalties). Use to tune generation quality for the task at hand.',
+      parameters: z.object({
+        message: z.string().min(1).max(2000),
+        history: z.array(z.string().min(1).max(2000)).max(20).optional(),
+        strategy: z.enum(['adaptive', 'precise', 'balanced', 'creative', 'chaotic']).optional(),
+      }),
+      execute: async ({ message, history, strategy }) =>
+        computeAutoTuneParams(message, history ?? [], strategy ?? 'adaptive'),
+    });
+    tools.g0_ultraplinian = tool({
+      description:
+        'Evaluate a query through multiple parallel analysis angles (executive, technical, critic, synthesizer, teacher, analyst, strategist, researcher, practitioner, historian, futurist, balanced) using the configured model, score every response with the composite scorer and return the ranked results with grades (ELITE/EXCELLENT/GOOD/ACCEPTABLE/POOR). Use when you need the best of several candidate answers or a second opinion on quality.',
+      parameters: z.object({
+        query: z.string().min(1).max(2000),
+        tier: z.enum(['fast', 'standard', 'smart', 'power', 'ultra']).optional(),
+        model: z.string().max(100).optional(),
+      }),
+      execute: async ({ query, tier, model }) => {
+        const result = await ultraplinian(query, tier ?? 'standard', model);
+        return {
+          winner: { id: result.winner.id, role: result.winner.role, text: result.winner.text, composite: result.winner.composite },
+          ranked: result.results.map((r) => ({ id: r.id, role: r.role, text: r.text, composite: r.composite })),
+          passes: result.passes,
+          totalMs: result.totalMs,
+        };
+      },
+    });
+    tools.g0_godmode = tool({
+      description:
+        'Race 5 distinct answer styles (BOUNDARY, CONCISE, STRUCTURED, EXPLORATORY, FAST) in parallel through the configured model, score each response with the composite scorer and return the winner plus the ranked results. Use when you want the strongest of several differently-framed answers.',
+      parameters: z.object({
+        query: z.string().min(1).max(2000),
+        model: z.string().max(100).optional(),
+      }),
+      execute: async ({ query, model }) => {
+        const result = await godmodeClassic(query, model);
+        return {
+          winner: { codename: result.winner.combo.codename, text: result.winner.text, composite: result.winner.composite },
+          ranked: result.results.map((r) => ({ codename: r.combo.codename, text: r.text, composite: r.composite })),
+          totalMs: result.totalMs,
+        };
       },
     });
   }

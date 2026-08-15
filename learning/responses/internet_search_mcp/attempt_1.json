@@ -1,0 +1,6 @@
+{
+    "attempt":  1,
+    "source":  "https://github.com/SufiSR/internet-search-mcp",
+    "prompt":  "internet_search_mcp",
+    "answer":  "SufiSR/internet-search-mcp: backend browsing self-hosted, REST + MCP (SearXNG + Redis + Firecrawl + Playwright); browse = search -\u003e BM25 -\u003e fetch concurrente con fallback"
+}

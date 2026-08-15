@@ -1,0 +1,15 @@
+{
+  "id": "character-transformation-case103",
+  "slug": "103",
+  "url": "/es/prompt-handbook/character-transformation/#case103",
+  "title": "Máquina Garra Personalizada",
+  "prompt": "Generate an image showing this animal as a simplified and deformed as an anime-like plush toy (made of short-pile, soft-touch polyester knit fabric), with multiple units inside a UFO catcher machine. On either side are additional UFO Catcher machines containing multiple plush toys of different animals, distinct from the main image. The setting is a Japanese game center, with an overall very bright impression. Only the top section of the UFO catcher is painted in vibrant colors. The lower section is painted white. The background is a wall, and the area behind the UFO catcher is quite blurred.　The floor is carpeted. The shooting angle is from the front. Most importantly, absolutely no text or logos should appear in the output.",
+  "category": "character-transformation",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/case103_output.webp"
+  ],
+  "local_image": "images/character-transformation-case103-0.webp"
+}

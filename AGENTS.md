@@ -203,9 +203,71 @@ Verdad verificada 9/9 PASS en `learning/truth/truth_tecno_recursos.json` (fuente
   update idempotentes, backup+rollback, prereqs node>=20, offline, nunca sobrescribe .env).
 - **Verificación**: typecheck core+web+runtime OK, lint OK, core 218/218 PASS (incluye 29
   tests g0dm0d3) + runtime 132/132 PASS, build OK. LECCIÓN: fallos raros de vitest tras
-  editar = caché stale 
-ode_modules/.vite (limpiar antes de diagnosticar; afecta core y runtime).
+  editar = caché stale node_modules/.vite (limpiar antes de diagnosticar; afecta core y runtime).
 - **Docs**: desktopFase/DESKTOP_ARCHITECTURE.md (fases A-E, Tauri/Electron diferido a Fase D),
   RUNTIME.md (contrato + comandos del sistema), MODULE_SYSTEM.md, MEMORY_SYSTEM.md,
   INSTALLER.md, SECURITY.md (allowlist, 127.0.0.1 + token para la Local API de Fase B).
 - **Pendiente Fase B**: Local API HTTP/WS en 127.0.0.1 + token de sesión + origin + rate limit.
+
+## Fase B — Local API (15/08/2026) ✅ IMPLEMENTADA
+
+- **@ultraia/runtime** Fase B completa y verificada: `packages/runtime/src/api/` —
+  `ws.ts` (WebSocketConnection: handshake RFC 6455 + framing, MAX_FRAME_BYTES 16 MiB),
+  `server.ts` (LocalApiServer + ApiHandlers + ApiError + LocalApiOptions), `runtime-handlers.ts`
+  (runtimeApiHandlers(runtime)). Wiring en `runtime.ts`: startLocalApi/stopLocalApi/localApiUrl/
+  apiToken; módulo registrado como `system-api` (el patrón de id `^[a-z0-9][a-z0-9-]{1,63}$` NO
+  admite puntos → `system.api` inválido); comandos `api.start`/`api.stop` (restricted) y `api.url`
+  (safe); `stop()` cierra la API primero. Token `randomBytes(32)` hex, descartado en stopLocalApi();
+  comparación timing-safe (sha256 + timingSafeEqual); Host/Origin solo loopback
+  (127.0.0.1|localhost|[::1]); rate limit ventana fija default 120 req/min → 429 + Retry-After;
+  body cap 64 KiB → 413 con Connection: close; WS `/events?token=` envía {type:'connected'} y luego
+  {type:'event', topic, payload, at} con filtro `^(module|task|health|resource|memory|runtime|api)\.`.
+  Exports en index.ts: api/ws, api/server, api/runtime-handlers. runtime.test.ts registry.count 2→3.
+- **Tests**: api/server.test.ts (11 unit) + api/runtime-api.test.ts (9 integración con UltraRuntime
+  real) → runtime 152/152 PASS. Verificación repo completa 15/08: typecheck ✅ lint ✅
+  test 370/370 (core 218 + runtime 152) ✅ build ✅.
+- **Docs**: desktopFase/docs/IPC.md (contrato Fase B marcado IMPLEMENTADA 15/08/2026),
+  ARCHITECTURE.md (Fase B hecha), DESKTOP_ARCHITECTURE.md (B ✅ 152/152), SECURITY.md (raíz y
+  docs/ §7 — token timing-safe, origin loopback, rate limit), docs/RUNTIME.md.
+- **Pendiente Fase C**: adapters a `@ultraia/core` (db, ai-gateway, tools, omag) vía
+  packages/runtime/src/adapters/ con tests por adapter. **Pendiente Fase D**: Shell Desktop.
+
+## Loop PIVR (Plan ⇒ Implement ⇒ Verificar ⇒ Reiniciar) — 15/08/2026
+
+Harness de desarrollo continuo del proyecto, orquestado por loop-engineering
+(`npx @cobusgreyling/loop`, CLI npm v0.1.2 — NO es pip). Archivos del harness:
+
+- `LOOP.md` — configuración del bucle (patrón PIVR, gates, cadencia).
+- `STATE.md` — estado vivo: backlog priorizado, High Priority, Watch List, evidencia de verificación.
+- `loop-run-log.md` — bitácora de ciclos (P/I/V/R por iteración, commits, tests).
+- `loop-budget.md` — límites diarios y kill switch (`loop-pause-all`).
+- `loop-constraints.md` — reglas vinculantes del bucle.
+- `opencode.json` — agents: `piv-plan` (primary, read-only), `piv-build` (primary, ejecuta+commitea),
+  `loop-triage` (primary), `implementer`/`verifier` (subagents).
+- `scripts/loop_piv.py` — driver híbrido: ejecuta ciclos vía `opencode run --agent piv-plan|piv-build`
+  + gates npm; usable por cualquier modelo/agente.
+- `skills/loop-*` (raíz, referencia del scaffold) y `.opencode/skills/loop-*` (cargables) —
+  `loop-piv` es el protocolo en-sesión.
+
+### Protocolo del bucle (obligatorio para TODO agente del proyecto)
+
+1. **P — Planificar**: leer `STATE.md` + `learning/LEARNINGS.md` + `loop-run-log.md`; tomar la
+   primera tarea del backlog priorizado; escribir en `loop-run-log.md` el plan: objetivo, pasos,
+   criterios de verificación (gates + tests esperados). No editar código.
+2. **I — Implementar**: ejecutar el plan con las tools del proyecto (workspaces, worktree si aplica);
+   commit por iteración con mensaje `feat|fix|chore(scope): <descripción>`.
+3. **V — Verificar**: gates en orden CI: `npm run typecheck` → `npm run lint` → `npm run test` →
+   `npm run build`. Gates duales: scoped (tests del paquete afectado) en iteraciones intermedias,
+   FULL en cada commit. Opcional: verifier sub-agent (APPROVE/REJECT). Registrar evidencia en
+   `loop-run-log.md` y `STATE.md`.
+4. **R — Reiniciar**: si V=GREEN → siguiente ciclo inmediato (auto plan→build, sin esperar al
+   humano); si REJECT → reinyectar el error al plan (máx 3 intentos por ítem, luego escalar a
+   High Priority). Al terminar el backlog o agotar límites → reportar en `STATE.md`.
+
+### Auto-conmutación Plan→Build
+
+- El driver `scripts/loop_piv.py` emite automáticamente la "petición" de build al terminar P
+  (`opencode run --agent piv-build "<plan>"`), simulando la instrucción del humano.
+- En-sesión: el agente sigue el protocolo sin esperar confirmación (autorización permanente del
+  usuario, 15/08/2026), respetando SIEMPRE los gates humanos de push/merge (nunca push automático).
+- Kill switch: si `STATE.md` o `loop-run-log.md` contienen `loop-pause-all`, el bucle se detiene.

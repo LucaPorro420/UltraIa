@@ -1,0 +1,15 @@
+{
+  "id": "image-editing-case43",
+  "slug": "43",
+  "url": "/es/prompt-handbook/image-editing/#case43",
+  "title": "Controlar la Forma del Rostro del Personaje",
+  "prompt": "Design the character from Image 1 as a chibi version according to the face shape from Image 2",
+  "category": "image-editing",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/case43_output.webp"
+  ],
+  "local_image": "images/image-editing-case43-0.webp"
+}

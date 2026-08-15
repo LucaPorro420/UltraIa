@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "mcpsearch": {
+      "command": "python",
+      "args": ["-m", "mcp_server"],
+      "env": {
+        "OPENAI_API_KEY": "${OPENAI_API_KEY}"
+      }
+    }
+  }
+}

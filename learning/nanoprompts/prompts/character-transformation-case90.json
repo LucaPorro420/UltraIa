@@ -1,0 +1,15 @@
+{
+  "id": "character-transformation-case90",
+  "slug": "90",
+  "url": "/es/prompt-handbook/character-transformation/#case90",
+  "title": "Conviértete en Vtuber",
+  "prompt": "Create a fictional Vtuber and their streaming screen using the original image.\nThe Vtuber's hairstyle and clothing will be faithfully reproduced from the original image.\nThe Vtuber image will be 2.5D-like, so it is not necessary to perfectly reproduce the style of the original image. A moderate sense of three-dimensionality is also necessary.\nThe Vtuber's facial expression and pose may be changed from the original image. Have the Vtuber hold a game controller.\nPlace only the Vtuber's upper body in the bottom right of the screen. Place the streaming screen of the game being played in the center of the screen. Place the chat screen on the left side of the screen.\nThe screen ratio is set to a larger size for the game screen, and the upper half of the Vtuber's body is displayed smaller.\nThe background of the original image is completely ignored, as well as the original image pose.\nAdd a fictional streaming platform and browser UI to the top and bottom of the screen.\nThe aspect ratio of the generated image is independent of that of the original image.",
+  "category": "character-transformation",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/case90_output.webp"
+  ],
+  "local_image": "images/character-transformation-case90-0.webp"
+}

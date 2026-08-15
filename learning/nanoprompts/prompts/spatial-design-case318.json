@@ -1,0 +1,15 @@
+{
+  "id": "spatial-design-case318",
+  "slug": "318",
+  "url": "/es/prompt-handbook/spatial-design/#case318",
+  "title": "Habitación Híbrida 2D/3D con Pared de Papel de Dimensiones Mixtas y Estilo Caprichoso",
+  "prompt": "A cozy room where the wall looks like a giant paper illustration, flat ink lines and watercolor washes, yet a corner of the “paper wall” is peeled back, revealing a fully 3D forest behind it. The peeled edge curls outward like thick cardstock, casting a real shadow on the illustrated surface. The illusion: the 2D drawn objects (a drawn lamp, drawn shelf) cast realistic 3D shadows, while the 3D forest casts faint “ink” shadows as if it’s becoming a drawing. A cat sits half-in, half-out: front paws in 3D forest moss, back body in 2D sketch form, seamlessly blended. Soft morning light, gentle pastel palette, tactile paper fibers visible, high detail, whimsical but believable “mixed-dimension” realism.",
+  "category": "spatial-design",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20251223-9-output.webp"
+  ],
+  "local_image": "images/spatial-design-case318-0.webp"
+}

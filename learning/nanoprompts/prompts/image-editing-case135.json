@@ -1,0 +1,15 @@
+{
+  "id": "image-editing-case135",
+  "slug": "135",
+  "url": "/es/prompt-handbook/image-editing/#case135",
+  "title": "Criatura Ilustrada Gigante sobre Foto de Ciudad",
+  "prompt": "Use the uploaded city photo as the base image. Do NOT change the real buildings, streets, cars, or people. Keep the photograph fully realistic. Add a very large, stylized illustrated creature in the sky above and behind the buildings, as if it is towering over the city. The creature should be drawn in a flat, graphic style with clean outlines and limited neon colors (for example soft neon green, neon yellow, and lime), similar to a mural or poster illustration. Design of the creature: - whimsical, fantasy monster, not scary or violent - made of layered shapes, scales, fur, or floral patterns - long arms or hair that hang down alongside the buildings - large horns or unusual features that clearly silhouette against the sky Integration with the photo: - place the creature so that parts of its body appear behind the building edges, respecting perspective - use correct overlap: building edges in front, creature behind, to make it feel embedded in the scene - add very soft shadows or color reflections on nearby building surfaces if needed, but keep it subtle - maintain the original sky brightness so the illustration stands out clearly Optional: - add a few small, simple illustrated characters on the street level (flat, minimal style) walking pets or crossing the road, but do not cover the real people. Overall mood: dreamy, surreal city scene where a giant, friendly illustrated creature appears above the realistic buildings, combining real photography and clean, modern illustration.",
+  "category": "image-editing",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/1127-2-output.webp"
+  ],
+  "local_image": "images/image-editing-case135-0.webp"
+}

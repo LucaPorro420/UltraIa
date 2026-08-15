@@ -1,0 +1,15 @@
+{
+  "id": "character-transformation-case12",
+  "slug": "12",
+  "url": "/es/prompt-handbook/character-transformation/#case12",
+  "title": "Generar Diseño de Personaje",
+  "prompt": "Generate character design for me (Character Design)\n\nProportion design (different height comparisons, head-to-body ratio, etc.)\n\nThree views (front, side, back)\n\nExpression design (Expression Sheet) → like the image you sent\n\nPose design (Pose Sheet) → various common poses\n\nCostume design (Costume Design)",
+  "category": "character-transformation",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/case12_output.webp"
+  ],
+  "local_image": "images/character-transformation-case12-0.webp"
+}

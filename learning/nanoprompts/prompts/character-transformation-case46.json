@@ -1,0 +1,15 @@
+{
+  "id": "character-transformation-case46",
+  "slug": "46",
+  "url": "/es/prompt-handbook/character-transformation/#case46",
+  "title": "Figura de Modelo Gundam",
+  "prompt": "Transform the person in the photo into a Gundam model kit packaging box style, presented in isometric perspective. Label the box with the title \"ZHOGUE\". Inside the box, display a Gundam-style mechanical version of the person from the photo, along with their essentials (such as makeup, bags, or other items) redesigned as futuristic mechanical accessories. The packaging should resemble real Gunpla boxes, including technical illustrations, instruction manual-style details, and sci-fi fonts. Beside the box, also display the actual Gundam-style mechanical figure itself, outside the packaging, rendered in a realistic and lifelike style, similar to official Bandai promotional renders.",
+  "category": "character-transformation",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/case46_output.webp"
+  ],
+  "local_image": "images/character-transformation-case46-0.webp"
+}

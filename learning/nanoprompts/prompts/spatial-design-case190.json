@@ -1,0 +1,15 @@
+{
+  "id": "spatial-design-case190",
+  "slug": "190",
+  "url": "/es/prompt-handbook/spatial-design/#case190",
+  "title": "Evolución Arquitectónica de Paris: Diorama Circular 3D con Cuatro Eras Históricas",
+  "prompt": "A stunning 3D render of a creative architectural diorama showing the transformation of Paris architecture. The scene features a circular platform floating in misty atmosphere, divided into four quadrants representing different architectural eras and styles. First quadrant: Medieval - Notre-Dame Cathedral Gothic spires, half-timbered medieval houses, ancient stone bridges, all in weathered limestone and aged timber texture. Second quadrant: Renaissance and Classical - Palace of Versailles ornate facades, Baroque domes, classical French gardens with elegant symmetry and ornate details in warm cream and gold tones. Third quadrant: Belle Époque and Modern - Eiffel Tower iron lattice structure, Haussmann apartment buildings with zinc roofs, Art Nouveau Metro entrances featuring glass curtain walls and decorative ironwork in elegant silver and muted pastels. Fourth quadrant: Contemporary and Futuristic - La Défense modern towers, Centre Pompidou exposed structures, sustainable glass pyramids with organic curves and green walls inspired by Jean Nouvel's innovative designs and sustainable architecture. The platform edges show a torn paper effect revealing layers of history. Each section has its characteristic landscaping - cobblestone streets for Medieval, formal French gardens for Renaissance, tree-lined boulevards for Belle Époque, and eco-parks with vertical gardens for Contemporary. Miniature human figures for scale. The entire diorama sits on a reflective white pedestal. Background features dramatic sky with volumetric clouds transitioning from golden sunset to twilight blue. At the top, elegant typography displays \"PARIS\" in modern serif font with fusion of elegance and contemporary style with \"Eternal City of Light and Innovation\" as subtitle. Soft studio lighting creates depth, with each era having its own color temperature - warm amber for Medieval, soft gold for Renaissance, cool blue-grey for Belle Époque, vibrant green-blue for Contemporary. Hyper-realistic textures, shallow depth of field focusing on the center, cinematic composition, architectural photography style, museum-quality presentation.",
+  "category": "spatial-design",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20251214-3-output.webp"
+  ],
+  "local_image": "images/spatial-design-case190-0.webp"
+}

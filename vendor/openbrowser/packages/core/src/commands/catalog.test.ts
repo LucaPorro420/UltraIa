@@ -1,0 +1,524 @@
+import { test, expect, describe, beforeEach, mock } from 'bun:test';
+import { z } from 'zod';
+import { CommandCatalog } from './catalog/catalog.js';
+import { CommandFailedError } from '../errors.js';
+import type { ExecutionContext, CommandResult } from './types.js';
+
+// ── Helpers ──
+
+function makeHandler(
+	result: CommandResult = { success: true },
+): (params: Record<string, unknown>, ctx: ExecutionContext) => Promise<CommandResult> {
+	return mock(() => Promise.resolve(result));
+}
+
+function makeContext(overrides: Partial<ExecutionContext> = {}): ExecutionContext {
+	return {
+		page: {} as any,
+		cdpSession: {} as any,
+		domService: {} as any,
+		browserSession: {} as any,
+		...overrides,
+	};
+}
+
+const testSchema = z.object({
+	value: z.string(),
+	count: z.number().optional(),
+});
+
+// ── Tests ──
+
+describe('CommandCatalog', () => {
+	let registry: CommandCatalog
+
+	beforeEach(() => {
+		registry = new CommandCatalog();
+	});
+
+	describe('register and unregister', () => {
+		test('registers an action', () => {
+			registry.register({
+				name: 'test_action',
+				description: 'A test action',
+				schema: testSchema,
+				handler: makeHandler(),
+			});
+
+			expect(registry.has('test_action')).toBe(true);
+			expect(registry.size).toBe(1);
+		});
+
+		test('unregisters an action', () => {
+			registry.register({
+				name: 'test_action',
+				description: 'A test action',
+				schema: testSchema,
+				handler: makeHandler(),
+			});
+
+			registry.unregister('test_action');
+			expect(registry.has('test_action')).toBe(false);
+			expect(registry.size).toBe(0);
+		});
+
+		test('get returns registered action', () => {
+			registry.register({
+				name: 'my_action',
+				description: 'Mine',
+				schema: testSchema,
+				handler: makeHandler(),
+			});
+
+			const action = registry.get('my_action');
+			expect(action).toBeDefined();
+			expect(action!.name).toBe('my_action');
+			expect(action!.description).toBe('Mine');
+		});
+
+		test('get returns undefined for unregistered action', () => {
+			expect(registry.get('nonexistent')).toBeUndefined();
+		});
+
+		test('respects excludeActions option', () => {
+			const filtered = new CommandCatalog({ excludeActions: ['blocked'] });
+
+			filtered.register({
+				name: 'blocked',
+				description: 'Should not register',
+				schema: testSchema,
+				handler: makeHandler(),
+			});
+
+			filtered.register({
+				name: 'allowed',
+				description: 'Should register',
+				schema: testSchema,
+				handler: makeHandler(),
+			});
+
+			expect(filtered.has('blocked')).toBe(false);
+			expect(filtered.has('allowed')).toBe(true);
+		});
+
+		test('respects includeActions option', () => {
+			const filtered = new CommandCatalog({ includeActions: ['only_this'] });
+
+			filtered.register({
+				name: 'only_this',
+				description: 'Should register',
+				schema: testSchema,
+				handler: makeHandler(),
+			});
+
+			filtered.register({
+				name: 'other',
+				description: 'Should not register',
+				schema: testSchema,
+				handler: makeHandler(),
+			});
+
+			expect(filtered.has('only_this')).toBe(true);
+			expect(filtered.has('other')).toBe(false);
+		});
+	});
+
+	describe('getAll and getNames', () => {
+		test('returns all registered actions', () => {
+			registry.register({
+				name: 'alpha',
+				description: 'Alpha',
+				schema: testSchema,
+				handler: makeHandler(),
+			});
+			registry.register({
+				name: 'beta',
+				description: 'Beta',
+				schema: testSchema,
+				handler: makeHandler(),
+			});
+
+			const all = registry.getAll();
+			expect(all).toHaveLength(2);
+
+			const names = registry.getNames();
+			expect(names).toContain('alpha');
+			expect(names).toContain('beta');
+		});
+	});
+
+	describe('execute', () => {
+		test('executes registered action with valid params', async () => {
+			const handler = makeHandler({ success: true, extractedContent: 'result' });
+			registry.register({
+				name: 'exec_test',
+				description: 'Test execute',
+				schema: testSchema,
+				handler,
+			});
+
+			const ctx = makeContext();
+			const result = await registry.execute('exec_test', { value: 'hello' }, ctx);
+
+			expect(result.success).toBe(true);
+			expect(result.extractedContent).toBe('result');
+			expect(handler).toHaveBeenCalledTimes(1);
+		});
+
+		test('throws CommandFailedError for unregistered action', async () => {
+			const ctx = makeContext();
+
+			await expect(
+				registry.execute('nonexistent', {}, ctx),
+			).rejects.toThrow(CommandFailedError);
+		});
+
+		test('throws CommandFailedError when schema validation fails', async () => {
+			registry.register({
+				name: 'strict',
+				description: 'Strict schema',
+				schema: z.object({ required: z.string() }),
+				handler: makeHandler(),
+			});
+
+			const ctx = makeContext();
+
+			await expect(
+				registry.execute('strict', { wrong: 'param' }, ctx),
+			).rejects.toThrow(CommandFailedError);
+		});
+
+		test('wraps handler errors in CommandFailedError', async () => {
+			registry.register({
+				name: 'failing',
+				description: 'Fails',
+				schema: testSchema,
+				handler: async () => {
+					throw new Error('Internal failure');
+				},
+			});
+
+			const ctx = makeContext();
+
+			await expect(
+				registry.execute('failing', { value: 'x' }, ctx),
+			).rejects.toThrow(CommandFailedError);
+		});
+
+		test('re-throws CommandFailedError without wrapping', async () => {
+			const original = new CommandFailedError('tool', 'original error');
+			registry.register({
+				name: 'rethrow',
+				description: 'Rethrow',
+				schema: testSchema,
+				handler: async () => {
+					throw original;
+				},
+			});
+
+			const ctx = makeContext();
+
+			try {
+				await registry.execute('rethrow', { value: 'x' }, ctx);
+				expect.unreachable('Should have thrown');
+			} catch (error) {
+				expect(error).toBe(original);
+			}
+		});
+	});
+
+	describe('domain-based filtering', () => {
+		test('returns universal actions for any domain', () => {
+			registry.register({
+				name: 'universal',
+				description: 'No filter',
+				schema: testSchema,
+				handler: makeHandler(),
+			});
+
+			const actions = registry.getActionsForDomain('example.com');
+			expect(actions.map((a) => a.name)).toContain('universal');
+		});
+
+		test('returns domain-specific actions matching the domain', () => {
+			registry.register({
+				name: 'github_only',
+				description: 'GitHub',
+				schema: testSchema,
+				handler: makeHandler(),
+				domainFilter: ['github.com'],
+			});
+
+			const githubActions = registry.getActionsForDomain('github.com');
+			expect(githubActions.map((a) => a.name)).toContain('github_only');
+
+			const otherActions = registry.getActionsForDomain('example.com');
+			expect(otherActions.map((a) => a.name)).not.toContain('github_only');
+		});
+
+		test('matches subdomains', () => {
+			registry.register({
+				name: 'google_all',
+				description: 'Google subdomains',
+				schema: testSchema,
+				handler: makeHandler(),
+				domainFilter: ['google.com'],
+			});
+
+			const actions = registry.getActionsForDomain('mail.google.com');
+			expect(actions.map((a) => a.name)).toContain('google_all');
+		});
+
+		test('strips www prefix from domain', () => {
+			registry.register({
+				name: 'example',
+				description: 'Example',
+				schema: testSchema,
+				handler: makeHandler(),
+				domainFilter: ['example.com'],
+			});
+
+			const actions = registry.getActionsForDomain('www.example.com');
+			expect(actions.map((a) => a.name)).toContain('example');
+		});
+	});
+
+	describe('terminatesSequence flag', () => {
+		test('isTerminating returns true for terminating actions', () => {
+			registry.register({
+				name: 'finish',
+				description: 'Finish',
+				schema: testSchema,
+				handler: makeHandler(),
+				terminatesSequence: true,
+			});
+
+			expect(registry.isTerminating('finish')).toBe(true);
+		});
+
+		test('isTerminating returns false for non-terminating actions', () => {
+			registry.register({
+				name: 'continue',
+				description: 'Continue',
+				schema: testSchema,
+				handler: makeHandler(),
+			});
+
+			expect(registry.isTerminating('continue')).toBe(false);
+		});
+
+		test('getTerminatingActions returns all terminating action names', () => {
+			registry.register({
+				name: 'finish',
+				description: 'Done',
+				schema: testSchema,
+				handler: makeHandler(),
+				terminatesSequence: true,
+			});
+			registry.register({
+				name: 'abort',
+				description: 'Abort',
+				schema: testSchema,
+				handler: makeHandler(),
+				terminatesSequence: true,
+			});
+			registry.register({
+				name: 'tap',
+				description: 'Click',
+				schema: testSchema,
+				handler: makeHandler(),
+			});
+
+			const terminating = registry.getTerminatingActions();
+			expect(terminating).toContain('finish');
+			expect(terminating).toContain('abort');
+			expect(terminating).not.toContain('tap');
+		});
+	});
+
+	describe('getPromptDescription', () => {
+		test('returns formatted description of all actions', () => {
+			registry.register({
+				name: 'tap',
+				description: 'Click on an element',
+				schema: z.object({
+					index: z.number().describe('Element index'),
+				}),
+				handler: makeHandler(),
+			});
+			registry.register({
+				name: 'finish',
+				description: 'Mark task as done',
+				schema: z.object({
+					text: z.string().describe('Result text'),
+				}),
+				handler: makeHandler(),
+				terminatesSequence: true,
+			});
+
+			const desc = registry.getPromptDescription();
+			expect(desc).toContain('- tap: Click on an element');
+			expect(desc).toContain('index');
+			expect(desc).toContain('Element index');
+			expect(desc).toContain('- finish: Mark task as done [terminates]');
+		});
+
+		test('filters by page URL domain', () => {
+			registry.register({
+				name: 'universal',
+				description: 'Universal action',
+				schema: testSchema,
+				handler: makeHandler(),
+			});
+			registry.register({
+				name: 'github_only',
+				description: 'GitHub action',
+				schema: testSchema,
+				handler: makeHandler(),
+				domainFilter: ['github.com'],
+			});
+
+			const githubDesc = registry.getPromptDescription('https://github.com/repo');
+			expect(githubDesc).toContain('universal');
+			expect(githubDesc).toContain('github_only');
+
+			const otherDesc = registry.getPromptDescription('https://example.com');
+			expect(otherDesc).toContain('universal');
+			expect(otherDesc).not.toContain('github_only');
+		});
+	});
+
+	describe('sensitive data replacement', () => {
+		test('replaces sensitive values with placeholders', () => {
+			const result = registry.replaceSensitiveData(
+				'The password is hunter2 and the key is abc123',
+				{ PASSWORD: 'hunter2', API_KEY: 'abc123' },
+			);
+
+			expect(result).toBe('The password is <PASSWORD> and the key is <API_KEY>');
+		});
+
+		test('replaces longer values first to avoid partial replacements', () => {
+			const result = registry.replaceSensitiveData(
+				'Token: my-long-secret-token and key: secret',
+				{ TOKEN: 'my-long-secret-token', KEY: 'secret' },
+			);
+
+			// "my-long-secret-token" should be replaced first, not the inner "secret"
+			expect(result).toBe('Token: <TOKEN> and key: <KEY>');
+		});
+
+		test('handles empty text', () => {
+			const result = registry.replaceSensitiveData('', { KEY: 'value' });
+			expect(result).toBe('');
+		});
+
+		test('handles empty sensitive data', () => {
+			const result = registry.replaceSensitiveData('some text', {});
+			expect(result).toBe('some text');
+		});
+
+		test('handles special regex characters in values', () => {
+			const result = registry.replaceSensitiveData(
+				'Found: $100.00 (USD)',
+				{ PRICE: '$100.00' },
+			);
+
+			expect(result).toBe('Found: <PRICE> (USD)');
+		});
+	});
+
+	describe('parameter inspection and injection', () => {
+		test('detects special parameters from handler function', () => {
+			registry.register({
+				name: 'with_page',
+				description: 'Uses page',
+				schema: z.object({}),
+				handler: async (params, ctx) => {
+					return { success: true };
+				},
+			});
+
+			// The handler doesn't use named special params, so set should be empty
+			const special = registry.getSpecialParams('with_page');
+			expect(special.size).toBe(0);
+		});
+
+		test('returns empty set for unregistered action', () => {
+			const special = registry.getSpecialParams('nonexistent');
+			expect(special.size).toBe(0);
+		});
+	});
+
+	describe('buildDynamicSchema', () => {
+		test('builds a union schema from registered actions', () => {
+			registry.register({
+				name: 'tap',
+				description: 'Click',
+				schema: z.object({ index: z.number() }),
+				handler: makeHandler(),
+			});
+			registry.register({
+				name: 'finish',
+				description: 'Done',
+				schema: z.object({ text: z.string() }),
+				handler: makeHandler(),
+			});
+
+			const schema = registry.buildDynamicSchema();
+			expect(schema).toBeDefined();
+
+			// Should parse a click action
+			const clickResult = schema.safeParse({ action: 'tap', index: 5 });
+			expect(clickResult.success).toBe(true);
+
+			// Should parse a done action
+			const doneResult = schema.safeParse({ action: 'finish', text: 'finished' });
+			expect(doneResult.success).toBe(true);
+		});
+
+		test('returns simple object schema when no actions registered', () => {
+			const schema = registry.buildDynamicSchema();
+			const result = schema.safeParse({ action: 'anything' });
+			expect(result.success).toBe(true);
+		});
+
+		test('returns single schema when only one action registered', () => {
+			registry.register({
+				name: 'only',
+				description: 'Only action',
+				schema: z.object({ x: z.number() }),
+				handler: makeHandler(),
+			});
+
+			const schema = registry.buildDynamicSchema();
+			const result = schema.safeParse({ action: 'only', x: 42 });
+			expect(result.success).toBe(true);
+		});
+	});
+
+	describe('registerCustom', () => {
+		test('registers a custom action definition', () => {
+			registry.registerCustom({
+				name: 'custom_action',
+				description: 'A custom action',
+				schema: z.object({ query: z.string() }),
+				handler: async () => ({ success: true }),
+			});
+
+			expect(registry.has('custom_action')).toBe(true);
+		});
+
+		test('registers with terminatesSequence flag', () => {
+			registry.registerCustom({
+				name: 'custom_done',
+				description: 'Custom done',
+				schema: z.object({}),
+				handler: async () => ({ success: true, isDone: true }),
+				terminatesSequence: true,
+			});
+
+			expect(registry.isTerminating('custom_done')).toBe(true);
+		});
+	});
+});

@@ -1,0 +1,6 @@
+{
+    "attempt":  1,
+    "source":  "https://github.com/sjtu-sai-agents/Browse-Master",
+    "prompt":  "browse_master",
+    "answer":  "sjtu-sai-agents/Browse-Master: BrowseMaster Planner-Executor, busqueda por codigo (batch_search/check_condition/generate_keywords), replan por confianza; fuerte en BrowseComp"
+}

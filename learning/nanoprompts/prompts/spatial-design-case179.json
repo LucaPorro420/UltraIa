@@ -1,0 +1,15 @@
+{
+  "id": "spatial-design-case179",
+  "slug": "179",
+  "url": "/es/prompt-handbook/spatial-design/#case179",
+  "title": "Cubo de Habitación en Diorama Isométrico con Narrativa y Iluminación Volumétrica",
+  "prompt": "Generate a highly detailed and narrative-rich [3D Isometric Miniature Model (Isometric Diorama)] image for me. The core space theme displayed is '{insert theme here}', presented as a floating 'Story Cube' in the air.\n\nThe perspective must be a strict 45-degree isometric view, like the isometric preview in 3D modeling software, without traditional perspective scaling. Cut open the front wall and/or ceiling of the room or building neatly to clearly see the internal structure, furniture layout, and traces of life from the outside, like a miniature model room with its shell removed. The scene can include a small action taking place, such as: a cat curled up on a sofa sleeping, a computer screen glowing, or smoke slowly rising from a stove, making the space look 'in use'.\n\nThe interior design style should be highly consistent with the '{theme}': if it's an alchemist's secret shop, there should be crowded potion bottles, parchment scrolls, ancient books, and alchemy equipment; if it's a gothic vampire bedroom, there should be pointed arch windows, dark velvet curtains, candelabras, and antique furniture; if it's an abandoned space station command room, it should be filled with old control panels, flickering screens, hanging cables, and floating gadgets. The interior space must adopt an 'Organized Clutter' aesthetic: high-density, highly detailed clutter and personal items scattered throughout the room, making every corner worth examining closely. A small-scale, stylized character or Q-version character can be included, performing daily activities appropriate to the theme in the room, adding a sense of story and scale to the scene.\n\nThe lighting uses soft Volumetric Lighting: the main light source can come from a window, ceiling lamp, computer monitor, magic circle, fireplace, or neon light, matching the '{theme}' as appropriate. The light needs to form visible beams and a slight haze in the air, making the room look warm, healing, or slightly mysterious. The material representation should have the refinement of 3D rendering (similar to Blender/Cinema4D/Voxel style), emphasizing wood grain texture, metallic reflections, glass transparency, and the folds and softness of fabrics, making the entire isometric space like an exquisite miniature model that can be picked up and examined. The image is in landscape 16:9 format, high resolution, rich in detail.",
+  "category": "spatial-design",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20251213-3-output.webp"
+  ],
+  "local_image": "images/spatial-design-case179-0.webp"
+}

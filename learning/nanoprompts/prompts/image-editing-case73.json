@@ -1,0 +1,15 @@
+{
+  "id": "image-editing-case73",
+  "slug": "73",
+  "url": "/es/prompt-handbook/image-editing/#case73",
+  "title": "Eliminar Ingredientes de la Hamburguesa",
+  "prompt": "Remove all the ingredients from the burger and keep only the top and bottom buns. Leave a gap between them, keeping the same spacing as if the fillings were still inside.",
+  "category": "image-editing",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/case73_output.webp"
+  ],
+  "local_image": "images/image-editing-case73-0.webp"
+}

@@ -1,0 +1,15 @@
+{
+  "id": "character-transformation-case70",
+  "slug": "70",
+  "url": "/es/prompt-handbook/character-transformation/#case70",
+  "title": "Andamiaje de Figura Gigante",
+  "prompt": "A hyper-realistic 3D render of the person in the image standing and taking a selfie. \nThe giant figure is surrounded by massive scaffolding, with many tiny construction workers working on it. \nThe scene is set in a city square, surrounded by modern buildings, moving vehicles (cars, buses), pedestrians, \nand a bright clear blue sky. The overall details are rich, presenting a photo-realistic texture with cinematic lighting effects.",
+  "category": "character-transformation",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/case70_output.webp"
+  ],
+  "local_image": "images/character-transformation-case70-0.webp"
+}

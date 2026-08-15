@@ -1,0 +1,15 @@
+{
+  "id": "spatial-design-case204",
+  "slug": "204",
+  "url": "/es/prompt-handbook/spatial-design/#case204",
+  "title": "Tablero de Presentación Arquitectónica de Torre Eco-Complejo Vertical Moderno",
+  "prompt": "Architectural presentation board showing a modern vertical eco-complex tower. Include: main rendering of overall building mass (showing complete form), design description in English, design positioning, concept source, volume generation logic, site analysis, urban relationship diagram, wind/sunlight analysis, functional zoning analysis, material strategy and axonometric diagram. Overall expression: white background, clean and concise, clear information hierarchy, emphasizing tower-podium relationship, public space organization, sustainability strategy. Design concept: 'Growing Urban Valley' - tower with vertically stacked public terraces and green open spaces integrated with office functions. Building features clear folded setback form with vertical glass curtain walls forming highly recognizable urban landmark. Includes annotations for office floors, innovation labs, public facilities, sky gardens. Professional architectural diagram style.",
+  "category": "spatial-design",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20251215-11-output.webp"
+  ],
+  "local_image": "images/spatial-design-case204-0.webp"
+}

@@ -1,0 +1,6 @@
+{
+    "attempt":  1,
+    "source":  "https://github.com/ntegrals/openbrowser",
+    "prompt":  "openbrowser",
+    "answer":  "ntegrals/openbrowser (MIT, TS): agente de browsing autonomo sobre Playwright + Vercel AI SDK; REPL CLI, sandbox con limites, stall detection, multi-modelo"
+}

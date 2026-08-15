@@ -1,0 +1,363 @@
+[
+  {
+    "id": "scouter-power-level-challenge",
+    "slug": "scouter-power-level-challenge",
+    "url": "/es/prompt-handbook/trending-prompts/scouter-power-level-challenge",
+    "title": "🎯 ¡A Cazar el BP 5! Desafío de Nivel de Poder del Escáner IA",
+    "prompt": "task: \"edit-image: add full-screen analysis HUD overlay only\"\n\nbase_image: |\n  Use the provided reference image as the base.\n  Do not change the character's appearance, pose, facial expression, anatomy, clothing, colors,\n  background, lighting, composition, or camera angle.\n  Keep the original art style exactly as it is with no new characters added.\n\nhud_color: |\n  Use a single monochrome HUD color for all HUD elements (lines, text, glow, tint).\n  The HUD color must be one of: green, blue, or red.\n  Follow any explicit color instruction given by the user or calling system.\n  If no specific color is provided, choose the HUD color based on the character's perceived power level:\n  - If the character looks very powerful or intense, use red.\n  - If the character looks moderately strong, use blue.\n  - If the character looks less powerful or more neutral, use green.\n\noverlay_hud: |\n  Superpone un HUD de análisis semitransparente pero claramente visible en el color HUD elegido\n  sobre todo el encuadre, como si el espectador estuviera mirando al personaje\n  a través de una visera de escáner de batalla futurista.\n  Tiñe toda la imagen con un filtro uniforme del color HUD mientras permites\n  que los colores y detalles originales sean visibles por debajo.\n\n  Dibuja una línea de contorno HUD precisa y brillante alrededor de toda la silueta del personaje.\n  El contorno debe seguir de cerca el borde exterior del cuerpo, cabello y ropa del personaje,\n  como un resaltado de detección de bordes.\n  Coloca este contorno ligeramente fuera del personaje para que no cubra rasgos faciales\n  ni detalles interiores importantes.\n  Haz que la línea de contorno sea continua, limpia y ligeramente más gruesa que las otras líneas HUD,\n  con un brillo intenso para que la forma del personaje quede claramente enfatizada.\n\n  Alrededor de la cabeza y la parte superior del cuerpo del personaje, agrega corchetes de objetivo y marcas de encuadre\n  que se ajusten a este contorno, reforzando la sensación de que el sistema está bloqueando al personaje.\n  Llena la pantalla con detalles HUD: líneas de cuadrícula horizontales y verticales, pequeñas lecturas numéricas,\n  miras sutiles, marcadores de esquina y paneles de interfaz compactos alrededor (pero no directamente encima)\n  de los rasgos clave del personaje.\n\nbp_display: |\n  Coloca el texto \"BP\" (Poder de Batalla) seguido de un valor numérico de varios dígitos\n  en la esquina superior derecha del encuadre.\n  Este texto BP debe aparecer siempre en el área superior derecha de la imagen, no en ninguna otra posición.\n\n  Haz que la etiqueta \"BP\" y el número sean grandes, brillantes y fáciles de leer,\n  usando un estilo digital de ciencia ficción en negrita.\n  Dibújalos solo como texto del color HUD brillante, sin ningún marco rectangular ni panel de fondo.\n  NO copies ni reutilices ningún número específico de este prompt.\n  Deja que el modelo infiera y elija un número de poder de batalla plausible de varios dígitos\n  basado en la apariencia, pose e intensidad general del personaje en la imagen de referencia.\n  El valor debe parecer una lectura de estado de ciencia ficción apropiada para cuán fuerte\n  aparece este personaje en el contexto dado.\n\nstyle: |\n  Haz que el HUD se sienta como una interfaz clásica de escáner de anime:\n  monocromático en el color HUD elegido con niveles de brillo variables, resplandor intenso,\n  y una impresión de pantalla holográfica sobre toda la imagen.\n  Usa líneas de interfaz angulares y nítidas y fuentes digitales.\n  El contorno alrededor del personaje y el texto BP brillante en la esquina superior derecha\n  deben ser los elementos más visualmente legibles, para que el espectador entienda de inmediato\n  qué persona está siendo analizada y cuál es su poder de batalla.\n\nconstraints: |\n  No modifiques ni ocultes el rostro, cuerpo ni elementos de diseño clave del personaje con bloques de interfaz opacos.\n  No cambies el diseño del fondo ni agregues objetos extra grandes más allá del propio HUD.\n  La única edición debe ser la superposición del HUD de análisis de pantalla completa en el color elegido,\n  el contorno preciso y el texto de visualización BP en la esquina superior derecha.\n  Preserva la composición original, la perspectiva y la escena general mientras la haces parecer\n  como si estuviera siendo vista completamente a través de una interfaz de análisis tipo escáner.",
+    "category": "🔥 Viral Challenge",
+    "description": "Join the viral BP 5 Challenge! Transform any photo into a Dragon Ball-style scouter analysis screen with AI-generated battle power readings. Step-by-step guide with free prompt.",
+    "difficulty": "",
+    "tags": [
+      "📅 December 14, 2025",
+      "🏷️ Meme / Challenge",
+      "⚡ Principiante-Friendly"
+    ],
+    "images": [
+      "https://banana-prompt.nanoprompts.org/new-prompts-lab/trend-1214-1-output.webp",
+      "https://banana-prompt.nanoprompts.org/new-prompts-lab/trend-1214-1-output.webp",
+      "https://banana-prompt.nanoprompts.org/new-prompts-lab/trend-1214-2-output.webp",
+      "https://banana-prompt.nanoprompts.org/new-prompts-lab/trend-1214-3-output.webp",
+      "https://banana-prompt.nanoprompts.org/new-prompts-lab/trend-1214-4-output.webp",
+      "https://banana-prompt.nanoprompts.org/new-prompts-lab/trend-1214-5-output.webp"
+    ],
+    "local_image": "images/scouter-power-level-challenge-0.webp"
+  },
+  {
+    "id": "stand-summoning-vfx",
+    "slug": "stand-summoning-vfx",
+    "url": "/es/prompt-handbook/trending-prompts/stand-summoning-vfx",
+    "title": "Photorealistic Stand Summoning VFX",
+    "prompt": "¡Prompt de \"Invocación de Stand\"!!\n\n[Rol]\nEres un artista conceptual de VFX (efectos visuales) cinematográficos. Integra de forma perfecta un \"Stand\" creado en CGI realista dentro de la foto de acción real proporcionada, sin ningún tipo de incongruencia.\n\n[Instrucciones específicas]\nCrea una imagen fotorrealista donde la persona en la foto proporcionada es el sujeto principal, con un \"Stand\" original apareciendo detrás de ella.\n\nMantenimiento del estilo visual (lo más importante):\nPreserva exactamente la iluminación de la foto original (dirección, intensidad, sombras), el tono de color, la textura de la cámara y la atmósfera tal como están. No se necesitan expresiones estilo manga (trazos de contorno o efectos de sonido) en absoluto.\n\nDiseño y generación del Stand:\nAnálisis: Analiza la \"atmósfera\" percibida a partir de la ropa, pertenencias y expresión facial de la persona en la foto.\nDiseño: Diseña esa atmósfera como una forma abstracta pero física. El Stand aparece con presencia material realista como agua, fuego, hielo, metal, piedra, vidrio, humo, luz o materia orgánica desconocida.\n\nComposición: El Stand emerge detrás de la persona, recibiendo la luz ambiental de la foto para proyectar sombras realistas, y puede distorsionar el aire circundante. Colócalo en una pose que proteja o intimide a la persona.",
+    "category": "🔥 Ultimos y en tendencia",
+    "description": "Learn to generate stunning photorealistic Stand VFX composites with AI. Add cinematic CGI guardians to real photos with perfect lighting and atmosphere matching. Free step-by-step guide for Instagram, X, TikTok.",
+    "difficulty": "⚡ Intermedio",
+    "tags": [
+      "📅 December 13, 2025",
+      "🏷️ VFX & Visual Effects"
+    ],
+    "images": [
+      "https://banana-prompt.nanoprompts.org/new-prompts-lab/trend-1213-1-output.webp",
+      "https://banana-prompt.nanoprompts.org/new-prompts-lab/trend-1213-2-output.webp",
+      "https://banana-prompt.nanoprompts.org/new-prompts-lab/trend-1213-3-output.webp",
+      "https://banana-prompt.nanoprompts.org/new-prompts-lab/trend-1213-4-output.webp"
+    ],
+    "local_image": "images/stand-summoning-vfx-0.webp"
+  },
+  {
+    "id": "cinematic-storyboard-contact-sheet",
+    "slug": "cinematic-storyboard-contact-sheet",
+    "url": "/es/prompt-handbook/trending-prompts/cinematic-storyboard-contact-sheet",
+    "title": "IA para cineastas: genera storyboards y hojas de contacto cinematográficos",
+    "prompt": "Analiza la composición completa de la imagen de entrada. Identifica todos los sujetos clave existentes (ya sea una sola persona, grupo/pareja, vehículo u objeto específico) y sus relaciones espaciales/interacciones.\nGenera una coherente \"hoja de contactos\" en cuadrícula 3x3 que muestre 9 tomas diferentes de exactamente estos sujetos en el mismo entorno.\nDebes adaptar los tipos de toma cinematográfica estándar al contenido (p. ej., si es un grupo, mantén al grupo junto; si es un objeto, la composición incluye el objeto completo):\nFila 1 (fondo establecedor):\nPlano General Extremo (ELS): Los sujetos aparecen pequeños en un entorno amplio.\nPlano General (LS): Sujeto o grupo completo visible de arriba a abajo (de cabeza a pies / de ruedas a techo).\nPlano Americano (MLS/tres cuartos): Composición desde las rodillas hacia arriba (para personajes) o vista de 3/4 (para objetos).\nFila 2 (cobertura principal):\n4. Plano Medio (MS): Composición desde la cintura hacia arriba (o núcleo central del objeto). Énfasis en interacciones/acciones.\n5. Plano Medio Corto (MCU): Composición desde el pecho hacia arriba. Encuadre íntimo del sujeto principal.\n6. Primer Plano (CU): Composición ajustada al rostro o \"frente\" del objeto.\nFila 3 (detalles y ángulos):\n7. Primerísimo Primer Plano (ECU): Detalle macro intenso enfocado en rasgos clave (ojos, manos, logos, texturas).\n8. Ángulo Bajo (ojo de gusano/ángulo bajo): Mirando al sujeto desde el nivel del suelo (sensación épica/heroica).\n9. Ángulo Alto (ojo de pájaro/cenital): Mirando al sujeto desde arriba.\nGarantiza consistencia estricta: Los 9 paneles presentan los mismos personajes/objetos, la misma ropa y la misma iluminación. La profundidad de campo debe variar de forma realista (desenfoque de fondo en primeros planos).\n\nUna cuadrícula de storyboard cinematográfico profesional de 3x3 con 9 paneles.\nLa cuadrícula muestra los sujetos/escenas específicos de la imagen de entrada en una amplia gama de distancias focales.\nFila superior: Tomas ambientales abiertas, vista completa, corte de 3/4 (toma desde las rodillas).\nFila central: Vista desde la cintura, vista desde el pecho, primer plano del rostro/frente.\nFila inferior: Detalles en macro, ángulo bajo, ángulo alto.\nTodos los encuadres presentan texturas fotorrealistas, gradación de color cinematográfica consistente y composición correcta adaptada al sujeto u objetos analizados.",
+    "category": "🔥 Ultimos y en tendencia",
+    "description": "Aprende a usar IA para crear storyboards y hojas de contacto cinematograficas 3x3 consistentes. Ideal para cineastas, directores y fotografos que quieren visualizar escenas con personajes e iluminacion coherentes.",
+    "difficulty": "⚡ Intermedio",
+    "tags": [
+      "📅 2025-11-30",
+      "🏷️ Cine y fotografia"
+    ],
+    "images": [
+      "https://banana-prompt.nanoprompts.org/new-prompts-lab/trend-1130-1-output.webp",
+      "https://banana-prompt.nanoprompts.org/new-prompts-lab/trend-1130-2-output.webp",
+      "https://banana-prompt.nanoprompts.org/new-prompts-lab/trend-1130-3-output.webp",
+      "https://banana-prompt.nanoprompts.org/new-prompts-lab/trend-1130-4-output.webp",
+      "https://banana-prompt.nanoprompts.org/new-prompts-lab/trend-1130-5-output.webp"
+    ],
+    "local_image": "images/cinematic-storyboard-contact-sheet-0.webp"
+  },
+  {
+    "id": "pop-style-sweets-monsters",
+    "slug": "pop-style-sweets-monsters",
+    "url": "/es/prompt-handbook/trending-prompts/pop-style-sweets-monsters",
+    "title": "Pop-Style Sweets Monster Overload",
+    "prompt": "Usa la foto subida.\nNO alteres la apariencia real de la persona — mantén el rostro, cuerpo, ropa, colores y textura completamente fotorrealistas.\nNO cambies la perspectiva del fondo.\nNO conviertas a la persona en un dibujo o ilustración.\n\nAgrega una capa densa y sobrecargada de \"monstruos de dulces\" ilustrados en estilo pop y decoraciones gráficas SOLO alrededor de la persona (y sobre su ropa si es necesario), pero nunca sobre su piel o rostro.\n\nElementos ilustrados:\n- muchos monstruos de caricatura coloridos con contornos negros gruesos, colores planos y expresiones tiernas pero feas\n- monstruos inspirados en dulces: bananas, galletas, fresas, chocolate derretido, paletas, helados, naranjas, cupcakes, donas, trozos de caramelo, botellas de refresco, etc.\n- formas gráficas adicionales: estrellas, corazones, flechas, goteos, salpicaduras, líneas en zigzag, signos de exclamación, líneas de movimiento, destellos, burbujas, formas de texto estilo cómic (pero sin texto real)\n\nHaz que la decoración sea muy densa y \"recargada\":\n- llena el espacio detrás de la persona con monstruos de dulces y formas superpuestas\n- agrega monstruos asomándose por detrás de los hombros, alrededor de la bolsa, a los pies de la persona y cerca de la cabeza\n- permite que algunos monstruos y formas se superpongan sobre la ropa y accesorios (camisa, shorts, bolsa, zapatos), pero mantén la piel del rostro, brazos y piernas fotorrealista y visible\n- usa múltiples capas de ilustraciones frente y detrás de la persona para crear profundidad\n- agrega contornos brillantes, pequeños puntos blancos y líneas de velocidad alrededor de la persona para enfatizar energía\n\nColor y estilo:\n- usa una paleta de colores vívida y neón (rosa intenso, amarillo, cian, lima, naranja, morado, turquesa)\n- mantén todos los elementos ilustrados planos y gráficos con bordes limpios y contornos gruesos\n- asegúrate de que las sombras y superposiciones sugieran interacción con la persona real (p. ej., sombras leves en la ropa donde los monstruos la tocan)\n\nObjetivo general:\nCrea una escena de arte pop maximalista y muy decorada donde la persona real está en el centro, rodeada y envuelta por una multitud caótica de juguetones monstruos de dulces y garabatos gráficos, mientras la persona permanece claramente fotorrealista.",
+    "category": "🔥 Ultimos y en tendencia",
+    "description": "Create stunning pop-art portraits with dense, colorful sweets monsters and graphic decorations. Free AI prompt tutorial for social media.",
+    "difficulty": "⚡ Intermedio",
+    "tags": [
+      "📅 Nov 27, 2025",
+      "🏷️ Social Media Art"
+    ],
+    "images": [
+      "https://banana-prompt.nanoprompts.org/new-prompts-lab/trend-1127-1-output.webp",
+      "https://banana-prompt.nanoprompts.org/new-prompts-lab/trend-1127-2-output.webp",
+      "https://banana-prompt.nanoprompts.org/new-prompts-lab/trend-1127-3-output.webp"
+    ],
+    "local_image": "images/pop-style-sweets-monsters-0.webp"
+  },
+  {
+    "id": "line-drawing-people-in-photo",
+    "slug": "line-drawing-people-in-photo",
+    "url": "/es/prompt-handbook/trending-prompts/line-drawing-people-in-photo",
+    "title": "Cómo agregar personas con dibujos de líneas caprichosos a cualquier foto",
+    "prompt": "Agrega ilustraciones limpias y minimalistas de personas dibujadas con líneas blancas en esta foto. Ajusta la perspectiva, la iluminación y la escala de la escena. Las figuras ilustradas deben interactuar de forma natural y significativa con el entorno, reflejando el estado de ánimo, el propósito y la actividad del espacio. Mantén los dibujos simples, fluidos y expresivos, sin detalles faciales. Conserva un tono moderno, cálido y ligeramente caprichoso que complemente la estética general. No ocultes ningún elemento original. Las figuras ilustradas deben sentirse como adiciones imaginativas y amigables que se integren perfectamente con el contexto de la escena.",
+    "category": "🔥 Ultimos y en tendencia",
+    "description": "Learn how to add clean, minimal line-drawing illustrations of people to your photos with this free AI art prompt. A step-by-step guide for creating whimsical, modern images.",
+    "difficulty": "",
+    "tags": [
+      "📅 Nov 25, 2025",
+      "🏷️ Photo Illustration",
+      "⚡ Easy"
+    ],
+    "images": [
+      "https://banana-prompt.nanoprompts.org/new-prompts-lab/trend-1125-3-output.webp",
+      "https://banana-prompt.nanoprompts.org/new-prompts-lab/trend-1125-4-output.webp"
+    ],
+    "local_image": "images/line-drawing-people-in-photo-0.webp"
+  },
+  {
+    "id": "character-concept-sheet",
+    "slug": "character-concept-sheet",
+    "url": "/es/prompt-handbook/trending-prompts/character-concept-sheet",
+    "title": "Domina el Diseño de Personajes: La Guía Definitiva de Hojas de Concepto con IA",
+    "prompt": "Role (Role Setting)\n\nYou are a top-tier game and anime concept art design master (Concept Artist), excelling at creating detailed character sheets. You possess \"pixel-level deconstruction\" skills, allowing you to see through a character's layered clothing, capture subtle facial expression changes, and concretely recreate associated items. You are particularly adept at fleshing out a character's personality and backstory through the side angles of female characters' intimate items, personal belongings, and lifestyle details.\n\nTask (Task Objective)\n\nBased on the main figure uploaded or described by the user, generate a **\"Panoramic Character Deep Concept Breakdown Sheet\"**. This image must include a full-body standing illustration of the central character, surrounded by displays of the character's clothing layers, various expressions, core props, material close-ups, and highly lifelike intimate and personal items.\n\nVisual Guidelines (Visual Standards)\n\n1. Composition Layout (Layout):\n\n• Center Position (Center): Place the character's full-body standing illustration or primary dynamic pose as the visual anchor.\n\n• Surrounding Positions (Surroundings): In the blank spaces around the central character, neatly arrange the deconstructed elements.\n\n• Visual Guides (Connectors): Use hand-drawn arrows or guide lines to connect the surrounding deconstructed items to the corresponding parts or areas on the central character (e.g., a bag connected to the hand).\n\n2. Deconstruction Content (Deconstruction Details) — Core Iteration Areas:\n\n• Clothing Layers (Clothing Layers) [Enhanced Version]:\n\n• Break down the character's clothing into individual pieces for display. For multi-layer outfits, show the inner layers after removing the outer jacket.\n\n• New Addition: Intimate Apparel Deconstruction (Intimate Apparel): Independently showcase the character's undergarments, emphasizing design and material details. For example: a matching lace bra and panties set (highlighting lace pattern details), thong (showing cut and fit), stockings (displaying sheer flesh tone and cuff design), shapewear or safety shorts, etc.\n\n• Expression Sheet (Expression Sheet):\n\n• In a corner, draw 3-4 different head close-ups showing varied emotions (e.g., aloof, shy, surprised, dazed, or focused while applying lipstick).\n\n• Material Close-Ups (Texture & Zoom) [Enhanced Version]:\n\n• Select 1-2 key areas for magnified close-ups. For example: fabric folds, skin texture, hand details.\n\n• New Addition: Item Texture Close-Ups: Add depictions of small objects' materials, such as the glossy sheen of lipstick, the grainy texture of leather bags, the fine powdery feel of cosmetics.\n\n• Related Items (Related Items) [Deep Iteration Version]:\n\n• This section expands beyond large props to include \"lifestyle slices\" of the character.\n\n• Personal Bag & Contents (Bag & Contents): Draw the character's everyday commuter bag or clutch, \"opened\" to show items spilling out beside it.\n\n• Beauty & Grooming (Beauty & Grooming): Display her go-to cosmetics combo (e.g., close-up of a specific shade lipstick/lip gloss, a compact with mirror, perfume bottle design, hand cream).\n\n• Intimate Lifestyle Items (Lifestyle & Intimate Items): Concretely render items from the character's hidden side. Depending on her personality, this might include: a private diary, commonly used meds/supplement case, e-cigarette, or more personal items (like a user-mentioned fleshlight/sex toy, presented from an objective design sketch perspective, noting model or design features).\n\n3. Style & Annotations (Style & Annotations):\n\n• Art Style: Maintain a high-quality 2D illustration style or concept design sketch style, with clean, crisp lines.\n\n• Background: Use a beige, parchment, or light gray textured background to evoke a design manuscript vibe.\n\n• Text Notes: Beside each deconstructed element, simulate handwritten annotations briefly describing materials (e.g., \"soft lace,\" \"matte leather\") or brand/model hints (e.g., \"usual shade #520,\" \"custom piece\").\n\nWorkflow (Execution Logic)\n\nWhen the user provides an image or description:\n\n1. Analyze the subject's core features, clothing style, and potential personality.\n\n2. Extract primary deconstructible elements (jacket, shoes, big expressions).\n\n3. Brainstorm and design secondary deep elements (What style of underwear does she wear? What lipstick is in her bag? What items does she use when alone?).\n\n4. Generate a composite image containing all these elements, ensuring accurate perspective, unified lighting and shadows, and clear annotations.\n\n5. Use Chinese: English labels, output in high-definition 4K HD",
+    "category": "🔥 Últimas Tendencias",
+    "description": "Aprende a generar arte conceptual de personajes de nivel profesional, con capas de ropa, expresiones y objetos personales, usando este prompt gratuito de arte con IA.",
+    "difficulty": "⚡ Intermedio",
+    "tags": [
+      "📅 25 de nov de 2025",
+      "🏷️ Diseño de Juegos y Anime"
+    ],
+    "images": [
+      "https://banana-prompt.nanoprompts.org/new-prompts-lab/trend-1125-1-output.webp",
+      "https://banana-prompt.nanoprompts.org/new-prompts-lab/trend-1125-2-output.webp"
+    ],
+    "local_image": "images/character-concept-sheet-0.webp"
+  },
+  {
+    "id": "pixar-style-cute-boy",
+    "slug": "pixar-style-cute-boy",
+    "url": "/es/prompt-handbook/trending-prompts/pixar-style-cute-boy",
+    "title": "Create a Pixar-Style Cute Boy: Free AI Prompt",
+    "prompt": "Un niño lindo de unos 6 años, con cabello rubio corto, ropa verde holgada y pantalones blancos, estilo hip-hop, con pañuelo en la cabeza. Tiene ojos grandes, calcetines y zapatos, y una sonrisa feliz. Al estilo de los personajes de Pixar --v 6.1",
+    "category": "🔥 Ultimos y en tendencia",
+    "description": "Learn how to generate a charming 6-year-old boy in Pixar's iconic 3D style. Use our free prompt to create hip-hop inspired characters with big eyes and happy smiles. Perfect for artists and creators!",
+    "difficulty": "",
+    "tags": [
+      "📅 November 15, 2025",
+      "🏷️ Character Design",
+      "⚡ Easy"
+    ],
+    "images": [
+      "https://banana-prompt.nanoprompts.org/new-prompts-lab/1115-1-output.webp"
+    ],
+    "local_image": "images/pixar-style-cute-boy-0.webp"
+  },
+  {
+    "id": "cat-typing-on-laptop",
+    "slug": "cat-typing-on-laptop",
+    "url": "/es/prompt-handbook/trending-prompts/cat-typing-on-laptop",
+    "title": "Crea una Foto Viral de un Gato Escribiendo en una Laptop con Este Prompt de IA",
+    "prompt": "A close-up shot of a Korean Shorthair cat wearing stylish round glasses, sitting in front of a laptop, its paws actively typing on the keyboard with a serious and focused expression, the soft glow of the screen reflecting in its eyes, in a dimly lit home office with a warm and cozy ambiance, shot with a Canon EOS R5, 85mm f/1.2 lens, warm and neutral tones --c 12 --ar 3:4 --style raw --sref 3022677299 --profile jmupltd --sw 100 --s 1000 --v 6.1",
+    "category": "🔥 Últimas Tendencias",
+    "description": "Aprende a generar una imagen fotorrealista de un gato con gafas escribiendo en una laptop con este prompt gratuito de arte IA. Perfecto para redes sociales, blogs y contenido viral.",
+    "difficulty": "",
+    "tags": [
+      "📅 14 de noviembre de 2025",
+      "🏷️ Redes Sociales",
+      "⚡ Principiante"
+    ],
+    "images": [
+      "https://banana-prompt.nanoprompts.org/new-prompts-lab/1114-1-output.webp"
+    ],
+    "local_image": "images/cat-typing-on-laptop-0.webp"
+  },
+  {
+    "id": "retro-mirror-selfie-heart",
+    "slug": "retro-mirror-selfie-heart",
+    "url": "/es/prompt-handbook/trending-prompts/retro-mirror-selfie-heart",
+    "title": "Crea un selfie retro y espontáneo frente al espejo con un corazón dibujado",
+    "prompt": "Usa la apariencia del usuario tal cual — rostro, piel, cabello y cuerpo sin ningún cambio. Una selfie de espejo espontánea con estética retro que captura a la persona sentada casualmente en el lavabo del baño, aplicándose labial rojo intenso. Un gran corazón rojo está dibujado en el espejo, enmarcando su reflejo. Lleva una camiseta blanca oversize con las mangas enrolladas, piernas descubiertas, creando una atmósfera relajada y levemente nostálgica.\n\nLa iluminación es suave y tenue, evocando un ambiente de madrugada o amanecer, con sombras sutiles y un toque de grano de película para una estética vintage. El reflejo muestra a la persona mirando al espejo con una expresión tranquila e introspectiva, labios levemente entreabiertos a mitad de la aplicación.\n\nDetalles técnicos: look de película de 35mm, colores apagados con tonos cálidos, bordes con enfoque suave y detalle de marca de tiempo en la esquina inferior izquierda. La composición centra el corazón en el espejo y el rostro dentro de él, combinando intimidad e imperfección artística. —v 6 —ar 3:4 —style raw —q 2 —s 250.",
+    "category": "🔥 Ultimos y en tendencia",
+    "description": "Learn how to generate a candid, retro-inspired mirror selfie with a heart drawing using this free AI image prompt. Perfect for creating nostalgic, atmospheric photos for social media.",
+    "difficulty": "",
+    "tags": [
+      "📅 Nov 13, 2025",
+      "🏷️ Social Media & Portrait",
+      "⚡ Easy"
+    ],
+    "images": [
+      "https://banana-prompt.nanoprompts.org/new-prompts-lab/1113-1-output.webp"
+    ],
+    "local_image": "images/retro-mirror-selfie-heart-0.webp"
+  },
+  {
+    "id": "travel-polaroids-flatlay",
+    "slug": "travel-polaroids-flatlay",
+    "url": "/es/prompt-handbook/trending-prompts/travel-polaroids-flatlay",
+    "title": "Crea un flatlay de Polaroids de viaje cinematográfico con IA",
+    "prompt": "Flatlay cinematográfico ultra-realista en 8K de 100 Polaroids con la misma chica en escenas de viaje—Islas Feroe, Santorini, Islandia, Japón, Marruecos, Alpes Suizos, Bali, París, NYC—con iluminación única, leyendas escritas a mano, diarios y alegría; Hasselblad 135mm, Kodak Vision3 250D, grano de lomografía, realismo cálido y táctil, vibrante y lleno de vida",
+    "category": "🔥 Ultimos y en tendencia",
+    "description": "Learn how to generate a stunning, ultra-realistic 8K cinematic flatlay of 100 travel Polaroids with our free AI image generation prompt. Perfect for creating a visual travel diary.",
+    "difficulty": "⚡ Intermedio",
+    "tags": [
+      "📅 November 08, 2025",
+      "🏷️ Travel & Lifestyle"
+    ],
+    "images": [
+      "https://banana-prompt.nanoprompts.org/new-prompts-lab/1108-1-output.webp"
+    ],
+    "local_image": "images/travel-polaroids-flatlay-0.webp"
+  },
+  {
+    "id": "holographic-profile-interface",
+    "slug": "holographic-profile-interface",
+    "url": "/es/prompt-handbook/trending-prompts/holographic-profile-interface",
+    "title": "Crea una interfaz de perfil holográfica futurista con este prompt de IA",
+    "prompt": "Una interfaz futura de perfil de redes sociales translúcida y cristalina. Los bordes de la interfaz son suaves y redondeados, emitiendo un suave halo neón con transiciones de color naturales entre rosa, morado y azul. El contenido proyectado es claro y vívido, mostrado con precisión como si estuviera tallado en el aire. La información se presenta en orden estricto según la imagen de referencia: avatar (centrado) * nombre de usuario, insignia de verificación en la parte superior * biografía, ubicación, sitio web * fecha de registro * conteo de seguidos y seguidores * botón de seguir. El fondo se presenta con un efecto oscuro y desenfocado, resaltando aún más la sensación futurista y de alta tecnología y el efecto brillante de la interfaz holográfica flotante. La luz se refracta hábilmente en la superficie de la muñeca y la esfera del reloj, creando una experiencia visual altamente cinematográfica y una sensación de atmósfera avanzada de ciencia ficción. La calidad de imagen es ultrarrealista, con detalles que alcanzan resolución 8K, excelente profundidad de campo y una estética general de interacción holográfica futurista y de alta tecnología.",
+    "category": "🔥 Ultimos y en tendencia",
+    "description": "Aprende a generar una impresionante tarjeta holografica futurista para redes sociales con nuestro prompt de IA gratuito. Esta guia paso a paso te ayuda a crear interfaces cristalinas en 8K con brillos neon e iluminacion cinematografica.",
+    "difficulty": "⚡ Intermedio",
+    "tags": [
+      "📅 7 de noviembre de 2025",
+      "🏷️ Diseno UI/UX"
+    ],
+    "images": [
+      "https://banana-prompt.nanoprompts.org/new-prompts-lab/1101-3-output.webp",
+      "https://banana-prompt.nanoprompts.org/new-prompts-lab/1101-3-compare.webp"
+    ],
+    "local_image": "images/holographic-profile-interface-0.webp"
+  },
+  {
+    "id": "breaking-out-x-frame",
+    "slug": "breaking-out-x-frame",
+    "url": "/es/prompt-handbook/trending-prompts/breaking-out-x-frame",
+    "title": "Cómo crear un retrato 3D que rompe el marco X con IA | Tutorial gratuito",
+    "prompt": "Un retrato hiperrealista de la persona subida dentro de un enorme marco de publicación de X (antes Twitter) que domina la escena. Su rostro permanece igual, nítido e intacto, con lentes de sol con estilo y zapatos elegantes, irradiando un carisma audaz. Su pose relajada muestra el codo derecho apoyado en la rodilla, el brazo izquierdo casual y una pierna saliendo del marco de X en una ilusión 3D. El marco de X es muy realista con el nombre de usuario GoogleGeminiPrompts, tilde de verificación, nombre visible \"SANIA\", leyenda: \"Too real to stay inside the frame #AlCreation #GoogleGeminiPrompts\", e íconos auténticos al estilo de X. El fondo está diseñado para transmitir audacia y energía: azul cobalto profundo que se mezcla con cian, con sutiles destellos de luz que realzan la sensación dinámica. Una iluminación limpia y cinematográfica resalta las texturas de su ropa y la ilusión 3D, convirtiéndolos en el centro viral de atención.",
+    "category": "🔥 Últimas Tendencias",
+    "description": "Learn how to create viral 3D breaking out X/Twitter frame portraits with AI in minutes. Free prompt, step-by-step guide for Instagram, X, and Facebook posts.",
+    "difficulty": "",
+    "tags": [
+      "📅 Added: November 2, 2025",
+      "🏷️ Social Media Design",
+      "⚡ Easy"
+    ],
+    "images": [
+      "https://banana-prompt.nanoprompts.org/new-prompts-lab/1101-2-output.webp"
+    ],
+    "local_image": "images/breaking-out-x-frame-0.webp"
+  },
+  {
+    "id": "transparent-social-card",
+    "slug": "transparent-social-card",
+    "url": "/es/prompt-handbook/trending-prompts/transparent-social-card",
+    "title": "Cómo crear tarjetas de perfil transparentes para redes sociales con IA | Tutorial de efecto vidrio brillante",
+    "prompt": "Toma en primer plano de una mano humana sosteniendo en el aire una tarjeta de perfil de redes sociales cuadrada, transparente, de acrílico/vidrio. Fondo de estudio oscuro, suavemente desenfocado, con luz ambiental azul-morada sutil. Profundidad de campo muy reducida (f/1.8), solo la tarjeta de vidrio y los dedos están en foco nítido, con fondo bokeh pronunciado.\n\n🎨 Escena y Atmósfera\nEntorno: Estudio oscuro (#0c0f19), bordes con viñeta, luz ambiental azul-morada sutil\nAmbiente: Futurista, tecnológico, premium, UI limpia, tarjeta de identidad para redes sociales\nCámara: Lente macro (equivalente 85mm), f/1.8, renderizado ultra-realista 8K\n\n💎 Diseño de Tarjeta Transparente\nMaterial: Acrílico/vidrio transparente (transparencia 0.92, IOR 1.5, rugosidad 0.05)\nForma: Cuadrado redondeado perfecto (radio de esquina 10-16px), grosor 3-5mm\nBrillo de borde: Degradado neón intenso - linear-gradient(135deg, #ff4d4d, #ff7de3, #8a5dff, #41c3ff)\nSostenida por: Mano humana realista, pulgar en el borde frontal izquierdo, tono de piel cálido\n\n🖥️ Diseño de UI\nEncabezado:\n- Avatar: Circular, arriba a la izquierda, estilo ilustración plana (fondo naranja, cabello oscuro, lentes)\n- Nombre de usuario: \"nanoprompts ▲\" - Sans-serif redondeada en negrita, color casi blanco\n- Insignia verificado: Azul (#1D9BF0), junto al nombre de usuario\n- Arroba: \"@promptslab\" - Debajo del nombre de usuario, color #d0d6e5\n- Botón Seguir: Arriba a la derecha, transparente/vítreo, borde sólido 1px #ffffff99\n\nCuerpo:\n- Descripción: \"100+ Free AI Prompts & Workflows for Nano Banana Image Generation\"\n- Enlace: \"https://nanoprompts.org . | Building 🔗apply_xyz\" (color #5da7ff)\n- Meta: Ícono de profesión + \"Entrepreneur\"\n- Sitio web: \"http://rehanuds.framr.website\"\n\nEstadísticas del pie:\n- \"135 Following\" | \"446 Followers\"\n- \"Joined May 2025\" (color #ffffff66)\n\n💡 Iluminación\nLuz principal: Softbox desde arriba a la izquierda/frente izquierdo, blanco frío 5200-5600K\nLuz de contorno: Emisión de borde neón, intensa en las esquinas\nFondo: Oscuro con brillo extra (#3e4fff33), bokeh redondo (#283759)\n\n⛔ Evitar\nSin manos extra, dedos distorsionados, texto de baja resolución, huellas dactilares, marcas de agua ni botones recortados",
+    "category": "🔥 Ultimos y en tendencia",
+    "description": "Generate stunning 3D transparent glass social media profile cards with glowing neon edges using AI. Free copy-paste prompt for Instagram, LinkedIn, Twitter. No design skills needed - Perfect for personal branding.",
+    "difficulty": "⚡ Intermedio",
+    "tags": [
+      "📅 Added: Nov 1, 2025",
+      "🏷️ Social Media Design"
+    ],
+    "images": [
+      "https://banana-prompt.nanoprompts.org/new-prompts-lab/1101-1-output.webp"
+    ],
+    "local_image": "images/transparent-social-card-0.webp"
+  },
+  {
+    "id": "scouter-power-level-challenge",
+    "slug": "scouter-power-level-challenge",
+    "url": "/es/prompt-handbook/trending-prompts/scouter-power-level-challenge",
+    "title": "🎯 ¡A Cazar el BP 5! Desafío de Nivel de Poder del Escáner IA",
+    "prompt": "task: \"edit-image: add full-screen analysis HUD overlay only\"\n\nbase_image: |\n  Use the provided reference image as the base.\n  Do not change the character's appearance, pose, facial expression, anatomy, clothing, colors,\n  background, lighting, composition, or camera angle.\n  Keep the original art style exactly as it is with no new characters added.\n\nhud_color: |\n  Use a single monochrome HUD color for all HUD elements (lines, text, glow, tint).\n  The HUD color must be one of: green, blue, or red.\n  Follow any explicit color instruction given by the user or calling system.\n  If no specific color is provided, choose the HUD color based on the character's perceived power level:\n  - If the character looks very powerful or intense, use red.\n  - If the character looks moderately strong, use blue.\n  - If the character looks less powerful or more neutral, use green.\n\noverlay_hud: |\n  Superpone un HUD de análisis semitransparente pero claramente visible en el color HUD elegido\n  sobre todo el encuadre, como si el espectador estuviera mirando al personaje\n  a través de una visera de escáner de batalla futurista.\n  Tiñe toda la imagen con un filtro uniforme del color HUD mientras permites\n  que los colores y detalles originales sean visibles por debajo.\n\n  Dibuja una línea de contorno HUD precisa y brillante alrededor de toda la silueta del personaje.\n  El contorno debe seguir de cerca el borde exterior del cuerpo, cabello y ropa del personaje,\n  como un resaltado de detección de bordes.\n  Coloca este contorno ligeramente fuera del personaje para que no cubra rasgos faciales\n  ni detalles interiores importantes.\n  Haz que la línea de contorno sea continua, limpia y ligeramente más gruesa que las otras líneas HUD,\n  con un brillo intenso para que la forma del personaje quede claramente enfatizada.\n\n  Alrededor de la cabeza y la parte superior del cuerpo del personaje, agrega corchetes de objetivo y marcas de encuadre\n  que se ajusten a este contorno, reforzando la sensación de que el sistema está bloqueando al personaje.\n  Llena la pantalla con detalles HUD: líneas de cuadrícula horizontales y verticales, pequeñas lecturas numéricas,\n  miras sutiles, marcadores de esquina y paneles de interfaz compactos alrededor (pero no directamente encima)\n  de los rasgos clave del personaje.\n\nbp_display: |\n  Coloca el texto \"BP\" (Poder de Batalla) seguido de un valor numérico de varios dígitos\n  en la esquina superior derecha del encuadre.\n  Este texto BP debe aparecer siempre en el área superior derecha de la imagen, no en ninguna otra posición.\n\n  Haz que la etiqueta \"BP\" y el número sean grandes, brillantes y fáciles de leer,\n  usando un estilo digital de ciencia ficción en negrita.\n  Dibújalos solo como texto del color HUD brillante, sin ningún marco rectangular ni panel de fondo.\n  NO copies ni reutilices ningún número específico de este prompt.\n  Deja que el modelo infiera y elija un número de poder de batalla plausible de varios dígitos\n  basado en la apariencia, pose e intensidad general del personaje en la imagen de referencia.\n  El valor debe parecer una lectura de estado de ciencia ficción apropiada para cuán fuerte\n  aparece este personaje en el contexto dado.\n\nstyle: |\n  Haz que el HUD se sienta como una interfaz clásica de escáner de anime:\n  monocromático en el color HUD elegido con niveles de brillo variables, resplandor intenso,\n  y una impresión de pantalla holográfica sobre toda la imagen.\n  Usa líneas de interfaz angulares y nítidas y fuentes digitales.\n  El contorno alrededor del personaje y el texto BP brillante en la esquina superior derecha\n  deben ser los elementos más visualmente legibles, para que el espectador entienda de inmediato\n  qué persona está siendo analizada y cuál es su poder de batalla.\n\nconstraints: |\n  No modifiques ni ocultes el rostro, cuerpo ni elementos de diseño clave del personaje con bloques de interfaz opacos.\n  No cambies el diseño del fondo ni agregues objetos extra grandes más allá del propio HUD.\n  La única edición debe ser la superposición del HUD de análisis de pantalla completa en el color elegido,\n  el contorno preciso y el texto de visualización BP en la esquina superior derecha.\n  Preserva la composición original, la perspectiva y la escena general mientras la haces parecer\n  como si estuviera siendo vista completamente a través de una interfaz de análisis tipo escáner.",
+    "category": "🔥 Viral Challenge",
+    "description": "Join the viral BP 5 Challenge! Transform any photo into a Dragon Ball-style scouter analysis screen with AI-generated battle power readings. Step-by-step guide with free prompt.",
+    "difficulty": "",
+    "tags": [
+      "📅 December 14, 2025",
+      "🏷️ Meme / Challenge",
+      "⚡ Principiante-Friendly"
+    ],
+    "images": [
+      "https://banana-prompt.nanoprompts.org/new-prompts-lab/trend-1214-1-output.webp",
+      "https://banana-prompt.nanoprompts.org/new-prompts-lab/trend-1214-1-output.webp",
+      "https://banana-prompt.nanoprompts.org/new-prompts-lab/trend-1214-2-output.webp",
+      "https://banana-prompt.nanoprompts.org/new-prompts-lab/trend-1214-3-output.webp",
+      "https://banana-prompt.nanoprompts.org/new-prompts-lab/trend-1214-4-output.webp",
+      "https://banana-prompt.nanoprompts.org/new-prompts-lab/trend-1214-5-output.webp"
+    ],
+    "local_image": "images/scouter-power-level-challenge-0.webp"
+  },
+  {
+    "id": "stand-summoning-vfx",
+    "slug": "stand-summoning-vfx",
+    "url": "/es/prompt-handbook/trending-prompts/stand-summoning-vfx",
+    "title": "Photorealistic Stand Summoning VFX",
+    "prompt": "¡Prompt de \"Invocación de Stand\"!!\n\n[Rol]\nEres un artista conceptual de VFX (efectos visuales) cinematográficos. Integra de forma perfecta un \"Stand\" creado en CGI realista dentro de la foto de acción real proporcionada, sin ningún tipo de incongruencia.\n\n[Instrucciones específicas]\nCrea una imagen fotorrealista donde la persona en la foto proporcionada es el sujeto principal, con un \"Stand\" original apareciendo detrás de ella.\n\nMantenimiento del estilo visual (lo más importante):\nPreserva exactamente la iluminación de la foto original (dirección, intensidad, sombras), el tono de color, la textura de la cámara y la atmósfera tal como están. No se necesitan expresiones estilo manga (trazos de contorno o efectos de sonido) en absoluto.\n\nDiseño y generación del Stand:\nAnálisis: Analiza la \"atmósfera\" percibida a partir de la ropa, pertenencias y expresión facial de la persona en la foto.\nDiseño: Diseña esa atmósfera como una forma abstracta pero física. El Stand aparece con presencia material realista como agua, fuego, hielo, metal, piedra, vidrio, humo, luz o materia orgánica desconocida.\n\nComposición: El Stand emerge detrás de la persona, recibiendo la luz ambiental de la foto para proyectar sombras realistas, y puede distorsionar el aire circundante. Colócalo en una pose que proteja o intimide a la persona.",
+    "category": "🔥 Ultimos y en tendencia",
+    "description": "Learn to generate stunning photorealistic Stand VFX composites with AI. Add cinematic CGI guardians to real photos with perfect lighting and atmosphere matching. Free step-by-step guide for Instagram, X, TikTok.",
+    "difficulty": "⚡ Intermedio",
+    "tags": [
+      "📅 December 13, 2025",
+      "🏷️ VFX & Visual Effects"
+    ],
+    "images": [
+      "https://banana-prompt.nanoprompts.org/new-prompts-lab/trend-1213-1-output.webp",
+      "https://banana-prompt.nanoprompts.org/new-prompts-lab/trend-1213-2-output.webp",
+      "https://banana-prompt.nanoprompts.org/new-prompts-lab/trend-1213-3-output.webp",
+      "https://banana-prompt.nanoprompts.org/new-prompts-lab/trend-1213-4-output.webp"
+    ],
+    "local_image": "images/stand-summoning-vfx-0.webp"
+  },
+  {
+    "id": "pop-style-sweets-monsters",
+    "slug": "pop-style-sweets-monsters",
+    "url": "/es/prompt-handbook/trending-prompts/pop-style-sweets-monsters",
+    "title": "Pop-Style Sweets Monster Overload",
+    "prompt": "Usa la foto subida.\nNO alteres la apariencia real de la persona — mantén el rostro, cuerpo, ropa, colores y textura completamente fotorrealistas.\nNO cambies la perspectiva del fondo.\nNO conviertas a la persona en un dibujo o ilustración.\n\nAgrega una capa densa y sobrecargada de \"monstruos de dulces\" ilustrados en estilo pop y decoraciones gráficas SOLO alrededor de la persona (y sobre su ropa si es necesario), pero nunca sobre su piel o rostro.\n\nElementos ilustrados:\n- muchos monstruos de caricatura coloridos con contornos negros gruesos, colores planos y expresiones tiernas pero feas\n- monstruos inspirados en dulces: bananas, galletas, fresas, chocolate derretido, paletas, helados, naranjas, cupcakes, donas, trozos de caramelo, botellas de refresco, etc.\n- formas gráficas adicionales: estrellas, corazones, flechas, goteos, salpicaduras, líneas en zigzag, signos de exclamación, líneas de movimiento, destellos, burbujas, formas de texto estilo cómic (pero sin texto real)\n\nHaz que la decoración sea muy densa y \"recargada\":\n- llena el espacio detrás de la persona con monstruos de dulces y formas superpuestas\n- agrega monstruos asomándose por detrás de los hombros, alrededor de la bolsa, a los pies de la persona y cerca de la cabeza\n- permite que algunos monstruos y formas se superpongan sobre la ropa y accesorios (camisa, shorts, bolsa, zapatos), pero mantén la piel del rostro, brazos y piernas fotorrealista y visible\n- usa múltiples capas de ilustraciones frente y detrás de la persona para crear profundidad\n- agrega contornos brillantes, pequeños puntos blancos y líneas de velocidad alrededor de la persona para enfatizar energía\n\nColor y estilo:\n- usa una paleta de colores vívida y neón (rosa intenso, amarillo, cian, lima, naranja, morado, turquesa)\n- mantén todos los elementos ilustrados planos y gráficos con bordes limpios y contornos gruesos\n- asegúrate de que las sombras y superposiciones sugieran interacción con la persona real (p. ej., sombras leves en la ropa donde los monstruos la tocan)\n\nObjetivo general:\nCrea una escena de arte pop maximalista y muy decorada donde la persona real está en el centro, rodeada y envuelta por una multitud caótica de juguetones monstruos de dulces y garabatos gráficos, mientras la persona permanece claramente fotorrealista.",
+    "category": "🔥 Ultimos y en tendencia",
+    "description": "Create stunning pop-art portraits with dense, colorful sweets monsters and graphic decorations. Free AI prompt tutorial for social media.",
+    "difficulty": "⚡ Intermedio",
+    "tags": [
+      "📅 Nov 27, 2025",
+      "🏷️ Social Media Art"
+    ],
+    "images": [
+      "https://banana-prompt.nanoprompts.org/new-prompts-lab/trend-1127-1-output.webp",
+      "https://banana-prompt.nanoprompts.org/new-prompts-lab/trend-1127-2-output.webp",
+      "https://banana-prompt.nanoprompts.org/new-prompts-lab/trend-1127-3-output.webp"
+    ],
+    "local_image": "images/pop-style-sweets-monsters-0.webp"
+  },
+  {
+    "id": "line-drawing-people-in-photo",
+    "slug": "line-drawing-people-in-photo",
+    "url": "/es/prompt-handbook/trending-prompts/line-drawing-people-in-photo",
+    "title": "Cómo agregar personas con dibujos de líneas caprichosos a cualquier foto",
+    "prompt": "Agrega ilustraciones limpias y minimalistas de personas dibujadas con líneas blancas en esta foto. Ajusta la perspectiva, la iluminación y la escala de la escena. Las figuras ilustradas deben interactuar de forma natural y significativa con el entorno, reflejando el estado de ánimo, el propósito y la actividad del espacio. Mantén los dibujos simples, fluidos y expresivos, sin detalles faciales. Conserva un tono moderno, cálido y ligeramente caprichoso que complemente la estética general. No ocultes ningún elemento original. Las figuras ilustradas deben sentirse como adiciones imaginativas y amigables que se integren perfectamente con el contexto de la escena.",
+    "category": "🔥 Ultimos y en tendencia",
+    "description": "Learn how to add clean, minimal line-drawing illustrations of people to your photos with this free AI art prompt. A step-by-step guide for creating whimsical, modern images.",
+    "difficulty": "",
+    "tags": [
+      "📅 Nov 25, 2025",
+      "🏷️ Photo Illustration",
+      "⚡ Easy"
+    ],
+    "images": [
+      "https://banana-prompt.nanoprompts.org/new-prompts-lab/trend-1125-3-output.webp",
+      "https://banana-prompt.nanoprompts.org/new-prompts-lab/trend-1125-4-output.webp"
+    ],
+    "local_image": "images/line-drawing-people-in-photo-0.webp"
+  },
+  {
+    "id": "character-concept-sheet",
+    "slug": "character-concept-sheet",
+    "url": "/es/prompt-handbook/trending-prompts/character-concept-sheet",
+    "title": "Domina el Diseño de Personajes: La Guía Definitiva de Hojas de Concepto con IA",
+    "prompt": "Role (Role Setting)\n\nYou are a top-tier game and anime concept art design master (Concept Artist), excelling at creating detailed character sheets. You possess \"pixel-level deconstruction\" skills, allowing you to see through a character's layered clothing, capture subtle facial expression changes, and concretely recreate associated items. You are particularly adept at fleshing out a character's personality and backstory through the side angles of female characters' intimate items, personal belongings, and lifestyle details.\n\nTask (Task Objective)\n\nBased on the main figure uploaded or described by the user, generate a **\"Panoramic Character Deep Concept Breakdown Sheet\"**. This image must include a full-body standing illustration of the central character, surrounded by displays of the character's clothing layers, various expressions, core props, material close-ups, and highly lifelike intimate and personal items.\n\nVisual Guidelines (Visual Standards)\n\n1. Composition Layout (Layout):\n\n• Center Position (Center): Place the character's full-body standing illustration or primary dynamic pose as the visual anchor.\n\n• Surrounding Positions (Surroundings): In the blank spaces around the central character, neatly arrange the deconstructed elements.\n\n• Visual Guides (Connectors): Use hand-drawn arrows or guide lines to connect the surrounding deconstructed items to the corresponding parts or areas on the central character (e.g., a bag connected to the hand).\n\n2. Deconstruction Content (Deconstruction Details) — Core Iteration Areas:\n\n• Clothing Layers (Clothing Layers) [Enhanced Version]:\n\n• Break down the character's clothing into individual pieces for display. For multi-layer outfits, show the inner layers after removing the outer jacket.\n\n• New Addition: Intimate Apparel Deconstruction (Intimate Apparel): Independently showcase the character's undergarments, emphasizing design and material details. For example: a matching lace bra and panties set (highlighting lace pattern details), thong (showing cut and fit), stockings (displaying sheer flesh tone and cuff design), shapewear or safety shorts, etc.\n\n• Expression Sheet (Expression Sheet):\n\n• In a corner, draw 3-4 different head close-ups showing varied emotions (e.g., aloof, shy, surprised, dazed, or focused while applying lipstick).\n\n• Material Close-Ups (Texture & Zoom) [Enhanced Version]:\n\n• Select 1-2 key areas for magnified close-ups. For example: fabric folds, skin texture, hand details.\n\n• New Addition: Item Texture Close-Ups: Add depictions of small objects' materials, such as the glossy sheen of lipstick, the grainy texture of leather bags, the fine powdery feel of cosmetics.\n\n• Related Items (Related Items) [Deep Iteration Version]:\n\n• This section expands beyond large props to include \"lifestyle slices\" of the character.\n\n• Personal Bag & Contents (Bag & Contents): Draw the character's everyday commuter bag or clutch, \"opened\" to show items spilling out beside it.\n\n• Beauty & Grooming (Beauty & Grooming): Display her go-to cosmetics combo (e.g., close-up of a specific shade lipstick/lip gloss, a compact with mirror, perfume bottle design, hand cream).\n\n• Intimate Lifestyle Items (Lifestyle & Intimate Items): Concretely render items from the character's hidden side. Depending on her personality, this might include: a private diary, commonly used meds/supplement case, e-cigarette, or more personal items (like a user-mentioned fleshlight/sex toy, presented from an objective design sketch perspective, noting model or design features).\n\n3. Style & Annotations (Style & Annotations):\n\n• Art Style: Maintain a high-quality 2D illustration style or concept design sketch style, with clean, crisp lines.\n\n• Background: Use a beige, parchment, or light gray textured background to evoke a design manuscript vibe.\n\n• Text Notes: Beside each deconstructed element, simulate handwritten annotations briefly describing materials (e.g., \"soft lace,\" \"matte leather\") or brand/model hints (e.g., \"usual shade #520,\" \"custom piece\").\n\nWorkflow (Execution Logic)\n\nWhen the user provides an image or description:\n\n1. Analyze the subject's core features, clothing style, and potential personality.\n\n2. Extract primary deconstructible elements (jacket, shoes, big expressions).\n\n3. Brainstorm and design secondary deep elements (What style of underwear does she wear? What lipstick is in her bag? What items does she use when alone?).\n\n4. Generate a composite image containing all these elements, ensuring accurate perspective, unified lighting and shadows, and clear annotations.\n\n5. Use Chinese: English labels, output in high-definition 4K HD",
+    "category": "🔥 Últimas Tendencias",
+    "description": "Aprende a generar arte conceptual de personajes de nivel profesional, con capas de ropa, expresiones y objetos personales, usando este prompt gratuito de arte con IA.",
+    "difficulty": "⚡ Intermedio",
+    "tags": [
+      "📅 25 de nov de 2025",
+      "🏷️ Diseño de Juegos y Anime"
+    ],
+    "images": [
+      "https://banana-prompt.nanoprompts.org/new-prompts-lab/trend-1125-1-output.webp",
+      "https://banana-prompt.nanoprompts.org/new-prompts-lab/trend-1125-2-output.webp"
+    ],
+    "local_image": "images/character-concept-sheet-0.webp"
+  }
+]

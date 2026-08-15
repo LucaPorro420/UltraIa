@@ -1,0 +1,6 @@
+{
+    "attempt":  1,
+    "source":  "https://github.com/Jeomon/Web-Use",
+    "prompt":  "web_use",
+    "answer":  "Jeomon/Web-Use: agente browsing CDP multi-LLM con vision, arbol semantico DOM, OAuth 2.0+PKCE; introduce WebMCP (sitios exponen tools custom al agente)"
+}

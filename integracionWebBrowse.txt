@@ -1,0 +1,39 @@
+# integracionWebBrowse.txt (15/08/2026)
+
+Verdad verificada 10/10 PASS en `learning/truth/truth_web_browse_repos.json` (fuente: AI mode de
+Google `share.google/aimode/IFwSMZTjOGXZx8Rug`, query "repositorios de github que facilitan la
+navegacion o busqueda por internet"; el AI mode quedó detrás de un challenge anti-bot y el
+catálogo se recuperó/verificó vía búsqueda web contra GitHub). Encaminamiento para el stack de
+browsing/búsqueda de AgentReach, OMAG y la Fase B (Local API) del Desktop:
+
+- Agente web de datos: firecrawl/web-agent (MIT, Deep Agents + loop plan-act-observe, subagentes,
+  skills SKILL.md on-demand; tools Search/Scrape/Interact).
+- Toolkit browsing TS: ntegrals/openbrowser (MIT, Playwright + Vercel AI SDK, REPL CLI,
+  sandbox con límites CPU/memoria/dominio, stall detection, multi-modelo).
+- Backend browsing self-hosted REST+MCP: SufiSR/internet-search-mcp (SearXNG + Redis + Firecrawl +
+  Playwright; browse = search → BM25 rank → fetch concurrente con fallback).
+- Agente de búsqueda Planner-Executor: sjtu-sai-agents/Browse-Master (busqueda code-driven
+  batch_search/check_condition/generate_keywords, replan por confianza, fuerte en BrowseComp).
+- Investigación multi-fuente keyless: JonusNattapong/MCPSearch (search multi-engine,
+  crawl fast/hybrid/stealth, social Reddit/X/YT/GitHub, MCP-native, sin API keys).
+- Capa web "citable" para agentes de código: baojiachen0214/web-rooter (CLI wr
+  quick/web/deep/do/jobs/academic/social; instala skills en Claude/Cursor/OpenCode/OpenClaw y
+  configura cookies de login con un comando).
+- Scraping multi-agente con skills: DamiMartinez/scrapeagent (Google ADK; el conocimiento de cada
+  sitio vive en SKILL.md que el propio agente escribe con create_skill).
+- Deep research local reproducible: k-kolomeitsev/agent-browser-workspace (Chrome CDP + Playwright,
+  SERP snapshot en links.json + páginas en Markdown; browser single-threaded).
+- Agente browsing CDP multi-LLM: Jeomon/Web-Use (visión, árbol semántico DOM, OAuth 2.0+PKCE;
+  introduce WebMCP = sitios que exponen tools al agente).
+- Scraper self-hosted gratis (alternativa Firecrawl): colaboy519/webharvest (100% local;
+  scrape/crawl/extract/search/agent; anti-bot curl_cffi+Patchright+BrowserForge).
+
+## Decisiones para UltraIa
+- AgentReach: incorporar patrón browse (search + BM25 + fetch concurrente + fallback) de
+  internet-search-mcp y workflow reproducible (links.json + Markdown) de agent-browser-workspace.
+- Gen-Engine/Desktop Fase B: MCPSearch o webharvest como motor de búsqueda/browsing self-host
+  (keyless, local-first — encaja con el principio LOCAL-FIRST del runtime).
+- Habilidad propia: skill `web-browse-repos` (`.opencode/skills/web-browse-repos/SKILL.md`) con
+  este catálogo para buscar/navegar desde cualquier sesión.
+- Patrón de self-improvement: scrapeagent (el agente escribe su propio SKILL.md de selectores) es
+  el modelo del loop plan→ejecutar→implementar→mejorar del producto.

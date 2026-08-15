@@ -1,0 +1,15 @@
+{
+  "id": "character-transformation-case45",
+  "slug": "45",
+  "url": "/es/prompt-handbook/character-transformation/#case45",
+  "title": "Minifigura LEGO",
+  "prompt": "Transform the person in the photo into a LEGO minifigure packaging box style, presented in isometric perspective. Label the box with the title \"ZHOGUE\". Inside the box, display the LEGO minifigure based on the person in the photo, along with their essential items (such as makeup, bags, or other items) as LEGO accessories. Beside the box, also display the actual LEGO minifigure itself, unpackaged, rendered in a realistic and vivid style.",
+  "category": "character-transformation",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/case45_output.webp"
+  ],
+  "local_image": "images/character-transformation-case45-0.webp"
+}

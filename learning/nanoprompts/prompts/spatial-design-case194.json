@@ -1,0 +1,15 @@
+{
+  "id": "spatial-design-case194",
+  "slug": "194",
+  "url": "/es/prompt-handbook/spatial-design/#case194",
+  "title": "Monedas de Diorama Cinético: Cuadrícula 2x2 de Monedas en Corte con Partes Móviles",
+  "prompt": " A 2x2 grid of four fictional, non-legal-tender art coins shown as cutaway kinetic dioramas. [Top Left coin: Obverse = random extinct animal in high relief; Reverse = random miniature interior scene (library/workshop/temple/etc.) with tiny moving parts] [Top Right coin: Obverse = random weather phenomenon as sculpted relief; Reverse = random tiny room with gears animating the scene] [Bottom Left coin: Obverse = random mythological object; Reverse = random micro-city with a rotating element] [Bottom Right coin: Obverse = random deep-sea creature; Reverse = random laboratory with oscillating mechanism] Ultra-photoreal macro product shot, engraved metal, realistic wear, crisp rim and reeded edge, shallow depth of field, soft volumetric studio lighting, 20mm perspective, centered composition, seamless slate-gray background.",
+  "category": "spatial-design",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20251214-8-output.webp"
+  ],
+  "local_image": "images/spatial-design-case194-0.webp"
+}

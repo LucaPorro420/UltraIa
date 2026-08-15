@@ -1,0 +1,15 @@
+{
+  "id": "character-transformation-case40",
+  "slug": "40",
+  "url": "/es/prompt-handbook/character-transformation/#case40",
+  "title": "Generación de Múltiples Poses de Personaje",
+  "prompt": "Please create a pose sheet for this illustration, making various poses!",
+  "category": "character-transformation",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/case40_output.webp"
+  ],
+  "local_image": "images/character-transformation-case40-0.webp"
+}

@@ -1,0 +1,15 @@
+{
+  "id": "character-transformation-case11",
+  "slug": "11",
+  "url": "/es/prompt-handbook/character-transformation/#case11",
+  "title": "Anime a Cosplayer Real",
+  "prompt": "Generate a photo of a girl cosplaying this illustration, with the background set at Comiket",
+  "category": "character-transformation",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/case11_output.webp"
+  ],
+  "local_image": "images/character-transformation-case11-0.webp"
+}

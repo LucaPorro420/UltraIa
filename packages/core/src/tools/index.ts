@@ -9,6 +9,7 @@ export * from './video';
 export * from './music';
 export * from './stitch';
 export * from './gen-engine';
+export * from './g0dm0d3';
 
 import * as web from './web';
 import * as image from './image';
@@ -18,8 +19,9 @@ import * as music from './music';
 import * as stitch from './stitch';
 import { reach } from './reach';
 import { runSkill } from './skills';
+import * as g0dm0d3 from './g0dm0d3';
 
-export const tools = { web, image, video, music, stitch, reach, skills: { runSkill }, content };
+export const tools = { web, image, video, music, stitch, reach, skills: { runSkill }, content, g0dm0d3 };
 
 export const TOOL_DESCRIPTIONS: Record<string, string> = {
   calculator: 'Safely evaluate a mathematical expression (math only).',
@@ -33,6 +35,8 @@ export const TOOL_DESCRIPTIONS: Record<string, string> = {
     'Run a step of the agent-development pipeline: plan → build → test → review → ship → simplify. Each skill produces a structured Markdown artifact for the given task using the configured model. Use to design, implement, QA, review, release or refactor.',
   content:
     'Royalty-free content assets for video/audio projects: searchMusic (music tracks with previews), searchSfx (sound effects with previews) via Tunetank (free, keyless), and mixkit (stock video/music/SFX/templates pages). Use when the task needs background music, sound effects, stock footage or video templates.',
+  g0dm0d3:
+    'G0DM0D3-style evaluation & testing: Parseltongue input perturbation (33 obfuscation techniques), AutoTune context-adaptive sampling params, multi-angle response evaluation (ultraplinian) and combo racing (godmode) with composite scoring (ELITE/EXCELLENT/GOOD/ACCEPTABLE/POOR). Use to stress-test queries, tune generation or pick the best of several candidate answers.',
 };
 
 export type Capability =
@@ -44,4 +48,5 @@ export type Capability =
   | 'design'
   | 'reach'
   | 'skills'
-  | 'content';
+  | 'content'
+  | 'g0dm0d3';

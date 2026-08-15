@@ -1,6 +1,6 @@
 # Aprendizaje del loop de verificación (UltraIa)
 
-## Resultado final: 16/16 casos resueltos (0 FAIL finales), 24 veredictos registrados
+## Resultado final: 26/26 casos resueltos (0 FAIL finales), 54 veredictos registrados
 
 ## Dataset (verdad guardada aparte, en `truth/` — NO se usa la respuesta para verificarla)
 
@@ -9,6 +9,7 @@
 | math (6) | math_1..6 | Cálculo determinista en Python (independiente de LLM) |
 | live (2) | live_weather_lima, live_fx_usd_pen | Respuesta cruda de API (Open-Meteo, open.er-api.com) |
 | hechos gstack (8) | gstack_* | Extraído directo de setup/SKILL.md/README/filesystem |
+| hechos web-browse (10) | firecrawl_web_agent, openbrowser, internet_search_mcp, browse_master, mcpsearch, web_rooter, scrapeagent, agent_browser_workspace, web_use, webharvest | Búsqueda web contra GitHub (AI mode de Google inaccesible por anti-bot; recuperado vía websearch y verificado 15/08/2026) |
 
 ## Iteraciones reales del loop (mejora → verificar → lograrlo)
 
@@ -28,6 +29,10 @@
 - **Tunetank MCP (música/SFX gratis, sin key)**: `POST https://mcp.tunetank.com` con header `Accept: application/json, text/event-stream` (sin él → 406). Respuesta SSE, no JSON directo. Verificado 14/08/2026.
 - **Mixkit**: NO tiene API (`api.mixkit.co` no resuelve). Automatizar parseando la web con readWeb (r.jina.ai) y extrayendo links de descarga directa.
 - **Zapsplat/Adobe Enhance/Jitter**: sin API pública automatizable (Zapsplat anti-bot con download points; Adobe sin API; Jitter solo templates). Usar manualmente o alternativas locales (ffmpeg afir para noise).
+- **share.google/aimode (AI mode de Google) NO es accesible por HTTP/fetch**: responde con challenge anti-bot (Search Guard, `emsg=SG_REL`) y el contenido queda dentro del JS — recuperar el tema vía `websearch`/`webfetch` de la query embebida en el redirect (parámetro `q=` del HTML) y verificar contra las fuentes oficiales.
+- **verify.py exige rutas ABSOLUTAS** para `relative_to(ROOT)`: invocar con `C:\...\learning\responses\<id>\attempt_1.json`, no con `learning\responses\...`.
+- **PowerShell 5.1 `Set-Content -Encoding UTF8` escribe BOM** que rompe `json.loads` de Python — usar `[System.IO.File]::WriteAllText(path, content, (New-Object System.Text.UTF8Encoding($false)))` para JSON generado por script.
+- **Browsing web por agentes (catálogo verificado 15/08/2026)**: los patrones a reutilizar son browse = search → BM25 → fetch concurrente con fallback (internet-search-mcp), workflow reproducible SERP snapshot + Markdown (agent-browser-workspace), y la regla browser single-threaded (perfil de Chrome compartido). Para self-host keyless: MCPSearch o webharvest. El loop de self-improvement del producto sigue el modelo de scrapeagent (el agente escribe su propio SKILL.md por sitio).
 
 ## Armado total de generación de media (14/08/2026) — 6 fases completadas
 

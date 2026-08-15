@@ -1,0 +1,15 @@
+{
+  "id": "image-editing-case399",
+  "slug": "399",
+  "url": "/es/prompt-handbook/image-editing/#case399",
+  "title": "Composición Creativa en Capas: Llamada a la Acción en Redes Sociales con Reemplazo de Fondo",
+  "prompt": "{\n  \"edit_type\": \"creative_composite_layering\",\n\n  \"source\": {\n    \"_hint\": \"Base logic: Character (Ref 1) superimposed ON TOP OF the Background Image (Ref 2).\",\n    \"mode\": \"EDIT\",\n    \"reference_images\": {\n      \"first\": \"foreground_character_person\",\n      \"second\": \"background_scenery_or_pattern\"\n    },\n    \"preserve_from_first\": {\n      \"same_person_or_group\": true,\n      \"same_faces\": true,\n      \"same_hairstyles\": true,\n      \"same_outfits\": true\n    }\n  },\n\n  \"identity\": {\n    \"keep_identity_consistent\": true,\n    \"expression\": \"bright_engaging_smile_at_camera\"\n  },\n\n  \"camera_effect\": {\n    \"_hint\": \"High-angle selfie style, creating a sense of depth between the hand and face.\",\n    \"perspective\": \"high_angle_shot_looking_down\",\n    \"style\": \"social_media_call_to_action\",\n    \"depth_of_field\": \"focus_on_face_and_pointing_finger\",\n    \"framing\": \"character_centered_with_space_at_top_right\"\n  },\n\n  \"pose\": {\n    \"_hint\": \"Key action: Lying down but actively pointing to the 'Follow' button area (Top Right).\",\n    \"pose_style\": \"lying_down_or_reclining_on_back\",\n    \"face_direction\": \"looking_directly_up_into_lens\",\n    \"hand_gestures\": {\n      \"right_hand_action\": \"pointing_index_finger\",\n      \"target_direction\": \"upper_right_corner_45_degrees\",\n      \"purpose\": \"mimicking_pressing_subscribe_button\",\n      \"arm_position\": \"extended_towards_camera_top_right\"\n    },\n    \"body_language\": \"inviting_and_energetic\",\n    \"style_tags\": [\n      \"kpop_idol_fan_service\",\n      \"influencer_promo_style\",\n      \"dynamic_perspective\"\n    ]\n  },\n\n  \"background_integration\": {\n    \"_hint\": \"The second reference image is the background/floor.\",\n    \"method\": \"full_background_replacement\",\n    \"target_area\": \"entire_canvas_behind_character\",\n    \"content_source\": \"reference_image_second\",\n    \"perspective_match\": \"flat_lay_style\",\n    \"rules\": {\n      \"character_must_be_top_layer\": true,\n      \"leave_space_in_upper_right_for_ui\": true\n    }\n  },\n\n  \"composition\": {\n    \"_hint\": \"Ensure the pointing finger leads the viewer's eye to the top right corner.\",\n    \"visual_flow\": \"diagonal_line_from_face_to_top_right_corner\",\n    \"focal_points\": [\n      \"character_eyes\",\n      \"pointing_finger_tip\"\n    ],\n    \"negative_space\": \"clear_area_at_top_right_45_degrees\"\n  },\n\n  \"constraints\": {\n    \"no_holding_phone_device\": true\n  }\n}",
+  "category": "image-editing",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20260201-12-output.webp"
+  ],
+  "local_image": "images/image-editing-case399-0.webp"
+}

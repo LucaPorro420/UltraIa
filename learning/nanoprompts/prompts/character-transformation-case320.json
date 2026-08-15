@@ -1,0 +1,15 @@
+{
+  "id": "character-transformation-case320",
+  "slug": "320",
+  "url": "/es/prompt-handbook/character-transformation/#case320",
+  "title": "Editorial de Moda en Tira de Película de Cinco Paneles Collage Fotografía Vogue",
+  "prompt": "A high-end studio fashion editorial titled \"5-Panel Wide Film\" collage in 3:4 aspect ratio. Professional studio editorial mixed with seamless vintage film strip aesthetic.\n\nStructure: Asymmetric 2-column layout where the left column contains 2 stacked vertical panels and the right column contains 3 stacked horizontal panels. Total height of both columns is identical, creating a balanced composition.\n\nFraming: Integrated 5-panel wide film strip. The layout is a single large rectangular film frame divided into 5 segments. Authentic film rebate with sprocket holes and frame numbers only on the far left and far right outer vertical edges. The top and bottom outer edges have clean black film borders. Internal dividers are simple, solid thin black lines.\n\nColor palette: Clean whites, sophisticated charcoals, soft champagne gold, deep black film borders, and neutral skin tones. Textures include subtle film grain, matte celluloid finish, seamless cyclorama wall, and high-fashion fabric textures.\n\nLeft column (2 vertical panels):\n- Top: Full-body studio editorial shot with sophisticated standing pose showcasing full outfit silhouette, clean minimalist studio, high-contrast rim lighting\n- Bottom: Medium-shot editorial with artistic sitting or leaning pose focusing on upper body and garment flow, minimalist studio background, soft directional lighting\n\nRight column (3 horizontal panels):\n- Top: Close-up beauty portrait with frontal view, elegant expression, focus on facial features, professional studio setup, shallow depth of field with sharp focus on eyes\n- Middle: Candid behind-the-scenes side-shot in working studio environment with equipment visible, raw studio working lights, relaxed natural demeanor, visible C-stands and studio cables\n- Bottom: Dynamic detail or medium-shot in studio corner with minimalist pedestal, butterfly lighting setup, fashion-forward pose highlighting accessories or specific outfit textures\n\nCentral element: \"BeautyVerse\" signature overlay in elegant fluid cursive, translucent white ink, placed on the central vertical divider. Medium-sized with fine ink stroke texture.\n\nMood: Minimalist, sophisticated, balanced yet dynamic. Professional Vogue-level editorial photography, 8K resolution.",
+  "category": "character-transformation",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20251223-19-output.webp"
+  ],
+  "local_image": "images/character-transformation-case320-0.webp"
+}

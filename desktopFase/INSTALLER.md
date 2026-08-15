@@ -1,5 +1,8 @@
 # INSTALLER.md — Instalador local
 
+> Cross-ref: versión paralela del autor en `desktopFase/docs/INSTALLER.md` (mismo contrato).
+> Historial de movimientos y totales: `docs/HISTORIAL-PROYECTO.md`.
+
 `Installer` en `packages/runtime/src/installer.ts`. Operaciones: `install`, `uninstall`,
 `repair`, `update`. Nunca destructivo: `uninstall` conserva datos del usuario salvo
 `keepData:false`; `update` hace backup y rollback si algo falla.

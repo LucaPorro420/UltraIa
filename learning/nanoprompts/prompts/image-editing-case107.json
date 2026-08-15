@@ -1,0 +1,15 @@
+{
+  "id": "image-editing-case107",
+  "slug": "107",
+  "url": "/es/prompt-handbook/image-editing/#case107",
+  "title": "Dibujo en una Pantalla de Lápiz",
+  "prompt": "Photorealistic pen tablet screen. Realistic first-person hand holding the pen tablet and pen.\nThe original image is reproduced on the pen tablet in an unfinished state. The line art has been extracted from the original image. Portions of the line art have been colored with the same coloring as the original image. Unfinished coloring. Must not be monochrome. About 70% of the coloring is done.\nClose-up. The pen tip is touching the tablet screen.",
+  "category": "image-editing",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/case107_output.webp"
+  ],
+  "local_image": "images/image-editing-case107-0.webp"
+}

@@ -1,0 +1,15 @@
+{
+  "id": "character-transformation-case288",
+  "slug": "288",
+  "url": "/es/prompt-handbook/character-transformation/#case288",
+  "title": "Navidad Travieso vs Bueno: Díptico de Fotografía de Moda en Pantalla Dividida con Lista Interactiva de Santa",
+  "prompt": "Split-screen diptych, Christmas theme conceptual photography, \"Naughty vs Nice\" concept. Left Panel - The Nice Side: A beautiful Asian woman in a pristine green sweater, halo lighting, angelic expression, holding a neatly wrapped gift, background is organized and golden warm. Right Panel - The Naughty Side: The same woman in a red sweater, playful and mischievous expression, messy hair, a smudge of coal on her cheek, entangled in chaotic Christmas lights, background is messy with torn wrapping paper. Interaction: Both versions are pulling on a long parchment scroll labeled \"Santa's List\" across the center divider. Style: High-key fashion photography, vibrant colors, expressive, 8k resolution. --ar 16:9 --v 6.0",
+  "category": "character-transformation",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/20251222-5-output.webp"
+  ],
+  "local_image": "images/character-transformation-case288-0.webp"
+}

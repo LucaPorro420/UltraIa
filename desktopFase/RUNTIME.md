@@ -1,5 +1,8 @@
 # RUNTIME.md — UltraRuntime (@ultraia/runtime)
 
+> Cross-ref: versión paralela del autor en `desktopFase/docs/RUNTIME.md` (mismo contrato).
+> Historial de movimientos y totales: `docs/HISTORIAL-PROYECTO.md`.
+
 Runtime local de ejecución: dueño único de servicios, módulos, tareas, recursos, comandos,
 salud, memoria y eventos. El Shell habla con este objeto (directo o vía Local API) — nunca
 con el SO.

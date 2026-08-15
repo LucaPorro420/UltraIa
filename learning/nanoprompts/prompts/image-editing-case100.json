@@ -1,0 +1,15 @@
+{
+  "id": "image-editing-case100",
+  "slug": "100",
+  "url": "/es/prompt-handbook/image-editing/#case100",
+  "title": "Hacer Transparente el Objeto de la Imagen de Referencia",
+  "prompt": "Make this object transparent.",
+  "category": "image-editing",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/case100_output.webp"
+  ],
+  "local_image": "images/image-editing-case100-0.webp"
+}

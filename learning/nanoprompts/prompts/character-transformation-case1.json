@@ -1,0 +1,15 @@
+{
+  "id": "character-transformation-case1",
+  "slug": "1",
+  "url": "/es/prompt-handbook/character-transformation/#case1",
+  "title": "Ilustración a Figura",
+  "prompt": "turn this photo into a character figure. Behind it, place a box with the character's image printed on it, and a computer showing the Blender modeling process on its screen. In front of the box, add a round plastic base with the character figure standing on it. set the scene indoors if possible",
+  "category": "character-transformation",
+  "description": "",
+  "difficulty": "",
+  "tags": [],
+  "images": [
+    "https://banana-prompt.nanoprompts.org/handbook/case1_output.webp"
+  ],
+  "local_image": "images/character-transformation-case1-0.webp"
+}
