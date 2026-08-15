@@ -14,6 +14,7 @@ import { readWeb, searchWeb, searchGitHub, parseRss, videoInfo } from '../tools/
 import { searchMusic, searchSfx, mixkit } from '../tools/content';
 import { runSkill } from '../tools/skills';
 import { generateParseltongueVariants, computeAutoTuneParams, ultraplinian, godmodeClassic } from '../tools/g0dm0d3';
+import { generateTopicBriefs } from '../tools/topics';
 import { audioLibrary } from '../omag/audiolibrary';
 import { synthSound as synth } from '../omag/sound';
 
@@ -359,6 +360,26 @@ export function chatStream(opts: {
           totalMs: result.totalMs,
         };
       },
+    });
+  }
+  if (opts.tools?.includes('topics')) {
+    tools.topics_briefs = tool({
+      description:
+        'Generate prioritized content topic briefs (AutoPub F1) from RSS feeds and DuckDuckGo trend searches. Returns deduplicated briefs scored by novelty × channel relevance, each with tema, canal (youtube_shorts/tiktok/instagram/blog), formato, tono, angulo and fuentes. Use to feed the content factory with recurring ready-to-write ideas.',
+      parameters: z.object({
+        fuentes: z
+          .array(
+            z.object({
+              rss: z.string().url().optional(),
+              search: z.string().min(1).max(200).optional(),
+            }),
+          )
+          .max(10)
+          .optional(),
+        canales: z.array(z.enum(['youtube_shorts', 'tiktok', 'instagram', 'blog'])).max(4).optional(),
+        maxBriefs: z.number().int().min(1).max(50).optional(),
+      }),
+      execute: async ({ fuentes, canales, maxBriefs }) => generateTopicBriefs({ fuentes, canales, maxBriefs }),
     });
   }
   return streamText({

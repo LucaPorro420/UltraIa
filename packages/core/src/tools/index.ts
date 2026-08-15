@@ -10,6 +10,7 @@ export * from './music';
 export * from './stitch';
 export * from './gen-engine';
 export * from './g0dm0d3';
+export * from './topics';
 
 import * as web from './web';
 import * as image from './image';
@@ -20,8 +21,9 @@ import * as stitch from './stitch';
 import { reach } from './reach';
 import { runSkill } from './skills';
 import * as g0dm0d3 from './g0dm0d3';
+import { topics } from './topics';
 
-export const tools = { web, image, video, music, stitch, reach, skills: { runSkill }, content, g0dm0d3 };
+export const tools = { web, image, video, music, stitch, reach, skills: { runSkill }, content, g0dm0d3, topics };
 
 export const TOOL_DESCRIPTIONS: Record<string, string> = {
   calculator: 'Safely evaluate a mathematical expression (math only).',
@@ -37,6 +39,8 @@ export const TOOL_DESCRIPTIONS: Record<string, string> = {
     'Royalty-free content assets for video/audio projects: searchMusic (music tracks with previews), searchSfx (sound effects with previews) via Tunetank (free, keyless), and mixkit (stock video/music/SFX/templates pages). Use when the task needs background music, sound effects, stock footage or video templates.',
   g0dm0d3:
     'G0DM0D3-style evaluation & testing: Parseltongue input perturbation (33 obfuscation techniques), AutoTune context-adaptive sampling params, multi-angle response evaluation (ultraplinian) and combo racing (godmode) with composite scoring (ELITE/EXCELLENT/GOOD/ACCEPTABLE/POOR). Use to stress-test queries, tune generation or pick the best of several candidate answers.',
+  topics:
+    'Content idea engine (AutoPub F1): generates prioritized topic briefs from RSS feeds and DuckDuckGo trend searches — deduplicated, scored by novelty × channel relevance, with per-channel format/tone/angle. Use to feed the content factory with recurring, ready-to-write briefs.',
 };
 
 export type Capability =
@@ -49,4 +53,5 @@ export type Capability =
   | 'reach'
   | 'skills'
   | 'content'
-  | 'g0dm0d3';
+  | 'g0dm0d3'
+  | 'topics';
