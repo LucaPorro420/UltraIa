@@ -19,7 +19,7 @@ describe('UltraRuntime', () => {
     expect(status.modules.some((m) => m.id === 'memory')).toBe(true);
     const health = await runtime.healthReport();
     expect(health.status).toBe('healthy');
-    expect(runtime.registry.count()).toBe(3);
+    expect(runtime.registry.count()).toBe(4);
     await runtime.stop();
     expect(runtime.stateName).toBe('stopped');
   });
@@ -122,5 +122,138 @@ describe('UltraRuntime', () => {
     const runtime = UltraRuntime.create({ root: tmpRoot(), projectRoot: tmpRoot() });
     runtime.logger.info('SYSTEM', 'hello from test');
     expect(runtime.memoryLogs.tail(1)[0].message).toBe('hello from test');
+  });
+
+  it('registers system-core as lazy metadata without loading core at boot', async () => {
+    const factory = vi.fn();
+    const runtime = UltraRuntime.create({
+      root: tmpRoot(),
+      projectRoot: tmpRoot(),
+      corePorts: factory,
+    });
+    await runtime.start();
+    expect(runtime.registry.get('system-core')?.status).toBe('available');
+    expect(runtime.registry.get('system-core')?.lazy).toBe(true);
+    expect(runtime.registry.get('system-core')?.capabilities).toContain('core.run');
+    expect(factory).not.toHaveBeenCalled();
+    await runtime.stop();
+    expect(factory).not.toHaveBeenCalled();
+  });
+
+  it('core.* commands report not-configured without a factory', async () => {
+    const runtime = UltraRuntime.create({ root: tmpRoot(), projectRoot: tmpRoot() });
+    await runtime.start();
+    const health = await runtime.commands.execute('core.health', {}, { role: 'user' });
+    expect(health).toEqual({ configured: false });
+    const ports = await runtime.commands.execute('core.ports', {}, { role: 'user' });
+    expect(ports).toEqual({ configured: false, adapters: [] });
+    const tools = await runtime.commands.execute('core.tools', {}, { role: 'user' });
+    expect(tools).toEqual({ configured: false, capabilities: [] });
+    await expect(runtime.commands.execute('core.run', { target: 'tools', capability: 'calculator' }, { role: 'operator' })).rejects.toThrow();
+    // Health check "core" is informational: ok even when not configured.
+    const healthReport = await runtime.healthReport();
+    expect(healthReport.checks.core.ok).toBe(true);
+    expect(healthReport.checks.core.detail).toBe('not configured');
+    await runtime.stop();
+  });
+
+  it('core.* commands load the factory lazily and cache it', async () => {
+    const isHealthy = vi.fn().mockResolvedValue(true);
+    const close = vi.fn().mockResolvedValue(undefined);
+    const run = vi.fn().mockResolvedValue({ result: 42 });
+    const omagRun = vi.fn().mockResolvedValue({ status: 'completed' });
+    const factory = vi.fn().mockResolvedValue({
+      kind: 'core',
+      name: 'core',
+      tools: { kind: 'tools', name: 'tools', capabilities: ['calculator', 'web'], descriptions: {}, run, ping: async () => true, close: async () => {} },
+      omag: { kind: 'omag', name: 'omag', orchestrator: {}, run: omagRun, ping: async () => true, close: async () => {} },
+      isHealthy,
+      close,
+    });
+    const runtime = UltraRuntime.create({ root: tmpRoot(), projectRoot: tmpRoot(), corePorts: factory });
+    await runtime.start();
+    expect(factory).not.toHaveBeenCalled();
+
+    const health = await runtime.commands.execute('core.health', {}, { role: 'user' });
+    expect(health).toEqual({ configured: true, healthy: true });
+    expect(factory).toHaveBeenCalledTimes(1);
+
+    const ports = await runtime.commands.execute('core.ports', {}, { role: 'user' });
+    expect(ports).toEqual({ configured: true, adapters: ['tools', 'omag'] });
+    expect(factory).toHaveBeenCalledTimes(1); // cached, no re-load
+
+    const tools = await runtime.commands.execute('core.tools', {}, { role: 'user' });
+    expect(tools).toEqual({ configured: true, capabilities: ['calculator', 'web'] });
+
+    const omag = await runtime.commands.execute('core.omag', {}, { role: 'user' });
+    expect(omag).toEqual({ configured: true });
+
+    const runResult = await runtime.commands.execute(
+      'core.run',
+      { target: 'tools', capability: 'calculator', input: { expression: '6*7' } },
+      { role: 'operator' },
+    );
+    expect(run).toHaveBeenCalledWith('calculator', { expression: '6*7' });
+    expect(runResult).toEqual({ result: 42 });
+
+    const omagResult = await runtime.commands.execute(
+      'core.run',
+      { target: 'omag', request: { idea: 'a neon city' } },
+      { role: 'operator' },
+    );
+    expect(omagRun).toHaveBeenCalledWith({ idea: 'a neon city' });
+    expect(omagResult).toEqual({ status: 'completed' });
+
+    // Health check "core" reflects adapter health.
+    const healthReport = await runtime.healthReport();
+    expect(healthReport.checks.core.ok).toBe(true);
+
+    // core.run with missing adapter fails clearly.
+    await expect(
+      runtime.commands.execute('core.run', { target: 'omag', request: {} }, { role: 'user' }),
+    ).rejects.toThrow(/requires level/);
+
+    // stop() closes the loaded ports.
+    await runtime.stop();
+    expect(close).toHaveBeenCalledTimes(1);
+  });
+
+  it('core.run rejects unknown targets and missing capability', async () => {
+    const run = vi.fn();
+    const runtime = UltraRuntime.create({
+      root: tmpRoot(),
+      projectRoot: tmpRoot(),
+      corePorts: () => ({
+        kind: 'core',
+        name: 'core',
+        tools: { kind: 'tools', name: 'tools', capabilities: ['calculator'], descriptions: {}, run, ping: async () => true, close: async () => {} },
+        isHealthy: async () => true,
+        close: async () => {},
+      }),
+    });
+    await runtime.start();
+    await expect(runtime.commands.execute('core.run', { target: 'bogus' }, { role: 'operator' })).rejects.toThrow(/unknown target/);
+    await expect(runtime.commands.execute('core.run', { target: 'tools' }, { role: 'operator' })).rejects.toThrow(/requires args.capability/);
+    await runtime.stop();
+  });
+
+  it('core.close releases ports; next core.* reloads via factory', async () => {
+    const close = vi.fn().mockResolvedValue(undefined);
+    const factory = vi.fn().mockResolvedValue({
+      kind: 'core',
+      name: 'core',
+      isHealthy: async () => true,
+      close,
+    });
+    const runtime = UltraRuntime.create({ root: tmpRoot(), projectRoot: tmpRoot(), corePorts: factory });
+    await runtime.start();
+    await runtime.commands.execute('core.health', {}, { role: 'user' });
+    expect(factory).toHaveBeenCalledTimes(1);
+    const closed = await runtime.commands.execute('core.close', {}, { role: 'operator' });
+    expect(closed).toEqual({ closed: true });
+    expect(close).toHaveBeenCalledTimes(1);
+    await runtime.commands.execute('core.health', {}, { role: 'user' });
+    expect(factory).toHaveBeenCalledTimes(2); // reloaded
+    await runtime.stop();
   });
 });

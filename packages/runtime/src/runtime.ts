@@ -20,6 +20,7 @@ import { MemoryManager, type MemoryPersistence } from './memory';
 import { ContextSelector } from './context';
 import { LocalApiServer } from './api/server';
 import { runtimeApiHandlers } from './api/runtime-handlers';
+import type { CorePorts } from './adapters/ports';
 
 export interface RuntimeOptions {
   /** Root of the .ultraia/ directory. Default <project>/../.ultraia (project-adjacent). */
@@ -33,6 +34,13 @@ export interface RuntimeOptions {
   /** Memory persistence (default: JSON file under .ultraia/memory/). */
   memoryPersistence?: MemoryPersistence;
   loggerSinks?: UltraLoggerOptions['sinks'];
+  /**
+   * Factory (lazy) de los adapters a `@ultraia/core` (Fase C). LOAD ONLY WHEN NEEDED:
+   * core NO se instancia al boot; la primera invocación de un comando `core.*` o del
+   * health check `core` la llama y cachea el resultado. Sin factory, los comandos
+   * `core.*` responden `{ configured: false }` y el check de salud queda "not configured".
+   */
+  corePorts?: () => Promise<CorePorts> | CorePorts;
 }
 
 export interface RuntimeModule {
@@ -74,6 +82,8 @@ export class UltraRuntime {
   private readonly options: RuntimeOptions;
   private api?: LocalApiServer;
   private apiTokenValue?: string;
+  private corePortsValue?: CorePorts;
+  private corePortsLoadError?: string;
 
   private constructor(options: RuntimeOptions) {
     this.options = options;
@@ -147,6 +157,11 @@ export class UltraRuntime {
     await this.stopLocalApi();
     this.resources.stop();
     await this.modules.stopAll();
+    if (this.corePortsValue) {
+      await this.corePortsValue.close();
+      this.corePortsValue = undefined;
+      this.corePortsLoadError = undefined;
+    }
     const report = this.memory.generateReport();
     this.memory.store({
       type: 'PROJECT',
@@ -224,6 +239,35 @@ export class UltraRuntime {
     this.logger.info('SYSTEM', 'local API stopped', { url });
   }
 
+  /**
+   * Instancia (una sola vez) los adapters a `@ultraia/core` vía la factory lazy.
+   * Returns undefined si no hay factory configurada. Nunca lanza: el error de carga
+   * se cachea y se reporta en `core.loadError` (el runtime sigue vivo — fail-soft).
+   */
+  async core(): Promise<CorePorts | undefined> {
+    if (!this.options.corePorts) return undefined;
+    if (this.corePortsValue) return this.corePortsValue;
+    if (this.corePortsLoadError) throw new Error(this.corePortsLoadError);
+    try {
+      this.corePortsValue = await this.options.corePorts();
+      const ports = this.corePortsValue;
+      const adapters = (['db', 'ai', 'tools', 'omag'] as const).filter((k) => Boolean(ports[k]));
+      this.events.emit('core.loaded', { adapters });
+      this.logger.info('SYSTEM', 'core adapters loaded', { adapters });
+      return this.corePortsValue;
+    } catch (err) {
+      this.corePortsLoadError = `core adapters failed to load: ${err instanceof Error ? err.message : String(err)}`;
+      this.events.emit('core.error', { error: this.corePortsLoadError });
+      this.logger.error('SYSTEM', this.corePortsLoadError);
+      throw new Error(this.corePortsLoadError);
+    }
+  }
+
+  /** CorePorts instanciados (undefined si aún no se pidieron o no hay factory). */
+  get loadedCore(): CorePorts | undefined {
+    return this.corePortsValue;
+  }
+
   /** Discovers modules from the host: metadata only, nothing loaded. */
   registerModules(modules: RuntimeModule[]): void {
     for (const module of modules) {
@@ -268,6 +312,17 @@ export class UltraRuntime {
       capabilities: ['api.http', 'api.events', 'api.health'],
       status: 'available',
       weight: 'LIGHT',
+      lazy: true,
+    });
+    this.registry.register({
+      id: 'system-core',
+      name: 'Core Integration',
+      version: this.version,
+      description: 'Adapters to @ultraia/core (db, ai, tools, omag) — LOAD ONLY WHEN NEEDED.',
+      category: 'ai',
+      capabilities: ['core.health', 'core.ports', 'core.tools', 'core.omag', 'core.run', 'core.close'],
+      status: 'available',
+      weight: 'MEDIUM',
       lazy: true,
     });
   }
@@ -364,6 +419,83 @@ export class UltraRuntime {
       description: 'Local API base URL (or null when not started)',
       handler: () => this.localApiUrl ?? null,
     });
+    this.commands.register({
+      id: 'core.health',
+      level: 'safe',
+      description: 'Core adapters health (lazy; not configured → configured:false)',
+      handler: async () => {
+        const ports = await this.core();
+        if (!ports) return { configured: false };
+        return { configured: true, healthy: await ports.isHealthy() };
+      },
+    });
+    this.commands.register({
+      id: 'core.ports',
+      level: 'safe',
+      description: 'Configured core adapters (db/ai/tools/omag)',
+      handler: async () => {
+        const ports = await this.core();
+        if (!ports) return { configured: false, adapters: [] };
+        return {
+          configured: true,
+          adapters: (['db', 'ai', 'tools', 'omag'] as const).filter((k) => Boolean(ports[k])),
+        };
+      },
+    });
+    this.commands.register({
+      id: 'core.tools',
+      level: 'safe',
+      description: 'Agent tool capabilities from core (lazy)',
+      handler: async () => {
+        const ports = await this.core();
+        if (!ports?.tools) return { configured: false, capabilities: [] };
+        return { configured: true, capabilities: [...ports.tools.capabilities] };
+      },
+    });
+    this.commands.register({
+      id: 'core.omag',
+      level: 'safe',
+      description: 'OMAG adapter presence (lazy)',
+      handler: async () => {
+        const ports = await this.core();
+        return { configured: Boolean(ports?.omag) };
+      },
+    });
+    this.commands.register({
+      id: 'core.run',
+      level: 'restricted',
+      description: 'Run a core adapter (target=tools|omag)',
+      handler: async (args: Record<string, unknown>) => {
+        const ports = await this.core();
+        if (!ports) throw new Error('core.run: no core adapters configured');
+        const target = args.target;
+        if (target === 'tools') {
+          if (!ports.tools) throw new Error('core.run: tools adapter not configured');
+          if (typeof args.capability !== 'string' || !args.capability) {
+            throw new Error('core.run: tools requires args.capability');
+          }
+          return ports.tools.run(args.capability, (args.input ?? {}) as Record<string, unknown>);
+        }
+        if (target === 'omag') {
+          if (!ports.omag) throw new Error('core.run: omag adapter not configured');
+          return ports.omag.run((args.request ?? {}) as never);
+        }
+        throw new Error('core.run: unknown target (expected "tools" | "omag")');
+      },
+    });
+    this.commands.register({
+      id: 'core.close',
+      level: 'restricted',
+      description: 'Close core adapters (released; next core.* reloads via factory)',
+      handler: async () => {
+        if (this.corePortsValue) {
+          await this.corePortsValue.close();
+          this.corePortsValue = undefined;
+          this.corePortsLoadError = undefined;
+        }
+        return { closed: true };
+      },
+    });
   }
 
   private registerSystemHealth(): void {
@@ -395,6 +527,17 @@ export class UltraRuntime {
         // Informational: resource pressure is surfaced via resource.* events,
         // not as a health failure (RAM can be high on dev machines).
         return { ok: true, detail: `level=${report.level}` };
+      },
+    });
+    this.health.register({
+      name: 'core',
+      critical: false,
+      run: async () => {
+        if (!this.options.corePorts) return { ok: true, detail: 'not configured' };
+        const ports = await this.core();
+        if (!ports) return { ok: true, detail: 'not configured' };
+        const ok = await ports.isHealthy();
+        return { ok, detail: ok ? 'adapters healthy' : 'one or more adapters unhealthy' };
       },
     });
   }
