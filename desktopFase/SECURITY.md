@@ -3,8 +3,8 @@
 ## Postura
 
 LOCAL-FIRST y SECURE por diseño: el runtime nunca expone el SO directamente al frontend;
-toda interacción pasa por el `CommandExecutor` (allowlist) o por la futura Local API
-(127.0.0.1 + token). El shell (Tauri/Electron) solo habla HTTP + token.
+toda interacción pasa por el `CommandExecutor` (allowlist) o por la Local API (implementada,
+127.0.0.1 + token). El shell (Tauri/Electron) solo habla HTTP + token.
 
 ## Comandos: allowlist + niveles + roles
 
@@ -27,11 +27,11 @@ toda interacción pasa por el `CommandExecutor` (allowlist) o por la futura Loca
 - `.env` se carga con `loadEnvFile()` que **no sobrescribe** valores ya presentes en
   `process.env`.
 
-## Red (Fase B — Local API)
+## Red (Fase B — Local API, implementada 15/08/2026)
 
 - Binding `127.0.0.1` por defecto (nunca 0.0.0.0).
-- Token de sesión + origin validation + rate limit (pendiente de implementar en Fase B;
-  contrato REST en `RUNTIME.md`).
+- Token de sesión (timing-safe) + origin/host validation + rate limit + body cap —
+  implementado en `packages/runtime/src/api/`; detalle en `docs/IPC.md` y `docs/SECURITY.md` §7.
 
 ## Aislamiento y resiliencia
 
@@ -58,5 +58,6 @@ toda interacción pasa por el `CommandExecutor` (allowlist) o por la futura Loca
 ## Verificación
 
 - Tests de seguridad: `command-executor.test.ts` (allowlist, roles, shell-gate),
-  `config.test.ts` (masking), `health.test.ts` (aislamiento), `recovery.test.ts`.
-- 132/132 tests runtime.
+  `config.test.ts` (masking), `health.test.ts` (aislamiento), `recovery.test.ts`,
+  `api/server.test.ts` (auth/origin/rate limit/body), `api/runtime-api.test.ts` (roles + secrets).
+- 152/152 tests runtime (132 Fase A + 20 Fase B).

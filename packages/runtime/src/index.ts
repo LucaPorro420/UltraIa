@@ -13,3 +13,6 @@ export * from './memory';
 export * from './context';
 export * from './runtime';
 export * from './installer';
+export * from './api/ws';
+export * from './api/server';
+export * from './api/runtime-handlers';

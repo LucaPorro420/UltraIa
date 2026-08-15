@@ -1,4 +1,5 @@
 import * as path from 'node:path';
+import { randomBytes } from 'node:crypto';
 import type { RuntimeStatus, UltraModule } from './types';
 import { UltraPaths, UltraConfig, loadEnvFile } from './config';
 import { UltraLogger, MemoryLogSink, type UltraLoggerOptions } from './logger';
@@ -17,6 +18,8 @@ import { HealthManager } from './health';
 import { Recovery } from './recovery';
 import { MemoryManager, type MemoryPersistence } from './memory';
 import { ContextSelector } from './context';
+import { LocalApiServer } from './api/server';
+import { runtimeApiHandlers } from './api/runtime-handlers';
 
 export interface RuntimeOptions {
   /** Root of the .ultraia/ directory. Default <project>/../.ultraia (project-adjacent). */
@@ -69,6 +72,8 @@ export class UltraRuntime {
   private startedAt?: string;
   private readonly projectRoot: string;
   private readonly options: RuntimeOptions;
+  private api?: LocalApiServer;
+  private apiTokenValue?: string;
 
   private constructor(options: RuntimeOptions) {
     this.options = options;
@@ -139,6 +144,7 @@ export class UltraRuntime {
     if (this.state === 'stopped') return;
     this.state = 'stopping';
     this.events.emit('runtime.stopping');
+    await this.stopLocalApi();
     this.resources.stop();
     await this.modules.stopAll();
     const report = this.memory.generateReport();
@@ -176,6 +182,48 @@ export class UltraRuntime {
     return this.health.runAll();
   }
 
+  /** Session token for the Local API (host-only; never exposed over the wire). */
+  get apiToken(): string | undefined {
+    return this.apiTokenValue;
+  }
+
+  /** Local API URL once started, undefined otherwise. */
+  get localApiUrl(): string | undefined {
+    return this.api?.url();
+  }
+
+  /**
+   * Starts the loopback-only HTTP/WS API (Fase B). Returns the base URL
+   * (http://127.0.0.1:<port>). Idempotent: a second call returns the running
+   * URL. The token is generated unless one is provided by the host.
+   */
+  async startLocalApi(options: { port?: number; token?: string } = {}): Promise<string> {
+    if (this.api) return this.api.url();
+    this.apiTokenValue = options.token ?? randomBytes(32).toString('hex');
+    this.api = new LocalApiServer({
+      token: this.apiTokenValue,
+      handlers: runtimeApiHandlers(this),
+      host: '127.0.0.1',
+      port: options.port ?? 0,
+    });
+    await this.api.listen();
+    this.events.emit('api.started', { url: this.api.url() });
+    this.logger.info('SYSTEM', 'local API started', { url: this.api.url() });
+    return this.api.url();
+  }
+
+  /** Stops the Local API and drops the session token. Idempotent. */
+  async stopLocalApi(): Promise<void> {
+    if (!this.api) return;
+    const api = this.api;
+    const url = api.url();
+    this.api = undefined;
+    this.apiTokenValue = undefined;
+    await api.close();
+    this.events.emit('api.stopped', { url });
+    this.logger.info('SYSTEM', 'local API stopped', { url });
+  }
+
   /** Discovers modules from the host: metadata only, nothing loaded. */
   registerModules(modules: RuntimeModule[]): void {
     for (const module of modules) {
@@ -210,6 +258,17 @@ export class UltraRuntime {
       status: 'available',
       weight: 'LIGHT',
       lazy: false,
+    });
+    this.registry.register({
+      id: 'system-api',
+      name: 'Local API',
+      version: this.version,
+      description: 'Loopback HTTP/WS API (token-protected) for the Shell.',
+      category: 'system',
+      capabilities: ['api.http', 'api.events', 'api.health'],
+      status: 'available',
+      weight: 'LIGHT',
+      lazy: true,
     });
   }
 
@@ -280,6 +339,30 @@ export class UltraRuntime {
         if (typeof args.id !== 'string') throw new Error('task.cancel requires args.id');
         return this.tasks.cancel(args.id);
       },
+    });
+    this.commands.register({
+      id: 'api.start',
+      level: 'restricted',
+      description: 'Start the local HTTP/WS API (loopback, token-protected)',
+      handler: async (args: Record<string, unknown>) => {
+        const url = await this.startLocalApi({ port: typeof args.port === 'number' ? args.port : 0 });
+        return { url, token: this.apiTokenValue };
+      },
+    });
+    this.commands.register({
+      id: 'api.stop',
+      level: 'restricted',
+      description: 'Stop the local HTTP/WS API',
+      handler: async () => {
+        await this.stopLocalApi();
+        return { stopped: true };
+      },
+    });
+    this.commands.register({
+      id: 'api.url',
+      level: 'safe',
+      description: 'Local API base URL (or null when not started)',
+      handler: () => this.localApiUrl ?? null,
     });
   }
 

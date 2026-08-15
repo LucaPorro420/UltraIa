@@ -19,7 +19,7 @@ describe('UltraRuntime', () => {
     expect(status.modules.some((m) => m.id === 'memory')).toBe(true);
     const health = await runtime.healthReport();
     expect(health.status).toBe('healthy');
-    expect(runtime.registry.count()).toBe(2);
+    expect(runtime.registry.count()).toBe(3);
     await runtime.stop();
     expect(runtime.stateName).toBe('stopped');
   });

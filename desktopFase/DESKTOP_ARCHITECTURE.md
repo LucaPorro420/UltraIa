@@ -1,8 +1,11 @@
 # UltraIa Desktop — Arquitectura
 
-> Estado: Fase A (runtime) implementada y verificada (132/132 tests runtime + repo verde).
+> Estado: Fase A (runtime) + Fase B (Local API) implementadas y verificadas (152/152 tests
+> runtime + repo verde).
 > Ver también: `ARCHITECTURE.md` (reporte de decisión), `RUNTIME.md`, `MODULE_SYSTEM.md`,
-> `MEMORY_SYSTEM.md`, `INSTALLER.md`, `SECURITY.md`.
+> `MEMORY_SYSTEM.md`, `INSTALLER.md`, `SECURITY.md` + versiones paralelas del autor en
+> `docs/` (incl. `docs/IPC.md` — contrato de la Fase B).
+> Historial de movimientos y totales: `docs/HISTORIAL-PROYECTO.md`.
 
 ## Principios operativos
 
@@ -77,13 +80,13 @@ restart() → stop() + start() (idempotente)
 | Fase | Contenido | Estado |
 |---|---|---|
 | A | `packages/runtime` (infraestructura pura TS + tests) | ✅ Implementada (132/132) |
-| B | Local API HTTP/WS en 127.0.0.1 + token (contrato REST en `RUNTIME.md`) | Pendiente |
+| B | Local API HTTP/WS en 127.0.0.1 + token (contrato en `docs/IPC.md`) | ✅ Implementada (15/08/2026, 152/152) |
 | C | Adaptadores a `@ultraia/core` (Db, AiGateway, tools, omag) | Pendiente |
 | D | Shell Desktop (Tauri 2 o Electron) consumiendo solo la Local API | Pendiente |
 | E | Instalador real (NSIS/MSI) + actualizador + firma | Pendiente |
 
 ## Verificación
 
-- Runtime: `npm run typecheck -w @ultraia/runtime` + `npm run test -w @ultraia/runtime` (132 tests).
+- Runtime: `npm run typecheck -w @ultraia/runtime` + `npm run test -w @ultraia/runtime` (152 tests: 132 Fase A + 20 Fase B).
 - Repo completo: `npm run typecheck && npm run lint && npm run test && npm run build`.
 - Si vitest da fallos raros tras editar: limpiar `node_modules/.vite` (caché de transform stale).

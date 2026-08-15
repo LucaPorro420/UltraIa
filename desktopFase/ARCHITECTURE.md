@@ -68,11 +68,11 @@ El smoke E2E (13/13) y el pipeline Python ar-SA quedan documentados como verdes 
 
 | Área | Estado real |
 |---|---|
-| `desktopFase/` | **Docs de la fase** (DESKTOP_ARCHITECTURE/RUNTIME/MODULE_SYSTEM/MEMORY_SYSTEM/INSTALLER/SECURITY) |
+| `desktopFase/` | **Docs de la fase** (DESKTOP_ARCHITECTURE/RUNTIME/MODULE_SYSTEM/MEMORY_SYSTEM/INSTALLER/SECURITY/IPC) |
 | Infraestructura runtime (registry/event bus/task/resource) | **Implementada** en `packages/runtime` (Fase A, 132/132 tests) |
 | Instalador Desktop / actualizador / backup | **Implementado** en `packages/runtime/src/installer.ts` (Fase E pendiente: firma/canal) |
 | Memoria de sesión/proyecto estructurada (.ultraia/) | **Implementada** (MemoryManager + ContextSelector) |
-| Local API (HTTP localhost) | **No existe** — Fase B |
+| Local API (HTTP/WS localhost + token + rate limit) | **Implementada** (Fase B, 15/08/2026): `packages/runtime/src/api/` — ver `docs/IPC.md` |
 | `lib/shared/http.ts` | Copia de referencia comentada (el real vive en studio-client) |
 | `shared/domain.ts` | Copia de referencia (no usada en runtime) |
 | TTS edge-tts, música keyless, video storyboard | Funcionan keyless; el Gen-Engine real requiere claves/ffmpeg (guía en AGENTS.md) |
@@ -151,11 +151,13 @@ en `DESKTOP.md` de la fase 2 — no se implementa en esta fase.
 
 ## 10. Estrategia de migración
 
-1. **Fase A (esta)** — `packages/runtime` (`@ultraia/runtime`): infraestructura pura TS
+1. **Fase A (hecha)** — `packages/runtime` (`@ultraia/runtime`): infraestructura pura TS
    (event bus, tasks, modules, resources, commands, health, memory, config, installer,
    runtime) + tests. No toca `apps/web` ni `packages/core` (adapter-based).
-2. **Fase B** — Local API (Fastify/undici HTTP en 127.0.0.1 + token) sobre el runtime;
-   contrato REST documentado en `RUNTIME.md`; el web existente puede consumirlo sin cambios.
+2. **Fase B (hecha, 15/08/2026)** — Local API HTTP/WS en `127.0.0.1` con Node builtins
+   (`packages/runtime/src/api/`): token de sesión timing-safe, origin/host loopback, rate
+   limit, body cap, eventos WS, módulo `system-api` + comandos `api.*`. Contrato en
+   `docs/IPC.md`; 20 tests nuevos (runtime 152/152).
 3. **Fase C** — Adaptadores a `@ultraia/core` (Db, AiGateway, tools, omag) bajo
    `runtime/adapters` para ejecutar agentes/OMAG fuera de Next.
 4. **Fase D** — Shell Desktop (Tauri o Electron según decisión §8) consumiendo solo la Local API.
