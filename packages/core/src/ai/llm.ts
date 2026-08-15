@@ -16,6 +16,7 @@ import { runSkill } from '../tools/skills';
 import { generateParseltongueVariants, computeAutoTuneParams, ultraplinian, godmodeClassic } from '../tools/g0dm0d3';
 import { generateTopicBriefs } from '../tools/topics';
 import { present } from '../tools/present';
+import { createDefaultPublishers, publishToAll, buildBilingualMetadata } from '../tools/publish';
 import { audioLibrary } from '../omag/audiolibrary';
 import { synthSound as synth } from '../omag/sound';
 
@@ -397,6 +398,31 @@ export function chatStream(opts: {
       }),
       execute: async ({ tema, contenido, media, canales, briefId, marca }) =>
         present({ tema, contenido, media, canales, briefId, marca }),
+    });
+  }
+  if (opts.tools?.includes('publish')) {
+    tools.publish_submit = tool({
+      description:
+        'Publish a finished MP4 (9:16, <60s) to the configured channels (AutoPub F4): YouTube Shorts and TikTok, with bilingual es/ar metadata. Validates tokens first — fails soft with a clear reason when a platform is not configured. Returns one result per platform (ok/id/url or error).',
+      parameters: z.object({
+        videoPath: z.string().min(1).max(500),
+        title: z.string().min(1).max(200),
+        plainScript: z.string().max(4000).optional(),
+        privacyStatus: z.enum(['public', 'private', 'unlisted']).optional(),
+        toYoutube: z.boolean().optional(),
+        toTiktok: z.boolean().optional(),
+      }),
+      execute: async ({ videoPath, title, plainScript, privacyStatus, toYoutube, toTiktok }) => {
+        const metadata = { ...buildBilingualMetadata(title, plainScript), ...(privacyStatus ? { privacyStatus } : {}) };
+        const adapters = createDefaultPublishers();
+        const selected = adapters.filter((a) => (a.platform === 'youtube' ? toYoutube !== false : toTiktok !== false));
+        const results = await publishToAll(selected, { videoPath, metadata });
+        return {
+          results,
+          ok: results.some((r) => r.ok),
+          summary: results.map((r) => (r.ok ? `${r.platform}: ${r.url || r.id}` : `${r.platform}: ${r.error}`)).join(' | ') || 'no channels selected',
+        };
+      },
     });
   }
   return streamText({

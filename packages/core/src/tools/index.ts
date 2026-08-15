@@ -12,6 +12,7 @@ export * from './gen-engine';
 export * from './g0dm0d3';
 export * from './topics';
 export * from './present';
+export * from './publish';
 
 import * as web from './web';
 import * as image from './image';
@@ -24,8 +25,9 @@ import { runSkill } from './skills';
 import * as g0dm0d3 from './g0dm0d3';
 import { topics } from './topics';
 import { presentTools } from './present';
+import { publish } from './publish';
 
-export const tools = { web, image, video, music, stitch, reach, skills: { runSkill }, content, g0dm0d3, topics, present: presentTools };
+export const tools = { web, image, video, music, stitch, reach, skills: { runSkill }, content, g0dm0d3, topics, present: presentTools, publish };
 
 export const TOOL_DESCRIPTIONS: Record<string, string> = {
   calculator: 'Safely evaluate a mathematical expression (math only).',
@@ -45,6 +47,8 @@ export const TOOL_DESCRIPTIONS: Record<string, string> = {
     'Content idea engine (AutoPub F1): generates prioritized topic briefs from RSS feeds and DuckDuckGo trend searches — deduplicated, scored by novelty × channel relevance, with per-channel format/tone/angle. Use to feed the content factory with recurring, ready-to-write briefs.',
   present:
     'Presentation builder (AutoPub F3): builds a PublicationPackage from raw content — per-channel captions + hashtags (YouTube/TikTok/Instagram/blog), visual specs (9:16/1:1/16:9), SRT subtitles, branding kit and suggested schedule. Use to adapt one piece of content into ready-to-publish packages per platform.',
+  publish:
+    'Distribution adapters (AutoPub F4): publish a final MP4 (9:16, <60s) to YouTube Shorts (resumable upload v3) and/or TikTok (Direct Post 2 steps) with bilingual es/ar metadata. Validates tokens first; fails soft with a clear reason when a platform is not configured. Use to ship finished video content to the channels.',
 };
 
 export type Capability =
@@ -59,4 +63,5 @@ export type Capability =
   | 'content'
   | 'g0dm0d3'
   | 'topics'
-  | 'present';
+  | 'present'
+  | 'publish';
