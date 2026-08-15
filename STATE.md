@@ -21,7 +21,8 @@ Last run: 15/08/2026 — Iteración 9 (AutoPub F4 paso 1: PublisherAdapter + You
 | 12 | **AutoPub F2**: enrutamiento brief→Redactor/Guionista vía Orquestador + manifest JSON | packages/core | FULL | ✅ DONE 2026-08-15 (tools/enrutador.ts: redactar/guionizar/enrutarBrief/generarContenido + manifest idempotente + tool contenido_generar; repo 486/486) |
 | 13 | **AutoPub F5**: KPIs + media_score pre-pub + feedback → mejora de agentes | packages/core + scripts | FULL | ✅ DONE 2026-08-15 (tools/metrics.ts computeChannelKpis + tools/media-score.ts port + mediaScore en create + registrarFeedback/publicationSignals + endpoints metrics/feedback + tool publication_metrics; repo 508/508) |
 | 14 | **AutoPub F1 (tarea 4)**: cola de briefs persistente (Prisma) — modelo TopicBrief + dominio + tool | packages/core | FULL | ✅ DONE 2026-08-15 (modelo TopicBrief + migración add_topic_briefs + dominio briefs.ts 6 tests + tool topics_queue; repo 514/514) |
-| 15 | **AutoPub F2 (tarea 2)**: multi-idioma es/ar (textos) + TTS edge-tts para narración | packages/core | FULL | pendiente — SIGUIENTE |
+| 15 | **AutoPub F2 (tarea 2)**: multi-idioma es/ar (textos) + TTS edge-tts para narración | packages/core | FULL | ✅ DONE 2026-08-15 (idioma es/ar en redactar/guionizar/generarContenido + tts=true → narracion.mp3 keyless con degradación; 22 tests enrutador; repo 520/520) |
+| 16 | **AutoPub F2 (tarea 3)**: OMAG long-form 60s+ (Project/Act/Sequence/Scene/Shot + audio) | packages/core | FULL | pendiente — SIGUIENTE |
 | 16 | **AutoPub F2 (tarea 3)**: OMAG long-form (Project→Shot) para piezas 60s+ | packages/core | FULL | pendiente |
 | 17 | **AutoPub F4 (tarea 5)**: canales siguientes — Meta (IG Reels/Threads), X API v2, LinkedIn | packages/core | FULL | pendiente — requiere app review/decisiones humanas |
 | 18 | Desktop Fase D paso 3: ventana WebView2 real del launcher | launcher | FULL | pendiente |
@@ -43,11 +44,11 @@ Last run: 15/08/2026 — Iteración 9 (AutoPub F4 paso 1: PublisherAdapter + You
 - **Typecheck transitorio (1 vez)**: primer run de una triage falló "command failed" en
   packages/runtime SIN errores TS; re-run EXIT=0. Posible lock/transitorio o caché stale
   `node_modules/.vite` — vigilar si se repite antes de diagnosticar.
-- **Runtime tests 192/192** (Fase A 132 + Fase B 20 + Fase C 34 + wiring system-core 5 + spike launcher 1). Total repo: 514/514 PASS
-  (core 322 + runtime 192).
+- **Runtime tests 192/192** (Fase A 132 + Fase B 20 + Fase C 34 + wiring system-core 5 + spike launcher 1). Total repo: 520/520 PASS
+  (core 328 + runtime 192).
 - `npx @cobusgreyling/loop doctor` y `loop status` — validar salida del CLI contra LOOP.md (v0.1.2).
 - `.vscode/settings.json` fix Pylance (local-only, gitignored) — no commitear.
-- Verificación FULL en cada commit: typecheck → lint → test → build (514/514 esperado).
+- Verificación FULL en cada commit: typecheck → lint → test → build (520/520 esperado).
 - Fase D: spike del launcher validado (3196ce4) — `desktopFase/launcher/launcher.mjs` (Node sin deps; junctions @ai-sdk y @ultraia/core en dist/; node:http para --check). Pendiente: ventana WebView2 real (paso 3). Medir RAM real del MVP WebView2 antes de comprometer cifras en docs.
 
 ## Recent Noise (ignored this run)

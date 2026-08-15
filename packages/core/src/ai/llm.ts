@@ -514,26 +514,30 @@ export function chatStream(opts: {
   if (opts.tools?.includes('contenido')) {
     tools.contenido_generar = tool({
       description:
-        'Content router (AutoPub F2): converts a topic brief into ready-to-use content — a written post (Redactor) for 16:9/1:1 formats or a video script + storyboard (Guionista) for 9:16 — and writes a manifest.json to disk (idempotent). Use to move from idea to content package.',
+        'Content router (AutoPub F2): converts a topic brief into ready-to-use content — a written post (Redactor) for 16:9/1:1 formats or a video script + storyboard (Guionista) for 9:16 — in Spanish (es) or Arabic (ar), optionally generating the MP3 narration via edge-tts (tts=true, keyless) for scripts. Writes a manifest.json to disk (idempotent). Use to move from idea to content package.',
       parameters: z.object({
         briefJson: z.string().min(1).max(2000),
         dryRun: z.boolean().optional(),
         tipo: z.enum(['texto', 'guion']).optional(),
+        idioma: z.enum(['es', 'ar']).optional(),
+        tts: z.boolean().optional(),
       }),
-      execute: async ({ briefJson, dryRun, tipo }) => {
+      execute: async ({ briefJson, dryRun, tipo, idioma, tts }) => {
         const brief = JSON.parse(briefJson) as import('../tools/topics').TopicBrief;
-        const res = await generarContenido(brief, { dryRun: dryRun ?? false, tipo });
+        const res = await generarContenido(brief, { dryRun: dryRun ?? false, tipo, idioma: idioma ?? 'es', tts: tts ?? false });
         const paquete = res.paquete;
         return {
           briefId: paquete.briefId,
           tipo: paquete.tipo,
+          idioma: paquete.idioma,
           manifestPath: res.manifestPath,
+          audioPath: paquete.audioPath ?? null,
           titulo: paquete.tipo === 'texto' ? paquete.contenido?.titulo : paquete.guion?.titulo,
           resumen:
             paquete.tipo === 'texto'
               ? paquete.contenido?.intro.slice(0, 200)
               : `${paquete.guion?.hook} (${paquete.guion?.duracionSeg}s, ${paquete.guion?.escenas.length} escenas)`,
-        } satisfies { briefId: string; tipo: 'texto' | 'guion'; manifestPath: string | null; titulo?: string; resumen?: string };
+        } satisfies { briefId: string; tipo: 'texto' | 'guion'; idioma: 'es' | 'ar'; manifestPath: string | null; audioPath: string | null; titulo?: string; resumen?: string };
       },
     });
   }

@@ -293,8 +293,14 @@ Verdad verificada 9/9 PASS en `learning/truth/truth_tecno_recursos.json` (fuente
   fuentes), `guionizar(brief)` (guion+storyboard determinista: hook, 5-7 escenas con cámara
   del vocabulario MOTIONS, narración, 45-60s, estilo por tono), `enrutarBrief` (9:16→guion,
   16:9/1:1→texto), `generarContenido(brief,{dir,dryRun,tipo})` → ContentPackage +
-  `manifest.json` atómico/idempotente (.ultraia/content/<briefId>/). 16 tests. Pendiente F2:
-  multi-idioma es/ar + TTS y OMAG long-form 60s+.
+  `manifest.json` atómico/idempotente (.ultraia/content/<briefId>/). 16 tests.
+- **F2 Contenido tarea 2 (15/08/2026, iteración 15)**: multi-idioma **es/ar** —
+  `idioma?: 'es'|'ar'` en `redactar`/`guionizar`/`generarContenido` (plantillas bilingües
+  deterministas: CTA_BY_CANAL, CONECTORES, CUERPO_POR_IDIOMA, PLANTILLAS_GUION,
+  HOOK_POR_IDIOMA — patrón RF-12) + **TTS edge-tts keyless**: `tts:true` en guiones →
+  `edgeTtsAudio` (omag/tts.ts) → `narracion.mp3` (`audioPath`), degradación elegante a
+  `null`. Tool `contenido_generar` gana `idioma` + `tts`. 22 tests (6 nuevos). Pendiente
+  F2: tarea 3 (OMAG long-form 60s+).
 - **F5 Métricas y mejora (15/08/2026, iteración 13)**: KPIs por canal (`tools/metrics.ts`
   `computeChannelKpis`: publicadas/fallidas/pendientes, tasaExito, scorePromedio) +
   endpoint `GET /api/publications/metrics` (ADMIN); media_score pre-pub (`tools/media-score.ts`

@@ -175,6 +175,18 @@ alternativas con pros/cons. Orden sugerido de ejecución (ajustable por el usuar
 > tool `contenido_generar` en llm.ts (briefJson + dryRun/tipo override). 16 tests.
 > Keyless-first: determinista sin LLM; LLM opcional en fase futura sin romper el contrato
 > del manifest. Pendiente F2: tareas 2 (multi-idioma es/ar + TTS) y 3 (OMAG long-form 60s+).
+>
+> **F2 tarea 2 implementada 15/08/2026 (iteración 15)**: multi-idioma **es/ar** —
+> `idioma?: 'es'|'ar'` (default es) en `redactar`/`guionizar`/`generarContenido` +
+> `ContentPackage.idioma`. Plantillas bilingües deterministas: `CTA_BY_CANAL[idioma]`
+> (4 canales × es/ar), `CONECTORES` (intro/cierre), `CUERPO_POR_IDIOMA`, `PLANTILLAS_GUION`
+> (7 escenas), `HOOK_POR_IDIOMA` — patrón RF-12 (metadatos bilingües del pipeline Python).
+> **TTS edge-tts keyless**: `generarContenido(...,{tts:true})` en guiones llama
+> `edgeTtsAudio` (omag/tts.ts, WebSocket global Node 22+, voz por idioma vía `voiceFor`)
+> → `narracion.mp3` junto al manifest (`audioPath` en el paquete); degradación elegante:
+> engine no alcanzable → `audioPath: null` sin romper el paquete. Tool `contenido_generar`
+> gana parámetros `idioma` + `tts`. 22 tests (6 nuevos). Pendiente F2: tarea 3 (OMAG
+> long-form 60s+).
 
 ### F3 — Presentación unificada (nuevo)
 

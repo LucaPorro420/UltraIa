@@ -162,3 +162,75 @@ describe('generarContenido (manifest)', () => {
     expect(tituloDesdeBrief(brief()).length).toBeLessThanOrEqual(80);
   });
 });
+
+describe('multi-idioma es/ar (F2 tarea 2)', () => {
+  let dir: string;
+  beforeEach(async () => {
+    dir = await mkdtemp(join(tmpdir(), 'ultraia-enrutador-ar-'));
+  });
+  afterEach(async () => {
+    await rm(dir, { recursive: true, force: true });
+  });
+
+  it('redactar en árabe produce texto árabe + CTA ar + palabras clave', () => {
+    const post = redactar(brief({ canal: 'youtube_shorts' }), 'ar');
+    expect(post.cta).toContain('تابعني');
+    expect(post.intro).toMatch(/[\u0600-\u06FF]/);
+    expect(post.cuerpo.join(' ')).toMatch(/[\u0600-\u06FF]/);
+    expect(post.palabrasClave.length).toBeGreaterThan(0);
+    expect(post.titulo).toContain('RAG');
+  });
+
+  it('redactar en es mantiene el comportamiento previo', () => {
+    const post = redactar(brief(), 'es');
+    expect(post.cta).toContain('Suscríbete al blog');
+    expect(post.intro).not.toMatch(/[\u0600-\u06FF]/);
+  });
+
+  it('guionizar en árabe produce hook + escenas + narración árabes', () => {
+    const guion = guionizar(brief({ canal: 'youtube_shorts', formato: '9:16 video' }), 'ar');
+    expect(guion.hook).toMatch(/[\u0600-\u06FF]/);
+    expect(guion.narracion).toMatch(/[\u0600-\u06FF]/);
+    expect(guion.escenas.length).toBe(7);
+    for (const esc of guion.escenas) {
+      expect(esc.voz).toMatch(/[\u0600-\u06FF]/);
+      expect(MOTIONS.map(normalizeMotion)).toContain(normalizeMotion(esc.camara));
+    }
+  });
+
+  it('generarContenido con idioma ar guarda el idioma en el paquete', async () => {
+    const b = brief({ canal: 'youtube_shorts', formato: '9:16 video' });
+    const res = await generarContenido(b, { dir, idioma: 'ar', dryRun: true });
+    expect(res.paquete.idioma).toBe('ar');
+    expect(res.paquete.guion?.narracion).toMatch(/[\u0600-\u06FF]/);
+  });
+});
+
+describe('TTS edge-tts (F2 tarea 2)', () => {
+  let dir: string;
+  beforeEach(async () => {
+    dir = await mkdtemp(join(tmpdir(), 'ultraia-enrutador-tts-'));
+  });
+  afterEach(async () => {
+    await rm(dir, { recursive: true, force: true });
+  });
+
+  const ttsEngine = async (script: string, lang: string) => Buffer.from(`MP3-${lang}:${script.length}`);
+
+  it('genera narracion.mp3 en la carpeta del brief cuando tts=true', async () => {
+    const b = brief({ canal: 'youtube_shorts', formato: '9:16 video' });
+    const res = await generarContenido(b, { dir, tts: true, ttsEngine });
+    expect(res.paquete.audioPath).toContain('narracion.mp3');
+    const audio = await readFile(res.paquete.audioPath!, 'utf8');
+    expect(audio.startsWith('MP3-es:')).toBe(true);
+  });
+
+  it('tts=false o ttsEngine que devuelve null → audioPath null sin romper', async () => {
+    const b = brief({ canal: 'youtube_shorts', formato: '9:16 video' });
+    const sinTts = await generarContenido(b, { dir, tts: false });
+    expect(sinTts.paquete.audioPath).toBeUndefined();
+    const fallo = await generarContenido(b, { dir, tts: true, ttsEngine: async () => null });
+    expect(fallo.paquete.audioPath).toBeNull();
+    expect(fallo.paquete.guion?.narracion.length).toBeGreaterThan(0);
+  });
+});
