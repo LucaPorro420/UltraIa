@@ -23,7 +23,11 @@
   (`createToolsAdapter`: catálogo desde `TOOL_DESCRIPTIONS` de core + dispatcher passthrough a
   las 10 capabilities, keyless), `adapters/omag.ts` (`createOmagAdapter`: inyecta el gateway del
   ai adapter si existe; sin él plan local keyless), `adapters/core.ts` (`createCorePorts`:
-  isHealthy/close). Wiring del módulo `system-core` en UltraRuntime → Fase D.
+  isHealthy/close). **Wiring `system-core` ✅ (15/08/2026)**: `RuntimeOptions.corePorts` factory
+  lazy (LOAD-ONLY-WHEN-NEEDED, cacheada, fail-soft con `core.loadError`), módulo `system-core`
+  (metadata lazy, category ai), comandos `core.health`/`core.ports`/`core.tools`/`core.omag`/
+  `core.run` (tools|omag)/`core.close`, health check `core` (informacional), `stop()` cierra los
+  ports instanciados.
 
 ## Layout
 

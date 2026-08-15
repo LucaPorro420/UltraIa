@@ -165,10 +165,15 @@ en `DESKTOP.md` de la fase 2 — no se implementa en esta fase.
    `resolveModel` sin gastar tokens; `tools.ts` — `createToolsAdapter` catálogo + dispatcher
    passthrough a las 10 capabilities de core; `omag.ts` — `createOmagAdapter` con gateway
    inyectado si hay ai adapter, keyless sin él; `core.ts` — `createCorePorts` isHealthy/close).
-   34 tests nuevos (runtime 186/186). Core tocado SOLO para exportar `audiolibrary`/`sound`
-   por la API pública (visibilidad, sin cambio de comportamiento). Wiring del módulo
-   `system-core` en `UltraRuntime` queda para la Fase D.
-4. **Fase D** — Shell Desktop (Tauri o Electron según decisión §8) consumiendo solo la Local API.
+34 tests nuevos (runtime 186/186). Core tocado SOLO para exportar `audiolibrary`/`sound`
+    por la API pública (visibilidad, sin cambio de comportamiento). **Wiring completado
+    15/08/2026 (iteración 5)**: módulo `system-core` en `UltraRuntime` (metadata lazy + factory
+    `corePorts` LOAD-ONLY-WHEN-NEEDED en `RuntimeOptions` + comandos `core.health`/`core.ports`/
+    `core.tools`/`core.omag`/`core.run`/`core.close` + health check `core`; 5 tests, runtime
+    191/191, repo 409/409).
+4. **Fase D** — Shell Desktop (decisión §8 resuelta en `SHELL_DECISION.md`: MVP WebView2 puro
+   en Windows + Local API como único contrato IPC; upgrade path a Tauri 2) consumiendo solo la
+   Local API.
 5. **Fase E** — Instalador real (NSIS/MSI) + actualizador + firma.
 
 Cada fase mantiene verde la verificación del repo (typecheck → lint → test → build).

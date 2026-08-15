@@ -81,7 +81,7 @@ restart() → stop() + start() (idempotente)
 |---|---|---|
 | A | `packages/runtime` (infraestructura pura TS + tests) | ✅ Implementada (132/132) |
 | B | Local API HTTP/WS en 127.0.0.1 + token (contrato en `docs/IPC.md`) | ✅ Implementada (15/08/2026, 152/152) |
-| C | Adaptadores a `@ultraia/core` (Db, AiGateway, tools, omag) | ✅ Implementada (15/08/2026, 186/186): `adapters/ports.ts` + `db.ts` + `ai.ts` + `tools.ts` + `omag.ts` + `core.ts` (CorePorts completo). Wiring en UltraRuntime → Fase D |
+| C | Adaptadores a `@ultraia/core` (Db, AiGateway, tools, omag) | ✅ Implementada (15/08/2026, 186/186): `adapters/ports.ts` + `db.ts` + `ai.ts` + `tools.ts` + `omag.ts` + `core.ts` (CorePorts completo). Wiring `system-core` en UltraRuntime ✅ (15/08/2026, 191/191): factory `corePorts` lazy + comandos `core.*` + health check |
 | D | Shell Desktop — **decisión tomada** (`SHELL_DECISION.md`): MVP WebView2 puro en Windows + Local API; upgrade path Tauri 2 si Fase E lo exige | Spike pendiente (launcher Node + ventana WebView2 + comando `system.core`) |
 | E | Instalador real (NSIS/MSI) + actualizador + firma | Pendiente |
 
