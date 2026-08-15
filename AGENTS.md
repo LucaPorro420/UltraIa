@@ -57,11 +57,14 @@ Ciclo recomendado para features: `gstack-plan-ceo-review` → `gstack-plan-eng-r
   `--web`, `--hooks`, `--validate`, `--install`, `--skip-setup`, `--check-connections`).
   Preflight de puertos + health-check "UP" tras arranque; en Windows usa `npm_exec()` (npm.cmd).
   Alternativa: `./run-all.ps1` (web + webhooks + validate).
-- **start.py robustecido (14/08/2026)**: `python_exec()` prefiere `python` sobre `py` (el launcher
-  `py` apunta a Python 3.14 donde NO está fastapi/uvicorn). `http_ok()` trata 404 como "servidor
-  vivo" (el webhook server no tiene ruta `/` — antes el health-check de :8000 fallaba siempre).
-  NOTA (14/08/2026): Python 3.14.7 (py launcher) YA tiene fastapi+uvicorn instalados; `python`
-  (3.12.10) sigue siendo el intérprete por defecto preferido en `python_exec()`.
+- **start.py robustecido (14/08/2026)**: `python_exec()` ahora devuelve un **argv** (list[str]) del
+  PRIMER intérprete que importa fastapi+uvicorn (probe `python -c "import fastapi, uvicorn"`):
+  sys.executable → `python` → `py -3.12` → `py -3.11` → `py`. En esta máquina resuelve a
+  `["py", "-3.12"]` (Python 3.12.10; el `python` del shell es 3.14 y NO tiene uvicorn — la nota
+  anterior que decía lo contrario era falsa). `tool_version()` acepta str|list. Linters a correr:
+  `python -m ruff check start.py`, `python -m pylint start.py --score=no`,
+  `python -m pyright start.py`, `python -m pyflakes start.py` (0 issues, verificado 14/08/2026).
+  `http_ok()` trata 404 como "servidor vivo" (el webhook server no tiene ruta `/`).
   `wait_healthy(url, service, proc)` distingue "proceso murió antes de responder" vs "no responde".
   `terminate()` mata el ÁRBOL completo en Windows (`taskkill /T /F`) — clave para no dejar `next dev`
   huérfano (el `terminate()` antiguo solo mataba npm.cmd y dejaba 2 dev servers duplicados).
@@ -70,14 +73,11 @@ Ciclo recomendado para features: `gstack-plan-ceo-review` → `gstack-plan-eng-r
   como `three`). `check_prereqs()` valida VERSIONES (node >= 20, python >= 3.10), no solo existencia.
   Fallo en health-check o muerte de un servicio → `sys.exit(1)` (fail-hard) + shutdown limpio.
   `--deploy` corre `npm run build` + imprime guía de hosting gratuito (ver `DEPLOY.md`).
-- **start.py limpio a 0 issues de lint (14/08/2026)**: pylint, ruff, pyflakes y pyright pasan sin
-  errores (antes 32+5+1 = 38 en el IDE). Fixes: docstrings en todas las funciones, líneas < 100 chars,
-  `subprocess.run(check=...)` explícito, excepciones específicas en vez de `except Exception`,
-  `import urllib.error` (bug latente: se usaba sin importar — pyright lo detectaba), argumento
-  `_name` renombrado en `terminate`, `main()` refactorizada (extraídas `cmd_validate/cmd_install/
-  cmd_deploy/cmd_single/cmd_full/monitor_loop/spawn_and_watch`). Linters a correr: `python -m ruff
-  check start.py`, `python -m pylint start.py --score=no`, `python -m pyright start.py`,
-  `python -m pyflakes start.py`.
+- **start.py + gen-engine (14/08/2026)**: nuevo flag `--gen-engine` (solo engine) y el run full
+  (`python start.py`) levanta web :3000 + webhooks :8000 + gen-engine en **:8100** (nunca choca con
+  webhooks). `gen_engine_url()` lee `GEN_ENGINE_URL` de ROOT/.env (default `http://localhost:8100`);
+  `write_gen_engine_env()` escribe `GEN_ENGINE_URL` en apps/web/.env si falta para que
+  `instrumentation.ts` active los providers al boot. `--check-connections` incluye `report_gen_engine()`.
 - **DEPLOY.md (14/08/2026)**: guía de deploy gratuito 2026 (Vercel recomendado para Next.js, Netlify,
   Render, Cloudflare Pages, GitHub Pages) + notas del webhook server (Render/Railway/localtunnel) y
   de secrets. Generada desde el post de Instagram @sanskaar.ai (Db-xGaekmeE).
