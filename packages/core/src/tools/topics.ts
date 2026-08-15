@@ -18,7 +18,7 @@ import { parseRss, searchWeb } from './reach';
 export type TopicChannel = 'youtube_shorts' | 'tiktok' | 'instagram' | 'blog';
 
 /** Formato visual que el canal espera (F3 `present` lo consumirá). */
-export type TopicFormat = '9:16 video' | '1:1 imagen' | '16:9 articulo';
+export type TopicFormat = '9:16 video' | '1:1 imagen' | '16:9 articulo' | '16:9 video';
 
 /** Tono editorial sugerido para el brief. */
 export type TopicTone = 'informativo' | 'educativo' | 'entretenido' | 'inspirador' | 'analitico' | 'noticia';

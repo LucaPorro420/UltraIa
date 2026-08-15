@@ -9,6 +9,7 @@ import {
   escenasParaFormato,
   generarContenido,
   guionizar,
+  guionLargo,
   redactar,
   tituloDesdeBrief,
   type ContentPackage,
@@ -232,5 +233,89 @@ describe('TTS edge-tts (F2 tarea 2)', () => {
     const fallo = await generarContenido(b, { dir, tts: true, ttsEngine: async () => null });
     expect(fallo.paquete.audioPath).toBeNull();
     expect(fallo.paquete.guion?.narracion.length).toBeGreaterThan(0);
+  });
+});
+
+describe('guion largo OMAG 60s+ (F2 tarea 3)', () => {
+  let dir: string;
+  beforeEach(async () => {
+    dir = await mkdtemp(join(tmpdir(), 'ultraia-enrutador-largo-'));
+  });
+  afterEach(async () => {
+    await rm(dir, { recursive: true, force: true });
+  });
+
+  it('estructura: 3 actos, 7 escenas y shots con MOTIONS válidos', () => {
+    const b = brief({ canal: 'blog', formato: '16:9 video' });
+    const { proyecto } = guionLargo(b, 'es', 75);
+    expect(proyecto.acts.length).toBe(3);
+    expect(proyecto.acts.map((a) => a.name)).toEqual(['Apertura', 'Desarrollo', 'Cierre']);
+    const escenas = proyecto.acts.flatMap((a) => a.sequences.flatMap((s) => s.scenes));
+    expect(escenas.length).toBe(7);
+    for (const esc of escenas) {
+      expect(esc.shots.length).toBeGreaterThan(0);
+      for (const shot of esc.shots) {
+        expect(MOTIONS.map(normalizeMotion)).toContain(normalizeMotion(shot.motion));
+        expect(shot.duration).toBeGreaterThan(0);
+        expect(shot.prompt).toContain(shot.motion);
+      }
+    }
+  });
+
+  it('timeline sincronizada: video cubre toda la duración y 0 issues', () => {
+    const b = brief({ canal: 'blog', formato: '16:9 video' });
+    const { timeline, proyecto } = guionLargo(b, 'es', 90);
+    expect(timeline.durationSec).toBeGreaterThanOrEqual(60);
+    expect(timeline.durationSec).toBeLessThanOrEqual(180);
+    const inicio = Math.min(...timeline.tracks.video.map((v) => v.start));
+    const fin = Math.max(...timeline.tracks.video.map((v) => v.end));
+    expect(inicio).toBe(0);
+    expect(fin).toBe(timeline.durationSec);
+    expect(timeline.tracks.dialogue.length).toBe(7);
+    expect(proyecto.language).toBe('es');
+  });
+
+  it('narración larga es/ar con hook + 7 escenas', () => {
+    const b = brief({ canal: 'blog', formato: '16:9 video' });
+    const es = guionLargo(b, 'es', 75);
+    expect(es.narracion.split(' ').length).toBeGreaterThan(30);
+    expect(es.narracion).toContain('Abre con la pregunta');
+    const ar = guionLargo(b, 'ar', 75);
+    expect(ar.narracion).toMatch(/[\u0600-\u06FF]/);
+    expect(ar.proyecto.language).toBe('ar');
+  });
+
+  it('duración objetivo ajusta shots por escena (60s → 1 shot, 150s → 2+ shots)', () => {
+    const b = brief({ canal: 'blog', formato: '16:9 video' });
+    const corto = guionLargo(b, 'es', 60);
+    const cortoShots = corto.proyecto.acts.flatMap((a) => a.sequences.flatMap((s) => s.scenes.flatMap((sc) => sc.shots)));
+    expect(cortoShots.length).toBe(7);
+    const largo = guionLargo(b, 'es', 150);
+    const largoShots = largo.proyecto.acts.flatMap((a) => a.sequences.flatMap((s) => s.scenes.flatMap((sc) => sc.shots)));
+    expect(largoShots.length).toBeGreaterThan(7);
+    expect(largo.timeline.durationSec).toBeGreaterThanOrEqual(60);
+  });
+
+  it('generarContenido guion_largo + tts escribe proyecto y narracion.mp3', async () => {
+    const b = brief({ canal: 'blog', formato: '16:9 video' });
+    const res = await generarContenido(b, {
+      dir,
+      tipo: 'guion_largo',
+      tts: true,
+      ttsEngine: async (script, lang) => Buffer.from(`MP3-${lang}:${script.length}`),
+    });
+    expect(res.paquete.tipo).toBe('guion_largo');
+    expect(res.paquete.proyecto?.acts.length).toBe(3);
+    expect(res.paquete.timeline?.durationSec).toBeGreaterThan(0);
+    expect(res.paquete.audioPath).toContain('narracion.mp3');
+    const raw = await readFile(res.manifestPath!, 'utf8');
+    const manifest = JSON.parse(raw) as ContentPackage;
+    expect(manifest.proyecto?.acts.length).toBe(3);
+  });
+
+  it('enrutarBrief: 16:9 video → guion_largo; 9:16 → guion; resto → texto', () => {
+    expect(enrutarBrief(brief({ canal: 'blog', formato: '16:9 video' }))).toBe('guion_largo');
+    expect(enrutarBrief(brief({ canal: 'youtube_shorts', formato: '9:16 video' }))).toBe('guion');
+    expect(enrutarBrief(brief({ canal: 'blog', formato: '16:9 articulo' }))).toBe('texto');
   });
 });

@@ -2,6 +2,14 @@ import { mkdir, rename, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { normalizeMotion, type Motion } from '../prompt/director';
 import { edgeTtsAudio, voiceFor } from '../omag/tts';
+import {
+  createMasterTimeline,
+  type MasterTimeline,
+  type OmagProject,
+  type Scene,
+  type Sequence,
+  type Shot,
+} from '../omag/project';
 import type { TopicBrief } from './topics';
 
 /**
@@ -14,7 +22,7 @@ import type { TopicBrief } from './topics';
  */
 
 export type Idioma = 'es' | 'ar';
-export type ContenidoTipo = 'texto' | 'guion';
+export type ContenidoTipo = 'texto' | 'guion' | 'guion_largo';
 
 /** Salida del Redactor: post de texto listo para blog/redes. */
 export interface ContenidoTexto {
@@ -54,6 +62,10 @@ export interface ContentPackage {
   contenido?: ContenidoTexto;
   /** Presente si tipo === 'guion'. */
   guion?: GuionVideo;
+  /** Presente si tipo === 'guion_largo' (OMAG long-form). */
+  proyecto?: OmagProject;
+  /** Timeline sincronizada del proyecto (guion_largo). */
+  timeline?: MasterTimeline;
   /** Ruta del MP3 de narración (solo guion + tts=true + edge-tts alcanzable). */
   audioPath?: string | null;
   creadoEn: string; // ISO
@@ -243,7 +255,91 @@ export function guionizar(brief: TopicBrief, idioma: Idioma = 'es'): GuionVideo 
 
 /** Decide qué rol produce el contenido según el formato del brief. */
 export function enrutarBrief(brief: TopicBrief): ContenidoTipo {
-  return brief.formato === '9:16 video' ? 'guion' : 'texto';
+  if (brief.formato === '9:16 video') return 'guion';
+  if (brief.formato === '16:9 video') return 'guion_largo';
+  return 'texto';
+}
+
+/** Prompt del shot: sujeto + acción + cámara + luz + estilo (determinista). */
+function promptParaShot(brief: TopicBrief, voz: string, camara: Motion, i: number): string {
+  return `${brief.tema} — ${voz} — camera ${camara}, subject focus #${i + 1}, ${STYLE_POR_TONO[brief.tono]}`;
+}
+
+/** Shots MOTIONS del vocabulario del director (pool cíclico). */
+const MOTION_POOL: Motion[] = [
+  'zoom-in', 'zoom-out', 'pan-left', 'pan-right', 'slow-push-in',
+  'dolly-in', 'pull-back', 'tilt-up', 'orbiting-shot', 'handheld-camera',
+];
+
+/**
+ * Guion largo OMAG (F2 tarea 3): Project → Act → Sequence → Scene → Shot.
+ * 3 actos (Apertura/Desarrollo/Cierre), 7 escenas (PLANTILLAS_GUION) y
+ * shots de ~10s cada uno hasta alcanzar `duracionSeg` (default 75s; 60-180s).
+ * Todo determinista y keyless; los shots son unidades de render de ~10s.
+ */
+export function guionLargo(
+  brief: TopicBrief,
+  idioma: Idioma = 'es',
+  duracionSeg = 75,
+): { proyecto: OmagProject; timeline: MasterTimeline; narracion: string } {
+  const angulo = anguloNormalizado(brief);
+  const plantillas = PLANTILLAS_GUION[idioma](angulo, brief.tema); // 7 escenas
+  const hook = HOOK_POR_IDIOMA[idioma](brief.tema, angulo);
+
+  const d = Math.max(60, Math.min(180, duracionSeg));
+  const shotsPorEscena = Math.max(1, Math.min(3, Math.round(d / (plantillas.length * 10))));
+  const segundosPorShot = Math.round(d / (plantillas.length * shotsPorEscena));
+
+  const acts: OmagProject['acts'] = [
+    { id: 'act-1', name: idioma === 'ar' ? 'الافتتاح' : 'Apertura', sequences: [] },
+    { id: 'act-2', name: idioma === 'ar' ? 'التطوير' : 'Desarrollo', sequences: [] },
+    { id: 'act-3', name: idioma === 'ar' ? 'الخاتمة' : 'Cierre', sequences: [] },
+  ];
+  // 2 escenas en act 1, 3 en act 2, 2 en act 3 (7 plantillas)
+  const porActo = [2, 3, 2];
+  const timeline = createMasterTimeline(`proj-${briefIdDesdeBrief(brief)}`);
+
+  let t = 0;
+  let escenaIdx = 0;
+  acts.forEach((act, actIdx) => {
+    const seq: Sequence = { id: `${act.id}-seq`, summary: act.name, scenes: [] };
+    for (let k = 0; k < porActo[actIdx] && escenaIdx < plantillas.length; k++, escenaIdx++) {
+      const voz = plantillas[escenaIdx];
+      const escenaId = `${act.id}-escena-${k + 1}`;
+      const shots: Shot[] = [];
+      const inicioEscena = t;
+      for (let s = 0; s < shotsPorEscena; s++) {
+        const camara = normalizeMotion(MOTION_POOL[(escenaIdx * shotsPorEscena + s) % MOTION_POOL.length]);
+        const shotId = `${escenaId}-shot-${s + 1}`;
+        shots.push({
+          id: shotId,
+          duration: segundosPorShot,
+          motion: camara,
+          prompt: promptParaShot(brief, voz, camara, escenaIdx * shotsPorEscena + s),
+        });
+        timeline.tracks.video.push({ start: t, end: t + segundosPorShot, shotId });
+        t += segundosPorShot;
+      }
+      timeline.tracks.dialogue.push({ start: inicioEscena, end: t, text: voz });
+      seq.scenes.push({ id: escenaId, summary: voz, shots });
+    }
+    act.sequences.push(seq);
+  });
+  timeline.durationSec = t;
+
+  const narracion = `${hook} ${plantillas.join(' ')}`;
+
+  return {
+    proyecto: {
+      id: `proj-${briefIdDesdeBrief(brief)}`,
+      title: tituloDesdeBrief(brief),
+      language: idioma,
+      acts,
+      createdAt: new Date().toISOString(),
+    },
+    timeline,
+    narracion,
+  };
 }
 
 export interface GenerarContenidoOptions {
@@ -255,6 +351,8 @@ export interface GenerarContenidoOptions {
   idioma?: Idioma;
   /** Generar narración MP3 (edge-tts, keyless) para guiones. Default false. */
   tts?: boolean;
+  /** Duración objetivo en segundos para guiones largos (60-180). Default 75. */
+  duracionSeg?: number;
   /** No escribir en disco (solo devolver el paquete). */
   dryRun?: boolean;
   /** Inyectable para tests: fn(script, lang) → MP3 Buffer|null. */
@@ -294,12 +392,13 @@ export async function generarContenido(
     creadoEn: new Date().toISOString(),
   };
   if (tipo === 'texto') paquete.contenido = redactar(brief, idioma);
-  else {
-    paquete.guion = guionizar(brief, idioma);
+  else if (tipo === 'guion_largo') {
+    const largo = guionLargo(brief, idioma, opts.duracionSeg);
+    paquete.proyecto = largo.proyecto;
+    paquete.timeline = largo.timeline;
     if (opts.tts && !opts.dryRun) {
       const tts = opts.ttsEngine ?? edgeTtsAudio;
-      const audio = await tts(paquete.guion.narracion, idioma).catch(() => null);
-      paquete.audioPath = audio ? null : null; // ruta se fija tras escribir
+      const audio = await tts(largo.narracion, idioma).catch(() => null);
       if (audio) {
         const dir = opts.dir ?? join(process.cwd(), '.ultraia', 'content');
         const carpeta = join(dir, paquete.briefId);
@@ -307,6 +406,24 @@ export async function generarContenido(
         const mp3 = join(carpeta, 'narracion.mp3');
         await writeFile(mp3, audio);
         paquete.audioPath = mp3;
+      } else {
+        paquete.audioPath = null;
+      }
+    }
+  } else {
+    paquete.guion = guionizar(brief, idioma);
+    if (opts.tts && !opts.dryRun) {
+      const tts = opts.ttsEngine ?? edgeTtsAudio;
+      const audio = await tts(paquete.guion.narracion, idioma).catch(() => null);
+      if (audio) {
+        const dir = opts.dir ?? join(process.cwd(), '.ultraia', 'content');
+        const carpeta = join(dir, paquete.briefId);
+        await mkdir(carpeta, { recursive: true });
+        const mp3 = join(carpeta, 'narracion.mp3');
+        await writeFile(mp3, audio);
+        paquete.audioPath = mp3;
+      } else {
+        paquete.audioPath = null;
       }
     }
   }
@@ -327,6 +444,7 @@ export async function generarContenido(
 export const enrutador = {
   redactar,
   guionizar,
+  guionLargo,
   enrutarBrief,
   generarContenido,
   tituloDesdeBrief,

@@ -185,8 +185,18 @@ alternativas con pros/cons. Orden sugerido de ejecución (ajustable por el usuar
 > `edgeTtsAudio` (omag/tts.ts, WebSocket global Node 22+, voz por idioma vía `voiceFor`)
 > → `narracion.mp3` junto al manifest (`audioPath` en el paquete); degradación elegante:
 > engine no alcanzable → `audioPath: null` sin romper el paquete. Tool `contenido_generar`
-> gana parámetros `idioma` + `tts`. 22 tests (6 nuevos). Pendiente F2: tarea 3 (OMAG
-> long-form 60s+).
+> gana parámetros `idioma` + `tts`. 22 tests (6 nuevos).
+>
+> **F2 tarea 3 implementada 15/08/2026 (iteración 16)**: **guion largo OMAG 60s+** —
+> `guionLargo(brief, idioma, duracionSeg)` (60-180s) en el enrutador → `OmagProject`
+> (Project → Act → Sequence → Scene → Shot del scaffolding `omag/project.ts`): 3 actos
+> (Apertura/Desarrollo/Cierre), 7 escenas bilingües, shots ~10s con MOTIONS del vocabulario
+> del director, `prompt` por shot (sujeto+acción+cámara+estilo), `MasterTimeline`
+> sincronizada (tracks.video + dialogue, `checkTimelineSync` sin issues). `ContentPackage`
+> gana `proyecto` + `timeline`; `ContenidoTipo` gana `'guion_largo'`; `enrutarBrief`:
+> `16:9 video` → guion_largo (nuevo `TopicFormat`); TTS narra hook + 7 escenas → mp3.
+> Tool `contenido_generar` gana `duracionSeg` + tipo guion_largo. 28 tests (6 nuevos).
+> Pendiente F2: nada (tareas 1-3 completas).
 
 ### F3 — Presentación unificada (nuevo)
 

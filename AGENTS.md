@@ -299,8 +299,13 @@ Verdad verificada 9/9 PASS en `learning/truth/truth_tecno_recursos.json` (fuente
   deterministas: CTA_BY_CANAL, CONECTORES, CUERPO_POR_IDIOMA, PLANTILLAS_GUION,
   HOOK_POR_IDIOMA — patrón RF-12) + **TTS edge-tts keyless**: `tts:true` en guiones →
   `edgeTtsAudio` (omag/tts.ts) → `narracion.mp3` (`audioPath`), degradación elegante a
-  `null`. Tool `contenido_generar` gana `idioma` + `tts`. 22 tests (6 nuevos). Pendiente
-  F2: tarea 3 (OMAG long-form 60s+).
+  `null`. Tool `contenido_generar` gana `idioma` + `tts`. 22 tests (6 nuevos).
+- **F2 Contenido tarea 3 (15/08/2026, iteración 16)**: **guion largo OMAG 60s+** —
+  `guionLargo(brief, idioma, duracionSeg)` (60-180s) → `OmagProject` (Project→Act→
+  Sequence→Scene→Shot de omag/project.ts): 3 actos, 7 escenas, shots ~10s MOTIONS,
+  `MasterTimeline` sincronizada; `ContenidoTipo` gana `'guion_largo'`, TopicFormat gana
+  `'16:9 video'`, enrutarBrief lo mapea; TTS narra hook+escenas → mp3. Tool gana
+  `duracionSeg`. 28 tests (6 nuevos). F2 completa (tareas 1-3).
 - **F5 Métricas y mejora (15/08/2026, iteración 13)**: KPIs por canal (`tools/metrics.ts`
   `computeChannelKpis`: publicadas/fallidas/pendientes, tasaExito, scorePromedio) +
   endpoint `GET /api/publications/metrics` (ADMIN); media_score pre-pub (`tools/media-score.ts`
