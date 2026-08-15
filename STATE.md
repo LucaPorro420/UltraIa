@@ -1,31 +1,61 @@
 # Loop State — UltraIa
 
-Last run: 15/08/2026 — Iteración 1 (harness PIVR activado)
+Last run: 15/08/2026 — Iteración 5 (docs: AUTO-PUBLICACION plan maestro aprobado + backlog AutoPub #7-#13)
+Última triage: 15/08/2026 (report-only — sin edición de código)
 
 ## Backlog priorizado (orden de ejecución)
 
 | # | Tarea | Scope | Gates | Estado |
 |---|-------|-------|-------|--------|
-| 1 | Harness PIVR: STATE.md/LOOP.md/budget/constraints/agents/driver/skill + commit de integraciones pendientes | repo | typecheck/lint/test/build | ⏳ EN CURSO |
-| 2 | Fase C (parcial): adapters a `@ultraia/core` vía `packages/runtime/src/adapters/` (ports + Db y AiGateway) con tests | packages/runtime | scoped runtime + FULL | pendiente |
-| 3 | Fase C (resto): adapters tools + omag | packages/runtime | FULL | pendiente |
-| 4 | Fase D: Shell Desktop (Tauri/Electron diferido — evaluar MVP webview primero) | desktopFase | FULL | pendiente |
-| 5 | Gen-Engine: entrenamiento roadmap F5 (E0–E5, CreationsApp plan-de-implementacion.md) | gen-engine | pytest | pendiente |
+| 1 | Harness PIVR: STATE.md/LOOP.md/budget/constraints/agents/driver/skill + commit de integraciones pendientes | repo | typecheck/lint/test/build | ✅ DONE 2026-08-15 (b0522e2) |
+| 2 | Fase C (parcial): adapters a `@ultraia/core` vía `packages/runtime/src/adapters/` (ports + Db y AiGateway) con tests | packages/runtime | scoped runtime + FULL | ✅ DONE 2026-08-15 (e94609c, runtime 173/173) |
+| 3 | Fase C (resto): adapters tools + omag (+ wiring en UltraRuntime) | packages/runtime | FULL | ✅ DONE 2026-08-15 (d2022a6, runtime 186/186, repo 404/404). Wiring `system-core` diferido a Fase D |
+| 4 | Fase D: Shell Desktop — paso 1 (decisión) completado | desktopFase | FULL | ✅ paso 1 DONE 2026-08-15 (f2e9cc1: SHELL_DECISION.md — MVP WebView2 puro + Local API; upgrade path Tauri 2) |
+| 5 | Fase D paso 2: (a) wiring `system-core` en UltraRuntime — DONE; (b) launcher Node sin deps + ventana WebView2 | packages/runtime + launcher | FULL | ✅ (a) DONE 2026-08-15 (5ab0426 + 0fa16f5, runtime 191/191, repo 409/409) — (b) pendiente — SIGUIENTE |
+| 6 | Gen-Engine: entrenamiento roadmap F5 (E0–E5, CreationsApp plan-de-implementacion.md) | gen-engine | pytest | pendiente |
+| 7 | **AutoPub F1**: tool `topics` en core + `scripts/topics.py --dry-run` (RSS + DuckDuckGo, dedupe, briefs JSON) | packages/core + scripts | FULL | pendiente — SIGUIENTE tras #5 |
+| 8 | **AutoPub F3**: schema `PublicationPackage` + tool `present` (formato por canal, captions/hashtags) | packages/core | FULL | pendiente |
+| 9 | **AutoPub F4**: `PublisherAdapter` + adaptadores YouTube/TikTok en TS (port RF-12) + tests con mocks | packages/core | FULL | pendiente |
+| 10 | **AutoPub F4**: cola `Publication` (Prisma) + endpoints API + aprobación por paquete | packages/core + apps/web | FULL | pendiente |
+| 11 | **AutoPub F4**: calendario (start.py o scheduler runtime) + blog propio (publicar en /recursos) | scripts + apps/web | FULL | pendiente |
+| 12 | **AutoPub F2**: enrutamiento brief→Redactor/Guionista vía Orquestador + manifest JSON | packages/core | FULL | pendiente |
+| 13 | **AutoPub F5**: KPIs + media_score pre-pub + feedback → mejora de agentes | packages/core + scripts | FULL | pendiente |
+
+> AutoPub = plan maestro `docs/AUTO-PUBLICACION.md` (aprobado 15/08/2026). Orden de
+> ejecución recomendado: 7 → 8 → 9 → 10 → luego 11, 12, 13.
 
 ## High Priority (loop is acting or waiting on human)
 
-- Ninguno (autorización permanente del humano para auto-switch P→B, 15/08/2026; gates humanos solo en push/merge).
+- **Working tree con ~500 cambios sin commitear (post-b0522e2)** — re-fetch de nanoprompts:
+  398 prompts en index (consistente: 0 huérfanos, 0 duplicados, 0 missing) pero **250/398 sin
+  `local_image`** (fetch de imágenes incompleto: 160 webp en disco, 148 referenciados en index).
+  También sin commitear: mejoras a `scripts/loop_piv.py` (ciclo completo P→I→V→R + `--gate-only`),
+  `scripts/nanoprompts_fetch.py` (flags `--images-only`/`--no-images`), `integracionTecno.txt`
+  (+1 URL). Acción sugerida: `python scripts/nanoprompts_fetch.py --images-only` para completar
+  las 250 imágenes → validar index → commit único
+  `chore(learning): nanoprompts refresh + fetch images + loop_piv gate-only`. Esfuerzo: bajo.
+  NOTA: NO incluido en e94609c ni d2022a6 (ruido externo al loop; no tocar sin tarea asignada).
+- Ningún gate humano pendiente (push/merge sigue requiriendo aprobación humana).
 
 ## Watch List
 
+- **Typecheck transitorio (1 vez)**: primer run de una triage falló "command failed" en
+  packages/runtime SIN errores TS; re-run EXIT=0. Posible lock/transitorio o caché stale
+  `node_modules/.vite` — vigilar si se repite antes de diagnosticar.
+- **Runtime tests 191/191** (Fase A 132 + Fase B 20 + Fase C 34 + wiring system-core 5). Total repo: 409/409 PASS
+  (core 218 + runtime 191).
 - `npx @cobusgreyling/loop doctor` y `loop status` — validar salida del CLI contra LOOP.md (v0.1.2).
 - `.vscode/settings.json` fix Pylance (local-only, gitignored) — no commitear.
-- Verificación FULL en cada commit: typecheck → lint → test → build (370/370 esperado).
+- Verificación FULL en cada commit: typecheck → lint → test → build (409/409 esperado).
+- Fase D: decisión tomada (`SHELL_DECISION.md` — MVP WebView2 puro Windows + Local API; upgrade path Tauri 2). Wiring `system-core` hecho (5ab0426). Vigilar el spike del launcher: medir RAM real del MVP WebView2 antes de comprometer cifras en docs.
 
 ## Recent Noise (ignored this run)
 
-- `.vscode/` gitignored → commit 2 abortado no es error.
+- Fallo transitorio de typecheck resuelto en re-run (sin errores TS).
+- 10 prompt files eliminados + 82 modificados en nanoprompts: refresh normal del dataset
+  (index consistente, sin huérfanos — no es error).
 - `python` en shell = 3.14 sin uvicorn; usar `py -3.12` para gen-engine.
+- Core tocado en d2022a6 SOLO para exportar `audiolibrary`/`sound` por API pública (visibilidad).
 
 ---
 Run log: loop-run-log.md

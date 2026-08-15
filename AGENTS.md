@@ -232,6 +232,23 @@ Verdad verificada 9/9 PASS en `learning/truth/truth_tecno_recursos.json` (fuente
 - **Pendiente Fase C**: adapters a `@ultraia/core` (db, ai-gateway, tools, omag) vía
   packages/runtime/src/adapters/ con tests por adapter. **Pendiente Fase D**: Shell Desktop.
 
+## AUTO-PUBLICACIÓN (15/08/2026) — plan maestro aprobado
+
+- **Plan**: `docs/AUTO-PUBLICACION.md` — fábrica de contenido: idea → contenido →
+  presentación → distribución → métricas → mejora. APROBADO por el usuario; ejecución
+  por fases vía loop PIVR (backlog #6–#12 en STATE.md).
+- **Base verificada**: publicación real YouTube Shorts + TikTok ya existe en
+  `ULTRAIA/integracionesImplementacion/src/publish.py` (RF-12, metadatos bilingües es/ar).
+  Agente Publicador (`bp-publicador`) arma el paquete (copy/hashtags/imagen/horario);
+  falta el disparo automatizado de publicación (F4).
+- **Reglas clave**: keyless-first con degradación elegante; aprobación humana híbrida
+  (textos auto; video/imagen por paquete — decisión usuario 15/08/2026); cada canal es
+  un adaptador `PublisherAdapter`; cola + calendario en Prisma (D7).
+- **Orden recomendado de canales (D1)**: YouTube+TikTok → blog propio (/recursos,
+  /gallery) → Meta (IG Reels/Threads, app review) → X API v2 → LinkedIn.
+- **Referencias de adaptadores futuros**: vendor `everything-claude-code/skills/x-api`
+  (X v2) y `social-publisher` (LinkedIn/IG).
+
 ## Loop PIVR (Plan ⇒ Implement ⇒ Verificar ⇒ Reiniciar) — 15/08/2026
 
 Harness de desarrollo continuo del proyecto, orquestado por loop-engineering
