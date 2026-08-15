@@ -13,6 +13,7 @@ export * from './g0dm0d3';
 export * from './topics';
 export * from './present';
 export * from './publish';
+export * from './enrutador';
 
 import * as web from './web';
 import * as image from './image';
@@ -26,8 +27,9 @@ import * as g0dm0d3 from './g0dm0d3';
 import { topics } from './topics';
 import { presentTools } from './present';
 import { publish } from './publish';
+import { enrutador } from './enrutador';
 
-export const tools = { web, image, video, music, stitch, reach, skills: { runSkill }, content, g0dm0d3, topics, present: presentTools, publish };
+export const tools = { web, image, video, music, stitch, reach, skills: { runSkill }, content, g0dm0d3, topics, present: presentTools, publish, enrutador };
 
 export const TOOL_DESCRIPTIONS: Record<string, string> = {
   calculator: 'Safely evaluate a mathematical expression (math only).',
@@ -51,6 +53,8 @@ export const TOOL_DESCRIPTIONS: Record<string, string> = {
     'Distribution adapters (AutoPub F4): publish a final MP4 (9:16, <60s) to YouTube Shorts (resumable upload v3) and/or TikTok (Direct Post 2 steps) with bilingual es/ar metadata. Validates tokens first; fails soft with a clear reason when a platform is not configured. Use to ship finished video content to the channels.',
   publications:
     'Publication queue (AutoPub F4): create/list/approve/reject queued publications from PublicationPackages (auto-approves text/blog; video/image channels require human approval) and publish scheduled items that are due. Persisted in Prisma. Use to manage the content distribution pipeline end-to-end.',
+  contenido:
+    'Content router (AutoPub F2): converts a topic brief into ready-to-use content — written post (Redactor) or video script + storyboard (Guionista) — and writes a manifest.json to disk. Deterministic and keyless. Use to move from idea to content package.',
 };
 
 export type Capability =
@@ -67,4 +71,5 @@ export type Capability =
   | 'topics'
   | 'present'
   | 'publish'
-  | 'publications';
+  | 'publications'
+  | 'contenido';

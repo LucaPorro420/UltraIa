@@ -157,6 +157,19 @@ alternativas con pros/cons. Orden sugerido de ejecución (ajustable por el usuar
   generador de video corto premium — pros: probado; cons: requiere claves. (c) solo
   texto+imagen keyless (Pollinations) — pros: gratis e ilimitado; cons: sin video real.
 
+> **F2 tarea 1 implementada 15/08/2026 (iteración 12)**: enrutador en
+> `packages/core/src/tools/enrutador.ts` — `redactar(brief)` (Redactor determinista:
+> título/intro/cuerpo/cierre/CTA por canal/palabras clave; cita fuentes del brief) +
+> `guionizar(brief)` (Guionista determinista: hook ≤3s, 5-7 escenas con cámara del
+> vocabulario verificado `MOTIONS`/`normalizeMotion` de prompt/director.ts, narración
+> completa, duración 45-60s, estilo por tono) + `enrutarBrief` (9:16→guion; 16:9/1:1→texto)
+> + `generarContenido(brief,{dir,dryRun,tipo})` (1 brief → 1 `ContentPackage` +
+> `manifest.json` en disco, atómico tmp+rename, idempotente con briefId hash FNV-1a del
+> brief; default `.ultraia/content/<briefId>/manifest.json`). Capability `contenido` →
+> tool `contenido_generar` en llm.ts (briefJson + dryRun/tipo override). 16 tests.
+> Keyless-first: determinista sin LLM; LLM opcional en fase futura sin romper el contrato
+> del manifest. Pendiente F2: tareas 2 (multi-idioma es/ar + TTS) y 3 (OMAG long-form 60s+).
+
 ### F3 — Presentación unificada (nuevo)
 
 - **Objetivo**: un solo paquete que se adapta a cada canal.

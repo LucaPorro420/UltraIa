@@ -18,6 +18,7 @@ import { generateTopicBriefs } from '../tools/topics';
 import { present } from '../tools/present';
 import { createDefaultPublishers, publishToAll, buildBilingualMetadata } from '../tools/publish';
 import { createPublication, listPublications, approvePublication, rejectPublication, publishDue } from '../domain/publications';
+import { generarContenido, type ContentPackage } from '../tools/enrutador';
 import { audioLibrary } from '../omag/audiolibrary';
 import { synthSound as synth } from '../omag/sound';
 
@@ -469,6 +470,32 @@ export function chatStream(opts: {
           default:
             throw new Error(`accion desconocida: ${accion}`);
         }
+      },
+    });
+  }
+  if (opts.tools?.includes('contenido')) {
+    tools.contenido_generar = tool({
+      description:
+        'Content router (AutoPub F2): converts a topic brief into ready-to-use content — a written post (Redactor) for 16:9/1:1 formats or a video script + storyboard (Guionista) for 9:16 — and writes a manifest.json to disk (idempotent). Use to move from idea to content package.',
+      parameters: z.object({
+        briefJson: z.string().min(1).max(2000),
+        dryRun: z.boolean().optional(),
+        tipo: z.enum(['texto', 'guion']).optional(),
+      }),
+      execute: async ({ briefJson, dryRun, tipo }) => {
+        const brief = JSON.parse(briefJson) as import('../tools/topics').TopicBrief;
+        const res = await generarContenido(brief, { dryRun: dryRun ?? false, tipo });
+        const paquete = res.paquete;
+        return {
+          briefId: paquete.briefId,
+          tipo: paquete.tipo,
+          manifestPath: res.manifestPath,
+          titulo: paquete.tipo === 'texto' ? paquete.contenido?.titulo : paquete.guion?.titulo,
+          resumen:
+            paquete.tipo === 'texto'
+              ? paquete.contenido?.intro.slice(0, 200)
+              : `${paquete.guion?.hook} (${paquete.guion?.duracionSeg}s, ${paquete.guion?.escenas.length} escenas)`,
+        } satisfies { briefId: string; tipo: 'texto' | 'guion'; manifestPath: string | null; titulo?: string; resumen?: string };
       },
     });
   }
