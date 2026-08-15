@@ -134,12 +134,18 @@ alternativas con pros/cons. Orden sugerido de ejecución (ajustable por el usuar
   cons: más frágil (anti-bot, ver lecciones). (c) manual (briefs escritos a mano) — pros:
   control total; cons: no es "auto". **Recomendado: (a)+(b) con degradación a (a).**
 
-> **F1 implementado 15/08/2026 (iteración 7)**: tool `topics` en
+> **F1 implementado 15/08/2026 (iteraciones 7 + 14)**: tool `topics` en
 > `packages/core/src/tools/topics.ts` (generateTopicBriefs: RSS + DDG, dedupe bigram,
 > score novedad × relevancia de canal, formato/tono/ángulo por canal, briefs JSON;
 > registrada como capability `topics` → tool `topics_briefs` en llm.ts; 14 tests) +
 > CLI `scripts/topics.py --dry-run` (Python puro sin deps, mismo esquema, fuentes reales
-> verificadas). Queda pendiente: cola de briefs persistente (Prisma, tarea 4 de F1).
+> verificadas). **Tarea 4 (iteración 14)**: cola de briefs PERSISTENTE — modelo Prisma
+> `TopicBrief` (tema/canal/formato/tono/ángulo/fuentesJson/score/pubDate/estado
+> NUEVO|PROCESADO|DESCARTADO, migración `add_topic_briefs`) + dominio `domain/briefs.ts`
+> (guardarBriefs dedupe tema+canal, listarBriefs por score desc con cursor,
+> marcarBriefProcesado/Descartado; 6 tests) + tool `topics_queue` (capability `topics`):
+> guardar/listar/marcar_procesado/marcar_descartado. El motor de ideas alimenta la
+> fábrica (F2 enrutador) desde la base.
 
 ### F2 — Contenido (completar)
 

@@ -7,6 +7,7 @@ export * from './auth/password';
 export * from './auth/session';
 export * from './db/client';
 export * from './domain/blueprint';
+export * from './domain/briefs';
 export * from './domain/eval';
 export * from './domain/feedback';
 export * from './domain/improve';

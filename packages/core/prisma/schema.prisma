@@ -233,3 +233,21 @@ model Publication {
 
   @@index([estado, scheduledAt])
 }
+
+// Cola de briefs persistente (AutoPub F1 tarea 4): el motor de ideas alimenta la fábrica.
+model TopicBrief {
+  id          String   @id @default(cuid())
+  tema        String
+  canal       String // youtube_shorts | tiktok | instagram | blog
+  formato     String // 9:16 video | 1:1 imagen | 16:9 articulo
+  tono        String // informativo | educativo | entretenido | inspirador | analitico | noticia
+  angulo      String
+  fuentesJson String   @default("[]") // JSON string[]
+  score       Float    @default(0)
+  pubDate     String?
+  estado      String   @default("NUEVO") // NUEVO | PROCESADO | DESCARTADO
+  creadoEn    DateTime @default(now())
+  procesadoEn DateTime?
+
+  @@index([estado, score])
+}

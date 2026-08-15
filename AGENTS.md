@@ -253,8 +253,11 @@ Verdad verificada 9/9 PASS en `learning/truth/truth_tecno_recursos.json` (fuente
   DuckDuckGo, dedupe bigram Jaccard, score novedad × relevancia de canal, briefs
   `{tema, canal, formato, tono, angulo, fuentes, score}`; 14 tests) + CLI
   `python scripts/topics.py --dry-run` (solo stdlib, mismo esquema de brief, degradación
-  elegante por fuente — verificado con HN + Ars Technica). Pendiente F1: cola de briefs
-  persistente (Prisma). Siguiente: F3 schema `PublicationPackage` + tool `present`.
+  elegante por fuente — verificado con HN + Ars Technica). **Tarea 4 (iteración 14)**:
+  cola persistente — modelo Prisma `TopicBrief` (estado NUEVO|PROCESADO|DESCARTADO,
+  migración add_topic_briefs) + dominio `domain/briefs.ts` (guardarBriefs dedupe tema+canal,
+  listarBriefs por score desc, transiciones; 6 tests) + tool `topics_queue`
+  (guardar/listar/marcar_procesado/marcar_descartado). Siguiente: F2 tarea 2 (multi-idioma).
 - **F3 Presentación unificada (15/08/2026, iteración 8)**: tool `present` en
   `packages/core/src/tools/present.ts` (capability `present` → tool `present_package`):
   `PublicationPackage` {briefId, tema, contenido, media, captionsByChannel (caption +

@@ -15,6 +15,7 @@ import { searchMusic, searchSfx, mixkit } from '../tools/content';
 import { runSkill } from '../tools/skills';
 import { generateParseltongueVariants, computeAutoTuneParams, ultraplinian, godmodeClassic } from '../tools/g0dm0d3';
 import { generateTopicBriefs } from '../tools/topics';
+import { guardarBriefs, listarBriefs, marcarBriefProcesado, marcarBriefDescartado } from '../domain/briefs';
 import { present } from '../tools/present';
 import { createDefaultPublishers, publishToAll, buildBilingualMetadata } from '../tools/publish';
 import { createPublication, listPublications, approvePublication, rejectPublication, publishDue } from '../domain/publications';
@@ -389,6 +390,41 @@ export function chatStream(opts: {
       }),
       execute: async ({ fuentes, canales, maxBriefs }) => generateTopicBriefs({ fuentes, canales, maxBriefs }),
     });
+    if (opts.db) {
+      tools.topics_queue = tool({
+        description:
+          'Persistent topic brief queue (AutoPub F1 tarea 4): save generated briefs (deduped by tema+canal), list the queue prioritized by score (filter by estado/canal), and mark briefs as processed or discarded. Use to persist ideas between runs and feed the content factory (F2) from the database.',
+        parameters: z.object({
+          accion: z.enum(['guardar', 'listar', 'marcar_procesado', 'marcar_descartado']),
+          briefsJson: z.string().optional(), // JSON TopicBrief[] (para guardar)
+          estado: z.enum(['NUEVO', 'PROCESADO', 'DESCARTADO', 'ALL']).optional(),
+          canal: z.enum(['youtube_shorts', 'tiktok', 'instagram', 'blog']).optional(),
+          id: z.string().optional(), // para marcar_procesado/descartado
+          take: z.number().int().min(1).max(100).optional(),
+        }),
+        execute: async ({ accion, briefsJson, estado, canal, id, take }) => {
+          switch (accion) {
+            case 'guardar': {
+              if (!briefsJson) throw new Error('guardar requiere briefsJson');
+              const briefs = JSON.parse(briefsJson) as import('../tools/topics').TopicBrief[];
+              return await guardarBriefs(opts.db!, briefs);
+            }
+            case 'listar':
+              return await listarBriefs(opts.db!, { estado, canal, take });
+            case 'marcar_procesado': {
+              if (!id) throw new Error('marcar_procesado requiere id');
+              return { estado: await marcarBriefProcesado(opts.db!, id) };
+            }
+            case 'marcar_descartado': {
+              if (!id) throw new Error('marcar_descartado requiere id');
+              return { estado: await marcarBriefDescartado(opts.db!, id) };
+            }
+            default:
+              throw new Error(`accion desconocida: ${accion}`);
+          }
+        },
+      });
+    }
   }
   if (opts.tools?.includes('present')) {
     tools.present_package = tool({
