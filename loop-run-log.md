@@ -303,42 +303,55 @@ Bitácora de ciclos PIVR (Plan ⇒ Implement ⇒ Verificar ⇒ Reiniciar). Forma
   rate limit, eventos WS) + docs IPC/SECURITY. 17 archivos, +1652.
 - **15/08/2026** — Commit 2 (`.vscode/settings.json` Pylance fix) ABORTADO: `.vscode/` está en
   `.gitignore` → nada que commitear (config local-only, correcto).
-## Iteraci�n 7 � AutoPub F1: motor de ideas (tool topics + topics.py) (15/08/2026)
+## Iteraci�n 7 � AutoPub F1: motor de ideas (tool topics + topics.py) (15/08/2026)
 
 **[P] Plan**
-- Objetivo: implementar F1 del plan maestro AUTO-PUBLICACION.md �4/�6 (tarea #7 de STATE.md):
-  motor de temas que genera briefs recurrentes sin intervenci�n manual � RSS (parseRss ya
-  existe) + searchWeb DuckDuckGo (tendencias), dedupe + priorizaci�n por canal, brief JSON
+- Objetivo: implementar F1 del plan maestro AUTO-PUBLICACION.md �4/�6 (tarea #7 de STATE.md):
+  motor de temas que genera briefs recurrentes sin intervenci�n manual � RSS (parseRss ya
+  existe) + searchWeb DuckDuckGo (tendencias), dedupe + priorizaci�n por canal, brief JSON
   estandarizado. Keyless-first, sin deps nuevas.
 - Pasos:
-  1. packages/core/src/tools/topics.ts � motor de briefs TS:
+  1. packages/core/src/tools/topics.ts � motor de briefs TS:
      - Types: TopicBrief {tema, canal, formato, tono, angulo, fuentes, score, pubDate?},
        GenerateTopicsInput {fuentes, canales?, maxBriefs?, fetchFn?} (fetch inyectable para tests).
      - 
 ormalizeTitle() (lower + strip non-alnum), dedupe() (bigram overlap > 0.6),
        scoreBrief() (novedad: pubDate <7d +; >30d -; relevancia por keywords de canal),
        ormatForChannel() (youtube_shorts/tiktok ? 9:16 video; instagram ? 1:1 imagen;
-       blog ? 16:9 art�culo), 	onoYAngulo() (template por tipo de fuente).
+       blog ? 16:9 art�culo), 	onoYAngulo() (template por tipo de fuente).
      - generateTopicBriefs(): fetch RSS + DDG (reusa parseRss/searchWeb con fetch inyectable)
        ? items ? normalize ? dedupe ? score ? top N ? briefs.
   2. index.ts: export topics + TOOL_DESCRIPTIONS.topics + Capability 'topics'.
   3. llm.ts: tool 	opics_briefs (capability topics) ? generateTopicBriefs.
   4. Tests packages/core/src/tools/topics.test.ts: normalize/dedupe/score/formato por canal +
-     generateTopicBriefs con fetch stub (RSS + DDG), maxBriefs, fuentes vac�as.
-  5. scripts/topics.py � CLI Python puro (urllib + xml.etree, sin deps): --dry-run imprime
+     generateTopicBriefs con fetch stub (RSS + DDG), maxBriefs, fuentes vac�as.
+  5. scripts/topics.py � CLI Python puro (urllib + xml.etree, sin deps): --dry-run imprime
      briefs JSON a stdout; --out file.json (UTF-8 sin BOM); --max N; --canales yt,tiktok,blog.
-     Mismo esquema de brief que la tool TS (fuente de verdad: TS; Python = CLI aut�nomo keyless).
-  6. Docs: AUTO-PUBLICACION.md �4 F1 (checklist), STATE.md #7, AGENTS.md secci�n AutoPub.
+     Mismo esquema de brief que la tool TS (fuente de verdad: TS; Python = CLI aut�nomo keyless).
+  6. Docs: AUTO-PUBLICACION.md �4 F1 (checklist), STATE.md #7, AGENTS.md secci�n AutoPub.
 - Criterios: gates FULL verdes (typecheck ? lint ? test ? build); core 218 ? ~226 PASS;
   python scripts/topics.py --dry-run produce N briefs; commits
   eat(core): AutoPub F1 - tool topics (motor de briefs: RSS + DDG, dedupe, score) + tests y
   eat(scripts): AutoPub F1 - topics.py CLI --dry-run (keyless, sin deps).
 
 **[I] Commits**
-- (pendiente)
+- `32a6046` feat(core): AutoPub F1 - tool topics (motor de briefs: RSS + DDG, dedupe, score por canal) + CLI topics.py (5 archivos, +714/-2: topics.ts, topics.test.ts, index.ts, llm.ts, scripts/topics.py). Sin push.
+- `ea6d488` docs(autopub): F1 motor de ideas - tool topics + topics.py + registro Iteracion 7 (4 archivos: AUTO-PUBLICACION.md, STATE.md, AGENTS.md, loop-run-log.md). Sin push.
 
 **[V] Gates**
-- (pendiente)
+- Scoped: typecheck core ✅ · topics.test.ts **14/14 PASS** ✅ · `python scripts/topics.py --dry-run --max 4` ✅ (fuentes reales: HN + Ars Technica; 16 raw → 16 únicos → briefs con score; The Verge/DDG degradaron elegantemente, exit 0)
+- FULL: typecheck (core+web+runtime) ✅ · lint ✅ · test **424/424** (core 232 + runtime 192) ✅ · build ✅
+- Pre-build check: sin dev servers node activos ✅
 
 **[R] Veredicto**
-- (pendiente)
+- **GREEN** → commits `32a6046` + `ea6d488`. Tarea #7 completada: AutoPub F1 motor de ideas
+  implementado en doble vía: tool TS `topics` (capability `topics` → `topics_briefs`, 14 tests)
+  + CLI Python keyless `scripts/topics.py` (mismo esquema de brief). Ambos con RSS + DDG,
+  dedupe bigram Jaccard > 0.6, score novedad × relevancia de canal, formato/tono/ángulo por
+  canal (9:16 video / 1:1 imagen / 16:9 articulo), degradación elegante por fuente.
+- Pendiente F1 (documentado): cola de briefs persistente (Prisma) — tarea 4 de F1.
+- Siguiente ciclo: backlog #8 — AutoPub F3: schema `PublicationPackage` + tool `present`
+  (formato por canal, captions/hashtags) — SIGUIENTE (STATE.md).
+- Ruido externo NO tocado: `learning/nanoprompts/`, `scripts/loop_piv.py` +
+  `scripts/nanoprompts_fetch.py`, `integracionTecno.txt`, `DOCS_TODO.md`, `masinfo.txt`,
+  `proyectoNuevo.*`, `BussinesModel/` — siguen en working tree (High Priority).
