@@ -49,6 +49,8 @@ export const TOOL_DESCRIPTIONS: Record<string, string> = {
     'Presentation builder (AutoPub F3): builds a PublicationPackage from raw content — per-channel captions + hashtags (YouTube/TikTok/Instagram/blog), visual specs (9:16/1:1/16:9), SRT subtitles, branding kit and suggested schedule. Use to adapt one piece of content into ready-to-publish packages per platform.',
   publish:
     'Distribution adapters (AutoPub F4): publish a final MP4 (9:16, <60s) to YouTube Shorts (resumable upload v3) and/or TikTok (Direct Post 2 steps) with bilingual es/ar metadata. Validates tokens first; fails soft with a clear reason when a platform is not configured. Use to ship finished video content to the channels.',
+  publications:
+    'Publication queue (AutoPub F4): create/list/approve/reject queued publications from PublicationPackages (auto-approves text/blog; video/image channels require human approval) and publish scheduled items that are due. Persisted in Prisma. Use to manage the content distribution pipeline end-to-end.',
 };
 
 export type Capability =
@@ -64,4 +66,5 @@ export type Capability =
   | 'g0dm0d3'
   | 'topics'
   | 'present'
-  | 'publish';
+  | 'publish'
+  | 'publications';

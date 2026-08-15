@@ -217,6 +217,16 @@ alternativas con pros/cons. Orden sugerido de ejecución (ajustable por el usuar
 > `toTiktok` opcionales); 15 tests. Pendiente F4: tarea 2 — cola `Publication` (Prisma) +
 > endpoints API + aprobación por paquete (STATE.md #10).
 
+> **F4 tarea 2 implementada 15/08/2026 (iteración 10)**: cola persistente `Publication`
+> (Prisma SQLite, migración `add_publication_queue`) + dominio `domain/publications.ts`
+> (createPublication con regla de aprobación híbrida: video/imagen → DRAFT requiere
+> aprobación; texto/blog → APPROVED automático; approve/reject/markPublished/markFailed/
+> publishDue para el calendario; 15 tests con fake db) + endpoints API con auth:
+> `GET|POST /api/publications`, `POST /api/publications/[id]/approve|reject|publish`
+> (solo DRAFT→aprobación; publish fail-soft sin tokens → FAILED con razón; ADMIN o creador).
+> Capability `publications` → tool `publication_queue` en llm.ts (db inyectable vía `opts.db`).
+> Pendiente F4: tareas 3-5 — calendario + blog propio + canales siguientes (STATE.md #11).
+
 ### F5 — Métricas y mejora (nuevo)
 
 - **Objetivo**: cerrar el loop con datos reales.

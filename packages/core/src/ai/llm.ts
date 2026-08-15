@@ -17,6 +17,7 @@ import { generateParseltongueVariants, computeAutoTuneParams, ultraplinian, godm
 import { generateTopicBriefs } from '../tools/topics';
 import { present } from '../tools/present';
 import { createDefaultPublishers, publishToAll, buildBilingualMetadata } from '../tools/publish';
+import { createPublication, listPublications, approvePublication, rejectPublication, publishDue } from '../domain/publications';
 import { audioLibrary } from '../omag/audiolibrary';
 import { synthSound as synth } from '../omag/sound';
 
@@ -141,6 +142,8 @@ export function chatStream(opts: {
   messages: ChatMessage[];
   tools?: string[];
   onFinish?: (result: { text: string }) => void;
+  /** Prisma client para tools con persistencia (publications). */
+  db?: import('../db/client').Db;
 }) {
   const tools: Record<string, Tool> = {};
   if (opts.tools?.includes('calculator')) {
@@ -422,6 +425,50 @@ export function chatStream(opts: {
           ok: results.some((r) => r.ok),
           summary: results.map((r) => (r.ok ? `${r.platform}: ${r.url || r.id}` : `${r.platform}: ${r.error}`)).join(' | ') || 'no channels selected',
         };
+      },
+    });
+  }
+  if (opts.tools?.includes('publications') && opts.db) {
+    tools.publication_queue = tool({
+      description:
+        'Publication queue (AutoPub F4): create/list/approve/reject queued publications and publish those scheduled and due. Creates a DRAFT from a PublicationPackage (auto-approves text/blog; video/image channels require human approval). Use to manage the content distribution pipeline.',
+      parameters: z.object({
+        accion: z.enum(['crear', 'listar', 'aprobar', 'rechazar', 'publicar_due']),
+        paqueteJson: z.string().optional(), // PublicationPackage serializado (para crear)
+        canal: z.enum(['youtube_shorts', 'tiktok', 'instagram', 'blog']).optional(),
+        scheduledAt: z.string().datetime().optional(),
+        id: z.string().optional(), // para aprobar/rechazar
+        estado: z.enum(['DRAFT', 'APPROVED', 'REJECTED', 'PUBLISHED', 'FAILED', 'ALL']).optional(),
+      }),
+      execute: async ({ accion, paqueteJson, canal, scheduledAt, id, estado }) => {
+        switch (accion) {
+          case 'crear': {
+            if (!paqueteJson || !canal) throw new Error('crear requiere paqueteJson + canal');
+            const paquete = JSON.parse(paqueteJson);
+            const res = await createPublication(opts.db!, {
+              paquete,
+              canal,
+              scheduledAt: scheduledAt ? new Date(scheduledAt) : null,
+            });
+            return { ...res, aviso: res.requiereAprobacion ? 'requiere aprobación humana' : 'aprobada automáticamente' };
+          }
+          case 'listar': {
+            const res = await listPublications(opts.db!, { estado, canal });
+            return { total: res.items.length, items: res.items.map((p) => ({ id: p.id, tema: p.tema, canal: p.canal, estado: p.estado, scheduledAt: p.scheduledAt })) };
+          }
+          case 'aprobar': {
+            if (!id) throw new Error('aprobar requiere id');
+            return { estado: await approvePublication(opts.db!, id) };
+          }
+          case 'rechazar': {
+            if (!id) throw new Error('rechazar requiere id');
+            return { estado: await rejectPublication(opts.db!, id) };
+          }
+          case 'publicar_due':
+            return await publishDue(opts.db!);
+          default:
+            throw new Error(`accion desconocida: ${accion}`);
+        }
       },
     });
   }

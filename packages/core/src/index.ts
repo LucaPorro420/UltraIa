@@ -10,6 +10,7 @@ export * from './domain/blueprint';
 export * from './domain/eval';
 export * from './domain/feedback';
 export * from './domain/improve';
+export * from './domain/publications';
 export * from './domain/versions';
 export * from './domain/workspace';
 export * from './omag';

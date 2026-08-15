@@ -14,7 +14,7 @@ export async function createSession(db: Db, userId: string): Promise<{ token: st
 export async function getSessionUser(
   db: Db,
   token: string | undefined | null,
-): Promise<{ id: string; email: string; name: string | null; workspaceId: string } | null> {
+): Promise<{ id: string; email: string; name: string | null; workspaceId: string; role: string } | null> {
   if (!token) return null;
   const session = await db.session.findUnique({ where: { token }, include: { user: { include: { workspaces: true } } } });
   if (!session) return null;
@@ -24,7 +24,7 @@ export async function getSessionUser(
   }
   const workspace = session.user.workspaces[0];
   if (!workspace) return null;
-  return { id: session.user.id, email: session.user.email, name: session.user.name, workspaceId: workspace.id };
+  return { id: session.user.id, email: session.user.email, name: session.user.name, workspaceId: workspace.id, role: session.user.role };
 }
 
 export async function destroySession(db: Db, token: string): Promise<void> {

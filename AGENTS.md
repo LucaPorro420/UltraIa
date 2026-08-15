@@ -270,6 +270,15 @@ Verdad verificada 9/9 PASS en `learning/truth/truth_tecno_recursos.json` (fuente
   `YOUTUBE_ACCESS_TOKEN`/`TIKTOK_ACCESS_TOKEN`; fetch inyectable, 15 tests con mocks (cero
   llamadas reales). Pendiente F4: cola `Publication` (Prisma) + endpoints + aprobación
   (STATE.md #10).
+- **F4 Distribución paso 2 (15/08/2026, iteración 10)**: cola persistente `Publication`
+  (Prisma SQLite, migración `add_publication_queue`) + dominio `packages/core/src/domain/
+  publications.ts` (createPublication con regla de aprobación híbrida: video/imagen → DRAFT
+  con aprobación humana; texto/blog → APPROVED auto; approve/reject/markPublished/
+  markFailed/publishDue para el calendario; 15 tests con fake db) + endpoints con auth:
+  `GET|POST /api/publications`, `POST /api/publications/[id]/approve|reject|publish`
+  (publish fail-soft sin tokens → FAILED con razón; ADMIN o creador). Capability
+  `publications` → tool `publication_queue` en llm.ts (usa `opts.db`, Prisma inyectable).
+  Pendiente F4: calendario + blog propio (STATE.md #11).
 
 ## Loop PIVR (Plan ⇒ Implement ⇒ Verificar ⇒ Reiniciar) — 15/08/2026
 

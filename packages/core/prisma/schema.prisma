@@ -19,6 +19,7 @@ model User {
   favorites     FavoritePrompt[]
   generated     GeneratedAsset[]
   prompts       PromptLibrary[]    @relation("SubmittedPrompts")
+  publications  Publication[]      @relation("CreatedPublications")
 }
 
 model Session {
@@ -205,4 +206,28 @@ model GeneratedAsset {
   height         Int      @default(1024)
   sourcePromptId String? // si vino de "Usar idea" en la libreria
   createdAt      DateTime @default(now())
+}
+
+//! Cola de publicaciones AutoPub (F4): un paquete por canal, con aprobacion humana
+//! hibrida (texto auto; video/imagen requieren aprobacion) y programacion.
+model Publication {
+  id           String    @id @default(cuid())
+  briefId      String? // brief de F1 (topics) que origino el paquete
+  tema         String
+  canal        String // youtube_shorts | tiktok | instagram | blog
+  paqueteJson  String // PublicationPackage serializado (F3 present)
+  caption      String // caption final para el canal (de captionsByChannel)
+  hashtags     String    @default("[]") // JSON string[]
+  estado       String    @default("DRAFT") // DRAFT | APPROVED | REJECTED | PUBLISHED | FAILED
+  requiereAprobacion Boolean @default(true) // video/imagen → true; texto/blog → false
+  scheduledAt  DateTime? // programacion (calendario de la tarea 4)
+  publishedAt  DateTime?
+  resultadoJson String? // resultado de publicacion (por plataforma)
+  error        String?
+  creadoPorId  String?
+  creadoPor    User?     @relation("CreatedPublications", fields: [creadoPorId], references: [id], onDelete: SetNull)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([estado, scheduledAt])
 }
