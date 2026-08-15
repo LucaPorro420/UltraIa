@@ -235,13 +235,34 @@ Bitácora de ciclos PIVR (Plan ⇒ Implement ⇒ Verificar ⇒ Reiniciar). Forma
   commit `feat(desktop): Fase D paso 2 spike - launcher Node (proxy + UI + msedge --app) + tests`.
 
 **[I] Commits**
-- (pendiente)
+- `3196ce4` feat(desktop): Fase D paso 2 spike - launcher Node (proxy + UI + msedge --app) + test (8 archivos, +566/-7: launcher.mjs, tsconfig.build.json, README.md, launcher.test.ts, .gitignore, SHELL_DECISION/DESKTOP_ARCHITECTURE/ARCHITECTURE). Sin push.
 
 **[V] Gates**
-- (pendiente)
+- Scoped: runtime test con el test del launcher ✅ (1 test, spawn real del launcher, 1.5s con dist precompilado)
+- FULL: typecheck (core+web+runtime) ✅ · lint ✅ · test **410/410** (core 218 + runtime 192) ✅ · build ✅
+- Pre-build check: sin dev servers node activos ✅
+- Launcher manual: `node desktopFase/launcher/launcher.mjs --check --no-window` →
+  `{"ok":true,"state":"running","healthStatus":"healthy","core":{"configured":true,"healthy":true,"adapters":["tools","omag"],"tools":10}}`, exit 0 (3 intentos de fix: junction @ai-sdk → junction @ultraia/core → node:http en vez de fetch para el check).
 
 **[R] Veredicto**
-- (pendiente)
+- **GREEN** → commit `3196ce4`. Tarea #5(b) completada: spike del launcher VALIDADO end-to-end.
+- Lecciones (documentadas en README.md del launcher + SHELL_DECISION.md):
+  1) `@ai-sdk/google` queda aislado por npm en `packages/core/node_modules` → junction
+     `dist/node_modules/@ai-sdk` en el build (idempotente, sin privilegios).
+  2) El emit de tsc mantiene `require("@ultraia/core")` (no reescribe specifiers) → junction
+     `dist/node_modules/@ultraia/core` → `dist/packages/core` con package.json propio (CJS, main).
+  3) En Windows, `process.exit` con sockets de undici (fetch) en cierre → assert de libuv
+     (`src\win\async.c`); el auto-check usa `node:http` puro (`agent: false`) + cierre ordenado.
+  4) tsc hoisted del repo sirve como compilador del launcher (cero deps nuevas) ✅.
+  5) `msedge --app` = WebView2 Runtime preinstalado (ruta x86 en Windows de 64 bits).
+- Fail-soft verificado: si core no carga, el runtime sigue healthy y `core.*` responde
+  `configured:false` (sin crash).
+- Pendiente Fase D: paso 3 — ventana WebView2 real (hoy `msedge --app` como demo del runtime).
+- Siguiente ciclo: backlog #6 (Gen-Engine roadmap F5, gates pytest) o #7 (AutoPub F1 tool
+  `topics` + scripts/topics.py, gates FULL) — según prioridad humana.
+- Ruido externo NO tocado: `learning/nanoprompts/`, `scripts/loop_piv.py` +
+  `scripts/nanoprompts_fetch.py`, `integracionTecno.txt`, `DOCS_TODO.md`, `masinfo.txt`,
+  `proyectoNuevo.*`, `BussinesModel/` — siguen en working tree (High Priority).
 
 ---
 
