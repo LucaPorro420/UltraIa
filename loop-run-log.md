@@ -261,7 +261,8 @@ Bitácora de ciclos PIVR (Plan ⇒ Implement ⇒ Verificar ⇒ Reiniciar). Forma
   + commit `docs(content): AUTO-PUBLICACION - plan maestro de auto-generación y distribución`.
 
 **[I] Commits**
-- (pendiente — se ejecuta tras gates)
+- `2f1c03b` `docs(content): AUTO-PUBLICACION - plan maestro de auto-generacion y distribucion`
+  (solo 4 archivos: docs/AUTO-PUBLICACION.md, AGENTS.md, STATE.md, loop-run-log.md)
 
 **[V] Gates**
 - FULL: typecheck (core+web+runtime) ✅ · lint ✅ · test **409/409** (core 218 + runtime 191) ✅ · build ✅
@@ -270,7 +271,8 @@ Bitácora de ciclos PIVR (Plan ⇒ Implement ⇒ Verificar ⇒ Reiniciar). Forma
 **[R] Veredicto**
 - **GREEN** → commit hecho. Tarea de documentación completada; siguiente ciclo: tarea #4/#5 del
   backlog (Fase D paso 2b launcher) o AutoPub #7 (F1 tool topics) según prioridad humana.
-- Ruido fuera del commit: `learning/nanoprompts/` (fetch de datos externo al loop) quedó en working tree sin tocar.
+- Ruido fuera del commit: `learning/nanoprompts/`, `BussinesModel/`, `proyectoNuevo.*`, `masinfo.txt`,
+  `DOCS_TODO.md`, `integracionTecno.txt`, `scripts/` quedaron en working tree sin tocar.
 
 ---
 
