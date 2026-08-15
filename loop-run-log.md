@@ -622,6 +622,57 @@ ormalizeTitle() (lower + strip non-alnum), dedupe() (bigram overlap > 0.6),
 
 ---
 
+## Iteración 14 — AutoPub F1 tarea 4: cola de briefs persistente (Prisma) (15/08/2026)
+
+**[P] Plan**
+- Objetivo: tarea 4 de F1 (AUTO-PUBLICACION.md §F1, pendiente desde la iteración 7):
+  cola de briefs PERSISTENTE en Prisma — el motor de ideas (topics) deja de ser volátil
+  y alimenta la fábrica (F2 enrutador) desde la base. (STATE.md #14, SIGUIENTE).
+- Pasos:
+  1. Migración Prisma `add_topic_briefs`: modelo `TopicBrief` {id cuid, tema, canal,
+     formato, tono, angulo, fuentesJson String (JSON string[]), score Float, pubDate
+     String?, estado String default 'NUEVO' (NUEVO|PROCESADO|DESCARTADO), creadoEn
+     DateTime, procesadoEn DateTime?, @@index([estado, score])}.
+  2. `packages/core/src/domain/briefs.ts` (db inyectable, patrón publications):
+     - `guardarBriefs(db, briefs[])`: upsert/crea solo los que no existen (dedupe por
+       tema+canal), devuelve {creados, yaExistentes}.
+     - `listarBriefs(db, {estado, canal, take, cursor})`: cola ordenada por score desc.
+     - `marcarBriefProcesado(db, id)` / `marcarBriefDescartado(db, id)`.
+  3. Tool `topics_queue` en llm.ts (capability `topics` ya existe): acciones guardar/
+     listar/marcar_procesado. Export en tools/index.ts.
+  4. Tests `briefs.test.ts` con fake db: dedupe, filtros, transiciones, orden (8-10).
+  5. Docs: AUTO-PUBLICACION.md §F1 tarea 4, STATE.md #14 DONE + #15 SIGUIENTE, AGENTS.md.
+- Criterios: gates FULL verdes; core 316 → ~325 PASS; commit
+  `feat(core): AutoPub F1 tarea 4 - cola de briefs persistente (Prisma) + dominio + tool + tests`.
+
+**[I] Commits**
+- `b08534d` feat(core): AutoPub F1 tarea 4 - cola de briefs persistente (Prisma) + dominio briefs.ts + tool topics_queue + 6 tests (9 archivos, +374/-7: modelo TopicBrief + migración add_topic_briefs, domain/briefs.ts, tool topics_queue en llm.ts, export index). Sin push.
+
+**[V] Gates**
+- Scoped: briefs.test.ts **6/6 PASS** (3 fallos iniciales: fake db no era Prisma-fiel
+  — fuentesJson string + skip para cursor — y el test leía el campo equivocado) ·
+  typecheck core ✅
+- FULL: typecheck ✅ · lint ✅ · test **514/514** (core 322 + runtime 192) ✅ · build ✅
+- Pre-build check: sin dev servers node activos ✅
+
+**[R] Veredicto**
+- **GREEN** → commit `b08534d`. Tarea #14 completada: AutoPub F1 tarea 4 — cola de briefs
+  PERSISTENTE: modelo `TopicBrief` (tema/canal/formato/tono/ángulo/fuentesJson/score/
+  pubDate/estado NUEVO|PROCESADO|DESCARTADO/procesadoEn, `@@index([estado, score])`,
+  migración `add_topic_briefs`) + dominio `briefs.ts` (guardarBriefs dedupe tema+canal,
+  listarBriefs por score desc con cursor, marcarBriefProcesado/Descartado) + tool
+  `topics_queue` (capability `topics`, db vía opts.db: guardar/listar/marcar_procesado/
+  marcar_descartado). El motor de ideas (F1) ahora alimenta la fábrica (F2) desde la base.
+  LECCIÓN: la fake db de tests debe ser Prisma-fiel desde el inicio (campos serializados
+  + semántica de cursor/skip) o los fallos aparecen en la integración.
+- Siguiente ciclo: backlog #15 — AutoPub F2 tarea 2: multi-idioma es/ar (textos) + TTS
+  edge-tts para narración (packages/core) — SIGUIENTE (STATE.md).
+- Ruido externo NO tocado: `.opencode/skills/loop-*`, `DOCS_TODO.md`, `LOOP.md`,
+  `loop-constraints.md`, `opencode.json`, `scripts/loop_piv.py`, `start.py`,
+  `.opencode/skills/loop-verifier/`, `PrototypeREADME.md` — quedan en working tree.
+
+---
+
 ## Iteración 13 — AutoPub F5: KPIs + media_score pre-pub + feedback (15/08/2026)
 
 **[P] Plan**
