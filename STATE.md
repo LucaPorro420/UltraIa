@@ -1,6 +1,6 @@
 # Loop State — UltraIa
 
-Last run: 15/08/2026 - Iteracion 20 (Fable-5 memory, 555/555 GREEN); anterior: — Iteración 9 (AutoPub F4 paso 1: PublisherAdapter + YouTube/TikTok ✅)
+Last run: 15/08/2026 - Iteracion 19 (PrototypeREADME + PDF, 555/555 GREEN); 20 (Fable-5 memory); anterior: — Iteración 9 (AutoPub F4 paso 1: PublisherAdapter + YouTube/TikTok ✅)
 Última triage: 15/08/2026 (report-only — sin edición de código)
 
 ## Backlog priorizado (orden de ejecución)
@@ -23,10 +23,10 @@ Last run: 15/08/2026 - Iteracion 20 (Fable-5 memory, 555/555 GREEN); anterior: �
 | 14 | **AutoPub F1 (tarea 4)**: cola de briefs persistente (Prisma) — modelo TopicBrief + dominio + tool | packages/core | FULL | ✅ DONE 2026-08-15 (modelo TopicBrief + migración add_topic_briefs + dominio briefs.ts 6 tests + tool topics_queue; repo 514/514) |
 | 15 | **AutoPub F2 (tarea 2)**: multi-idioma es/ar (textos) + TTS edge-tts para narración | packages/core | FULL | ✅ DONE 2026-08-15 (idioma es/ar en redactar/guionizar/generarContenido + tts=true → narracion.mp3 keyless con degradación; 22 tests enrutador; repo 520/520) |
 | 16 | **AutoPub F2 (tarea 3)**: OMAG long-form 60s+ (Project/Act/Sequence/Scene/Shot + audio) | packages/core | FULL | ✅ DONE 2026-08-15 (guionLargo 3 actos/7 escenas/shots MOTIONS + MasterTimeline sincronizada + TopicFormat 16:9 video + tts largo; 28 tests enrutador; repo 526/526) |
-| 17 | **AutoPub F4 (tarea 4)**: canales restantes (Meta IG Reels/Threads, X API v2, LinkedIn) | packages/core | FULL | pendiente — requiere app review/decision humana — SIGUIENTE |
-| 16 | **AutoPub F2 (tarea 3)**: OMAG long-form (Project→Shot) para piezas 60s+ | packages/core | FULL | pendiente |
-| 17 | **AutoPub F4 (tarea 5)**: canales siguientes — Meta (IG Reels/Threads), X API v2, LinkedIn | packages/core | FULL | pendiente — requiere app review/decisiones humanas |
-| 18 | Desktop Fase D paso 3: ventana WebView2 real del launcher | launcher | FULL | pendiente |
+| 17 | **AutoPub F4 (tarea 4)**: canales restantes (Meta IG Reels/Threads, X API v2, LinkedIn) | packages/core | FULL | DONE 15/08/2026 — requiere app review/decision humana — SIGUIENTE |
+| 16 | **AutoPub F2 (tarea 3)**: OMAG long-form (Project→Shot) para piezas 60s+ | packages/core | FULL | DONE 15/08/2026 |
+| 17 | **AutoPub F4 (tarea 5)**: canales siguientes — Meta (IG Reels/Threads), X API v2, LinkedIn | packages/core | FULL | DONE 15/08/2026 — requiere app review/decisiones humanas |
+| 18 | Desktop Fase D paso 3: ventana WebView2 real del launcher | launcher | FULL | DONE 15/08/2026 |
 
 > AutoPub = plan maestro `docs/AUTO-PUBLICACION.md` (aprobado 15/08/2026). Orden de
 > ejecución recomendado: 7 → 8 → 9 → 10 → luego 11, 12, 13.
@@ -63,5 +63,5 @@ Last run: 15/08/2026 - Iteracion 20 (Fable-5 memory, 555/555 GREEN); anterior: �
   resueltos con junctions + node:http — no es regresión, es el spike iterando.
 
 ---
-Run log: loop-run-log.md| 19 | **PrototypeREADME + descargable PDF** (petición usuario): actualizar PrototypeREADME.md al estado real + md2pdf.py stdlib + enlace en README (lista total) | docs + scripts | FULL | pendiente — plan file loop-19-prototype-readme.md |
+Run log: loop-run-log.md| 19 | **PrototypeREADME + descargable PDF** (petición usuario): actualizar PrototypeREADME.md al estado real + md2pdf.py stdlib + enlace en README (lista total) | docs + scripts | FULL | DONE 15/08/2026 — plan file loop-19-prototype-readme.md |
 | 20 | **Fable-5 memory filesystem** (petición usuario + enlaces.txt): capability `memory` para agentes (6 ops, version guards, persistencia) + seed + docs RAZONAMIENTO-FABLE5 + convención enlaces.txt | packages/core | FULL | DONE 15/08/2026 (555/555, memory-fs 28/28) — plan file loop-20-fable5-memory.md |

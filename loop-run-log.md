@@ -658,13 +658,14 @@ ormalizeTitle() (lower + strip non-alnum), dedupe() (bigram overlap > 0.6),
   NuGet requiere red (verificada OK hoy); fail-soft si no.
 
 **[I] Commits**
-- (pendiente)
+- `feat(docs): PrototypeREADME al estado real 15/08/2026 + md2pdf.py stdlib + PrototypeREADME.pdf (raíz y apps/web/public) + sección Documentación/Descargables en README (lista total)`
 
 **[V] Gates**
-- (pendiente)
+- typecheck PASS | lint PASS | test 555/555 PASS (core 362 + runtime 193) | build PASS
+- scoped: `python scripts/md2pdf.py PrototypeREADME.md --out PrototypeREADME.pdf` + `--check` OK (header/xref/eof, 3 páginas)
 
 **[R] Veredicto**
-- (pendiente)
+- GREEN — PrototypeREADME refleja el estado real (OMAG expandido, AutoPub F1–F5, runtime A–C, Desktop D 1–3 validado, memory Fable-5, 555/555). PDF de 3 páginas generado con writer stdlib puro (DNA keyless-first, precedente omag/sound.ts). Copia en `apps/web/public/` para servirlo en `/prototype-readme.pdf` (hint del usuario: public vacía).
 
 ---
 

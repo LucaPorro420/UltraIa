@@ -75,3 +75,12 @@ Verification order: `typecheck → lint → test → build` (mirrored in CI).
 - Single-workspace model; multi-tenant, billing, and i18n are roadmap items.
 - Rate limiting for the v1 API is in-memory per process (resets on restart); trust `x-forwarded-for`/`x-real-ip` only when `ULTRAIA_TRUST_PROXY=1`.
 - `AGENT.md` holds the master operating prompt (canonical); `AGENTS.md` is the condensed agent instructions.
+
+## Documentation / Descargables
+
+- **PrototypeREADME.md** — prototipo al estado real (capacidades, quickstart, hoja de ruta de pendientes): `PrototypeREADME.md`
+- **PrototypeREADME.pdf** — descargable del prototipo (generado con `scripts/md2pdf.py`, stdlib puro):
+  - Repo: `PrototypeREADME.pdf`
+  - Web (servido por Next.js desde `apps/web/public/`): `http://localhost:3000/prototype-readme.pdf`
+- **Memoria de aprendizaje verificada** — `learning/memory/ultraia_memory.zip` (cargar con `python learning/scripts/restore_memory.py summary`)
+- Guías: `QUICKSTART.md`, `DEPLOY.md` (hosting gratuito), `docs/AUTO-PUBLICACION.md`, `docs/RAZONAMIENTO-FABLE5.md`, `desktopFase/ARCHITECTURE.md` + `desktopFase/docs/`
