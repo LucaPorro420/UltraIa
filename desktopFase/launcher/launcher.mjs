@@ -37,11 +37,18 @@ const REPO_ROOT = path.resolve(HERE, '../..');
 const DIST = path.join(HERE, 'dist');
 const TSC = path.join(REPO_ROOT, 'node_modules', 'typescript', 'bin', 'tsc');
 const TSCONFIG = path.join(HERE, 'tsconfig.build.json');
+const VENDOR = path.join(HERE, 'vendor');
+const WV2_NUPKG_URL = 'https://www.nuget.org/api/v2/package/Microsoft.Web.WebView2/1.0.2903.40';
+const CSC = 'C:\\Windows\\Microsoft.NET\\Framework64\\v4.0.30319\\csc.exe';
+const HOST_CS = path.join(HERE, 'webview2-host.cs');
+const HOST_EXE = path.join(DIST, 'webview2-host.exe');
+const TAR = 'C:\\Windows\\System32\\tar.exe';
 
 const args = process.argv.slice(2);
 const CHECK = args.includes('--check');
 const NO_WINDOW = args.includes('--no-window');
 const NO_BUILD = args.includes('--no-build');
+const HOST_CHECK = args.includes('--host-check');
 const portArg = args.find((a) => a.startsWith('--port='));
 const PUBLIC_PORT = portArg ? Number(portArg.slice('--port='.length)) : 0;
 
@@ -110,16 +117,156 @@ function edgePath() {
   return candidates.find((p) => fs.existsSync(p));
 }
 
+/**
+ * Descarga + extrae los binarios WebView2 (WebView2Loader.dll + ensamblados .NET)
+ * a `desktopFase/launcher/vendor/` (idempotente). Sin red → log + false (el
+ * launcher degrada a msedge --app). Usa tar.exe de Windows (System32) o
+ * Expand-Archive de PowerShell como fallback.
+ */
+async function ensureVendor() {
+  const needed = [
+    path.join(VENDOR, 'WebView2Loader.dll'),
+    path.join(VENDOR, 'Microsoft.Web.WebView2.Core.dll'),
+    path.join(VENDOR, 'Microsoft.Web.WebView2.WinForms.dll'),
+  ];
+  if (needed.every((f) => fs.existsSync(f))) return true;
+  fs.mkdirSync(VENDOR, { recursive: true });
+  log('vendor WebView2 incompleto — descargando Microsoft.Web.WebView2 1.0.2903.40…');
+  const nupkg = path.join(os.tmpdir(), `wv2-${Date.now()}.nupkg`);
+  try {
+    const res = await fetch(WV2_NUPKG_URL);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const buf = Buffer.from(await res.arrayBuffer());
+    fs.writeFileSync(nupkg, buf);
+    const extract = (entry, dest) => {
+      // Extrae un único entry del nupkg (zip) leyendo el EOCD central directory.
+      const zip = buf;
+      const eocd = zip.lastIndexOf(Buffer.from([0x50, 0x4b, 0x05, 0x06]));
+      if (eocd < 0) throw new Error('no EOCD');
+      const count = zip.readUInt16LE(eocd + 10);
+      const cdStart = zip.readUInt32LE(eocd + 16);
+      let off = cdStart;
+      for (let i = 0; i < count; i++) {
+        if (zip.readUInt32LE(off) !== 0x02014b50) throw new Error('bad CD entry');
+        const nameLen = zip.readUInt16LE(off + 28);
+        const extraLen = zip.readUInt16LE(off + 30);
+        const commentLen = zip.readUInt16LE(off + 32);
+        const localOff = zip.readUInt32LE(off + 42);
+        const name = zip.toString('utf8', off + 46, off + 46 + nameLen);
+        if (name === entry) {
+          const method = zip.readUInt16LE(localOff + 8);
+          const compSize = zip.readUInt32LE(localOff + 20);
+          const dataStart = localOff + 30 + zip.readUInt16LE(localOff + 26) + zip.readUInt16LE(localOff + 28);
+          const raw = zip.subarray(dataStart, dataStart + compSize);
+          let data = raw;
+          if (method === 8) {
+            // deflate — sin zlib de Node: usa tar.exe si está, si no Expand-Archive.
+            throw new Error('deflate sin zlib');
+          }
+          fs.mkdirSync(path.dirname(dest), { recursive: true });
+          fs.writeFileSync(dest, data);
+          return;
+        }
+        off += 46 + nameLen + extraLen + commentLen;
+      }
+      throw new Error(`entry no encontrada: ${entry}`);
+    };
+    // Preferimos tar.exe (descomprime zip nativo en Windows 10+); si falta,
+    // Expand-Archive de PowerShell 5.1. Ambos preservan subdirectorios → luego
+    // se aplana: los DLLs buscados por nombre se copian a la raíz de vendor/.
+    let ok = false;
+    if (fs.existsSync(TAR)) {
+      const r = spawnSync(TAR, ['-xf', nupkg, '-C', VENDOR, 'runtimes/win-x64/native/WebView2Loader.dll', 'lib/net462/Microsoft.Web.WebView2.Core.dll', 'lib/net462/Microsoft.Web.WebView2.WinForms.dll'], { stdio: 'ignore' });
+      ok = r.status === 0;
+    }
+    if (!ok) {
+      const ps = spawnSync('powershell.exe', ['-NoProfile', '-Command',
+        `Add-Type -AssemblyName System.IO.Compression.FileSystem; $z=[IO.Compression.ZipFile]::OpenRead('${nupkg}'); $names=@('runtimes/win-x64/native/WebView2Loader.dll','lib/net462/Microsoft.Web.WebView2.Core.dll','lib/net462/Microsoft.Web.WebView2.WinForms.dll'); foreach($n in $names){ $e=$z.GetEntry($n); $dest=Join-Path '${VENDOR}' (Split-Path $n -Leaf); [IO.Compression.ZipFileExtensions]::ExtractToFile($e, $dest, $true) }; $z.Dispose()`,
+      ], { stdio: 'ignore' });
+      ok = ps.status === 0;
+    }
+    if (!ok) throw new Error('extracción falló');
+    // Aplanar: mover los DLLs desde los subdirectorios del nupkg a la raíz de vendor/.
+    for (const dll of ['WebView2Loader.dll', 'Microsoft.Web.WebView2.Core.dll', 'Microsoft.Web.WebView2.WinForms.dll']) {
+      const found = findFile(VENDOR, dll);
+      const dest = path.join(VENDOR, dll);
+      if (found && !fs.existsSync(dest)) fs.copyFileSync(found, dest);
+    }
+    const missing = needed.filter((f) => !fs.existsSync(f));
+    if (missing.length) throw new Error(`faltan: ${missing.map((f) => path.basename(f)).join(', ')}`);
+    log('vendor WebView2 listo (WebView2Loader.dll + ensamblados .NET)');
+    return true;
+  } catch (err) {
+    log(`warning: vendor WebView2 no disponible (${err.message}); fallback a msedge --app`);
+    return false;
+  } finally {
+    try { fs.unlinkSync(nupkg); } catch { /* ignore */ }
+  }
+}
+
+/** Busca un archivo por nombre bajo un directorio (recursivo, no sigue junctions). */
+function findFile(dir, name) {
+  const stack = [dir];
+  while (stack.length) {
+    const cur = stack.pop();
+    let entries;
+    try { entries = fs.readdirSync(cur, { withFileTypes: true }); } catch { continue; }
+    for (const e of entries) {
+      const full = path.join(cur, e.name);
+      if (e.isDirectory()) stack.push(full);
+      else if (e.name === name) return full;
+    }
+  }
+  return undefined;
+}
+
+/** Compila webview2-host.cs con csc del .NET Framework (presente en todo Windows). */
+function buildHost() {
+  if (!fs.existsSync(CSC)) {
+    log('warning: csc.exe no encontrado; host WebView2 no disponible (fallback msedge --app)');
+    return false;
+  }
+  if (fs.existsSync(HOST_EXE) && fs.statSync(HOST_EXE).mtimeMs > fs.statSync(HOST_CS).mtimeMs) return true;
+  const refs = [
+    'System.dll', 'System.Core.dll', 'System.Drawing.dll', 'System.Windows.Forms.dll',
+    path.join(VENDOR, 'Microsoft.Web.WebView2.Core.dll'),
+    path.join(VENDOR, 'Microsoft.Web.WebView2.WinForms.dll'),
+  ].map((r) => `/reference:${r}`);
+  const out = spawnSync(CSC, ['/nologo', '/target:winexe', '/optimize+', ...refs, `/out:${HOST_EXE}`, HOST_CS], { stdio: 'ignore' });
+  if (out.status !== 0) {
+    log(`warning: csc falló (exit ${out.status}); host WebView2 no disponible (fallback msedge --app)`);
+    return false;
+  }
+  // Los ensamblados de vendor deben estar junto al exe (CLR los resuelve localmente).
+  for (const dll of ['WebView2Loader.dll', 'Microsoft.Web.WebView2.Core.dll', 'Microsoft.Web.WebView2.WinForms.dll']) {
+    const src = path.join(VENDOR, dll);
+    const dst = path.join(DIST, dll);
+    if (fs.existsSync(src) && !fs.existsSync(dst)) fs.copyFileSync(src, dst);
+  }
+  log('host WebView2 compilado (webview2-host.exe)');
+  return true;
+}
+
 function openWindow(url) {
+  // 1) Host WebView2 nativo (Fase D paso 3): ventana WinForms con el control WebView2.
+  const hostOk = buildHost();
+  if (hostOk && fs.existsSync(HOST_EXE)) {
+    const profile = fs.mkdtempSync(path.join(os.tmpdir(), 'ultraia-wv2-'));
+    const child = spawn(HOST_EXE, [`--url=${url}`, '--title=UltraIa Desktop', `--user-data-dir=${profile}`], { detached: true, stdio: 'ignore' });
+    child.unref();
+    log(`ventana WebView2 abierta: ${url}`);
+    return;
+  }
+  // 2) Fallback: msedge --app (Edge ES el WebView2 Runtime; comportamiento previo).
   const exe = edgePath();
   if (!exe) {
-    log('msedge.exe no encontrado; saltando apertura de ventana (usa el navegador manualmente).');
+    log('msedge.exe no encontrado; usa el navegador manualmente.');
     return;
   }
   const profile = fs.mkdtempSync(path.join(os.tmpdir(), 'ultraia-shell-'));
   const child = spawn(exe, [`--app=${url}`, `--user-data-dir=${profile}`], { detached: true, stdio: 'ignore' });
   child.unref();
-  log(`ventana abierta: ${url}`);
+  log(`ventana abierta (fallback msedge --app): ${url}`);
 }
 
 function dashboardHtml() {
@@ -208,6 +355,7 @@ async function main() {
   }
   ensureJunction();
   ensureCoreAlias();
+  await ensureVendor(); // fail-soft: sin red → openWindow degrada a msedge --app
 
   let runtimeMod;
   let corePorts;
@@ -356,6 +504,36 @@ async function main() {
     await runtime.stop();
     process.exitCode = result.ok ? 0 : 1;
     setTimeout(() => process.exit(process.exitCode), 100);
+    return;
+  }
+
+  if (HOST_CHECK) {
+    // Verificación end-to-end del host WebView2 (paso 3): arranca el runtime + proxy
+    // (ya arriba) y lanza webview2-host.exe --check contra el dashboard real.
+    const hostBuilt = buildHost();
+    let hostResult = { ok: false, built: hostBuilt, error: hostBuilt ? 'host exe no presente' : 'no csc/vendor' };
+    if (hostBuilt && fs.existsSync(HOST_EXE)) {
+      const profile = fs.mkdtempSync(path.join(os.tmpdir(), 'ultraia-wv2-check-'));
+      hostResult = await new Promise((resolve) => {
+        const child = spawn(HOST_EXE, [`--url=${publicUrl}`, `--user-data-dir=${profile}`, '--check'], { windowsHide: true });
+        let out = '';
+        child.stdout.on('data', (c) => (out += c.toString()));
+        child.stderr.on('data', (c) => (out += c.toString()));
+        child.on('close', (code) => {
+          let parsed = {};
+          const line = out.split('\n').find((l) => l.includes('"ok"'));
+          if (line) { try { parsed = JSON.parse(line); } catch { /* ignore */ } }
+          resolve({ ok: code === 0 && parsed.ok === true, exit: code, built: hostBuilt, ...parsed, stdout: out.trim().slice(0, 400) });
+        });
+      });
+    }
+    log(`host-check: ${JSON.stringify({ ok: hostResult.ok, webview2: hostResult.version ?? null, exit: hostResult.exit ?? null, built: hostResult.built, error: hostResult.error ?? null })}`);
+    proxy.closeAllConnections?.();
+    await new Promise((r) => proxy.close(r));
+    await runtime.stop();
+    process.exitCode = hostResult.ok ? 0 : 1;
+    setTimeout(() => process.exit(process.exitCode), 100);
+    return;
   }
 
   if (!NO_WINDOW) openWindow(publicUrl);

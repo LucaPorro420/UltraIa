@@ -62,4 +62,41 @@ describe('desktop launcher spike (Fase D paso 2b)', () => {
     expect(summary.apiUrl).toMatch(/^http:\/\/127\.0\.0\.1:\d+$/);
     expect(summary.publicUrl).toMatch(/^http:\/\/127\.0\.0\.1:\d+$/);
   }, 240_000);
+
+  it('--host-check: ventana WebView2 nativa navega al dashboard y reporta versión del runtime', async () => {
+    // Paso 3 Fase D: el host C# (webview2-host.exe, control WebView2 WinForms)
+    // inicializa el runtime Evergreen y navega al proxy UI. Requiere sesión
+    // interactiva de Windows + red (para vendor/ la primera vez) + runtime Evergreen.
+    const { code, stdout } = await runLauncherFlag('--host-check', 240_000);
+    const lines = stdout.split('\n').filter((l) => l.includes('[launcher]'));
+    const summaryLine = lines.find((l) => l.includes('host-check:'));
+    expect(summaryLine).toBeTruthy();
+    const summary = JSON.parse(summaryLine!.slice('[launcher] host-check: '.length));
+    expect(summary.ok).toBe(true);
+    expect(summary.built).toBe(true);
+    expect(summary.webview2).toBeTruthy(); // ej. "151.0.4129.86"
+    expect(code).toBe(0);
+  }, 240_000);
 });
+
+function runLauncherFlag(flag: string, timeoutMs: number): Promise<{ code: number | null; stdout: string; stderr: string }> {
+  return new Promise((resolve, reject) => {
+    const child = spawn(process.execPath, [LAUNCHER, flag], { cwd: REPO_ROOT, windowsHide: true });
+    let stdout = '';
+    let stderr = '';
+    const timer = setTimeout(() => {
+      child.kill();
+      reject(new Error(`launcher ${flag} timed out`));
+    }, timeoutMs);
+    child.stdout.on('data', (c: Buffer) => (stdout += c.toString()));
+    child.stderr.on('data', (c: Buffer) => (stderr += c.toString()));
+    child.on('close', (code) => {
+      clearTimeout(timer);
+      resolve({ code, stdout, stderr });
+    });
+    child.on('error', (err) => {
+      clearTimeout(timer);
+      reject(err);
+    });
+  });
+}
