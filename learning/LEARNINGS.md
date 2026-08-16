@@ -116,3 +116,14 @@ referencia (archivado); patrón Databricks para distribuir skills/MCP de los age
 - ✅ Scripts bash requieren Git Bash (no ejecutables directos en PowerShell)
 - ⚠️ Primer arranque de browse tarda >15 s (servidor en frío); reintentar
 - ⏭️ Skills opencode se cargan al iniciar sesión — reiniciar opencode para verlas en el listado
+
+## Fable-5 memory filesystem (15/08/2026) — VERIFICADO 28/28
+
+Fuente: enlaces.txt → learning/sources/claude-fable-5-system-prompt.md (system prompt filtrado de Claude Fable 5, Anthropic). Análisis: docs/RAZONAMIENTO-FABLE5.md. Implementación: capability `memory` (tools/memory-fs.ts).
+
+- Memoria estructurada = razonamiento: version guards (ifVersion, hash FNV-1a) + strReplace match único + una ficha por sujeto con aliases es lo que hace la memoria de agente confiable entre sesiones.
+- Escritura optimista sin locks: 1 hash + 1 comparación por op; conflicto → error claro con versión actual (releer antes de escribir).
+- append sobre ficha inexistente la crea (patrón "primer hecho durable"): el primer hecho del turno se archiva sin esperar confirmación.
+- Calibración de claims: una mención = [stated] mencionó X una vez; inferencia ≠ stated (no subir una mención a generalización).
+- No archivar: atributos protegidos / info sensible / guardrails de comportamiento (nada de adulación o supresión de crítica).
+- PowerShell: al inyectar regex en strings single-quoted, `\\s` queda literal doble-backslash en el archivo → usar Write tool o verificar el archivo escrito (lección recurrente de encoding/escaping en PS 5.1).

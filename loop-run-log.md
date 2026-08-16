@@ -622,6 +622,52 @@ ormalizeTitle() (lower + strip non-alnum), dedupe() (bigram overlap > 0.6),
 
 ---
 
+## Iteración 17 — Desktop Fase D paso 3: ventana WebView2 real (15/08/2026)
+
+**[P] Plan**
+- Objetivo: paso 3 del plan Fase D (DESKTOP_ARCHITECTURE.md): reemplazar la apertura
+  `msedge --app` del spike por una **ventana WebView2 nativa** (control WinForms) que
+  embebe el runtime Evergreen instalado (151.x) y navega al proxy UI del launcher.
+  (STATE.md #18).
+- Pasos:
+  1. `desktopFase/launcher/webview2-host.cs` — host C# WinForms (compilado con csc.exe
+     del .NET Framework 4.8, presente en todo Windows; sin toolchain nueva):
+     args `--url --title --user-data-dir --check`; crea ventana Dark Obsidian, inicializa
+     WebView2 (CoreWebView2CreationProperties.UserDataFolder), navega; `--check` espera
+     NavigationCompleted (timeout 35s), imprime JSON `{ok, version}` y sale 0/1.
+  2. `launcher.mjs`:
+     - `ensureVendor()`: descarga `Microsoft.Web.WebView2` nupkg (versión fija
+       1.0.2903.40) a temp, extrae `runtimes/win-x64/native/WebView2Loader.dll` +
+       `lib/net462/Microsoft.Web.WebView2.{Core,WinForms}.dll` a
+       `desktopFase/launcher/vendor/` (idempotente; tar.exe de Windows o Expand-Archive;
+       fail-soft con log si no hay red).
+     - `buildHost()`: compila webview2-host.cs con csc.exe (Framework64 v4.0.30319)
+       referenciando vendor DLLs → `dist/webview2-host.exe` (+ copia DLLs al lado).
+     - `openWindow()`: lanza el host con la URL del proxy; si no hay csc/vendor/runtime →
+       fallback `msedge --app` (degradación elegante, comportamiento previo intacto).
+     - Flag `--host-check`: ensureVendor + buildHost + ejecuta host `--check` contra el
+       proxy real → JSON resumen + exit 0/1.
+  3. Test `launcher.test.ts` (+1): `--host-check` arranca todo, el host WebView2 navega
+     al dashboard, reporta versión del runtime y sale 0.
+  4. `.gitignore`: `desktopFase/launcher/vendor/` (binarios de terceros regenerables).
+  5. Docs: DESKTOP_ARCHITECTURE.md (paso 3 ✅), launcher/README.md, STATE.md #18 DONE,
+     AGENTS.md.
+- Criterios: gates FULL verdes; runtime 192 → ~193 PASS; commit
+  `feat(desktop): Fase D paso 3 - ventana WebView2 nativa (host C# WinForms + vendor loader) + test`.
+- Riesgo: WebView2 `--check` necesita sesión interactiva de Windows (aquí disponible).
+  NuGet requiere red (verificada OK hoy); fail-soft si no.
+
+**[I] Commits**
+- (pendiente)
+
+**[V] Gates**
+- (pendiente)
+
+**[R] Veredicto**
+- (pendiente)
+
+---
+
 ## Iteración 16 — AutoPub F2 tarea 3: OMAG long-form 60s+ (15/08/2026)
 
 **[P] Plan**
@@ -842,3 +888,58 @@ ormalizeTitle() (lower + strip non-alnum), dedupe() (bigram overlap > 0.6),
 - Ruido externo NO tocado: `.opencode/skills/loop-*`, `DOCS_TODO.md`, `LOOP.md`,
   `loop-constraints.md`, `opencode.json`, `scripts/loop_piv.py`, `start.py`,
   `.opencode/skills/loop-verifier/`, `PrototypeREADME.md` — quedan en working tree.
+
+---
+
+## Iteración 18 — PrototypeREADME actualizado + descargable PDF en la lista total (15/08/2026)
+
+**[P] Plan**
+- Objetivo: petición del usuario ("Realiza el prototypeREADME.md y dame el descargable en la
+  lista total de ULTRAIA para usarlo") — reescribir `PrototypeREADME.md` al estado real
+  15/08/2026 (estaba desactualizado: roadmap listaba items ya DONE y faltaban iteraciones
+  12-16 + runtime A-C + Desktop D 1-2), generar el descargable `PrototypeREADME.pdf` con un
+  writer PDF stdlib puro (`scripts/md2pdf.py`, cero deps — no hay toolchain PDF en la máquina),
+  y enlazar ambos en la lista total (`README.md` sección Documentación / Descargables).
+- Pasos: 1) reescribir PrototypeREADME.md (capacidades reales, diagrama, quickstart,
+  roadmap solo pendientes, sección Descargables); 2) scripts/md2pdf.py (md→PDF, --check);
+  3) generar PrototypeREADME.pdf + verificar; 4) README.md enlaces; 5) STATE.md #19 + run-log.
+- Criterios: scoped `python scripts/md2pdf.py --check` + FULL npm (typecheck/lint/test 526/526/build);
+  staging explícito de 6 archivos (ruido Iteración 17 en working tree queda fuera).
+- Plan file: `.opencode/plans/loop-19-prototype-readme.md`.
+
+**[I] Commits**
+- (pendiente)
+
+**[V] Gates**
+- (pendiente)
+
+**[R] Veredicto**
+- (pendiente)
+
+---
+
+## Iteración 20 — Aprender del system prompt Fable 5: memory filesystem para agentes (15/08/2026)
+
+**[P] Plan**
+- Objetivo: el usuario dejó una URL en `enlaces.txt` (system prompt filtrado de Claude Fable 5,
+  Anthropic) y pidió usarla para "mejorar y aprender otro modelo de razonamiento" + convención
+  de enlaces futuros. Análisis completo → el patrón más accionable es el **memory filesystem**
+  (6 ops con version guards, frontmatter, tags, una-ficha-por-sujeto) que los agentes de
+  UltraIa no tienen. Se implementa como capability `memory` en core (6 tools de agente) +
+  seed admin + docs (RAZONAMIENTO-FABLE5.md, convención enlaces.txt en AGENTS.md).
+- Pasos: 1) memory-fs.ts (createMemoryFs: list/read/write/append/strReplace/delete, sha256
+  version, persistencia atómica opcional); 2) index.ts + TOOL_DESCRIPTIONS + Capability;
+  3) llm.ts 6 tools memory_* + opts.memoryFs; 4) core index export; 5) seed-admin caps +
+  'memory'; 6) tests ~22; 7) docs; 8) wiring web opcional scoped.
+- Criterios: scoped memory-fs.test.ts 22/22 + FULL npm (repo 526 → ~548); commit
+  `feat(core): memoria de agentes Fable-5 - memory filesystem + capability memory + docs`.
+- Plan file: `.opencode/plans/loop-20-fable5-memory.md`.
+
+**[I] Commits**
+- (pendiente)
+
+**[V] Gates**
+- (pendiente)
+
+**[R] Veredicto**
+- (pendiente)

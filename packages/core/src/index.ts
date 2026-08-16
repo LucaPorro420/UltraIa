@@ -16,4 +16,5 @@ export * from './domain/versions';
 export * from './domain/workspace';
 export * from './omag';
 export * from './tools/calculator';
+export * from './tools/memory-fs';
 export * from './tools';

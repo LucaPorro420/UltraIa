@@ -365,3 +365,12 @@ Harness de desarrollo continuo del proyecto, orquestado por loop-engineering
 - En-sesión: el agente sigue el protocolo sin esperar confirmación (autorización permanente del
   usuario, 15/08/2026), respetando SIEMPRE los gates humanos de push/merge (nunca push automático).
 - Kill switch: si `STATE.md` o `loop-run-log.md` contienen `loop-pause-all`, el bucle se detiene.
+## Fuente de enlaces (enlaces.txt) — 15/08/2026
+
+El usuario deja URLs en `enlaces.txt` (raíz) para que se analicen y se apliquen al proyecto
+("utiliza la url de enlaces.txt para mejorar y aprender otro modelo de razonamiento"). Protocolo:
+1. Descargar la fuente cruda a `learning/sources/<slug>.md` (curl, idempotente).
+2. Analizar (índice de secciones + leer las secciones relevantes; delegar con explore si es grande).
+3. Extraer patrones transferibles → `docs/RAZONAMIENTO-<SLUG>.md` (análisis + mapeo implementado/pendiente).
+4. Implementar lo accionable como ciclo PIVR (capability/tool/tests) + lecciones en `learning/LEARNINGS.md`.
+5. La fuente queda commiteada en `learning/sources/` (precedente: claude-fable-5-system-prompt.md → capability `memory`).

@@ -27,7 +27,7 @@ async function main() {
   for (const a of AGENTS) {
     const id = 'bp-admin-' + a.id.replace('bp-', '');
     const systemPrompt = buildPrompt(a.base, a.skills, a.loop);
-    const caps = [...new Set([...a.caps, 'skills', 'content'])];
+    const caps = [...new Set([...a.caps, 'skills', 'content', 'memory'])];
     const isPublic = a.isPublic ?? true; // admin: todo visible ("contiene todos los recursos")
     const blueprint = await prisma.agentBlueprint.upsert({
       where: { id },

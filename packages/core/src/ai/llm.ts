@@ -23,6 +23,7 @@ import { generarContenido, type ContentPackage } from '../tools/enrutador';
 import { computeChannelKpis } from '../tools/metrics';
 import { publicationSignals } from '../domain/publications';
 import { audioLibrary } from '../omag/audiolibrary';
+import { createMemoryFs, type MemoryFs } from '../tools/memory-fs';
 import { synthSound as synth } from '../omag/sound';
 
 const modelCache = new Map<string, LanguageModel>();
@@ -148,6 +149,8 @@ export function chatStream(opts: {
   onFinish?: (result: { text: string }) => void;
   /** Prisma client para tools con persistencia (publications). */
   db?: import('../db/client').Db;
+  /** Memory filesystem de agente (Fable-5 pattern); si falta, efímero por request. */
+  memoryFs?: MemoryFs | null;
 }) {
   const tools: Record<string, Tool> = {};
   if (opts.tools?.includes('calculator')) {
@@ -566,6 +569,53 @@ export function chatStream(opts: {
       },
     });
   }
+  if (opts.tools?.includes('memory')) {
+    const mfs: MemoryFs = opts.memoryFs ?? createMemoryFs({});
+    const memDesc = (s: string) =>
+      'Memoria de agente (Fable-5 pattern, una ficha por sujeto). ' + s;
+    tools.memory_list = tool({
+      description: memDesc('Lista las fichas existentes (path + description + aliases). Úsalo antes de preguntar al usuario por contexto que ya pueda estar archivado; nunca afirmes no tener algo sin listar antes.'),
+      parameters: z.object({}),
+      execute: async () => mfs.list(),
+    });
+    tools.memory_read = tool({
+      description: memDesc('Lee una ficha completa (frontmatter + líneas con tags) por path, ej. topics/food, people/sam, preferences. La descripción del listing es una pista, no sustituye abrir el archivo.'),
+      parameters: z.object({ path: z.string().min(1).max(60) }),
+      execute: async ({ path }) => mfs.read(path),
+    });
+    tools.memory_write = tool({
+      description: memDesc('Crea o reescribe una ficha entera (frontmatter + líneas). Líneas con tag explícito "[stated] texto"; sin tag quedan [stated]. Si la ficha existe, pasa ifVersion (de la última lectura) para evitar pisar cambios ajenos.'),
+      parameters: z.object({
+        path: z.string().min(1).max(60),
+        name: z.string().min(1).max(60).optional(),
+        description: z.string().min(1).max(200).optional(),
+        sources: z.array(z.string().max(20)).optional(),
+        aliases: z.array(z.string().max(40)).optional(),
+        lines: z.array(z.string().max(2000)).min(1).max(500),
+        ifVersion: z.string().optional(),
+      }),
+      execute: async (input) => {
+        const { ifVersion, ...rest } = input;
+        return mfs.write(rest.path, rest, ifVersion);
+      },
+    });
+    tools.memory_append = tool({
+      description: memDesc('Agrega una línea al final de una ficha (tag [stated] por defecto). Si la ficha no existe, la crea con frontmatter mínimo. Usa ifVersion si ya leíste la ficha.'),
+      parameters: z.object({ path: z.string().min(1).max(60), line: z.string().min(1).max(2000), ifVersion: z.string().optional() }),
+      execute: async ({ path, line, ifVersion }) => mfs.append(path, line, ifVersion),
+    });
+    tools.memory_replace = tool({
+      description: memDesc('Reemplaza una parte de una ficha: oldStr debe coincidir EXACTAMENTE una vez (0 o varias → error; amplía oldStr con contexto circundante). Útil para editar o borrar una línea específica (newStr vacío la elimina).'),
+      parameters: z.object({ path: z.string().min(1).max(60), oldStr: z.string().min(1).max(2000), newStr: z.string().max(2000), ifVersion: z.string().optional() }),
+      execute: async ({ path, oldStr, newStr, ifVersion }) => mfs.strReplace(path, oldStr, newStr, ifVersion),
+    });
+    tools.memory_delete = tool({
+      description: memDesc('Elimina una ficha completa. Úsalo SOLO cuando el usuario lo pide explícitamente (olvidar algo), nunca proactivamente. Requiere ifVersion si la ficha existe.'),
+      parameters: z.object({ path: z.string().min(1).max(60), ifVersion: z.string().optional() }),
+      execute: async ({ path, ifVersion }) => mfs.delete(path, ifVersion),
+    });
+  }
+
   return streamText({
     model: resolveModel(opts.model),
     system: opts.system,

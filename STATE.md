@@ -1,6 +1,6 @@
 # Loop State — UltraIa
 
-Last run: 15/08/2026 — Iteración 9 (AutoPub F4 paso 1: PublisherAdapter + YouTube/TikTok ✅)
+Last run: 15/08/2026 - Iteracion 20 (Fable-5 memory, 555/555 GREEN); anterior: — Iteración 9 (AutoPub F4 paso 1: PublisherAdapter + YouTube/TikTok ✅)
 Última triage: 15/08/2026 (report-only — sin edición de código)
 
 ## Backlog priorizado (orden de ejecución)
@@ -63,4 +63,5 @@ Last run: 15/08/2026 — Iteración 9 (AutoPub F4 paso 1: PublisherAdapter + You
   resueltos con junctions + node:http — no es regresión, es el spike iterando.
 
 ---
-Run log: loop-run-log.md
+Run log: loop-run-log.md| 19 | **PrototypeREADME + descargable PDF** (petición usuario): actualizar PrototypeREADME.md al estado real + md2pdf.py stdlib + enlace en README (lista total) | docs + scripts | FULL | pendiente — plan file loop-19-prototype-readme.md |
+| 20 | **Fable-5 memory filesystem** (petición usuario + enlaces.txt): capability `memory` para agentes (6 ops, version guards, persistencia) + seed + docs RAZONAMIENTO-FABLE5 + convención enlaces.txt | packages/core | FULL | DONE 15/08/2026 (555/555, memory-fs 28/28) — plan file loop-20-fable5-memory.md |
