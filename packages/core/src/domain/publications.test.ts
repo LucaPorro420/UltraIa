@@ -250,6 +250,15 @@ describe('publishDue', () => {
     expect(res).toEqual({ publicadas: 1, fallidas: 0 });
     expect(rows[0].estado).toBe('PUBLISHED');
   });
+
+  it('resultado ok con plataforma instagram → PUBLISHED (Meta fluye por markPublished)', async () => {
+    const { db, rows } = fakeDb();
+    await createPublication(db, { paquete: makePaquete('blog'), canal: 'blog', scheduledAt: new Date('2026-08-14T10:00:00Z') });
+    const publishFn = async () => [{ platform: 'instagram' as const, ok: true, id: 'ig1', url: 'https://www.instagram.com/reel/ig1/' }];
+    const res = await publishDue(db, { publishFn });
+    expect(res).toEqual({ publicadas: 1, fallidas: 0 });
+    expect(rows[0].estado).toBe('PUBLISHED');
+  });
 });
 
 describe('listPublications', () => {

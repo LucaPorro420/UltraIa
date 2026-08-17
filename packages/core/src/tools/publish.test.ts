@@ -229,6 +229,24 @@ describe('publishToAll + default publishers', () => {
     expect(x.ok).toBe(false);
     expect(x.error).toContain('X_ACCESS_TOKEN');
   });
+
+  it('createDefaultPublishers({ includeMeta: true }): 4 adapters, IG+Threads fail-soft sin token', async () => {
+    const adapters = createDefaultPublishers({ includeMeta: true });
+    expect(adapters.map((a) => a.platform).sort()).toEqual(['instagram', 'threads', 'tiktok', 'youtube']);
+    const results = await publishToAll(adapters, { videoBuffer: MP4_BYTES });
+    expect(results).toHaveLength(4);
+    const ig = results.find((r) => r.platform === 'instagram')!;
+    expect(ig.ok).toBe(false);
+    expect(ig.error).toContain('IG_ACCESS_TOKEN');
+    const th = results.find((r) => r.platform === 'threads')!;
+    expect(th.ok).toBe(false);
+    expect(th.error).toContain('THREADS_ACCESS_TOKEN');
+  });
+
+  it('createDefaultPublishers({ includeX: true, includeMeta: true }): 5 adapters', () => {
+    const adapters = createDefaultPublishers({ includeX: true, includeMeta: true });
+    expect(adapters.map((a) => a.platform).sort()).toEqual(['instagram', 'threads', 'tiktok', 'x', 'youtube']);
+  });
 });
 
 describe('createXAdapter (X API v2, F4 paso 4)', () => {

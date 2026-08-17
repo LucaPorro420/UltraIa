@@ -536,11 +536,13 @@ export async function publishToAll(adapters: PublisherAdapter[], input: PublishI
   return results;
 }
 
-/** Crea los adaptadores por defecto (YT + TikTok; opcionalmente X — canal F4 paso 4).
-// includeX=false por defecto para no cambiar el comportamiento de las colas existentes. */
-export function createDefaultPublishers(opts: { includeX?: boolean } = {}): PublisherAdapter[] {
+/** Crea los adaptadores por defecto (YT + TikTok; opcionalmente X — canal F4 paso 4 — y Meta IG/Threads — paso 5).
+// includeX/includeMeta=false por defecto para no cambiar el comportamiento de las colas existentes. */
+export function createDefaultPublishers(opts: { includeX?: boolean; includeMeta?: boolean } = {}): PublisherAdapter[] {
   const base = [createYouTubeAdapter(), createTikTokAdapter()];
-  return opts.includeX ? [...base, createXAdapter()] : base;
+  if (opts.includeX) base.push(createXAdapter());
+  if (opts.includeMeta) base.push(createInstagramAdapter(), createThreadsAdapter());
+  return base;
 }
 
 export const publish = { createYouTubeAdapter, createTikTokAdapter, createXAdapter, createInstagramAdapter, createThreadsAdapter, createDefaultPublishers, publishToAll, buildBilingualMetadata, buildXPostText, xAppendMultipartBody, formBody, IG_MEDIA_URL, THREADS_MEDIA_URL };
