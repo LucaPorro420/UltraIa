@@ -1456,6 +1456,28 @@ ormalizeTitle() (lower + strip non-alnum), dedupe() (bigram overlap > 0.6),
   (createDefaultPublishers includeMeta + publishDue + tool toInstagram/toThreads +
   markPublished platform). Sin push (aprobación humana).
 
+---
+
+### Iteración 36 — AutoPub F4 wiring Meta (17/08/2026) — DONE `a223417`
+
+- **P — Plan**: plan file loop-36. Meta alcanzable desde cola + tool (patrón loop-33 con X).
+  `markPublished` no mapea plataformas (guarda resultadoJson) → wiring mínimo.
+- **I — Implement**:
+  - `tools/publish.ts`: `createDefaultPublishers({ includeX?, includeMeta? })` — includeMeta
+    añade `createInstagramAdapter` + `createThreadsAdapter`; default sin cambios (retrocompatible).
+  - `domain/publications.ts`: `publishDue` → `createDefaultPublishers({ includeX: true, includeMeta: true })`.
+  - `ai/llm.ts` `publish_submit`: description cita Meta; schema `toInstagram`/`toThreads`
+    opcionales; adapters includeX+includeMeta; filtro por ramas explícitas por plataforma
+    (switch, no ternario anidado).
+  - Maniobra simétrica: llm.ts lo tocaba la sesión concurrente (capability growth WIP) —
+    backup a %TEMP%\opencode\backup-loop36, checkout, editar, commit, restaurar. Merge
+    verificado: HEAD llm.ts contiene harness + growth_plan + publish_submit Meta (a223417).
+- **V — Verify**: vitest **73/73** (publish 45 = 43+2 includeMeta; publications 28 = 27+1 IG) ·
+  tsc parcial EXIT 0 propios (solo ruido reach.ts de game-dev) · eslint EXIT 0. FULL pendiente
+  árbol limpio (#25 sigue activo).
+- **R — Reiniciar**: AutoPub F4 canales COMPLETA (YT/TikTok/blog/X/Meta). Siguiente: F5
+  restante (analytics reales por API de canal) o revisar cola. Sin push (aprobación humana).
+
 ### Iteraci�n 36 - Capability growth (patrones VidRush + Abacus.AI) (17/08/2026) - DONE PENDIENTE-COMMIT
 
 - **P - Plan**: plan file loop-36-growth.md (URLs nuevas de enlaces.txt: vidrush.ai + abacus.ai;
