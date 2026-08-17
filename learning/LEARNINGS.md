@@ -138,3 +138,14 @@ Analisis: docs/RAZONAMIENTO-DIAGRAM-DESIGN.md. Implementacion: capability diagra
 - Autocontenido: 1 HTML offline, sin <script>, sin recursos externos (el xmlns w3.org es obligatorio en SVG — no testear contra 'http://' global).
 - El patron "tokens semanticos paper/ink/muted/accent" = mismo patron de capability que ya usa UltraIa (tools por capability en ai/llm.ts).
 - CSS: el nombre de clase editorial-card SIEMPRE esta en <style> aunque no se use — aserciones deben apuntar al ELEMENTO (<aside class=...>), no al string.
+
+## Video editing — video-use (17/08/2026) — VERIFICADO 29/29
+
+Fuente: enlaces.txt -> learning/sources/video-use.md + video-use-SKILL.md (browser-use/video-use, MIT). Referencia: vendor/video-use/ (clon sin .git). Analisis: docs/RAZONAMIENTO-VIDEO-USE.md. Implementacion: capability video_edit (tools/video-edit.ts) + Task/video-edit-demo.ts -> resultTask/edl/.
+
+- Superficie compacta para razonar: takes_packed (~12KB, frases [start-end] + speaker) > JSON crudo de transcripcion (10x tokens) — mismo principio que la verdad comprimida de learning/ y los briefs de topics.
+- Audio-first: candidatos de corte desde fronteras de palabra/silencios; timeline visual = zoom on-demand, nunca escaner.
+- 12 hard rules de PRODUCCION (no gusto): fades 30ms por frontera (anti-pops), extract por segmento + concat -c copy (evita doble re-encode), subtitulos/overlays LAST, silencios >=400ms limpios / <150ms inseguros, padding 30-200ms, self-eval max 3 ciclos.
+- Self-eval determinista = el eslabon que convierte un generador en pipeline verificable (DURATION_MISMATCH/UNSAFE_CUT/UNSAFE_GAP + score 0-100) — mismo patron que critics.ts en OMAG.
+- Keyless-first: transcribir con provider configurable (Gemini si GOOGLE_API_KEY; degradar a captions manuales) — NUNCA inventar timestamps.
+- PS 5.1 leccion REAFIRMADA (fallo real este ciclo): Get-Content + -replace + Set-Content en un .ts UTF-8 colapso el archivo a 1 linea y corrompio la codificacion (mojibake â€") — SIEMPRE usar la tool Write para archivos, jamas Set-Content. Nunca mezclar edit + bash en el MISMO bloque paralelo sobre el MISMO archivo (carrera: el disco termino con un identificador que nunca escribi).

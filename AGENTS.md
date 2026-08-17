@@ -373,7 +373,7 @@ El usuario deja URLs en `enlaces.txt` (raíz) para que se analicen y se apliquen
 2. Analizar (índice de secciones + leer las secciones relevantes; delegar con explore si es grande).
 3. Extraer patrones transferibles → `docs/RAZONAMIENTO-<SLUG>.md` (análisis + mapeo implementado/pendiente).
 4. Implementar lo accionable como ciclo PIVR (capability/tool/tests) + lecciones en `learning/LEARNINGS.md`.
-5. La fuente queda commiteada en `learning/sources/` (precedentes: claude-fable-5-system-prompt.md → capability `memory`; diagram-design.md → capability `diagram`, 17/08/2026).
+5. La fuente queda commiteada en `learning/sources/` (precedentes: claude-fable-5-system-prompt.md → capability `memory`; diagram-design.md → capability `diagram`, 17/08/2026; video-use.md + video-use-SKILL.md → capability `video_edit`, 17/08/2026).
 
 ## Capability diagram (17/08/2026)
 
@@ -389,3 +389,29 @@ El usuario deja URLs en `enlaces.txt` (raíz) para que se analicen y se apliquen
 - Generador: `node_modules\.bin\vite-node.cmd Task/generate-diagrams.ts` → `resultTask/diagrams/`
   (timelines de los 2 motion-specs + pipeline Motion Engine) y `docs/diagrams/` (roadmap-2026,
   desktop-architecture, gen-engine-pipeline + README índice). Regeneración idempotente y determinista.
+
+## Capability video_edit (17/08/2026)
+
+- **Patrón video-use** (fuente: enlaces.txt → `learning/sources/video-use.md` + `video-use-SKILL.md`,
+  análisis `docs/RAZONAMIENTO-VIDEO-USE.md`, referencia `vendor/video-use/` sin .git):
+  `packages/core/src/tools/video-edit.ts` — port ORIGINAL de los PRINCIPIOS (nada de código copiado,
+  attribution header). Superficie de razonamiento: `packTranscript` → takes_packed (~12KB, frases
+  `[start-end]` + speaker, break en ≥0.5s/cambio speaker) — el modelo lee, no mira.
+- 12 hard rules de producción (HARD_RULES): subtítulos LAST; extract por segmento + concat lossless
+  `-c copy`; fades audio 30ms por frontera (`FADE_MS=0.03`); silencios ≥400ms limpios / 150-400ms
+  verificables / <150ms inseguros (`silenceSafety`); padding 30-200ms (`paddingOk`); self-eval máx 3
+  (`MAX_SELF_EVAL_ATTEMPTS`). `buildEdl` valida in<out, ≥50ms, overlaps (warnOnly opcional);
+  `renderFfmpeg` genera argv ffmpeg determinista (grade warm-cinematic/neutral-punch/none por
+  segmento, `-movflags +faststart`); `selfEvalEdl` → DURATION_MISMATCH/UNSAFE_CUT/UNSAFE_GAP +
+  score 0-100; `timelineViewSvg` → composite SVG editorial Dark Obsidian (a11y, sin JS).
+- Registro: capability `video_edit` → tools `video_edit_pack` / `video_edit_edl` / `video_edit_render` /
+  `video_edit_selfeval` / `video_edit_timeline` en `ai/llm.ts`. Export en tools/index.ts (`videoEdit`).
+- Keyless-first: transcribe con provider configurable (Gemini si `GOOGLE_API_KEY`; si no, captions
+  manuales) — nunca inventar timestamps. El render real corre en runner/scripts (ffmpeg instalado),
+  nunca en tests.
+- Demo: `node_modules\.bin\vite-node.cmd Task/video-edit-demo.ts` → `resultTask/edl/download-{2,5}-mp4/`
+  (takes_packed.md, edl.json, render.sh, render.steps.txt, selfeval.json, timeline.svg) + índice en
+  `resultTask/README.md`. Tests: video-edit.test.ts 29 PASS.
+- LECCIÓN REAFIRMADA (fallo real este ciclo): jamás Get-Content/-replace/Set-Content sobre archivos
+  del repo (PS 5.1 colapsa líneas y corrompe UTF-8) — usar la tool Write; no mezclar edit+bash en
+  paralelo sobre el mismo archivo.

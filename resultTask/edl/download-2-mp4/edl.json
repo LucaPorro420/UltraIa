@@ -1,0 +1,33 @@
+{
+  "edl": {
+    "title": "Download (2).mp4 — demo edit",
+    "cuts": [
+      {
+        "source": "Download (2).mp4",
+        "in": 0,
+        "out": 3.2,
+        "reason": "hook"
+      },
+      {
+        "source": "Download (2).mp4",
+        "in": 3.8,
+        "out": 7.6,
+        "reason": "desarrollo"
+      },
+      {
+        "source": "Download (2).mp4",
+        "in": 8.2,
+        "out": 12.4,
+        "reason": "giro"
+      },
+      {
+        "source": "Download (2).mp4",
+        "in": 13,
+        "out": 23.2,
+        "reason": "cierre"
+      }
+    ],
+    "grade": "warm-cinematic"
+  },
+  "warnings": []
+}

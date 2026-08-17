@@ -18,6 +18,7 @@ export * from './media-score';
 export * from './metrics';
 export * from './memory-fs';
 export * from './diagram';
+export * from './video-edit';
 
 import * as web from './web';
 import * as image from './image';
@@ -36,8 +37,9 @@ import { mediaScore } from './media-score';
 import { metrics } from './metrics';
 import { createMemoryFs } from './memory-fs';
 import { diagram } from './diagram';
+import { videoEdit } from './video-edit';
 
-export const tools = { web, image, video, music, stitch, reach, skills: { runSkill }, content, g0dm0d3, topics, present: presentTools, publish, enrutador, mediaScore, metrics, memoryFs: { createMemoryFs }, diagram };
+export const tools = { web, image, video, music, stitch, reach, skills: { runSkill }, content, g0dm0d3, topics, present: presentTools, publish, enrutador, mediaScore, metrics, memoryFs: { createMemoryFs }, diagram, videoEdit };
 
 export const TOOL_DESCRIPTIONS: Record<string, string> = {
   calculator: 'Safely evaluate a mathematical expression (math only).',
@@ -69,6 +71,8 @@ export const TOOL_DESCRIPTIONS: Record<string, string> = {
     'Publication metrics (AutoPub F5): channel KPIs (published/failed/pending counts, success rate, average pre-publication media score) and BAD-feedback signals from published posts, ready to feed the agent improvement pipeline. Use to measure and close the content loop.',
   diagram:
     'Editorial diagrams (diagram-design pattern): render self-contained, accessible HTML/SVG diagrams in the project design system (Dark Obsidian) — timeline (events on an axis), data-flow (pipeline steps), architecture (components + connections), loop (flywheel with write-back arcs). Anti-AI-slop geometry (coordinates divisible by 4, 1px hairlines, no shadows), role="img" + aria-labelledby, no JS, no external deps. Use to visualize pipelines, motion specs, roadmaps and architecture.',
+  video_edit:
+    'Video editing pipeline (video-use pattern): pack phrase-level transcripts into the compact takes_packed view the model reads, build and validate an EDL (cut safety: 30-200ms padding, silences >=150ms, no overlaps), generate the ffmpeg render command (per-segment extract with 30ms audio fades + color grade + lossless concat), self-evaluate the cut list deterministically (max 3 fix cycles), and render an on-demand timeline composite SVG (filmstrip + waveform + word labels). Keyless-first. Use to plan and produce video edits from transcripts and motion specs.',
 };
 
 export type Capability =
@@ -89,4 +93,5 @@ export type Capability =
   | 'contenido'
   | 'metrics'
   | 'memory'
-  | 'diagram';
+  | 'diagram'
+  | 'video_edit';

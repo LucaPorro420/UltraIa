@@ -1,0 +1,5 @@
+- extract clip_0 [0.000-3.200] de Download (2).mp4
+- extract clip_1 [3.800-7.600] de Download (2).mp4
+- extract clip_2 [8.200-12.400] de Download (2).mp4
+- extract clip_3 [13.000-23.200] de Download (2).mp4
+- concat lossless (-c copy) → final.mp4

@@ -29,6 +29,18 @@ Cada app contiene: `plan.json` (DirectorPlan), `field.json` (MediaField),
 `report.md` (resumen legible). Los motion-specs alimentan la implementación
 React/Framer Motion (protocolo de replicación visual de Task1.md).
 
+## Edits de video (capability video_edit)
+
+Pipeline portado del patrón video-use (browser-use): transcript → takes_packed →
+EDL validado → ffmpeg (fades 30ms + grade) → self-eval → timeline SVG.
+
+| Demo | takes_packed | EDL | render | self-eval | timeline |
+|---|---|---|---|---|---|
+| Download (2) | [takes_packed](edl/download-2/takes_packed.md) | [edl.json](edl/download-2/edl.json) | [render.sh](edl/download-2/render.sh) | [selfeval.json](edl/download-2/selfeval.json) | [timeline.svg](edl/download-2/timeline.svg) |
+| Download (5) | [takes_packed](edl/download-5/takes_packed.md) | [edl.json](edl/download-5/edl.json) | [render.sh](edl/download-5/render.sh) | [selfeval.json](edl/download-5/selfeval.json) | [timeline.svg](edl/download-5/timeline.svg) |
+
+Regeneración (idempotente): `node_modules\.bin\vite-node.cmd Task/video-edit-demo.ts`
+
 ## Diagramas editoriales
 
 Generados con la capability `diagram` (patrón diagram-design, Dark Obsidian) por

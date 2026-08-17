@@ -1,0 +1,64 @@
+{
+  "report": {
+    "ok": false,
+    "issues": [
+      {
+        "severity": "error",
+        "code": "DURATION_MISMATCH",
+        "message": "duración EDL 21.40s ≠ esperada 23.20s (±0.5s)"
+      }
+    ],
+    "score": 75,
+    "attemptsRemaining": 2
+  },
+  "hardRules": [
+    {
+      "id": "hr1",
+      "rule": "Subtitles/overlays se aplican LAST, nunca quemados en la base (doble re-encode y subtítulos ocultos)."
+    },
+    {
+      "id": "hr2",
+      "rule": "Extract por segmento + concat lossless `-c copy`; nunca filtergraph de un solo paso."
+    },
+    {
+      "id": "hr3",
+      "rule": "Fades de audio de 30ms en cada frontera de segmento (anti-pops)."
+    },
+    {
+      "id": "hr4",
+      "rule": "Cortes: silencios ≥400ms limpios; 150-400ms verificables; <150ms inseguros (mid-phrase)."
+    },
+    {
+      "id": "hr5",
+      "rule": "Padding de corte en ventana 30-200ms."
+    },
+    {
+      "id": "hr6",
+      "rule": "Self-eval del render en cada frontera de corte antes de entregar (máx 3 intentos)."
+    },
+    {
+      "id": "hr7",
+      "rule": "Nunca razonar audio y video por separado: cada corte debe funcionar en ambas pistas."
+    },
+    {
+      "id": "hr8",
+      "rule": "Preservar picos (risas, remates, énfasis): extender el corte más allá del remate."
+    },
+    {
+      "id": "hr9",
+      "rule": "Mantener aire entre hablantes (400-600ms típico)."
+    },
+    {
+      "id": "hr10",
+      "rule": "Los eventos de audio ((laughs), (applause)) marcan beats — extender tras ellos."
+    },
+    {
+      "id": "hr11",
+      "rule": "Transcripción = la superficie; timeline_view solo en puntos de decisión."
+    },
+    {
+      "id": "hr12",
+      "rule": "Verificar tu propio output antes de mostrarlo (ffprobe: duración vs EDL, grade, subtítulos legibles)."
+    }
+  ]
+}

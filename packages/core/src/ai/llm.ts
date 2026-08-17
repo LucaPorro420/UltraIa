@@ -26,6 +26,15 @@ import { audioLibrary } from '../omag/audiolibrary';
 import { createMemoryFs, type MemoryFs } from '../tools/memory-fs';
 import { synthSound as synth } from '../omag/sound';
 import { renderEditorialDiagram, DIAGRAM_KINDS, type DiagramKind } from '../tools/diagram';
+import {
+  packTranscript,
+  buildEdl,
+  renderFfmpeg,
+  selfEvalEdl,
+  timelineViewSvg,
+  HARD_RULES,
+  MAX_SELF_EVAL_ATTEMPTS,
+} from '../tools/video-edit';
 
 const modelCache = new Map<string, LanguageModel>();
 
@@ -695,6 +704,81 @@ export function chatStream(opts: {
           svgChars: res.svg.length,
           note: 'Guarda el HTML en disco para abrirlo offline (ej. docs/diagrams/<slug>.html).',
         };
+      },
+    });
+  }
+
+  if (opts.tools?.includes('video_edit')) {
+    tools.video_edit_pack = tool({
+      description:
+        'Pack phrase-level transcript segments (with word timestamps, speaker and optional audio events like (laughs)/(applause)) into the compact takes_packed markdown view an editing model reads: one line per phrase with [start-end] and speaker, breaking on speaker change or >=0.5s silence. Use to turn raw transcripts into the model-readable editing surface.',
+      parameters: z.object({
+        segmentsJson: z.string().min(1).max(100000), // TranscriptSegment[] JSON
+      }),
+      execute: async ({ segmentsJson }) => {
+        const segments = JSON.parse(segmentsJson) as import('../tools/video-edit').TranscriptSegment[];
+        return packTranscript(segments);
+      },
+    });
+    tools.video_edit_edl = tool({
+      description:
+        'Build and validate an edit decision list (EDL) for a video edit: sorts cuts by in, rejects in>=out, sub-50ms cuts and overlaps; classifies silence gaps (clean >=400ms / usable >=150ms / unsafe <150ms). Optionally warn-only. Use to plan cuts from transcripts or motion specs with production-correctness rules (video-use pattern).',
+      parameters: z.object({
+        title: z.string().min(1).max(200),
+        cutsJson: z.string().min(1).max(50000), // EdlCut[] JSON
+        grade: z.enum(['warm-cinematic', 'neutral-punch', 'none']).optional(),
+        warnOnly: z.boolean().optional(),
+      }),
+      execute: async ({ title, cutsJson, grade, warnOnly }) => {
+        const cuts = JSON.parse(cutsJson) as import('../tools/video-edit').EdlCut[];
+        const { edl, warnings } = buildEdl({ title, cuts, grade }, { warnOnly });
+        return { edl, warnings };
+      },
+    });
+    tools.video_edit_render = tool({
+      description:
+        'Generate the ffmpeg render command (argv + shell script + step summary) for an EDL: per-segment extract with 30ms audio fades at every boundary (anti-pops) and optional color grade, then lossless -c copy concat, then subtitles LAST. Deterministic; returns the exact command to run (ffmpeg must exist on the machine). Use to produce the final.mp4 from an edit decision list.',
+      parameters: z.object({
+        edlJson: z.string().min(1).max(100000), // Edl JSON
+        outDir: z.string().max(500).optional(),
+        outName: z.string().max(200).optional(),
+        preview: z.boolean().optional(),
+      }),
+      execute: async ({ edlJson, outDir, outName, preview }) => {
+        const edl = JSON.parse(edlJson) as import('../tools/video-edit').Edl;
+        const { shell, steps, argv } = renderFfmpeg(edl, { outDir, outName, preview });
+        return { shell, steps, argv, hardRules: HARD_RULES.map((h) => h.rule) };
+      },
+    });
+    tools.video_edit_selfeval = tool({
+      description:
+        'Deterministic self-eval of an EDL before shipping: duration vs expected, unsafe cuts (<150ms, mid-phrase), silence-gap warnings, correction-loop budget (max 3 attempts). Returns ok/score/issues. Use to verify an edit decision list before rendering (and after render, with real ffprobe data, to decide fix-or-ship).',
+      parameters: z.object({
+        edlJson: z.string().min(1).max(100000),
+        expectedDurationSec: z.number().min(0).optional(),
+        silenceGapsMsJson: z.string().max(10000).optional(), // number[]
+        attempt: z.number().int().min(1).max(MAX_SELF_EVAL_ATTEMPTS).optional(),
+      }),
+      execute: async ({ edlJson, expectedDurationSec, silenceGapsMsJson, attempt }) => {
+        const edl = JSON.parse(edlJson) as import('../tools/video-edit').Edl;
+        const silenceGapsMs = silenceGapsMsJson ? (JSON.parse(silenceGapsMsJson) as number[]) : undefined;
+        return selfEvalEdl(edl, { expectedDurationSec, silenceGapsMs }, attempt ?? 1);
+      },
+    });
+    tools.video_edit_timeline = tool({
+      description:
+        'Render the on-demand visual composite (timeline view) of a video edit as an accessible editorial SVG: filmstrip band + waveform + word/phrase labels with speakers + silence-gap cut candidates (Dark Obsidian, a11y role="img", no JS). Use at decision points (ambiguous pauses, cut-point sanity checks), not as a scan tool.',
+      parameters: z.object({
+        title: z.string().min(1).max(200),
+        durationSec: z.number().min(0.1),
+        markersJson: z.string().min(1).max(50000), // TimelineViewSpec.markers
+        silencesJson: z.string().max(10000).optional(),
+        width: z.number().int().min(400).max(2000).optional(),
+      }),
+      execute: async ({ title, durationSec, markersJson, silencesJson, width }) => {
+        const markers = JSON.parse(markersJson) as import('../tools/video-edit').TimelineViewSpec['markers'];
+        const silences = silencesJson ? (JSON.parse(silencesJson) as import('../tools/video-edit').TimelineViewSpec['silences']) : undefined;
+        return timelineViewSvg({ title, durationSec, markers, silences }, width);
       },
     });
   }
