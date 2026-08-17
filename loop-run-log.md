@@ -1431,3 +1431,27 @@ ormalizeTitle() (lower + strip non-alnum), dedupe() (bigram overlap > 0.6),
   - `docs/RAZONAMIENTO-DEEPSEEK-HARNESS.md` + lección en `learning/LEARNINGS.md` + fuente cruda commiteada (`learning/sources/deepseek-harness.md`).
 - **V — Verify**: vitest harness 19/19 — tsc parcial (tsconfig temporal): 0 errores en harness/llm/index (ruido preexistente reach.ts de game-dev) — eslint 4 archivos EXIT 0. FULL pendiente árbol limpio (#25).
 - **R — Reiniciar**: capability harness COMPLETA. Siguiente: revisar cola (pendientes humanos #6/#17; #25 sigue en sesión concurrente). Sin push (aprobación humana).
+
+---
+
+### Iteración 35 — AutoPub F4 paso 5: adapters Meta (IG Reels + Threads) (17/08/2026) — DONE `b28b0a9`
+
+- **P — Plan**: plan file loop-35. Canal Meta siguiente del orden recomendado (YT+TikTok+blog+X ✅).
+  Datos VERIFICADOS 17/08 (CLOUD-FREE-2026.md Parte 5, docs Meta updated 2026-06-30): IG NO
+  requiere app review para negocio propio (Standard Access), permisos
+  `instagram_business_content_publish` + `instagram_basic`, container flow create→publish.
+- **I — Implement** (`tools/publish.ts`):
+  - Union `PublishPlatform = 'youtube'|'tiktok'|'x'|'instagram'|'threads'` (aditiva) en
+    PublishResult/PublisherAdapter + `PublishInput.videoUrl?` (Reels/Threads requieren URL pública).
+  - `createInstagramAdapter`: Graph API v21 — POST `/{igUserId}/media` (media_type=REELS,
+    video_url, caption cap 2200) → creation_id; POST `/{igUserId}/media_publish` → id + url reel.
+  - `createThreadsAdapter`: Graph API v1.0 — POST `/{threadsUserId}/threads` (media_type=VIDEO,
+    video_url, text cap 500) → creation_id; POST `/threads_publish` → id (sin url, como TikTok).
+  - Helper `formBody` (URLSearchParams, sin deps); tokens/userIds desde options o env
+    (IG_ACCESS_TOKEN/IG_USER_ID, THREADS_ACCESS_TOKEN/THREADS_USER_ID); fail-soft con razón.
+- **V — Verify**: vitest publish **43/43** (13 nuevos: 6 IG + 6 Threads + publishToAll fail-soft
+  Meta) · tsc parcial EXIT 0 (publish.ts + test, sin ruido) · eslint EXIT 0 (2 archivos).
+  FULL pendiente árbol limpio (#25 sigue activo).
+- **R — Reiniciar**: canal Meta listo (adapters). Siguiente: loop-36 — wiring Meta
+  (createDefaultPublishers includeMeta + publishDue + tool toInstagram/toThreads +
+  markPublished platform). Sin push (aprobación humana).
