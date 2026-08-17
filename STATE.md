@@ -34,11 +34,20 @@ Last run: 17/08/2026 - Iteracion 24 (screenflow 22/22, plan maestro completo: di
 | 23 | **Capability video_edit** (enlaces.txt → browser-use/video-use) — takes_packed/EDL/render/self-eval/timeline + demo resultTask/edl | packages/core | FULL | DONE 17/08/2026 (35ae28a, 29 tests) |
 | 24 | **Capability screenflow** (petición usuario) — grabación→acciones→edición→publicación local→continuidad | packages/core + scripts | FULL | DONE 17/08/2026 (6eca58e, 22 tests; runner --dry-run OK) |
 | 25 | **F2 media-automation** (enlaces.txt líneas 7-665: OBS WebSocket + ciclo PLAN→VALIDATE→AUTOMATE→RECORD→ANALYZE→EDIT→AUDIO→RENDER→VERIFY→ARCHIVE; 9 repos) + web-automation.py + PLAN-COMPLETO.md | packages/core + scripts | FULL | EN CURSO — sesión concurrente (untracked: recorder.ts/automation.ts + tests + docs/RAZONAMIENTO-MEDIA-AUTOMATION.md). NO duplicar |
+| 27 | **UltraIA Cloud + nube gratis 2026** (petición usuario 17/08: cloud + dominio gratis + app review + coste; "haz todas") — capability `cloud` (packages/core/src/tools/cloud.ts: adapters Local/InMemory/R2, validación, layout, manifest, CloudService, tool cloud_files) + API /api/cloud/{status,files,upload} + página /cloud + cloudflare/ worker R2 + docs/CLOUD-FREE-2026.md (datos verificados) + .env.cloud.example | packages/core + apps/web + cloudflare + docs | FULL | DONE 17/08/2026 (046dfcf; 27 cloud tests; FULL 655/655; build 39 páginas con /cloud). WIRING DIFERIDO: capability `cloud` en llm.ts/index.ts pendiente de que #25 commitee (High Priority) |
 
 > AutoPub = plan maestro `docs/AUTO-PUBLICACION.md` (aprobado 15/08/2026). Orden de
 > ejecución recomendado: 7 → 8 → 9 → 10 → luego 11, 12, 13.
 
-## High Priority (loop is acting or waiting on human)
+## High Priority
+
+- **BUG ABIERTO (17/08/2026, escaneo #26)**: launcher `--web-dir` -> waitWeb agota 45s
+  con el child "Ready" y vivo; requests del MISMO proceso que spawnea el child se
+  cuelgan mientras requests externos responden 200 en ~104ms (verificado). Iteracion
+  21 DONE (5415628) pero el launcher NO verifica el arranque del zip -> prototipo sin
+  garantia. Fix planificado en `.opencode/plans/loop-26-scan-mejoras.md` (B0.1):
+  experimento decisivo (poll in-process vs curl externo en paralelo) + fix + smoke.
+- **Working tree con ruido de sesion concurrente (17/08/2026)**: `recorder.ts`/`automation.ts` (loop is acting or waiting on human)
 
 - **Working tree con ruido de sesión concurrente (17/08/2026)**: `recorder.ts`/`automation.ts`
   + tests (untracked, con errores TS propios — bloquean typecheck FULL si se corren juntos) y

@@ -577,7 +577,7 @@ async function main() {
     webChild.on('exit', (code) => {
       if (code !== 0 && code !== null) log(`[web] salió con código ${code}`);
     });
-    const webOk = await waitWeb(`http://127.0.0.1:${WEB_PORT}`, 45_000);
+    const webOk = await waitWeb(`http://127.0.0.1:${WEB_PORT}`, 90_000);
     if (!webOk) {
       log(`FATAL: la web no respondió en http://127.0.0.1:${WEB_PORT}`);
       killTree(webChild);
@@ -603,6 +603,13 @@ async function main() {
 /**
  * Poll de salud HTTP (node:http, agent:false — sin sockets keep-alive que choquen
  * con libuv al cerrar en Windows). Resuelve true cuando la URL responde < 500.
+ *
+ * COLD-START (verificado 17/08/2026 con el standalone del zip): el bundle tarda
+ * ~25-30s en cargar en laptops lentas y la primera peticion compila la ruta
+ * (>10s). El timeout de 2.5s destruia cada intento antes de la respuesta ->
+ * waitWeb fallaba SIEMPRE aunque el server acababa sano (evidencia: experimento
+ * waitweb-decisive.cjs: 162 intentos FAIL, probe post-loop 200 en 334ms).
+ * Fix: 20s por request (tolerancia a cold compile) + presupuesto total 90s.
  */
 function waitWeb(url, timeoutMs) {
   return new Promise((resolve) => {
@@ -610,13 +617,34 @@ function waitWeb(url, timeoutMs) {
     let done = false;
     const finish = (ok) => { if (!done) { done = true; resolve(ok); } };
     const poll = () => {
+      let settled = false;
       const req = request(url, { agent: false, method: 'GET' }, (res) => {
         res.resume();
+        if (settled) return;
+        settled = true;
+        log(`[wait] intento ${Date.now() - started}ms: HTTP ${res.statusCode}`);
         if (res.statusCode && res.statusCode < 500) finish(true);
         else retry();
       });
-      req.on('error', () => retry());
-      req.setTimeout(2500, () => { req.destroy(); retry(); });
+      req.on('error', (e) => {
+        if (settled) return;
+        settled = true;
+        log(`[wait] intento ${Date.now() - started}ms: ${e.code || e.message}`);
+        retry();
+      });
+      req.setTimeout(20000, () => {
+        if (settled) return;
+        settled = true;
+        log(`[wait] intento ${Date.now() - started}ms: timeout 20s -> destroy`);
+        req.destroy();
+        retry();
+      });
+      // CRITICO: sin req.end() el request NUNCA se envia (el socket conecta,
+      // pero los headers quedan en el buffer) y el server espera bytes para
+      // siempre -> timeout eterno. Verificado 17/08/2026: curl (que si envia)
+      // respondia 200 mientras waitWeb colgaba; los probes con req.end()
+      // respondian en 334ms. ESTE era el bug real del launcher.
+      req.end();
     };
     const retry = () => {
       if (Date.now() - started > timeoutMs) finish(false);

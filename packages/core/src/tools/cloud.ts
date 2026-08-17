@@ -129,6 +129,7 @@ export function sanitizeFileName(input: string): string {
     .replace(/[^a-z0-9._-]+/g, '-')
     .replace(/-{2,}/g, '-')
     .replace(/-+(?=\.)/g, '')
+    .replace(/\.-+/g, '.')
     .replace(/^-+|-+$/g, '')
     .slice(0, 240);
   return cleaned || 'untitled';
@@ -161,11 +162,11 @@ export function validateUpload(name: string, sizeBytes: number): UploadValidatio
   return { ok: errors.length === 0, errors, normalizedName, ext, type };
 }
 
-/** Formatea bytes a unidades legibles. */
+/** Formatea bytes a unidades legibles (binarias KiB/MiB/GiB/TiB). */
 export function humanSize(bytes: number): string {
   if (!Number.isFinite(bytes) || bytes < 0) return '0 B';
   if (bytes < 1024) return `${bytes} B`;
-  const units = ['KB', 'MB', 'GB', 'TB'] as const;
+  const units = ['KiB', 'MiB', 'GiB', 'TiB'] as const;
   let value = bytes;
   let unit = 'B';
   for (const u of units) {

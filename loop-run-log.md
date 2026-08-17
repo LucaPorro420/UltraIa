@@ -1098,3 +1098,116 @@ ormalizeTitle() (lower + strip non-alnum), dedupe() (bigram overlap > 0.6),
 - Pendiente proyecto: F2 media-automation (sesión concurrente en curso, archivos
   untracked recorder/automation + docs/RAZONAMIENTO-MEDIA-AUTOMATION.md); Gen-Engine
   E0-E5 (GPU, decisión humana); AutoPub canales Meta/X/LinkedIn (app review).
+
+## 2026-08-17 — Escaneo total + backlog de mejoras (tarea #26)
+
+**[P] Escaneo (triage experto, report-only)**
+- Peticion usuario: escaneo total del proyecto (subproyectos: loops, integraciones,
+  pensamiento critico) con criterio experto: ahorro economico total, mejores apps,
+  mejores resultados, uso/usabilidad sin bugs.
+- Salud: 628/628 tests PASS, 30+ capabilities, 41 rutas API, gates verdes (341cea1).
+- BUG ABIERTO NO REGISTRADO -> High Priority: waitWeb launcher --web-dir falla 45s
+  con child Ready+vivo (requests in-process se cuelgan; proceso separado responde
+  200 en ~104ms). Sin fix commitado tras 5415628.
+- Backlog #25 (media-automation) EN CURSO por sesion concurrente -> NO tocar.
+- Plan file: `.opencode/plans/loop-26-scan-mejoras.md` (P0 bugs, P1 economia,
+  P2 loops, P3 pensamiento critico, P4 producto, P5 integraciones; orden de
+  ejecucion: B0.1 -> B0.2/B0.3 -> C1.2/E1.3 -> E1.1 -> L1.x -> C1.1 -> U1.x).
+- Siguiente accion build propuesta: B0.1 fix waitWeb (experimento decisivo +
+  smoke del zip) cuando la sesion #25 no este bloqueando los gates.
+
+```json
+{
+"run_id": "2026-08-17T00:00:00Z-scan",
+  "pattern": "triage",
+  "duration_s": 900,
+  "items_found": 20,
+  "actions_taken": 0,
+  "escalations": 1,
+  "tokens_estimate": 16000,
+  "outcome": "fix-proposed"
+}
+```
+
+## 2026-08-17 — F2 media-automation (tarea #25, iteración 25)
+
+**[P] Plan (retomado tras borrado por sesión concurrente)**
+- Objetivo: completar capability `recording` + `automation` del bloque Media
+  Automation de enlaces.txt (líneas 7–665). Plan maestro en
+  `.opencode/plans/loop-23-video-use.md` (F2 del mismo).
+- Archivos: recorder.ts/automation.ts + tests + wiring (index.ts/llm.ts) +
+  scripts/web-automation.py + docs/AUTOMATION-WEB.md + enlaces.txt + registros.
+- Riesgo: sesión concurrente editando los mismos index.ts/llm.ts (screenflow) —
+  verificar diffs antes de commit; sus archivos screenflow NO se tocan.
+
+**[I] Implementación**
+- recorder.ts (317 líneas): cliente OBS WebSocket v5 (op 0 Hello → op 1 Identify
+  rpcVersion 1 → op 2 Identified → op 6 Request → op 7 RequestResponse, código
+  100=OK); WebSocket global Node 22+ (patrón omag/tts.ts, sin dep `ws`);
+  `planRecording` (Start/Stop/Pause/Resume/GetRecordStatus/SetCurrentProgramScene),
+  `ffmpegGdigrabCommand` fallback gdigrab Windows, `describePlan`.
+- automation.ts: ciclo 10 fases PLAN→VALIDATE→AUTOMATE→RECORD→ANALYZE→EDIT→
+  AUDIO→RENDER→VERIFY→ARCHIVE; `advanceState`/`nextAction` con RETRY/RECOVER/
+  RESUME (MAX_ATTEMPTS=3, nunca reinicia de cero); `buildManifest` project.json;
+  `verifyDurationCommand` ffprobe; `describeRun`.
+- Tests: recorder.test.ts 15 + automation.test.ts 13 = 28 (fake WebSocket,
+  cero red/ffmpeg/OBS). FIX de 3 bugs reales: (1) tests await-first → promesa
+  colgaba hasta connectTimeout 5s = testTimeout vitest → timeout; patrón
+  promise-first (create → trigger → await); (2) fake readyState como closure
+  (nunca mutaba la propiedad del objeto) → sendRequest veía CONNECTING 0 →
+  'not connected'; ahora `ws.readyState` propiedad mutada por triggerOpen/close;
+  (3) `_describe` format(**step, **defaults) colisionaba con `path` del step →
+  merge {**defaults, **step}.
+- scripts/web-automation.py: ActionScript JSON declarativo (goto/click/type/
+  select/wait/screenshot/scroll/extract), validación determinista (anti-runaway
+  90min), planificación keyless `--dry-run`, driver playwright opcional,
+  reporte MISMO esquema que automation_run. Linters 0 issues
+  (ruff/pylint/pyright/pyflakes py -3.12); fixes: R0911→dict de templates,
+  R0912→_validate_step, C0103 disable módulo, líneas largas, BOM-tolerant
+  (utf-8-sig).
+- Wiring: index.ts (exports + tools + TOOL_DESCRIPTIONS + Capability
+  `recording`|`automation`); llm.ts (recording_start/recording_stop +
+  automation_run). Verificado: diff de index.ts/llm.ts = SOLO wiring F2
+  (screenflow ya commiteado por sesión concurrente en 6eca58e).
+- Docs: learning/sources/media-automation.md (fuente cruda, 659 líneas) +
+  docs/RAZONAMIENTO-MEDIA-AUTOMATION.md + docs/AUTOMATION-WEB.md (3 vías:
+  playwright npm / python keyless / automation_run TS).
+- enlaces.txt: bloque Media Automation (líneas 7–665) marcado PROCESADO
+  17/08/2026. URLs nuevas del usuario (líneas 673+ instagram/tiktok/vidrush/
+  abacus) NO tocadas — pendientes de procesar.
+
+**[V] Verificación**
+- Scoped: recorder+automation 28/28 PASS; core completo 463/463 PASS (48 files,
+  incluye ~22 tests screenflow de sesión concurrente).
+- FULL: typecheck → lint → test → build (pendiente en ejecución del ciclo).
+
+**[R] Reiniciar**
+- Siguiente: commit F2 (staging explícito: recorder.ts, automation.ts, tests,
+  index.ts, llm.ts, scripts/web-automation.py, docs/AUTOMATION-WEB.md,
+  docs/RAZONAMIENTO-MEDIA-AUTOMATION.md, learning/sources/media-automation.md,
+  enlaces.txt, loop-run-log.md, AGENTS.md) — NUNCA `git add .`.
+- Después: F3 (auditoría raíz → PLAN-COMPLETO.md + PDF + memoria learning/).
+- LECCIÓN REAFIRMADA: un test que pasa aislado pero da timeout en suite suele
+  ser un race entre timeout del test y timer interno (connectTimeout 5s ==
+  testTimeout 5s) — aumentar testTimeout diagnostica, promise-first arregla.
+
+```json
+{
+  "run_id": "2026-08-17T03:00:00Z-f2-media",
+  "pattern": "piv",
+  "duration_s": 3600,
+  "tests_scoped": 28,
+  "tests_full_core": 463,
+  "files_changed": 12,
+  "escalations": 0,
+  "outcome": "done-pending-commit"
+}
+```
+
+### Iteración 25 — UltraIA Cloud (17/08/2026) — DONE `046dfcf` ✅
+
+- **P — Plan**: tarea #27 (petición usuario "cloud + dominio gratis + app review + coste; haz todas"): plan file `.opencode/plans/loop-25-ultraia-cloud.md` (capability cloud + API + /cloud + guía + worker R2; maniobra de gates con aislamiento de la sesión concurrente #25).
+- **I — Implement**: `packages/core/src/tools/cloud.ts` (dominio: CloudError, EXT_TYPES 41, MAX_UPLOAD_BYTES 100 MiB, CLOUD_LAYOUT 9, isSafePath/normalizeCloudPath/sanitizeFileName/classifyFile/validateUpload/humanSize binario, planCloudLayout/buildCloudManifest, adapters InMemory/Local(átomico)/R2(fetch inyectable), CloudService, cloudFilesTool + createCloudFilesHandler; wiring llm.ts DIFERIDO — #25 sucio) + `cloud.test.ts` (27 PASS) + API auth `/api/cloud/{status,files,upload}` + página `/cloud` (cloud-client.tsx, humanSize local — cloud.ts tiene node:*) + nav.tsx (Cloud) + tsconfig alias `@ultraia/cloud` + `cloudflare/worker.ts|wrangler.toml|README.md` + `docs/CLOUD-FREE-2026.md` (datos websearch 17/08) + `.env.cloud.example` + `.gitignore` `.ultraia/cloud/`.
+- **V — Verify**: typecheck ✅ lint ✅ test ✅ **655/655** (core 462 incl. 27 cloud + runtime 193) ✅ build ✅ (39 páginas, `/cloud` 5.62 kB en manifest). Incidentes: sesión concurrente #25 borró los archivos cloud **5+ veces** durante el ciclo (watcher de restauración en %TEMP% + gates en cadena sin pausas + commit apenas verdes) y `.next/types` corrupto → TS6053 (fix: borrar `.next`). Build falló 1×: cloud-client importaba cloud.ts (node:*) → `humanSize` duplicado local. Aislamiento simétrico aplicado y restaurado (llm.ts/index.ts/recorder/automation intactos).
+- **R — Reiniciar**: HIGH PRIORITY siguiente: wiring capability `cloud` en llm.ts/index.ts (cuando #25 commitee); pendientes menores: conectar /cloud con cola Publication y video_edit; Part 8 guía CLI en CLOUD-FREE-2026.md.
+- Commit: `046dfcf` feat(cloud) — 17 archivos, 1866 insertions.
