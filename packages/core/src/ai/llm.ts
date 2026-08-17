@@ -20,6 +20,7 @@ import { present } from '../tools/present';
 import { createDefaultPublishers, publishToAll, buildBilingualMetadata } from '../tools/publish';
 import { createHarness, type HarnessRuntime } from '../tools/harness';
 import { analyzeChannel, planExperiments, buildPlaybook } from '../tools/growth';
+import { planReframe, planUpscale, planLutMatch, planRotoscope, planDrawToEdit, planBroll } from '../tools/vfx';
 import { createPublication, listPublications, approvePublication, rejectPublication, publishDue } from '../domain/publications';
 import { generarContenido, type ContentPackage } from '../tools/enrutador';
 import { computeChannelKpis } from '../tools/metrics';
@@ -604,6 +605,48 @@ export function chatStream(opts: {
           const res = runtime.shutdown();
           runtime = null;
           return { accion, ...res };
+        }
+        return { accion, ok: false, error: 'accion desconocida' };
+      },
+    });
+  }
+  if (opts.tools?.includes('vfx')) {
+    tools.vfx_plan = tool({
+      description:
+        'VFX planning engine (Higgsfield DaVinci Resolve plugin principles): plan AI video operations deterministically and keyless — reframe (16:9 -> 9:16 crop windows that follow action centers with smooth pan, ffmpeg argv), upscale (1080p..8k ladder, lanczos vs generative), AI LUT match (grade presets warm-cinematic/neutral-punch/teal-orange/mono -> ffmpeg eq args), rotoscope (remove-background plan: keyframes, alpha, cleanup passes, cost), draw-to-edit (sketch -> video prompt with camera motion) and B-roll request builder (missing beat -> frame shape -> motion -> transition). Execution is delegated: ffmpeg renders via video_edit, generation via providers. Use to plan post-production operations before rendering.',
+      parameters: z.object({
+        accion: z.enum(['reframe', 'upscale', 'lut', 'rotoscope', 'draw', 'broll']),
+        reframeJson: z.string().optional(), // {width,height,durSeg,centers:[{t,x01,y01,w01}],targetRatio?,pad?,maxPanPerSec?}
+        upscaleJson: z.string().optional(), // {width,height,target?:1080p|1440p|4k|8k|2x|4x}
+        lutJson: z.string().optional(), // {style:warm-cinematic|neutral-punch|teal-orange|mono|custom, hints?}
+        rotoJson: z.string().optional(), // {durSeg,fps,mode?:keyframe|full,keyEveryFrames?}
+        drawJson: z.string().optional(), // {style:lineart|scribble|colored-sketch|painterly, subject, motion?, aspect?}
+        brollJson: z.string().optional(), // {missingBeat,frameShape,motionNeed,transition,durationSeg,style}
+      }),
+      execute: async ({ accion, reframeJson, upscaleJson, lutJson, rotoJson, drawJson, brollJson }) => {
+        if (accion === 'reframe') {
+          if (!reframeJson) throw new Error('reframe requiere reframeJson');
+          return { accion, plan: planReframe(JSON.parse(reframeJson)) };
+        }
+        if (accion === 'upscale') {
+          if (!upscaleJson) throw new Error('upscale requiere upscaleJson');
+          return { accion, plan: planUpscale(JSON.parse(upscaleJson)) };
+        }
+        if (accion === 'lut') {
+          if (!lutJson) throw new Error('lut requiere lutJson');
+          return { accion, plan: planLutMatch(JSON.parse(lutJson)) };
+        }
+        if (accion === 'rotoscope') {
+          if (!rotoJson) throw new Error('rotoscope requiere rotoJson');
+          return { accion, plan: planRotoscope(JSON.parse(rotoJson)) };
+        }
+        if (accion === 'draw') {
+          if (!drawJson) throw new Error('draw requiere drawJson');
+          return { accion, plan: planDrawToEdit(JSON.parse(drawJson)) };
+        }
+        if (accion === 'broll') {
+          if (!brollJson) throw new Error('broll requiere brollJson');
+          return { accion, plan: planBroll(JSON.parse(brollJson)) };
         }
         return { accion, ok: false, error: 'accion desconocida' };
       },
