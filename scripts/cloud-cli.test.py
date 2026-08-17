@@ -178,6 +178,53 @@ class TestCloudCli(unittest.TestCase):
         self.assertEqual(rc, 2)
         self.assertIn('no segura', err)
 
+    # ------------------------------------------------------------------
+    # pull (descarga)
+    # ------------------------------------------------------------------
+
+    def test_pull_downloads_file(self):
+        """QUÉ ES: `pull <path> <dest>` descarga el archivo con contenido idéntico."""
+        src = self.write_src('cliente.mp4', b'contenido-abc')
+        run_cli(self.cloud, 'upload', src)
+        out_file = os.path.join(self.tmp, 'salida.mp4')
+        rc, out, err = run_cli(self.cloud, 'pull', 'media/videos/cliente.mp4', out_file)
+        self.assertEqual(rc, 0, err)
+        self.assertIn('ok:', out)
+        with open(out_file, 'rb') as fh:
+            self.assertEqual(fh.read(), b'contenido-abc')
+
+    def test_pull_into_directory(self):
+        """QUÉ ES: destino = directorio existente → el archivo se copia dentro con su nombre."""
+        src = self.write_src('a.md')
+        run_cli(self.cloud, 'upload', src, 'drafts')
+        dest_dir = os.path.join(self.tmp, 'salidas')
+        os.makedirs(dest_dir)
+        rc, _out, err = run_cli(self.cloud, 'pull', 'drafts/a.md', dest_dir)
+        self.assertEqual(rc, 0, err)
+        self.assertTrue(os.path.isfile(os.path.join(dest_dir, 'a.md')))
+
+    def test_pull_missing_file(self):
+        """QUÉ ES: `pull` de un archivo inexistente → exit 2 con mensaje claro."""
+        rc, _out, err = run_cli(self.cloud, 'pull', 'media/videos/nada.mp4', 'x.mp4')
+        self.assertEqual(rc, 2)
+        self.assertIn('no existe', err)
+
+    def test_pull_unsafe_path(self):
+        """QUÉ ES: `pull ../x` se rechaza (exit 2) — el cloud nunca se lee fuera de su raíz."""
+        rc, _out, err = run_cli(self.cloud, 'pull', '../x', 'x')
+        self.assertEqual(rc, 2)
+        self.assertIn('no segura', err)
+
+    def test_pull_dry_run_writes_nothing(self):
+        """QUÉ ES: `--dry-run` no crea el archivo destino (solo anuncia)."""
+        src = self.write_src('d.mp3')
+        run_cli(self.cloud, 'upload', src)
+        out_file = os.path.join(self.tmp, 'nunca.mp3')
+        rc, out, _err = run_cli(self.cloud, 'pull', 'media/audio/d.mp3', out_file, '--dry-run')
+        self.assertEqual(rc, 0)
+        self.assertIn('dry-run', out)
+        self.assertFalse(os.path.exists(out_file))
+
 
 if __name__ == '__main__':
     # QUÉ ES: punto de entrada del runner unittest (verbosity 2 = nombre por test).

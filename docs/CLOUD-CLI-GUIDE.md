@@ -50,6 +50,7 @@ py -3.12 scripts/cloud-cli.test.py
 | `upload <archivo> [carpeta]` | Copia al cloud validando extensión/tamaño; carpeta opcional | 0 ok / 2 error |
 | `remove <path>` | Borra (pide confirmación; `--yes` la omite) | 0 ok / 2 error |
 | `stat <path>` | Metadatos de un archivo | 0 ok / 2 error |
+| `pull <path> [destino]` | Descarga un archivo del cloud al disco (destino = archivo o carpeta; default: cwd) | 0 ok / 2 error |
 | `manifest` | Genera `manifest.json` agregado en la raíz cloud | 0 |
 | `self-test` | Auto-verificación de la lógica pura | 0 ok / 1 fallo |
 
@@ -78,7 +79,12 @@ py -3.12 scripts/cloud-cli.py manifest --json
 py -3.12 scripts/cloud-cli.py remove media/videos/viejo.mp4 --dry-run
 py -3.12 scripts/cloud-cli.py remove media/videos/viejo.mp4 --yes
 
-# 7. Raíz cloud alternativa (por defecto: <repo>/.ultraia/cloud)
+# 7. Descargar del cloud al disco (destino = archivo, carpeta o default cwd)
+py -3.12 scripts/cloud-cli.py pull media/videos/final.mp4 "D:\renders\final.mp4"
+py -3.12 scripts/cloud-cli.py pull media/images/thumb.png "D:\out\"   # dentro de la carpeta
+py -3.12 scripts/cloud-cli.py pull exports/edl/entrevista.json        # → ./entrevista.json
+
+# 8. Raíz cloud alternativa (por defecto: <repo>/.ultraia/cloud)
 py -3.12 scripts/cloud-cli.py --dir D:\nube list
 ```
 
@@ -136,7 +142,7 @@ schtasks /Create /TN "UltraIa-Cloud-Manifest" /SC DAILY /ST 02:00 `
 | Lint | `py -3.12 -m ruff check scripts/cloud-cli.py` (+ `.test.py`) | ✅ 0 issues |
 | Lint extra | `py -3.12 -m pyflakes scripts/cloud-cli.py` | ✅ |
 | Lógica pura | `py -3.12 scripts/cloud-cli.py self-test` | ✅ 25/25 PASS |
-| E2E | `py -3.12 scripts/cloud-cli.test.py` | ✅ 11/11 PASS |
+| E2E | `py -3.12 scripts/cloud-cli.test.py` | ✅ 16/16 PASS |
 
 > Los gates npm del repo (typecheck/lint/test/build) NO cubren scripts Python;
 > los comandos de arriba son su verificación local. El commit de estos archivos

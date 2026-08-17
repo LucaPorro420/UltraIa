@@ -27,6 +27,7 @@ USO:
     py -3.12 scripts/cloud-cli.py upload <ruta> [dest]   # copia validando extensión/tamaño
     py -3.12 scripts/cloud-cli.py remove <path>          # borra (fail-soft; --yes fuerza)
     py -3.12 scripts/cloud-cli.py stat <path>            # metadatos de un archivo
+    py -3.12 scripts/cloud-cli.py pull <path> [destino]  # descarga un archivo del cloud al disco
     py -3.12 scripts/cloud-cli.py manifest               # genera manifest.json agregado
     py -3.12 scripts/cloud-cli.py self-test              # auto-verificación sin efectos
 
@@ -390,6 +391,44 @@ def cmd_stat(cloud_dir, path, _dry_run, json_out, quiet):
     return 0
 
 
+def cmd_pull(cloud_dir, path, dest, dry_run, quiet):
+    """QUÉ ES: descarga un archivo del cloud al disco local (complemento de upload).
+    PARA QUÉ: usar media del cloud en pipelines locales sin abrir la web.
+    POR QUÉ: misma frontera de validación que remove/stat — el pull nunca escapa del cloud."""
+    rel = normalize_path(path)
+    if rel is None:
+        print(f'error: ruta no segura: {path}', file=sys.stderr)
+        return 2
+    full = os.path.join(cloud_dir, *rel.split('/'))
+    if not os.path.isfile(full):
+        print(f'error: no existe: {rel}', file=sys.stderr)
+        return 2
+    # QUÉ ES: resolver el destino: si `dest` es un directorio (o termina en /), el archivo
+    # se copia DENTRO con su nombre original; si no, `dest` es el path exacto del archivo.
+    # PARA QUÉ: uso cómodo (`pull x.mp4 ./out/` copia a out/x.mp4; `pull x.mp4 out.mp4` renombra).
+    # POR QUÉ: comportamiento predecible sin ambigüedad (nunca sobrescribe un directorio).
+    if dest and (os.path.isdir(dest) or dest.endswith(('/', '\\'))):
+        target = os.path.join(dest, os.path.basename(full))
+    elif dest:
+        target = dest
+    else:
+        target = os.path.basename(full)  # POR QUÉ: default = mismo nombre en el cwd.
+    if dry_run:
+        print(f'[dry-run] descargar {rel} -> {target}')
+        return 0
+    try:
+        # QUÉ ES: copia atómica (tmp + rename) — mismo patrón que upload; POR QUÉ: nunca dejar un archivo a medias.
+        tmp = target + '.tmp'
+        shutil.copy2(full, tmp)
+        os.replace(tmp, target)
+    except OSError as exc:
+        print(f'error: no se pudo descargar: {exc}', file=sys.stderr)
+        return 2
+    if not quiet:
+        print(f'ok: {rel} -> {target} ({human_size(os.path.getsize(full))})')
+    return 0
+
+
 def cmd_manifest(cloud_dir, _base, dry_run, json_out, quiet):
     """QUÉ ES: genera manifest.json en la raíz cloud (agregado de archivos + stats).
     PARA QUÉ: inventario máquina-legible; la web y agentes lo consumen.
@@ -524,6 +563,9 @@ def main(argv):
     p_remove.add_argument('path', help='path canónico relativo a borrar')
     p_stat = sub.add_parser('stat', parents=[common])
     p_stat.add_argument('path', help='path canónico relativo')
+    p_pull = sub.add_parser('pull', parents=[common])
+    p_pull.add_argument('path', help='path canónico relativo a descargar')
+    p_pull.add_argument('dest', nargs='?', default=None, help='destino local (archivo o carpeta; default: cwd)')
     sub.add_parser('manifest', parents=[common])
     sub.add_parser('self-test', parents=[common])
 
@@ -543,6 +585,7 @@ def main(argv):
         'upload': lambda: cmd_upload(cloud_dir, args.src, args.dest, args.dry_run, args.quiet),
         'remove': lambda: cmd_remove(cloud_dir, args.path, args.dry_run, args.quiet, args.yes),
         'stat': lambda: cmd_stat(cloud_dir, args.path, args.dry_run, args.json_out, args.quiet),
+        'pull': lambda: cmd_pull(cloud_dir, args.path, args.dest, args.dry_run, args.quiet),
         'manifest': lambda: cmd_manifest(cloud_dir, '', args.dry_run, args.json_out, args.quiet),
     }
     return dispatch[args.command]()
