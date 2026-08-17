@@ -1,11 +1,15 @@
 import { describe, expect, it } from 'vitest';
 import {
   buildBilingualMetadata,
+  buildXPostText,
   createDefaultPublishers,
   createTikTokAdapter,
+  createXAdapter,
   createYouTubeAdapter,
   DEFAULT_METADATA,
   publishToAll,
+  xAppendMultipartBody,
+  X_CHUNK_BYTES,
   type PublisherAdapter,
 } from './publish';
 
@@ -207,5 +211,136 @@ describe('publishToAll + default publishers', () => {
   it('DEFAULT_METADATA exportado con tags es/ar', () => {
     expect(DEFAULT_METADATA.tags).toContain('الذكاء الاصطناعي');
     expect(DEFAULT_METADATA.privacyStatus).toBe('public');
+  });
+});
+
+describe('createXAdapter (X API v2, F4 paso 4)', () => {
+  const X_TOKEN = 'x-token-1';
+  const VIDEOS = {
+    pequeno: Buffer.from('x'.repeat(100)), // 1 chunk
+    grande: Buffer.alloc(X_CHUNK_BYTES * 2 + 10), // 3 chunks
+  };
+
+  function xFetchMock(calls: string[]) {
+    let lastAppendBody = '';
+    return stubFetch([
+      {
+        match: (url, init) => url.includes('upload.x.com') && Boolean(init.body) && String(init.body).includes('INIT'),
+        respond: () => jsonResponse(200, { media_id_string: 'm1' }),
+      },
+      {
+        match: (url, init) => {
+          if (url.includes('upload.x.com') && String(init.body).includes('APPEND')) {
+            lastAppendBody = String(init.body);
+            return true;
+          }
+          return false;
+        },
+        respond: () => {
+          calls.push(lastAppendBody);
+          return jsonResponse(200, {});
+        },
+      },
+      {
+        match: (url, init) => url.includes('upload.x.com') && String(init.body).includes('FINALIZE'),
+        respond: () => jsonResponse(200, { media_id_string: 'm1' }),
+      },
+      {
+        match: (url) => url.includes('api.x.com/2/tweets'),
+        respond: () => jsonResponse(201, { data: { id: '999', text: 'ok' } }),
+      },
+      { match: () => true, respond: () => jsonResponse(500, {}) },
+    ]);
+  }
+
+  it('validate: sin token → ok:false con razón clara', async () => {
+    const v = await createXAdapter().validate();
+    expect(v.ok).toBe(false);
+    expect(v.reason).toContain('X_ACCESS_TOKEN');
+  });
+
+  it('buildXPostText: título + primera línea + hashtags con cap 280', () => {
+    const meta = buildBilingualMetadata('El Futuro de la IA');
+    const text = buildXPostText(meta);
+    expect(text.length).toBeLessThanOrEqual(280);
+    expect(text).toContain('El Futuro de la IA');
+    expect(text).toContain('#IA');
+  });
+
+  it('xAppendMultipartBody: form-data manual con boundary, campos y base64', () => {
+    const body = xAppendMultipartBody('m1', 2, 'QUJD', 'b1');
+    expect(body).toContain('--b1\r\n');
+    expect(body).toContain('name="command"\r\n\r\nAPPEND');
+    expect(body).toContain('name="media_id"\r\n\r\nm1');
+    expect(body).toContain('name="segment_index"\r\n\r\n2');
+    expect(body).toContain('name="media_data"\r\n\r\nQUJD');
+    expect(body.endsWith('--b1--\r\n')).toBe(true);
+  });
+
+  it('flujo feliz: INIT → APPEND → FINALIZE → tweet ok con url', async () => {
+    const calls: string[] = [];
+    const adapter = createXAdapter({ accessToken: X_TOKEN, fetchFn: xFetchMock(calls) });
+    const res = await adapter.publish({ videoBuffer: VIDEOS.pequeno, metadata: { title: 'T', description: 'D' } });
+    expect(res.ok).toBe(true);
+    expect(res.id).toBe('999');
+    expect(res.url).toBe('https://x.com/i/status/999');
+  });
+
+  it('chunking: video de 2 chunks + resto → 3 APPENDs con segment_index 0,1,2', async () => {
+    const calls: string[] = [];
+    const adapter = createXAdapter({ accessToken: X_TOKEN, fetchFn: xFetchMock(calls) });
+    const res = await adapter.publish({ videoBuffer: VIDEOS.grande });
+    expect(res.ok).toBe(true);
+    expect(calls).toHaveLength(3);
+    expect(calls[0]).toContain('name="segment_index"\r\n\r\n0');
+    expect(calls[1]).toContain('name="segment_index"\r\n\r\n1');
+    expect(calls[2]).toContain('name="segment_index"\r\n\r\n2');
+  });
+
+  it('INIT falla → ok:false con razón HTTP', async () => {
+    const fetchFn = stubFetch([{ match: () => true, respond: () => jsonResponse(401, {}) }]);
+    const adapter = createXAdapter({ accessToken: X_TOKEN, fetchFn });
+    const res = await adapter.publish({ videoBuffer: VIDEOS.pequeno });
+    expect(res.ok).toBe(false);
+    expect(res.error).toContain('X INIT falló: HTTP 401');
+  });
+
+  it('APPEND falla → ok:false con índice', async () => {
+    const fetchFn = stubFetch([
+      { match: (u, i) => u.includes('upload.x.com') && String(i.body).includes('INIT'), respond: () => jsonResponse(200, { media_id_string: 'm1' }) },
+      { match: () => true, respond: () => jsonResponse(500, {}) },
+    ]);
+    const adapter = createXAdapter({ accessToken: X_TOKEN, fetchFn });
+    const res = await adapter.publish({ videoBuffer: VIDEOS.pequeno });
+    expect(res.ok).toBe(false);
+    expect(res.error).toContain('X APPEND 0 falló');
+  });
+
+  it('tweet falla → ok:false con razón', async () => {
+    const fetchFn = stubFetch([
+      { match: (u, i) => u.includes('upload.x.com') && String(i.body).includes('INIT'), respond: () => jsonResponse(200, { media_id_string: 'm1' }) },
+      { match: (u, i) => u.includes('upload.x.com') && String(i.body).includes('APPEND'), respond: () => jsonResponse(200, {}) },
+      { match: (u, i) => u.includes('upload.x.com') && String(i.body).includes('FINALIZE'), respond: () => jsonResponse(200, {}) },
+      { match: () => true, respond: () => jsonResponse(403, {}) },
+    ]);
+    const adapter = createXAdapter({ accessToken: X_TOKEN, fetchFn });
+    const res = await adapter.publish({ videoBuffer: VIDEOS.pequeno });
+    expect(res.ok).toBe(false);
+    expect(res.error).toContain('X tweet falló: HTTP 403');
+  });
+
+  it('sin video → ok:false con razón (fail-soft)', async () => {
+    const adapter = createXAdapter({ accessToken: X_TOKEN });
+    const res = await adapter.publish({});
+    expect(res.ok).toBe(false);
+    expect(res.error).toContain('No se pudo leer el video');
+  });
+
+  it('publishToAll con X sin token → fail-soft razonado', async () => {
+    const results = await publishToAll([createXAdapter()], { videoBuffer: VIDEOS.pequeno });
+    expect(results).toHaveLength(1);
+    expect(results[0].platform).toBe('x');
+    expect(results[0].ok).toBe(false);
+    expect(results[0].error).toContain('X_ACCESS_TOKEN');
   });
 });

@@ -26,7 +26,7 @@ export interface PublishInput {
 }
 
 export interface PublishResult {
-  platform: 'youtube' | 'tiktok';
+  platform: 'youtube' | 'tiktok' | 'x';
   ok: boolean;
   id?: string;
   url?: string;
@@ -34,7 +34,7 @@ export interface PublishResult {
 }
 
 export interface PublisherAdapter {
-  platform: 'youtube' | 'tiktok';
+  platform: 'youtube' | 'tiktok' | 'x';
   /** Sube el video a la plataforma. Devuelve ok:false + error si algo falla (no lanza). */
   publish(input: PublishInput): Promise<PublishResult>;
   /** Sin token o sin fuente de video → false con razón. */
@@ -53,6 +53,10 @@ export const DEFAULT_METADATA: PublishMetadata = {
 
 const YOUTUBE_SCOPED_UPLOAD_URL = 'https://www.googleapis.com/upload/youtube/v3/videos?uploadType=resumable&part=snippet,status';
 const TIKTOK_INIT_URL = 'https://open.tiktokapis.com/v2/post/publish/video/init/';
+const X_MEDIA_UPLOAD_URL = 'https://upload.x.com/1.1/media/upload.json';
+const X_TWEETS_URL = 'https://api.x.com/2/tweets';
+/** Límite de chunk del media upload de X: 5 MiB por APPEND. */
+export const X_CHUNK_BYTES = 5 * 1024 * 1024;
 
 /** Metadatos bilingües es/ar a partir del título (port de build_metadata_from_script). */
 export function buildBilingualMetadata(title: string, plainScript?: string): PublishMetadata {
@@ -228,6 +232,129 @@ export function createTikTokAdapter(options: TikTokAdapterOptions = {}): Publish
   };
 }
 
+// ----------------------------------------------------------------------- X (Twitter)
+
+/** QUÉ ES: texto del post X (título + primera línea + hashtags) con cap de 280 chars.
+// PARA QUÉ: el tweet v2 exige texto ≤280; determinista y testeable sin red.
+// POR QUÉ: mismo patrón que captionFor — el adapter no inventa copy. */
+export function buildXPostText(meta: PublishMetadata): string {
+  const tags = meta.tags.map((t) => `#${t}`).join(' ');
+  const firstLine = meta.description.split('\n')[0].trim();
+  return `${meta.title}\n\n${firstLine}\n\n${tags}`.slice(0, 280);
+}
+
+/** QUÉ ES: cuerpo multipart/form-data del APPEND del media upload de X (sin deps).
+// PARA QUÉ: subir el chunk en base64 con command/media_id/segment_index/media_data.
+// POR QUÉ: X exige form-data; construirlo a mano evita una dependencia nueva. */
+export function xAppendMultipartBody(
+  mediaId: string,
+  segmentIndex: number,
+  chunkBase64: string,
+  boundary: string,
+): string {
+  const b = `--${boundary}`;
+  const parts = [
+    `${b}\r\nContent-Disposition: form-data; name="command"\r\n\r\nAPPEND\r\n`,
+    `${b}\r\nContent-Disposition: form-data; name="media_id"\r\n\r\n${mediaId}\r\n`,
+    `${b}\r\nContent-Disposition: form-data; name="segment_index"\r\n\r\n${segmentIndex}\r\n`,
+    `${b}\r\nContent-Disposition: form-data; name="media_data"\r\n\r\n${chunkBase64}\r\n`,
+    `${b}--\r\n`,
+  ];
+  return parts.join('');
+}
+
+export interface XAdapterOptions {
+  accessToken?: string;
+  fetchFn?: typeof fetch;
+  /** Default: env X_ACCESS_TOKEN. */
+  tokenFromEnv?: () => string | undefined;
+  /** Default 5 MiB (límite X por APPEND). */
+  chunkBytes?: number;
+  /** Texto fijo del tweet (default: buildXPostText(metadata)). */
+  text?: string;
+}
+
+/** QUÉ ES: adapter X API v2 (tweet con video vía media upload v1.1 chunked).
+// PARA QUÉ: F4 paso 4 — canal X (Free: 17 posts/24h POR APP, sin app review, verificado 17/08).
+// POR QUÉ: mismo patrón fail-soft/fetch inyectable que YouTube y TikTok. */
+export function createXAdapter(options: XAdapterOptions = {}): PublisherAdapter {
+  const token = () => options.accessToken ?? options.tokenFromEnv?.() ?? process.env.X_ACCESS_TOKEN;
+  const fetchFn = options.fetchFn ?? globalThis.fetch;
+  const chunkBytes = options.chunkBytes ?? X_CHUNK_BYTES;
+
+  return {
+    platform: 'x',
+    async validate() {
+      if (!token()) return { ok: false, reason: 'X_ACCESS_TOKEN no configurado' };
+      return { ok: true };
+    },
+    async publish(input) {
+      const accessToken = token();
+      if (!accessToken) return { platform: 'x', ok: false, error: 'X_ACCESS_TOKEN no configurado' };
+      const bytes = await videoBytes(input);
+      if (!bytes) return { platform: 'x', ok: false, error: 'No se pudo leer el video (videoPath o videoBuffer requerido)' };
+      const meta = mergedMetadata(input);
+      const text = options.text ?? buildXPostText(meta);
+      try {
+        // Paso 1: INIT del media upload (chunked upload v1.1)
+        const init = await fetchFn(X_MEDIA_UPLOAD_URL, {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ command: 'INIT', media_type: 'video/mp4', total_bytes: bytes.length }),
+        });
+        const initData = (await init.json().catch(() => ({}))) as { media_id_string?: string };
+        if (!init.ok || !initData.media_id_string) {
+          return { platform: 'x', ok: false, error: `X INIT falló: HTTP ${init.status}` };
+        }
+        const mediaId = initData.media_id_string;
+
+        // Paso 2: APPEND por chunk (≤5 MiB) con multipart manual
+        const boundary = `ultraia-${mediaId}`;
+        const totalChunks = Math.max(1, Math.ceil(bytes.length / chunkBytes));
+        for (let i = 0; i < totalChunks; i++) {
+          const chunk = bytes.subarray(i * chunkBytes, (i + 1) * chunkBytes);
+          const body = xAppendMultipartBody(mediaId, i, Buffer.from(chunk).toString('base64'), boundary);
+          const app = await fetchFn(X_MEDIA_UPLOAD_URL, {
+            method: 'POST',
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+              'Content-Type': `multipart/form-data; boundary=${boundary}`,
+            },
+            body,
+          });
+          if (!app.ok) {
+            return { platform: 'x', ok: false, error: `X APPEND ${i} falló: HTTP ${app.status}` };
+          }
+        }
+
+        // Paso 3: FINALIZE
+        const fin = await fetchFn(X_MEDIA_UPLOAD_URL, {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ command: 'FINALIZE', media_id: mediaId }),
+        });
+        if (!fin.ok) {
+          return { platform: 'x', ok: false, error: `X FINALIZE falló: HTTP ${fin.status}` };
+        }
+
+        // Paso 4: tweet v2 con el media
+        const tw = await fetchFn(X_TWEETS_URL, {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text, media: { media_ids: [mediaId] } }),
+        });
+        const twData = (await tw.json().catch(() => ({}))) as { data?: { id?: string } };
+        if (!tw.ok || !twData.data?.id) {
+          return { platform: 'x', ok: false, error: `X tweet falló: HTTP ${tw.status}` };
+        }
+        return { platform: 'x', ok: true, id: twData.data.id, url: `https://x.com/i/status/${twData.data.id}` };
+      } catch (err) {
+        return { platform: 'x', ok: false, error: `X error: ${(err as Error).message}` };
+      }
+    },
+  };
+}
+
 // ------------------------------------------------------------------- helpers
 
 /** Corre todos los adapters sobre el mismo input y agrega resultados. */
@@ -249,4 +376,4 @@ export function createDefaultPublishers(): PublisherAdapter[] {
   return [createYouTubeAdapter(), createTikTokAdapter()];
 }
 
-export const publish = { createYouTubeAdapter, createTikTokAdapter, createDefaultPublishers, publishToAll, buildBilingualMetadata };
+export const publish = { createYouTubeAdapter, createTikTokAdapter, createXAdapter, createDefaultPublishers, publishToAll, buildBilingualMetadata, buildXPostText, xAppendMultipartBody };
