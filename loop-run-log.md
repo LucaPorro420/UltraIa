@@ -1233,3 +1233,22 @@ ormalizeTitle() (lower + strip non-alnum), dedupe() (bigram overlap > 0.6),
   commitear). LECCIÓN: los errores TS del working tree concurrente no son del ciclo propio —
   aislar + restaurar por hash, nunca corregir archivos ajenos.
 - Commit: `7315d4d` feat(core) — 3 archivos, 87 insertions.
+
+### Iteración 27 — ScreenFlow exec allowlist (17/08/2026) — DONE `bddcf5f` ?
+
+- **P — Plan**: pendiente de AGENTS.md (capability screenflow): "allowlist real de exec (hoy
+  fail-soft con warning)". Plan file `.opencode/plans/loop-28-screenflow-exec-allowlist.md`.
+  Screenflow.ts es territorio de la iteración 24 (mío) — ninguna sesión concurrente lo toca.
+- **I — Implement**: `screenflow.ts` — `EXEC_ALLOWLIST` (python/py/python3, node/npm/npx,
+  ffmpeg/ffprobe, yt-dlp, mkdir; tolera .exe/.cmd/.bat), `validateExecCmd` (vacío, >500,
+  metachars shell `; && || | > < ` ` $(`, rutas absolutas como binario, binario fuera de
+  allowlist) integrado en `validateActionScript` como ERROR acumulado por acción; exports en
+  namespace `screenflow`. `screenflow.test.ts` +9 tests (31/31). `llm.ts`: descripción del
+  tool `screenflow_plan` menciona la allowlist.
+- **V — Verify**: gates FULL ? typecheck ? lint ? test (core 492/492 + runtime 193/193 =
+  685/685) ? build ?. Aislamiento simétrico de 9 archivos de sesiones concurrentes (5
+  game-dev + 4 media-automation) a %TEMP%\opencode\loop28-bak ? restaurados 9/9 hash-OK.
+- **R — Reiniciar**: pendientes screenflow restantes: watch de carpeta `hot/` y conexión con
+  cola Publication canal `local` (métricas). Sesión concurrente ya tomó pendientes cloud
+  (CLOUD-CLI-GUIDE.md + TAREA-CLOUD-PUBLICATIONS.md + cloud-cli.test.py — NO duplicar).
+- Commit: `bddcf5f` feat(screenflow) — 4 archivos, 231 insertions.

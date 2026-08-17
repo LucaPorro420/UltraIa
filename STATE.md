@@ -1,6 +1,6 @@
 # Loop State — UltraIa
 
-Last run: 17/08/2026 - Iteracion 26 (wiring capability cloud 7315d4d, HIGH PRIORITY de cola; repo 676/676 GREEN con aislamiento de sesiones concurrentes); anterior: Iteracion 24 (screenflow 22/22, plan maestro completo: diagram 293bf38 + video_edit 35ae28a + screenflow 6eca58e; repo 628/628 GREEN); 25 (UltraIA Cloud 046dfcf, 655/655)
+Last run: 17/08/2026 - Iteracion 27 (screenflow exec allowlist bddcf5f, 9 tests nuevos; repo 685/685 GREEN con aislamiento); anterior: Iteracion 26 (wiring capability cloud 7315d4d, HIGH PRIORITY de cola; 676/676); 24 (screenflow 22/22, plan maestro completo); 25 (UltraIA Cloud 046dfcf, 655/655)
 Última triage: 15/08/2026 (report-only — sin edición de código)
 
 ## Backlog priorizado (orden de ejecución)
@@ -32,7 +32,7 @@ Last run: 17/08/2026 - Iteracion 26 (wiring capability cloud 7315d4d, HIGH PRIOR
 | 21 | **Prototipo empaquetado Web+Desktop** (petición usuario) — Next standalone + launcher + zip | repo | FULL | DONE 15/08/2026 (5415628) |
 | 22 | **Capability diagram** (enlaces.txt → diagram-design) — HTML/SVG editoriales + resultTask/diagrams + docs/diagrams | packages/core | FULL | DONE 17/08/2026 (293bf38, 22 tests) |
 | 23 | **Capability video_edit** (enlaces.txt → browser-use/video-use) — takes_packed/EDL/render/self-eval/timeline + demo resultTask/edl | packages/core | FULL | DONE 17/08/2026 (35ae28a, 29 tests) |
-| 24 | **Capability screenflow** (petición usuario) — grabación→acciones→edición→publicación local→continuidad | packages/core + scripts | FULL | DONE 17/08/2026 (6eca58e, 22 tests; runner --dry-run OK) |
+| 24 | **Capability screenflow** (petición usuario) — grabación→acciones→edición→publicación local→continuidad | packages/core + scripts | FULL | ✅ DONE 17/08/2026 (6eca58e, 22 tests; runner --dry-run OK). **MEJORA 17/08/2026 (bddcf5f, iteración 27)**: allowlist real de exec — EXEC_ALLOWLIST + validateExecCmd integrado en validateActionScript (9 tests, 31/31). Pendiente: watch carpeta `hot/`, conexión cola Publication canal `local` |
 | 25 | **F2 media-automation** (enlaces.txt líneas 7-665: OBS WebSocket + ciclo PLAN→VALIDATE→AUTOMATE→RECORD→ANALYZE→EDIT→AUDIO→RENDER→VERIFY→ARCHIVE; 9 repos) + web-automation.py + PLAN-COMPLETO.md | packages/core + scripts | FULL | EN CURSO — sesión concurrente (untracked: recorder.ts/automation.ts + tests + docs/RAZONAMIENTO-MEDIA-AUTOMATION.md). NO duplicar |
 | 27 | **UltraIA Cloud + nube gratis 2026** (petición usuario 17/08: cloud + dominio gratis + app review + coste; "haz todas") — capability `cloud` (packages/core/src/tools/cloud.ts: adapters Local/InMemory/R2, validación, layout, manifest, CloudService, tool cloud_files) + API /api/cloud/{status,files,upload} + página /cloud + cloudflare/ worker R2 + docs/CLOUD-FREE-2026.md (datos verificados) + .env.cloud.example | packages/core + apps/web + cloudflare + docs | FULL | ✅ DONE 17/08/2026 (046dfcf; 27 cloud tests; FULL 655/655; build 39 páginas con /cloud). **WIRING COMPLETO 17/08/2026 (7315d4d)**: capability `cloud` registrada en llm.ts (`cloud_files`, adapter local/R2 por env) + export en tools/index.ts; iteración 26 |
 
@@ -55,8 +55,11 @@ Last run: 17/08/2026 - Iteracion 26 (wiring capability cloud 7315d4d, HIGH PRIOR
 - **AutoPub canales restantes** (backlog #17): Meta IG Reels/Threads, X API v2, LinkedIn —
   requiere app review/decisiones humanas.
 - **Cloud pendientes menores (iteración 26 DONE)**: conectar /cloud con la cola Publication
-  (subir paquete listo → media/videos) y con video_edit (EDL/renders); Part 8 guía CLI en
-  CLOUD-FREE-2026.md.
+  y con video_edit; Part 8 guía CLI. **NOTA 17/08**: sesión concurrente ya tomó la guía CLI
+  (`scripts/cloud-cli.py` + `docs/CLOUD-CLI-GUIDE.md` + `cloud-cli.test.py`) y el wiring con
+  Publications (`docs/TAREA-CLOUD-PUBLICATIONS.md`) — NO duplicar.
+- **Screenflow pendientes (iteración 27 DONE)**: watch de carpeta `hot/` y conexión con cola
+  Publication canal `local` para métricas.
 - Ningún gate humano pendiente de push/merge (sigue requiriendo aprobación humana).
 
 ## Watch List
