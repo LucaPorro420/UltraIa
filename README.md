@@ -83,4 +83,5 @@ Verification order: `typecheck → lint → test → build` (mirrored in CI).
   - Repo: `PrototypeREADME.pdf`
   - Web (servido por Next.js desde `apps/web/public/`): `http://localhost:3000/prototype-readme.pdf`
 - **Memoria de aprendizaje verificada** — `learning/memory/ultraia_memory.zip` (cargar con `python learning/scripts/restore_memory.py summary`)
+- **UltraIa-Prototipo.zip** — prototipo empaquetado Web+Desktop (Next.js standalone + DB embebida con login demo `admin`/`admin` + launcher WebView2 + `UltraIa.bat` de 1 clic; Windows 10/11; regenerable con `python scripts/build-prototipo.py`)
 - Guías: `QUICKSTART.md`, `DEPLOY.md` (hosting gratuito), `docs/AUTO-PUBLICACION.md`, `docs/RAZONAMIENTO-FABLE5.md`, `desktopFase/ARCHITECTURE.md` + `desktopFase/docs/`

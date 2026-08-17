@@ -170,3 +170,81 @@ Cada commit agrega una sección con fecha y la lista de archivos `.ts/.tsx` toca
 ## 2026-08-15T08:05:31.831Z
 - [ ] packages/core/src/ai/llm.ts
 - [ ] packages/core/src/tools/index.ts
+
+## 2026-08-15T14:28:34.896Z
+- [ ] packages/core/src/tools/publish.test.ts
+- [ ] packages/core/src/tools/publish.ts
+
+## 2026-08-15T14:51:33.042Z
+- [ ] apps/web/src/app/api/publications/[id]/approve/route.ts
+- [ ] apps/web/src/app/api/publications/[id]/publish/route.ts
+- [ ] apps/web/src/app/api/publications/[id]/reject/route.ts
+- [ ] apps/web/src/app/api/publications/route.ts
+- [ ] packages/core/src/ai/llm.ts
+- [ ] packages/core/src/auth/session.ts
+- [ ] packages/core/src/domain/publications.test.ts
+- [ ] packages/core/src/domain/publications.ts
+- [ ] packages/core/src/index.ts
+- [ ] packages/core/src/tools/index.ts
+
+## 2026-08-15T20:07:42.222Z
+- [ ] apps/web/src/app/api/publications/publish-due/route.ts
+- [ ] apps/web/src/app/blog/page.tsx
+- [ ] packages/core/src/domain/publications.test.ts
+- [ ] packages/core/src/domain/publications.ts
+
+## 2026-08-15T20:47:53.171Z
+- [ ] packages/core/src/ai/llm.ts
+- [ ] packages/core/src/tools/enrutador.test.ts
+- [ ] packages/core/src/tools/enrutador.ts
+- [ ] packages/core/src/tools/index.ts
+
+## 2026-08-15T21:38:38.629Z
+- [ ] apps/web/src/app/api/publications/[id]/feedback/route.ts
+- [ ] apps/web/src/app/api/publications/metrics/route.ts
+- [ ] packages/core/src/ai/llm.ts
+- [ ] packages/core/src/domain/publications.test.ts
+- [ ] packages/core/src/domain/publications.ts
+- [ ] packages/core/src/tools/index.ts
+- [ ] packages/core/src/tools/media-score.test.ts
+- [ ] packages/core/src/tools/media-score.ts
+- [ ] packages/core/src/tools/metrics.test.ts
+- [ ] packages/core/src/tools/metrics.ts
+
+## 2026-08-15T21:51:25.684Z
+- [ ] packages/core/src/ai/llm.ts
+- [ ] packages/core/src/domain/briefs.test.ts
+- [ ] packages/core/src/domain/briefs.ts
+- [ ] packages/core/src/index.ts
+
+## 2026-08-15T22:10:45.319Z
+- [ ] packages/core/src/ai/llm.ts
+- [ ] packages/core/src/tools/enrutador.test.ts
+- [ ] packages/core/src/tools/enrutador.ts
+
+## 2026-08-15T22:25:51.299Z
+- [ ] packages/core/src/ai/llm.ts
+- [ ] packages/core/src/tools/enrutador.test.ts
+- [ ] packages/core/src/tools/enrutador.ts
+- [ ] packages/core/src/tools/topics.ts
+
+## 2026-08-16T02:37:10.336Z
+- [ ] packages/runtime/src/launcher.test.ts
+
+## 2026-08-16T02:37:32.188Z
+- [ ] packages/core/src/ai/llm.ts
+- [ ] packages/core/src/index.ts
+- [ ] packages/core/src/tools/index.ts
+- [ ] packages/core/src/tools/memory-fs.test.ts
+- [ ] packages/core/src/tools/memory-fs.ts
+
+## 2026-08-17T02:15:37.335Z
+- [ ] Task/run_task1.ts
+- [ ] Task/task1-prompts.ts
+
+## 2026-08-17T03:28:44.188Z
+- [ ] Task/generate-diagrams.ts
+- [ ] packages/core/src/ai/llm.ts
+- [ ] packages/core/src/tools/diagram.test.ts
+- [ ] packages/core/src/tools/diagram.ts
+- [ ] packages/core/src/tools/index.ts

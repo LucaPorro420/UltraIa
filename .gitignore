@@ -54,3 +54,6 @@ vendor/**/.gitkeep
 
 # launcher spike dist
 desktopFase/launcher/dist/
+
+# WebView2 vendor binarios de terceros (regenerables con ensureVendor)
+desktopFase/launcher/vendor/

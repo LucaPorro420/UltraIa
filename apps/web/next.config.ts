@@ -1,6 +1,7 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
+  output: 'standalone', // empaquetable sin node_modules completos (prototipo descargable)
   transpilePackages: ['@ultraia/core'],
   serverExternalPackages: ['@prisma/client', '@google/stitch-sdk'],
   webpack: (config, { isServer }) => {

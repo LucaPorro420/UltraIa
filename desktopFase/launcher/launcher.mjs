@@ -19,6 +19,9 @@
  *   --no-window    no abre msedge (útil en CI).
  *   --port N       puerto público del proxy (default 0 = ephemeral).
  *   --no-build     no recompilar dist (usa el existente).
+ *   --web-dir <ruta>  modo prototipo: arranca la web standalone (server.js) como child y
+ *                     la ventana abre la app REAL en http://127.0.0.1:<web-port>.
+ *   --web-port N   puerto de la web standalone (default 3000).
  *
  * El token de la Local API vive solo en este proceso; el proxy lo inyecta.
  * El renderer (WebView2/Edge) solo ve http://127.0.0.1:<port>/ — sin secretos.
@@ -51,6 +54,18 @@ const NO_BUILD = args.includes('--no-build');
 const HOST_CHECK = args.includes('--host-check');
 const portArg = args.find((a) => a.startsWith('--port='));
 const PUBLIC_PORT = portArg ? Number(portArg.slice('--port='.length)) : 0;
+// --web-dir <ruta>|--web-dir=<ruta>: modo prototipo — arranca la web standalone
+// (server.js) como child process y la ventana navega a la app REAL
+// (http://127.0.0.1:<web-port>), no al dashboard. Acepta ambas formas (espacio o =).
+function argValue(flag) {
+  const eq = args.find((a) => a.startsWith(`${flag}=`));
+  if (eq) return eq.slice(flag.length + 1);
+  const idx = args.indexOf(flag);
+  if (idx !== -1 && args[idx + 1]) return args[idx + 1];
+  return null;
+}
+const WEB_DIR = argValue('--web-dir') ? path.resolve(process.cwd(), argValue('--web-dir')) : null;
+const WEB_PORT = argValue('--web-port') ? Number(argValue('--web-port')) : 3000;
 
 function log(msg) {
   process.stdout.write(`[launcher] ${msg}\n`);
@@ -536,16 +551,93 @@ async function main() {
     return;
   }
 
-  if (!NO_WINDOW) openWindow(publicUrl);
+  let webChild = null;
+  if (WEB_DIR) {
+    // Modo prototipo: arranca la web standalone y la ventana abre la app real.
+    const serverJs = path.join(WEB_DIR, 'server.js');
+    if (!fs.existsSync(serverJs)) {
+      log(`FATAL: --web-dir no contiene server.js: ${WEB_DIR}`);
+      await runtime.stop();
+      process.exit(1);
+    }
+    webChild = spawn(process.execPath, ['server.js'], {
+      cwd: WEB_DIR,
+      windowsHide: true,
+      env: {
+        ...process.env,
+        PORT: String(WEB_PORT),
+        HOSTNAME: '127.0.0.1',
+        // Prisma 6 resuelve `file:` contra el schema del build (roto al mover el
+        // árbol); ruta ABSOLUTA en runtime para que la dev.db embebida abra.
+        DATABASE_URL: `file:${path.resolve(WEB_DIR, 'prisma', 'dev.db').replace(/\\/g, '/')}`,
+      },
+    });
+    webChild.stdout?.on('data', (c) => log(`[web] ${c.toString().trim()}`));
+    webChild.stderr?.on('data', (c) => log(`[web:err] ${c.toString().trim()}`));
+    webChild.on('exit', (code) => {
+      if (code !== 0 && code !== null) log(`[web] salió con código ${code}`);
+    });
+    const webOk = await waitWeb(`http://127.0.0.1:${WEB_PORT}`, 45_000);
+    if (!webOk) {
+      log(`FATAL: la web no respondió en http://127.0.0.1:${WEB_PORT}`);
+      killTree(webChild);
+      await runtime.stop();
+      process.exit(1);
+    }
+    log(`web standalone listo en http://127.0.0.1:${WEB_PORT}`);
+  }
+
+  if (!NO_WINDOW) openWindow(WEB_DIR ? `http://127.0.0.1:${WEB_PORT}` : publicUrl);
 
   const shutdown = async () => {
     log('shutting down…');
+    killTree(webChild);
     await new Promise((r) => proxy.close(r));
     await runtime.stop();
     process.exit(0);
   };
   process.on('SIGINT', shutdown);
   process.on('SIGTERM', shutdown);
+}
+
+/**
+ * Poll de salud HTTP (node:http, agent:false — sin sockets keep-alive que choquen
+ * con libuv al cerrar en Windows). Resuelve true cuando la URL responde < 500.
+ */
+function waitWeb(url, timeoutMs) {
+  return new Promise((resolve) => {
+    const started = Date.now();
+    let done = false;
+    const finish = (ok) => { if (!done) { done = true; resolve(ok); } };
+    const poll = () => {
+      const req = request(url, { agent: false, method: 'GET' }, (res) => {
+        res.resume();
+        if (res.statusCode && res.statusCode < 500) finish(true);
+        else retry();
+      });
+      req.on('error', () => retry());
+      req.setTimeout(2500, () => { req.destroy(); retry(); });
+    };
+    const retry = () => {
+      if (Date.now() - started > timeoutMs) finish(false);
+      else setTimeout(poll, 700);
+    };
+    poll();
+  });
+}
+
+/** Mata el árbol completo del child (taskkill /T /F en Windows — patrón del repo). */
+function killTree(child) {
+  if (!child || child.exitCode !== null) return;
+  try {
+    if (process.platform === 'win32') {
+      spawnSync('taskkill', ['/PID', String(child.pid), '/T', '/F']);
+    } else {
+      child.kill('SIGTERM');
+    }
+  } catch (err) {
+    log(`warning: no se pudo matar el child: ${err.message}`);
+  }
 }
 
 function isStale(distDir, srcFile) {

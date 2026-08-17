@@ -134,6 +134,9 @@ TODO verde (verificado 15/08/2026).
   puro, sin dependencias; regenerar con `python scripts/md2pdf.py PrototypeREADME.md --out PrototypeREADME.pdf`).
 - `learning/memory/ultraia_memory.zip` — memoria de aprendizaje verificada (esquemas truth +
   lecciones; cargar con `python learning/scripts/restore_memory.py summary`).
+- `UltraIa-Prototipo.zip` — el prototipo se distribuye como paquete Web+Desktop (Next.js
+  standalone + DB embebida con login demo `admin`/`admin` + launcher WebView2 + `UltraIa.bat`
+  de 1 clic; Windows 10/11; regenerable con `python scripts/build-prototipo.py`).
 
 ## Notas
 
