@@ -415,3 +415,25 @@ El usuario deja URLs en `enlaces.txt` (raíz) para que se analicen y se apliquen
 - LECCIÓN REAFIRMADA (fallo real este ciclo): jamás Get-Content/-replace/Set-Content sobre archivos
   del repo (PS 5.1 colapsa líneas y corrompe UTF-8) — usar la tool Write; no mezclar edit+bash en
   paralelo sobre el mismo archivo.
+
+## Capability screenflow (17/08/2026)
+
+- **ScreenFlow**: pipeline de grabación de pantalla automatizado (petición del usuario): Captura
+  (ffmpeg gdigrab segmentado, CRF 18, pista de silencio fallback) → Acciones (ActionScript JSON
+  declarativo, `scripts/screenflow/actions.py` con pyautogui + Playwright opcional, fail-soft retry
+  máx 3) → Edición (reutiliza `video_edit`) → Publicación local (`.ultraia/recordings/<run-id>/`:
+  final.mp4 + master.mkv + final.webm + poster.png + manifest.json + report.md; nomenclatura
+  `YYYYMMDD-HHMMSS-<slug>-v<N>.mp4` + `latest.mp4`) → Continuidad (`state.json` resume idempotente,
+  retry máx 3, fail-soft, scheduling schtasks/cron).
+- `packages/core/src/tools/screenflow.ts` — dominio puro determinista (zod): `validateActionScript`
+  (tipos, bounds, duración estimada, anti-runaway 90min), `planRuns` (segmentación por pasos),
+  `buildFfmpegCapture` (argv gdigrab), `buildOutputNaming`, `buildManifest`, `scheduleCmd`
+  (schtasks/cron), `resolveState` (start/resume/give-up). Tests: screenflow.test.ts 22 PASS —
+  CERO ejecución real (argv generation only, --dry-run en el runner).
+- Registro: capability `screenflow` → tools `screenflow_plan` / `screenflow_capture` /
+  `screenflow_schedule` / `screenflow_state` en `ai/llm.ts`. Export en tools/index.ts (`screenflow`).
+- Runner: `node_modules\.bin\vite-node.cmd Task/run_screenflow.ts <script.json> [--dry-run] [--run-id=...]`
+  (+ `scripts/screenflow/schedule.ps1` para tareas diarias). Docs: `docs/SCREENFLOW.md`.
+- .gitignore: `.ultraia/recordings/`, `logs/`, `screenshots/`.
+- Pendiente: allowlist real de `exec` (hoy fail-soft con warning), watch de carpeta `hot/`, y
+  conexión opcional con la cola `Publication` canal `'local'` para métricas.

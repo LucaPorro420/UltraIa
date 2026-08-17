@@ -1,0 +1,13 @@
+{
+  "name": "demo-tutorial",
+  "description": "Demo ScreenFlow: abre la app web y captura un paso de escritura",
+  "capture": { "fps": 30, "region": "1920x1080+0+0" },
+  "actions": [
+    { "type": "open_url", "url": "https://ultraia.local" },
+    { "type": "sleep", "ms": 1500 },
+    { "type": "type", "text": "hola mundo" },
+    { "type": "click", "x": 640, "y": 360 },
+    { "type": "screenshot", "name": "step1" },
+    { "type": "end" }
+  ]
+}

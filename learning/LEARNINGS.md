@@ -149,3 +149,14 @@ Fuente: enlaces.txt -> learning/sources/video-use.md + video-use-SKILL.md (brows
 - Self-eval determinista = el eslabon que convierte un generador en pipeline verificable (DURATION_MISMATCH/UNSAFE_CUT/UNSAFE_GAP + score 0-100) — mismo patron que critics.ts en OMAG.
 - Keyless-first: transcribir con provider configurable (Gemini si GOOGLE_API_KEY; degradar a captions manuales) — NUNCA inventar timestamps.
 - PS 5.1 leccion REAFIRMADA (fallo real este ciclo): Get-Content + -replace + Set-Content en un .ts UTF-8 colapso el archivo a 1 linea y corrompio la codificacion (mojibake â€") — SIEMPRE usar la tool Write para archivos, jamas Set-Content. Nunca mezclar edit + bash en el MISMO bloque paralelo sobre el MISMO archivo (carrera: el disco termino con un identificador que nunca escribi).
+
+## ScreenFlow — grabacion automatizada (17/08/2026) — VERIFICADO 22/22
+
+Implementacion: capability screenflow (tools/screenflow.ts) + scripts/screenflow/ (actions.py, schedule.ps1, demo.json) + Task/run_screenflow.ts + docs/SCREENFLOW.md.
+
+- Pipeline en 5 fases: Captura (ffmpeg gdigrab segmentado) -> Acciones (ActionScript declarativo, pyautogui) -> Edicion (capability video_edit) -> Publicacion local (.ultraia/recordings/<run-id>/) -> Continuidad (state.json resume idempotente, retry max 3, fail-soft).
+- El dominio puro (zod + argv generation) es TESTEABLE sin ejecutar nada real: ffmpeg/pyautogui nunca corren en unit tests; el runner hace --dry-run para validar el pipeline entero sin efectos.
+- Continuidad fail-soft: status running/capturing + attempts<3 -> resume; attempts>=3 -> give-up con error registrado. Mismo patron de resiliencia que el recovery de UltraRuntime.
+- Nomenclatura determinista YYYYMMDD-HHMMSS-<slug>-v<N>.mp4 + latest.mp4 = paquete reproducible y ordenable; manifest.json con toolchain + hashes.
+- Scheduling portado: schtasks (Windows, HH:mm diario) + cron (Linux) — misma funcion, dos backends, decididos por formato del string.
+- z.prettifyError NO existe en zod v3 — usar parsed.error.issues.map(path+message).

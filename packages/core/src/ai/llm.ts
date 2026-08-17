@@ -35,6 +35,18 @@ import {
   HARD_RULES,
   MAX_SELF_EVAL_ATTEMPTS,
 } from '../tools/video-edit';
+import {
+  validateActionScript,
+  planRuns,
+  buildFfmpegCapture,
+  buildOutputNaming,
+  buildManifest,
+  scheduleCmd,
+  resolveState,
+  MAX_RETRIES,
+  MAX_RUN_DURATION_MIN,
+  type RunState,
+} from '../tools/screenflow';
 
 const modelCache = new Map<string, LanguageModel>();
 
@@ -779,6 +791,60 @@ export function chatStream(opts: {
         const markers = JSON.parse(markersJson) as import('../tools/video-edit').TimelineViewSpec['markers'];
         const silences = silencesJson ? (JSON.parse(silencesJson) as import('../tools/video-edit').TimelineViewSpec['silences']) : undefined;
         return timelineViewSvg({ title, durationSec, markers, silences }, width);
+      },
+    });
+  }
+
+  if (opts.tools?.includes('screenflow')) {
+    tools.screenflow_plan = tool({
+      description:
+        'Validate a declarative ActionScript for ScreenFlow (screen-recording automation) and plan the capture runs: checks action types, coordinate bounds, estimated duration (anti-runaway max 90min), warns about missing "end" action or zero open_url. Returns ok/errors/warnings/estimatedDurationSec/runs. Use before any screenflow run.',
+      parameters: z.object({
+        scriptJson: z.string().min(1).max(100000), // ActionScript JSON
+        actionsPerRun: z.number().int().min(1).max(50).optional(),
+      }),
+      execute: async ({ scriptJson, actionsPerRun }) => {
+        const script = JSON.parse(scriptJson) as import('../tools/screenflow').ActionScript;
+        const v = validateActionScript(script);
+        const runs = v.ok ? planRuns(script, { actionsPerRun }) : [];
+        return { ...v, runs };
+      },
+    });
+    tools.screenflow_capture = tool({
+      description:
+        'Generate the ffmpeg gdigrab capture argv for a ScreenFlow run (Windows): segmented recording (default 60s per segment), fps 30, CRF 18, optional region (WxH+X+Y) and audio device (dshow); silent track fallback when no device. Deterministic; returns the exact command the runner executes (ffmpeg must exist).',
+      parameters: z.object({
+        outFile: z.string().min(1).max(300), // pattern out_%03d.mp4
+        fps: z.number().int().min(15).max(60).optional(),
+        region: z.string().max(60).optional(),
+        audioDevice: z.string().max(100).optional(),
+        segmentSec: z.number().int().min(5).max(600).optional(),
+      }),
+      execute: async ({ outFile, fps, region, audioDevice, segmentSec }) => ({
+        argv: buildFfmpegCapture(outFile, { fps, region, audioDevice, segmentSec }),
+        note: 'ejecutar con spawn; nunca dentro de tests',
+      }),
+    });
+    tools.screenflow_schedule = tool({
+      description:
+        'Generate the scheduling command for a ScreenFlow run: schtasks (Windows, daily HH:mm) or cron (Linux, * * * * * expression). Returns argv + human note. Use to program recurring screen recordings.',
+      parameters: z.object({
+        scriptPath: z.string().min(1).max(300),
+        runId: z.string().max(100),
+        when: z.string().min(1).max(50), // 'HH:mm' | cron
+      }),
+      execute: async ({ scriptPath, runId, when }) => scheduleCmd({ scriptPath, runId, when }),
+    });
+    tools.screenflow_state = tool({
+      description:
+        'Resolve the ScreenFlow continuation state for a run: given the previous state.json (or none), decides start / resume (fail-soft retry, max 3) / give-up (after MAX_RETRIES with recorded error). Deterministic. Use to resume interrupted screen-recording pipelines.',
+      parameters: z.object({
+        previousJson: z.string().max(5000).optional(), // RunState JSON | null
+      }),
+      execute: async ({ previousJson }) => {
+        const previous: RunState | null = previousJson ? (JSON.parse(previousJson) as RunState) : null;
+        const r = resolveState(previous, new Date().toISOString());
+        return { ...r, maxRetries: MAX_RETRIES, maxRunDurationMin: MAX_RUN_DURATION_MIN };
       },
     });
   }
