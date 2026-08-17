@@ -160,3 +160,15 @@ Implementacion: capability screenflow (tools/screenflow.ts) + scripts/screenflow
 - Nomenclatura determinista YYYYMMDD-HHMMSS-<slug>-v<N>.mp4 + latest.mp4 = paquete reproducible y ordenable; manifest.json con toolchain + hashes.
 - Scheduling portado: schtasks (Windows, HH:mm diario) + cron (Linux) — misma funcion, dos backends, decididos por formato del string.
 - z.prettifyError NO existe en zod v3 — usar parsed.error.issues.map(path+message).
+
+## UltraIA Cloud + nube gratis 2026 (17/08/2026) — VERIFICADO 27/27 + FULL 655/655
+
+Implementacion: capability cloud (tools/cloud.ts) + API /api/cloud/* + pagina /cloud + cloudflare/ worker R2 + docs/CLOUD-FREE-2026.md. Commit 046dfcf (17 archivos).
+
+- humanSize: 100 MiB de limite de subida NO es "100 MB" — si divides por 1024 las unidades son binarias (KiB/MiB/GiB/TiB). Unidades decimales solo si divides por 1000. El test que esperaba '100 MiB' destapo la inconsistencia.
+- sanitizeFileName: ademas de quitar guiones ANTES de punto (/-+(?=\.)/g) hay que quitar los que quedan DESPUES (\.-+/g): 'x. tar' -> 'x.-tar' sin la segunda regla.
+- Los modules del core con `node:*` imports NO pueden ser importados por client components de Next (UnhandledSchemeError de webpack). Si el client solo necesita una util (humanSize), DUPLICARLA localmente en el componente (10 lineas) en vez de crear barriles/bundles especiales — patron ya usado por cloud-client.tsx. Las API routes (server) si pueden importar el modulo completo.
+- Sesiones concurrentes sobre el mismo repo = guerra de archivos: la sesion #25 borro/aislo los archivos cloud 5+ veces DURANTE los gates. Mitigacion efectiva: watcher de restauracion en %TEMP% (backup de los archivos de la feature + loop de 2s que los restaura si desaparecen) + correr gates en UNA cadena sin pausas + commit apenas estan verdes. NUNCA git add . en estas condiciones — staging explicito de los 17 archivos exactos.
+- .next/types de Next 15 se regenera SOLO en build; si la sesion concurrente lo borra a mitad, tsc falla con TS6053 (include pattern .next/types/**/*.ts apuntando a archivos inexistentes). Fix: borrar .next entero y re-correr (sin .next, el include no matchea nada y no falla).
+- Aislamiento de gates entre sesiones (maniobra simetrica): mover los untracked de la OTRA sesion a %TEMP%\opencode\backup-* + git checkout de llm.ts/index.ts sucios, correr gates, RESTAURAR todo al final — las dos sesiones quedan con sus working trees intactos.
+- Datos verificados 17/08 (websearch, citados en docs/CLOUD-FREE-2026.md): Meta/IG app review NO requerida para negocio propio (Standard Access, docs updated 2026-06-30); X API v2 Free = 17 posts/24h POR APP (el 1,500/mes era legacy 1.1); Supabase Free auto-pausa tras 7 dias sin actividad; Render Free Postgres expira a los 30 dias; Vercel Hobby tiene clausula "no commercial use"; Cloudflare Workers+D1+R2+Pages = $0 estable sin clausula comercial.

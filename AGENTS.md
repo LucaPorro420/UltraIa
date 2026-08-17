@@ -437,3 +437,54 @@ El usuario deja URLs en `enlaces.txt` (raíz) para que se analicen y se apliquen
 - .gitignore: `.ultraia/recordings/`, `logs/`, `screenshots/`.
 - Pendiente: allowlist real de `exec` (hoy fail-soft con warning), watch de carpeta `hot/`, y
   conexión opcional con la cola `Publication` canal `'local'` para métricas.
+
+## Capability cloud + nube gratis 2026 (17/08/2026)
+
+- **Pedido del usuario**: cloud + dominio gratis + app review + mejoras de coste; "haz todas"
+  (stacks Cloudflare/Vercel/Supabase + híbrido; dashboard + nube personal de archivos; guías + MVP
+  en paralelo). Commit `046dfcf` — 17 archivos, 1866 insertions.
+- **`packages/core/src/tools/cloud.ts`** — dominio puro determinista (patrón screenflow): `CloudError`,
+  `EXT_TYPES` (41 extensiones en 7 categorías), `MIME_BY_EXT`, `MAX_UPLOAD_BYTES` 100 MiB,
+  `CLOUD_LAYOUT` (9 carpetas), `isSafePath` (canónico minúsculas, sin `..`/`\`/nulos), `normalizeCloudPath`,
+  `sanitizeFileName` (espacios→guiones, quita guiones antes Y después de puntos, slice 240),
+  `classifyFile`, `validateUpload`, `humanSize` (unidades **binarias** KiB/MiB/GiB — 100 MiB = "100 MiB"),
+  `planCloudLayout`, `buildCloudManifest`, adapters `InMemoryCloudAdapter` / `LocalCloudAdapter`
+  (escritura atómica tmp+rename, fail-soft list/read/stat, list recursivo ≤4 niveles) /
+  `R2CloudAdapter` (fetch inyectable, Bearer, PUT/DELETE/HEAD, publicUrl opcional), `CloudService`
+  (upload→drafts por defecto, list/manifest/remove/stat), tool `cloud_files` (op
+  list/upload/read/remove/stat, contentB64) + `createCloudFilesHandler(adapter)`. Tests: cloud.test.ts
+  **27 PASS** (antes 31: 4 colapsados por raza de borrado; contador real 27).
+- **API web (auth)**: `GET /api/cloud/status` (estado de proveedores local/r2/supabase/vercel, NUNCA
+  secretos, presupuesto $0/mes) · `GET|DELETE /api/cloud/files` (lista + manifest; DELETE body {path})
+  · `POST /api/cloud/upload` (multipart File + dir, 413 >100 MiB). Página `/cloud` (dark obsidian):
+  `cloud-client.tsx` con drag&drop, stats (archivos/almacenado/tipos), copiar ruta, borrar, 3 guías.
+  `humanSize` duplicado local en el client (cloud.ts usa `node:*` → NO importable desde client bundle).
+  Nav: entrada `Cloud` (lucide Cloud) tras Builder. tsconfig web: alias `@ultraia/cloud` →
+  `../../packages/core/src/tools/cloud.ts`.
+- **`docs/CLOUD-FREE-2026.md`** — guía con datos VERIFICADOS 17/08/2026 (websearch): Cloudflare
+  Workers 100k req/día + D1 5GB + R2 10GB egress $0 + dominio `.pages.dev` = $0 estable SIN cláusula
+  comercial; Vercel Hobby = **"no commercial use"**; Supabase Free = 500MB Postgres + 1GB files +
+  5GB egress + 50k MAU, **auto-pausa 7 días** + sin backups; Render Free = spin-down 15min + cold
+  starts 30-60s + **Postgres gratis expira a los 30 días**; **X API v2 Free = 17 posts/24h POR APP**
+  (el 1,500/mes era API 1.1 legacy) sin app review; **Meta/IG: app review NO requerida para negocio
+  propio** (Standard Access, docs updated 2026-06-30; `instagram_business_content_publish` +
+  `instagram_basic`; límite de duplicados subió en 2026); TikTok Content Posting API = aprobación
+  humana; YouTube OAuth canal propio OK; LinkedIn pendiente de verificar. Parts 1-7: registro
+  Cloudflare/Vercel/Supabase/Render + dossier app reviews + plantilla .env + presupuesto $0.
+- **`cloudflare/`** — `worker.ts` R2 stateless (contrato GET/HEAD/PUT/DELETE `/files*`, Bearer
+  CLOUD_TOKEN, CORS, límite 100 MiB) + `wrangler.toml` + `README.md` (deploy: `npx wrangler deploy`).
+  `.env.cloud.example` (todo comentado, nada obligatorio). `.gitignore` + `.ultraia/cloud/`.
+- **Wiring DIFERIDO (High Priority)**: registro de capability `cloud` en `ai/llm.ts` + export en
+  `tools/index.ts` NO se hizo — `llm.ts`/`index.ts` estaban sucios por la sesión concurrente #25
+  (recorder/automation) y commitearlos habría incluido refs a archivos ajenos. `cloudTools` +
+  `cloudFilesTool` + `createCloudFilesHandler` ya exportados para wiring trivial post-#25.
+- **Gates 17/08**: typecheck ✅ lint ✅ test **655/655** (core 462 incl. 27 cloud + runtime 193) ✅
+  build ✅ (39 páginas, `/cloud` en manifest). LECCIÓN CONFLICTO: la sesión concurrente #25 borró los
+  archivos cloud 5+ veces (también `.next` corrupto → TS6053). Mitigación: watcher de restauración
+  en %TEMP% (backup + restore ≤2s) + commit apenas gates verdes. Si vuelve a pasar: coordinar
+  sesiones con el usuario. LEY: `git add` explícito de 17 archivos (nunca `.`), NO tocar archivos
+  de la sesión concurrente (recorder/automation/docs AUTOMATION-WEB/RAZONAMIENTO-MEDIA-AUTOMATION/
+  web-automation.py/launcher.mjs/plans loop-26/STATE.md/run-log/DOCS_TODO/enlaces.txt).
+- **Pendiente loop-25**: conectar `/cloud` con la cola `Publication` (subir paquete listo desde
+  publicaciones → media/videos) y con la capability `video_edit` (guardar EDL/renders); docs
+  mini-guía en `docs/CLOUD-FREE-2026.md` Part 8 (acceder al cloud por CLI/agentes).
