@@ -1,6 +1,6 @@
 # Loop State — UltraIa
 
-Last run: 15/08/2026 - Iteracion 19 (PrototypeREADME + PDF, 555/555 GREEN); 20 (Fable-5 memory); anterior: — Iteración 9 (AutoPub F4 paso 1: PublisherAdapter + YouTube/TikTok ✅)
+Last run: 17/08/2026 - Iteracion 24 (screenflow 22/22, plan maestro completo: diagram 293bf38 + video_edit 35ae28a + screenflow 6eca58e; repo 628/628 GREEN); anterior: — Iteración 19 (PrototypeREADME + PDF, 555/555 GREEN); 20 (Fable-5 memory); 21 (prototipo empaquetado); 22 (diagram); 23 (video_edit)
 Última triage: 15/08/2026 (report-only — sin edición de código)
 
 ## Backlog priorizado (orden de ejecución)
@@ -27,26 +27,37 @@ Last run: 15/08/2026 - Iteracion 19 (PrototypeREADME + PDF, 555/555 GREEN); 20 (
 | 16 | **AutoPub F2 (tarea 3)**: OMAG long-form (Project→Shot) para piezas 60s+ | packages/core | FULL | DONE 15/08/2026 |
 | 17 | **AutoPub F4 (tarea 5)**: canales siguientes — Meta (IG Reels/Threads), X API v2, LinkedIn | packages/core | FULL | DONE 15/08/2026 — requiere app review/decisiones humanas |
 | 18 | Desktop Fase D paso 3: ventana WebView2 real del launcher | launcher | FULL | DONE 15/08/2026 |
+| 19 | **PrototypeREADME + descargable PDF** (petición usuario) | docs + scripts | FULL | DONE 15/08/2026 (0e5859b) |
+| 20 | **Fable-5 memory filesystem** (enlaces.txt) — capability `memory` | packages/core | FULL | DONE 15/08/2026 (6315e30, memory-fs 28/28) |
+| 21 | **Prototipo empaquetado Web+Desktop** (petición usuario) — Next standalone + launcher + zip | repo | FULL | DONE 15/08/2026 (5415628) |
+| 22 | **Capability diagram** (enlaces.txt → diagram-design) — HTML/SVG editoriales + resultTask/diagrams + docs/diagrams | packages/core | FULL | DONE 17/08/2026 (293bf38, 22 tests) |
+| 23 | **Capability video_edit** (enlaces.txt → browser-use/video-use) — takes_packed/EDL/render/self-eval/timeline + demo resultTask/edl | packages/core | FULL | DONE 17/08/2026 (35ae28a, 29 tests) |
+| 24 | **Capability screenflow** (petición usuario) — grabación→acciones→edición→publicación local→continuidad | packages/core + scripts | FULL | DONE 17/08/2026 (6eca58e, 22 tests; runner --dry-run OK) |
+| 25 | **F2 media-automation** (enlaces.txt líneas 7-665: OBS WebSocket + ciclo PLAN→VALIDATE→AUTOMATE→RECORD→ANALYZE→EDIT→AUDIO→RENDER→VERIFY→ARCHIVE; 9 repos) + web-automation.py + PLAN-COMPLETO.md | packages/core + scripts | FULL | EN CURSO — sesión concurrente (untracked: recorder.ts/automation.ts + tests + docs/RAZONAMIENTO-MEDIA-AUTOMATION.md). NO duplicar |
 
 > AutoPub = plan maestro `docs/AUTO-PUBLICACION.md` (aprobado 15/08/2026). Orden de
 > ejecución recomendado: 7 → 8 → 9 → 10 → luego 11, 12, 13.
 
 ## High Priority (loop is acting or waiting on human)
 
-- **Working tree LIMPIO tras iteración 9** — el commit `53df51f` incluyó el ruido staged
-  pendiente desde iteraciones previas (nanoprompts refresh con imágenes completadas,
-  mejoras a `scripts/loop_piv.py`/`scripts/nanoprompts_fetch.py`, `integracionTecno.txt`,
-  `DOCS_TODO.md`, `masinfo.txt`, `proyectoNuevo.*`, `BussinesModel/`) junto con el trabajo
-  de AutoPub F4. High Priority resuelto de una vez; sin secrets (gitignore los protege).
-- Ningún gate humano pendiente (push/merge sigue requiriendo aprobación humana).
+- **Working tree con ruido de sesión concurrente (17/08/2026)**: `recorder.ts`/`automation.ts`
+  + tests (untracked, con errores TS propios — bloquean typecheck FULL si se corren juntos) y
+  `docs/RAZONAMIENTO-MEDIA-AUTOMATION.md` + `learning/sources/media-automation.md` — trabajo de
+  F2 media-automation en curso por otra sesión. Regla: NO tocarlo, NO commitearlo, aislar a
+  `%TEMP%\opencode\*.bak` temporalmente solo para correr gates y restaurar intacto.
+- **Gen-Engine entrenamiento E0-E5** (backlog #6): requiere GPU/decisión humana — no es ciclo
+  de código npm.
+- **AutoPub canales restantes** (backlog #17): Meta IG Reels/Threads, X API v2, LinkedIn —
+  requiere app review/decisiones humanas.
+- Ningún gate humano pendiente de push/merge (sigue requiriendo aprobación humana).
 
 ## Watch List
 
 - **Typecheck transitorio (1 vez)**: primer run de una triage falló "command failed" en
   packages/runtime SIN errores TS; re-run EXIT=0. Posible lock/transitorio o caché stale
   `node_modules/.vite` — vigilar si se repite antes de diagnosticar.
-- **Runtime tests 192/192** (Fase A 132 + Fase B 20 + Fase C 34 + wiring system-core 5 + spike launcher 1). Total repo: 526/526 PASS
-  (core 334 + runtime 192).
+- **Runtime tests 193/193** (Fase A 132 + Fase B 20 + Fase C 34 + wiring system-core 5 + spike launcher 1 + 1). Total repo: 628/628 PASS (core 435 + runtime 193).
+- `.next` stale en apps/web rompe `npm run build` ("File ... not found") → limpiar antes del build (2ª vez vista 17/08/2026).
 - `npx @cobusgreyling/loop doctor` y `loop status` — validar salida del CLI contra LOOP.md (v0.1.2).
 - `.vscode/settings.json` fix Pylance (local-only, gitignored) — no commitear.
 - Verificación FULL en cada commit: typecheck → lint → test → build (526/526 esperado).

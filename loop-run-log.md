@@ -1051,3 +1051,50 @@ ormalizeTitle() (lower + strip non-alnum), dedupe() (bigram overlap > 0.6),
 - Pendiente: F2 media-automation (enlaces.txt líneas 7-665: OBS WebSocket, ciclo
   PLAN→VALIDATE→AUTOMATE→RECORD→ANALYZE→EDIT→AUDIO→RENDER→VERIFY→ARCHIVE +
   RECOVER/RETRY/RESUME; 9 repos) + web-automation.py + PLAN-COMPLETO.md + PDF + memoria.
+
+## Iteración 24 — Capability screenflow (grabación automatizada) (17/08/2026)
+
+**[P] Plan**
+- Objetivo: petición del usuario (plan maestro de 3 workstreams, aprobado con
+  "Ejecutar plan maestro") — pipeline de grabación de pantalla automatizado:
+  Captura (ffmpeg gdigrab) → Acciones (ActionScript declarativo + pyautogui) →
+  Edición (reutiliza video_edit) → Publicación local (.ultraia/recordings/<run-id>/) →
+  Continuidad (state.json resume idempotente, retry máx 3, fail-soft, scheduling).
+- Pasos: 1) plan file .opencode/plans/loop-24-screenflow.md; 2) tools/screenflow.ts
+  (validateActionScript/planRuns/buildFfmpegCapture/buildOutputNaming/buildManifest/
+  scheduleCmd/resolveState — dominio puro zod, CERO ejecución real en tests);
+  3) wiring llm.ts (4 tools screenflow_*) + index.ts; 4) tests 22; 5)
+  scripts/screenflow/actions.py + schedule.ps1 + demo.json + Task/run_screenflow.ts
+  (verificado --dry-run) + docs/SCREENFLOW.md; 6) .gitignore + LEARNINGS + AGENTS.
+- Criterios: scoped screenflow.test.ts 22/22 + FULL npm + runner dry-run OK.
+- Plan file: `.opencode/plans/loop-24-screenflow.md`.
+
+**[I] Commits**
+- `6eca58e` feat(screenflow): capability screenflow - pipeline grabacion automatizada
+  (ActionScript, ffmpeg gdigrab, publicacion local, continuidad resume/retry) + 22
+  tests + runner + scripts + docs. Sin push.
+- NOTA encuadre: los gates FULL corrieron con el ruido externo de la sesión
+  concurrente (recorder.ts/automation.ts + tests, untracked, con errores TS propios)
+  movido temporalmente a `%TEMP%\opencode\*.bak` y RESTAURADO intacto tras el commit
+  — no se tocó contenido ajeno; los commits 35ae28a/6eca58e quedan limpios.
+
+**[V] Gates**
+- Scoped: screenflow.test.ts **22/22** PASS · typecheck core exit 0.
+- FULL: typecheck ✅ · lint ✅ · test **628/628** (core 435 + runtime 193) ✅ · build ✅
+  (.next stale limpiado antes del build).
+- Runner: `node_modules\.bin\vite-node.cmd Task/run_screenflow.ts scripts/screenflow/demo.json
+  --dry-run` OK (continuidad: start, argv gdigrab, manifest, report).
+
+**[R] Veredicto**
+- **GREEN** → commit `6eca58e`. Plan maestro completo: 293bf38 (diagram 22) + 35ae28a
+  (video_edit 29) + 6eca58e (screenflow 22). Backlog STATE.md de código npm: agotado
+  (pendientes solo con decisión humana: Gen-Engine GPU #6, canales AutoPub #17).
+- LECCIONES: (1) z.prettifyError NO existe en zod v3 → usar
+  `parsed.error.issues.map(i => i.path.join('.') + ': ' + i.message)`; (2) los gates
+  pueden bloquearse por ruido externo untracked con errores TS → aislar en temp,
+  correr gates, restaurar intacto (nunca corregir contenido ajeno); (3) el self-eval
+  del demo detectó correctamente DURATION_MISMATCH (EDL 21.4s vs spec 23.2s) — el
+  pipeline verifica lo que genera.
+- Pendiente proyecto: F2 media-automation (sesión concurrente en curso, archivos
+  untracked recorder/automation + docs/RAZONAMIENTO-MEDIA-AUTOMATION.md); Gen-Engine
+  E0-E5 (GPU, decisión humana); AutoPub canales Meta/X/LinkedIn (app review).
