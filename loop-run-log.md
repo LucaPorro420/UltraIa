@@ -1288,3 +1288,31 @@ ormalizeTitle() (lower + strip non-alnum), dedupe() (bigram overlap > 0.6),
   estado real del �rbol antes de escribir parches (los wiring "diferidos" pueden estar ya
   aplicados); el argparse de flags globales con subcomandos requiere `parents=[common]`.
 - Commit: `b152b40` feat(scripts) � 5 archivos, 1290 insertions.
+
+### Iteraci�n 29 � cloud-cli pull + cierre de pendientes cloud (17/08/2026) � DONE `f2e2b5b` ?
+
+- **P � Plan**: usuario: "continua, documenta y ve dejando los cambios a medida que hagas"
+  (autoriza commits por pieza). Siguiente paso: completar el CLI (descarga) y cerrar los
+  pendientes cloud de loop-25 como tareas diferidas documentadas.
+- **I � Implement**:
+  - `cloud-cli.py` � nuevo comando `pull <path> [destino]` (descarga del cloud al disco:
+    destino archivo / carpeta existente / default cwd; dry-run; fail-soft; copia at�mica
+    tmp+rename; misma frontera de validaci�n que remove/stat). Docstring y help actualizados.
+  - `cloud-cli.test.py` � +5 tests e2e (pull ok con contenido id�ntico, pull a carpeta,
+    inexistente exit 2, path inseguro exit 2, dry-run no escribe) � 16/16 PASS.
+  - `docs/CLOUD-CLI-GUIDE.md` � tabla de comandos + ejemplos 7-8 + contador de tests.
+  - `docs/TAREA-CLOUD-VIDEOEDIT.md` (commit 0e9a4d6) � tarea diferida: `guardarEdicionEnCloud`
+    (EDL/self-eval/timeline � exports/edl, render � media/videos; fail-soft; cloud inyectable;
+    3 tests sugeridos) � con exports reales verificados de video-edit.ts.
+  - `AGENTS.md` (commit b550ee4) � estado cloud-cli + tareas + CORRECCI�N: EXT_TYPES son 42
+    (no 41, el TOOL_DESCRIPTIONS de index.ts hered� el n�mero viejo).
+  - Logs: iteraci�n 28 + 29 en run-log, fila 28 en STATE.md (commit 68fa168).
+- **V � Verify**: gates Python por pieza: py_compile / ruff / pyflakes OK (0 issues),
+  self-test 25/25, e2e 16/16 PASS. Smoke test real contra `.ultraia/cloud` del repo
+  (gitignored): layout 9/9, list exit 0. Gates npm FULL siguen bloqueados por #25 (no se
+  corren; no se a�slan archivos ajenos — regla del usuario).
+- **R � Reiniciar**: pendientes cloud de loop-25 CUBIERTOS como tareas diferidas
+  (TAREA-CLOUD-PUBLICATIONS + TAREA-CLOUD-VIDEOEDIT), aplicables cuando el �rbol est� limpio.
+  Siguiente: esperar commit de #25 para gates FULL y aplicar ambas tareas + commit final de
+  archivos Python (los 3 ya est�n commiteados). Sin push (requiere aprobaci�n humana).
+- Commits: `0e9a4d6` docs � `b550ee4` docs � `f2e2b5b` feat(scripts) � 6 archivos, +172/+13/+98.
