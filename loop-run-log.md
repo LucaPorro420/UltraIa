@@ -1211,44 +1211,80 @@ ormalizeTitle() (lower + strip non-alnum), dedupe() (bigram overlap > 0.6),
 - **V â€” Verify**: typecheck âœ… lint âœ… test âœ… **655/655** (core 462 incl. 27 cloud + runtime 193) âœ… build âœ… (39 pÃ¡ginas, `/cloud` 5.62 kB en manifest). Incidentes: sesiÃ³n concurrente #25 borrÃ³ los archivos cloud **5+ veces** durante el ciclo (watcher de restauraciÃ³n en %TEMP% + gates en cadena sin pausas + commit apenas verdes) y `.next/types` corrupto â†’ TS6053 (fix: borrar `.next`). Build fallÃ³ 1Ã—: cloud-client importaba cloud.ts (node:*) â†’ `humanSize` duplicado local. Aislamiento simÃ©trico aplicado y restaurado (llm.ts/index.ts/recorder/automation intactos).
 - **R â€” Reiniciar**: HIGH PRIORITY siguiente: wiring capability `cloud` en llm.ts/index.ts (cuando #25 commitee); pendientes menores: conectar /cloud con cola Publication y video_edit; Part 8 guÃ­a CLI en CLOUD-FREE-2026.md.
 - Commit: `046dfcf` feat(cloud) â€” 17 archivos, 1866 insertions.
-### Iteración 26 — Wiring capability cloud (17/08/2026) — DONE `7315d4d` ?
+### Iteraciï¿½n 26 ï¿½ Wiring capability cloud (17/08/2026) ï¿½ DONE `7315d4d` ?
 
-- **P — Plan**: HIGH PRIORITY de STATE.md (wiring diferido de la iteración 25): registrar la
+- **P ï¿½ Plan**: HIGH PRIORITY de STATE.md (wiring diferido de la iteraciï¿½n 25): registrar la
   capability `cloud` ? tool `cloud_files` en `ai/llm.ts` + export `cloud` en `tools/index.ts`.
-  Blocker original (llm.ts/index.ts sucios por sesión concurrente #25) desapareció — ambos limpios.
+  Blocker original (llm.ts/index.ts sucios por sesiï¿½n concurrente #25) desapareciï¿½ ï¿½ ambos limpios.
   Plan file `.opencode/plans/loop-27-cloud-wiring.md`.
-- **I — Implement**: `tools/index.ts` (export * from './cloud' + `cloud: cloudTools` en tools +
-  descripción TOOL_DESCRIPTIONS.cloud + 'cloud' en union Capability) + `ai/llm.ts` (imports cloud
+- **I ï¿½ Implement**: `tools/index.ts` (export * from './cloud' + `cloud: cloudTools` en tools +
+  descripciï¿½n TOOL_DESCRIPTIONS.cloud + 'cloud' en union Capability) + `ai/llm.ts` (imports cloud
   + `resolveCloudAdapter()`: R2CloudAdapter si CLOUDFLARE_R2_WORKER_URL+TOKEN, si no
   LocalCloudAdapter `.ultraia/cloud`; registro `tools.cloud_files = tool({...})` con
-  createCloudFilesHandler — patrón screenflow).
-- **V — Verify**: gates FULL ? typecheck ? lint ? test (core 483/483 + runtime 193/193 = 676/676,
-  cloud 27/27) ? build ? (39 páginas). Maniobra de gates: 5 archivos de la sesión game-dev
+  createCloudFilesHandler ï¿½ patrï¿½n screenflow).
+- **V ï¿½ Verify**: gates FULL ? typecheck ? lint ? test (core 483/483 + runtime 193/193 = 676/676,
+  cloud 27/27) ? build ? (39 pï¿½ginas). Maniobra de gates: 5 archivos de la sesiï¿½n game-dev
   (blueprint/reach/domain+tests, modificados con errores TS propios) y 4 de media-automation
   (recorder/automation+tests, 4 tests con race conocido promise-first/testTimeout) aislados a
-  %TEMP%\opencode\loop27-bak ? restaurados byte-idénticos (hash verificado 9/9 OK).
-- **R — Reiniciar**: cloud wiring COMPLETO. Pendientes menores de cloud: conectar /cloud con la
-  cola Publication y video_edit; Part 8 guía CLI en CLOUD-FREE-2026.md. Cola principal sigue
+  %TEMP%\opencode\loop27-bak ? restaurados byte-idï¿½nticos (hash verificado 9/9 OK).
+- **R ï¿½ Reiniciar**: cloud wiring COMPLETO. Pendientes menores de cloud: conectar /cloud con la
+  cola Publication y video_edit; Part 8 guï¿½a CLI en CLOUD-FREE-2026.md. Cola principal sigue
   bloqueada por sesiones concurrentes (#25 media-automation sin commit; game-dev con diffs sin
-  commitear). LECCIÓN: los errores TS del working tree concurrente no son del ciclo propio —
+  commitear). LECCIï¿½N: los errores TS del working tree concurrente no son del ciclo propio ï¿½
   aislar + restaurar por hash, nunca corregir archivos ajenos.
-- Commit: `7315d4d` feat(core) — 3 archivos, 87 insertions.
+- Commit: `7315d4d` feat(core) ï¿½ 3 archivos, 87 insertions.
 
-### Iteración 27 — ScreenFlow exec allowlist (17/08/2026) — DONE `bddcf5f` ?
+### Iteraciï¿½n 27 ï¿½ ScreenFlow exec allowlist (17/08/2026) ï¿½ DONE `bddcf5f` ?
 
-- **P — Plan**: pendiente de AGENTS.md (capability screenflow): "allowlist real de exec (hoy
+- **P ï¿½ Plan**: pendiente de AGENTS.md (capability screenflow): "allowlist real de exec (hoy
   fail-soft con warning)". Plan file `.opencode/plans/loop-28-screenflow-exec-allowlist.md`.
-  Screenflow.ts es territorio de la iteración 24 (mío) — ninguna sesión concurrente lo toca.
-- **I — Implement**: `screenflow.ts` — `EXEC_ALLOWLIST` (python/py/python3, node/npm/npx,
-  ffmpeg/ffprobe, yt-dlp, mkdir; tolera .exe/.cmd/.bat), `validateExecCmd` (vacío, >500,
+  Screenflow.ts es territorio de la iteraciï¿½n 24 (mï¿½o) ï¿½ ninguna sesiï¿½n concurrente lo toca.
+- **I ï¿½ Implement**: `screenflow.ts` ï¿½ `EXEC_ALLOWLIST` (python/py/python3, node/npm/npx,
+  ffmpeg/ffprobe, yt-dlp, mkdir; tolera .exe/.cmd/.bat), `validateExecCmd` (vacï¿½o, >500,
   metachars shell `; && || | > < ` ` $(`, rutas absolutas como binario, binario fuera de
-  allowlist) integrado en `validateActionScript` como ERROR acumulado por acción; exports en
-  namespace `screenflow`. `screenflow.test.ts` +9 tests (31/31). `llm.ts`: descripción del
+  allowlist) integrado en `validateActionScript` como ERROR acumulado por acciï¿½n; exports en
+  namespace `screenflow`. `screenflow.test.ts` +9 tests (31/31). `llm.ts`: descripciï¿½n del
   tool `screenflow_plan` menciona la allowlist.
-- **V — Verify**: gates FULL ? typecheck ? lint ? test (core 492/492 + runtime 193/193 =
-  685/685) ? build ?. Aislamiento simétrico de 9 archivos de sesiones concurrentes (5
+- **V ï¿½ Verify**: gates FULL ? typecheck ? lint ? test (core 492/492 + runtime 193/193 =
+  685/685) ? build ?. Aislamiento simï¿½trico de 9 archivos de sesiones concurrentes (5
   game-dev + 4 media-automation) a %TEMP%\opencode\loop28-bak ? restaurados 9/9 hash-OK.
-- **R — Reiniciar**: pendientes screenflow restantes: watch de carpeta `hot/` y conexión con
-  cola Publication canal `local` (métricas). Sesión concurrente ya tomó pendientes cloud
-  (CLOUD-CLI-GUIDE.md + TAREA-CLOUD-PUBLICATIONS.md + cloud-cli.test.py — NO duplicar).
-- Commit: `bddcf5f` feat(screenflow) — 4 archivos, 231 insertions.
+- **R ï¿½ Reiniciar**: pendientes screenflow restantes: watch de carpeta `hot/` y conexiï¿½n con
+  cola Publication canal `local` (mï¿½tricas). Sesiï¿½n concurrente ya tomï¿½ pendientes cloud
+  (CLOUD-CLI-GUIDE.md + TAREA-CLOUD-PUBLICATIONS.md + cloud-cli.test.py ï¿½ NO duplicar).
+- Commit: `bddcf5f` feat(screenflow) ï¿½ 4 archivos, 231 insertions.
+
+### Iteraciï¿½n 28 ï¿½ Cloud CLI local + tareas diferidas (17/08/2026) ï¿½ DONE `b152b40` ?
+
+- **P ï¿½ Plan**: usuario pide "no invadir #25": construir SOLO lo nuevo (sin tocar archivos
+  existentes) y guardar todo lo que requiera editar archivos compartidos como tareas .md con
+  cï¿½digo comentado (quï¿½/para quï¿½/por quï¿½). Pausa de 3 min antes de crear (respetada con
+  Start-Sleep 180 mientras se investigaba en solo-lectura).
+- **I ï¿½ Implement**:
+  - `scripts/cloud-cli.py` (NUEVO, stdlib puro): CLI local de UltraIA Cloud replicando el
+    contrato de `tools/cloud.ts` (42 ext en 7 categorï¿½as, layout 9 carpetas, regex path seguro,
+    sanitize, lï¿½mite 100 MiB, humanSize binario). Comandos: layout/list/upload/remove/stat/
+    manifest/self-test. Flags: --dir/--dry-run/--json/--quiet/--yes (parents argparse para
+    aceptar flags antes y despuï¿½s del subcomando). Escritura atï¿½mica tmp+rename, fail-soft.
+  - `scripts/cloud-cli.test.py` (NUEVO): suite e2e unittest (11 tests) que ejecuta el CLI como
+    proceso REAL en tempdir aislado: sanitize+clasificaciï¿½n, rechazos (.exe, ../x), JSON
+    parseable, manifest, remove fail-soft, exit codes. 11/11 PASS.
+  - `docs/CLOUD-CLI-GUIDE.md` (NUEVO): la "Part 8" pendiente del cloud (sin tocar
+    CLOUD-FREE-2026.md): comandos, ejemplos, integraciï¿½n (agentes/cron/AutoPub), verificaciï¿½n.
+  - `docs/TAREA-WIRING-CLOUD.md` (NUEVO): parche del wiring `cloud` en index.ts comentado
+    lï¿½nea por lï¿½nea ï¿½ luego marcado SUPERADA porque la sesiï¿½n #25 lo aplicï¿½ en `7315d4d`
+    (las 5 adiciones coinciden exactamente; quedï¿½ como evidencia, sin re-aplicar).
+  - `docs/TAREA-CLOUD-PUBLICATIONS.md` (NUEVO): tarea diferida pendiente loop-25 ï¿½ conectar
+    cola `Publication` con el cloud (guardarPaqueteEnCloud: media ï¿½ media/videos + paquete
+    JSON ï¿½ exports/publications/<id>.json, fail-soft con Promise.allSettled, cloud inyectable
+    en createPublication; 3 tests nuevos sugeridos).
+- **V ï¿½ Verify**: gates Python (los npm FULL no corren: working tree de #25 con errores TS
+  propios): py_compile OK, ruff 0 issues (f-strings, imports ordenados, PLW1510 check=False,
+  PLR0124 math.isnan), pyflakes OK, self-test 25/25 PASS, e2e 11/11 PASS. Hallazgo en vivo:
+  el otro agente commiteï¿½ el wiring cloud (7315d4d) mientras esta sesiï¿½n preparaba el parche
+  ï¿½ se actualizï¿½ la tarea a SUPERADA (cero duplicaciï¿½n).
+- **R ï¿½ Reiniciar**: pendientes cloud restantes: TAREA-CLOUD-VIDEOEDIT.md (conectar video_edit
+  con el cloud: EDL/renders ï¿½ exports/) y commit de los archivos de esta iteraciï¿½n cuando los
+  gates FULL del repo estï¿½n verdes (hoy bloqueados por #25). Lecciï¿½n reafirmada: leer el
+  estado real del ï¿½rbol antes de escribir parches (los wiring "diferidos" pueden estar ya
+  aplicados); el argparse de flags globales con subcomandos requiere `parents=[common]`.
+- Commit: `b152b40` feat(scripts) ï¿½ 5 archivos, 1290 insertions.
