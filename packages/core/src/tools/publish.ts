@@ -17,16 +17,20 @@ export interface PublishMetadata {
   privacyStatus: 'public' | 'private' | 'unlisted';
 }
 
+export type PublishPlatform = 'youtube' | 'tiktok' | 'x' | 'instagram' | 'threads';
+
 export interface PublishInput {
   /** Ruta del MP4 final (9:16, <60s). */
   videoPath?: string;
   /** Buffer del video (alternativa a videoPath, útil en runtime sin fs). */
   videoBuffer?: Buffer;
+  /** URL pública del video (requerida por IG Reels y Threads — container flow). */
+  videoUrl?: string;
   metadata?: Partial<PublishMetadata>;
 }
 
 export interface PublishResult {
-  platform: 'youtube' | 'tiktok' | 'x';
+  platform: PublishPlatform;
   ok: boolean;
   id?: string;
   url?: string;
@@ -34,7 +38,7 @@ export interface PublishResult {
 }
 
 export interface PublisherAdapter {
-  platform: 'youtube' | 'tiktok' | 'x';
+  platform: PublishPlatform;
   /** Sube el video a la plataforma. Devuelve ok:false + error si algo falla (no lanza). */
   publish(input: PublishInput): Promise<PublishResult>;
   /** Sin token o sin fuente de video → false con razón. */
@@ -55,8 +59,17 @@ const YOUTUBE_SCOPED_UPLOAD_URL = 'https://www.googleapis.com/upload/youtube/v3/
 const TIKTOK_INIT_URL = 'https://open.tiktokapis.com/v2/post/publish/video/init/';
 const X_MEDIA_UPLOAD_URL = 'https://upload.x.com/1.1/media/upload.json';
 const X_TWEETS_URL = 'https://api.x.com/2/tweets';
+/** Instagram Graph API v21 (Reels container flow: create → publish). */
+export const IG_MEDIA_URL = 'https://graph.instagram.com/v21.0';
+/** Threads Graph API v1.0 (container flow: threads → threads_publish). */
+export const THREADS_MEDIA_URL = 'https://graph.threads.net/v1.0';
 /** Límite de chunk del media upload de X: 5 MiB por APPEND. */
 export const X_CHUNK_BYTES = 5 * 1024 * 1024;
+
+/** Cuerpo form-urlencoded para las llamadas Graph API de Meta (sin deps). */
+export function formBody(params: Record<string, string>): string {
+  return new URLSearchParams(params).toString();
+}
 
 /** Metadatos bilingües es/ar a partir del título (port de build_metadata_from_script). */
 export function buildBilingualMetadata(title: string, plainScript?: string): PublishMetadata {
@@ -355,6 +368,158 @@ export function createXAdapter(options: XAdapterOptions = {}): PublisherAdapter 
   };
 }
 
+// -------------------------------------------------------------- Meta (IG Reels)
+
+export interface InstagramAdapterOptions {
+  accessToken?: string;
+  /** ID de la cuenta IG Business/Creator (Graph API). */
+  igUserId?: string;
+  fetchFn?: typeof fetch;
+  /** Default: env IG_ACCESS_TOKEN. */
+  tokenFromEnv?: () => string | undefined;
+  /** Default: env IG_USER_ID. */
+  userIdFromEnv?: () => string | undefined;
+  /** URL pública del video Reels (también acepta PublishInput.videoUrl). */
+  videoUrl?: string;
+}
+
+/** QUÉ ES: adapter Instagram Reels vía Instagram Graph API (container flow).
+// PARA QUÉ: F4 paso 5 — canal Meta (sin app review para negocio propio, Standard
+// Access, permisos instagram_business_content_publish + instagram_basic, verificado 17/08).
+// POR QUÉ: mismo patrón fail-soft/fetch inyectable que YouTube/TikTok/X. */
+export function createInstagramAdapter(options: InstagramAdapterOptions = {}): PublisherAdapter {
+  const token = () => options.accessToken ?? options.tokenFromEnv?.() ?? process.env.IG_ACCESS_TOKEN;
+  const userId = () => options.igUserId ?? options.userIdFromEnv?.() ?? process.env.IG_USER_ID;
+  const fetchFn = options.fetchFn ?? globalThis.fetch;
+
+  return {
+    platform: 'instagram',
+    async validate() {
+      if (!token()) return { ok: false, reason: 'IG_ACCESS_TOKEN no configurado' };
+      if (!userId()) return { ok: false, reason: 'IG_USER_ID no configurado' };
+      return { ok: true };
+    },
+    async publish(input) {
+      const accessToken = token();
+      const igUserId = userId();
+      if (!accessToken) return { platform: 'instagram', ok: false, error: 'IG_ACCESS_TOKEN no configurado' };
+      if (!igUserId) return { platform: 'instagram', ok: false, error: 'IG_USER_ID no configurado' };
+      const videoUrl = options.videoUrl ?? input.videoUrl;
+      if (!videoUrl) {
+        return { platform: 'instagram', ok: false, error: 'IG Reels requiere video_url público (PublishInput.videoUrl o options.videoUrl)' };
+      }
+      const meta = mergedMetadata(input);
+      const caption = meta.title.slice(0, 2200);
+      try {
+        // Paso 1: crear container REELS → creation_id
+        const create = await fetchFn(`${IG_MEDIA_URL}/${igUserId}/media`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: formBody({
+            media_type: 'REELS',
+            video_url: videoUrl,
+            caption,
+            access_token: accessToken,
+          }),
+        });
+        const createData = (await create.json().catch(() => ({}))) as { id?: string; error?: { message?: string } };
+        if (!create.ok || !createData.id) {
+          return { platform: 'instagram', ok: false, error: `IG media create falló: HTTP ${create.status} (${createData.error?.message || 'sin id'})` };
+        }
+        // Paso 2: publicar el container → media id
+        const pub = await fetchFn(`${IG_MEDIA_URL}/${igUserId}/media_publish`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: formBody({ creation_id: createData.id, access_token: accessToken }),
+        });
+        const pubData = (await pub.json().catch(() => ({}))) as { id?: string; error?: { message?: string } };
+        if (!pub.ok || !pubData.id) {
+          return { platform: 'instagram', ok: false, error: `IG media_publish falló: HTTP ${pub.status} (${pubData.error?.message || 'sin id'})` };
+        }
+        return { platform: 'instagram', ok: true, id: pubData.id, url: `https://www.instagram.com/reel/${pubData.id}/` };
+      } catch (err) {
+        return { platform: 'instagram', ok: false, error: `Instagram error: ${(err as Error).message}` };
+      }
+    },
+  };
+}
+
+// --------------------------------------------------------------- Meta (Threads)
+
+export interface ThreadsAdapterOptions {
+  accessToken?: string;
+  /** ID de usuario de Threads (Graph API v1.0). */
+  threadsUserId?: string;
+  fetchFn?: typeof fetch;
+  /** Default: env THREADS_ACCESS_TOKEN. */
+  tokenFromEnv?: () => string | undefined;
+  /** Default: env THREADS_USER_ID. */
+  userIdFromEnv?: () => string | undefined;
+  /** URL pública del video (también acepta PublishInput.videoUrl). */
+  videoUrl?: string;
+}
+
+/** QUÉ ES: adapter Threads vía Threads Graph API (container flow).
+// PARA QUÉ: F4 paso 5 — canal Meta Threads (mismo estándar que IG: sin app review
+// para negocio propio; token con permisos de publicación).
+// POR QUÉ: mismo patrón fail-soft/fetch inyectable; sin url devuelta (id como TikTok). */
+export function createThreadsAdapter(options: ThreadsAdapterOptions = {}): PublisherAdapter {
+  const token = () => options.accessToken ?? options.tokenFromEnv?.() ?? process.env.THREADS_ACCESS_TOKEN;
+  const userId = () => options.threadsUserId ?? options.userIdFromEnv?.() ?? process.env.THREADS_USER_ID;
+  const fetchFn = options.fetchFn ?? globalThis.fetch;
+
+  return {
+    platform: 'threads',
+    async validate() {
+      if (!token()) return { ok: false, reason: 'THREADS_ACCESS_TOKEN no configurado' };
+      if (!userId()) return { ok: false, reason: 'THREADS_USER_ID no configurado' };
+      return { ok: true };
+    },
+    async publish(input) {
+      const accessToken = token();
+      const threadsUserId = userId();
+      if (!accessToken) return { platform: 'threads', ok: false, error: 'THREADS_ACCESS_TOKEN no configurado' };
+      if (!threadsUserId) return { platform: 'threads', ok: false, error: 'THREADS_USER_ID no configurado' };
+      const videoUrl = options.videoUrl ?? input.videoUrl;
+      if (!videoUrl) {
+        return { platform: 'threads', ok: false, error: 'Threads requiere video_url público (PublishInput.videoUrl o options.videoUrl)' };
+      }
+      const meta = mergedMetadata(input);
+      const text = meta.title.slice(0, 500);
+      try {
+        // Paso 1: crear container → creation_id
+        const create = await fetchFn(`${THREADS_MEDIA_URL}/${threadsUserId}/threads`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: formBody({
+            media_type: 'VIDEO',
+            video_url: videoUrl,
+            text,
+            access_token: accessToken,
+          }),
+        });
+        const createData = (await create.json().catch(() => ({}))) as { id?: string; error?: { message?: string } };
+        if (!create.ok || !createData.id) {
+          return { platform: 'threads', ok: false, error: `Threads create falló: HTTP ${create.status} (${createData.error?.message || 'sin id'})` };
+        }
+        // Paso 2: publicar el container → thread id
+        const pub = await fetchFn(`${THREADS_MEDIA_URL}/${threadsUserId}/threads_publish`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: formBody({ creation_id: createData.id, access_token: accessToken }),
+        });
+        const pubData = (await pub.json().catch(() => ({}))) as { id?: string; error?: { message?: string } };
+        if (!pub.ok || !pubData.id) {
+          return { platform: 'threads', ok: false, error: `Threads publish falló: HTTP ${pub.status} (${pubData.error?.message || 'sin id'})` };
+        }
+        return { platform: 'threads', ok: true, id: pubData.id };
+      } catch (err) {
+        return { platform: 'threads', ok: false, error: `Threads error: ${(err as Error).message}` };
+      }
+    },
+  };
+}
+
 // ------------------------------------------------------------------- helpers
 
 /** Corre todos los adapters sobre el mismo input y agrega resultados. */
@@ -378,4 +543,4 @@ export function createDefaultPublishers(opts: { includeX?: boolean } = {}): Publ
   return opts.includeX ? [...base, createXAdapter()] : base;
 }
 
-export const publish = { createYouTubeAdapter, createTikTokAdapter, createXAdapter, createDefaultPublishers, publishToAll, buildBilingualMetadata, buildXPostText, xAppendMultipartBody };
+export const publish = { createYouTubeAdapter, createTikTokAdapter, createXAdapter, createInstagramAdapter, createThreadsAdapter, createDefaultPublishers, publishToAll, buildBilingualMetadata, buildXPostText, xAppendMultipartBody, formBody, IG_MEDIA_URL, THREADS_MEDIA_URL };

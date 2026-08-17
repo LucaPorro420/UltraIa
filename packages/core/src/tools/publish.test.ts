@@ -3,6 +3,8 @@ import {
   buildBilingualMetadata,
   buildXPostText,
   createDefaultPublishers,
+  createInstagramAdapter,
+  createThreadsAdapter,
   createTikTokAdapter,
   createXAdapter,
   createYouTubeAdapter,
@@ -357,5 +359,253 @@ describe('createXAdapter (X API v2, F4 paso 4)', () => {
     expect(results[0].platform).toBe('x');
     expect(results[0].ok).toBe(false);
     expect(results[0].error).toContain('X_ACCESS_TOKEN');
+  });
+});
+
+describe('createInstagramAdapter (IG Reels, F4 paso 5)', () => {
+  const IG_TOKEN = 'ig-token-1';
+  const IG_USER = '17841400000000000';
+  const VIDEO_URL = 'https://cdn.example.com/final.mp4';
+
+  function igFetchMock(calls: string[]) {
+    return stubFetch([
+      {
+        match: (url, init) => url.includes('/media') && !url.includes('media_publish') && String(init.body).includes('REELS'),
+        respond: () => {
+          calls.push('create');
+          return jsonResponse(200, { id: 'c1' });
+        },
+      },
+      {
+        match: (url) => url.includes('media_publish'),
+        respond: () => {
+          calls.push('publish');
+          return jsonResponse(200, { id: 'm1' });
+        },
+      },
+      { match: () => true, respond: () => jsonResponse(500, {}) },
+    ]);
+  }
+
+  it('validate: sin token → ok:false con razón clara', async () => {
+    const v = await createInstagramAdapter().validate();
+    expect(v.ok).toBe(false);
+    expect(v.reason).toContain('IG_ACCESS_TOKEN');
+  });
+
+  it('validate: con token pero sin IG_USER_ID → ok:false', async () => {
+    const v = await createInstagramAdapter({ accessToken: IG_TOKEN }).validate();
+    expect(v.ok).toBe(false);
+    expect(v.reason).toContain('IG_USER_ID');
+  });
+
+  it('flujo feliz: media (REELS) → media_publish → id + url reel', async () => {
+    const calls: string[] = [];
+    const adapter = createInstagramAdapter({ accessToken: IG_TOKEN, igUserId: IG_USER, videoUrl: VIDEO_URL, fetchFn: igFetchMock(calls) });
+    const res = await adapter.publish({ metadata: { title: 'Reel de prueba' } });
+    expect(res.ok).toBe(true);
+    expect(res.id).toBe('m1');
+    expect(res.url).toBe('https://www.instagram.com/reel/m1/');
+    expect(calls).toEqual(['create', 'publish']);
+  });
+
+  it('sin videoUrl → error claro (fail-soft)', async () => {
+    const adapter = createInstagramAdapter({ accessToken: IG_TOKEN, igUserId: IG_USER });
+    const res = await adapter.publish({});
+    expect(res.ok).toBe(false);
+    expect(res.error).toContain('video_url');
+  });
+
+  it('media create falla → ok:false con HTTP y mensaje', async () => {
+    const adapter = createInstagramAdapter({
+      accessToken: IG_TOKEN,
+      igUserId: IG_USER,
+      videoUrl: VIDEO_URL,
+      fetchFn: stubFetch([{ match: () => true, respond: () => jsonResponse(400, { error: { message: 'bad request' } }) }]),
+    });
+    const res = await adapter.publish({});
+    expect(res.ok).toBe(false);
+    expect(res.error).toContain('HTTP 400');
+    expect(res.error).toContain('bad request');
+  });
+
+  it('media_publish falla → ok:false con HTTP', async () => {
+    const adapter = createInstagramAdapter({
+      accessToken: IG_TOKEN,
+      igUserId: IG_USER,
+      videoUrl: VIDEO_URL,
+      fetchFn: stubFetch([
+        { match: (url) => url.includes('/media') && !url.includes('media_publish'), respond: () => jsonResponse(200, { id: 'c1' }) },
+        { match: () => true, respond: () => jsonResponse(400, { error: { message: 'container not ready' } }) },
+      ]),
+    });
+    const res = await adapter.publish({});
+    expect(res.ok).toBe(false);
+    expect(res.error).toContain('HTTP 400');
+    expect(res.error).toContain('container not ready');
+  });
+
+  it('caption usa el título con cap 2200', async () => {
+    let capturedBody = '';
+    const adapter = createInstagramAdapter({
+      accessToken: IG_TOKEN,
+      igUserId: IG_USER,
+      videoUrl: VIDEO_URL,
+      fetchFn: stubFetch([
+        {
+          match: (url, init) => {
+            if (url.includes('/media') && !url.includes('media_publish')) {
+              capturedBody = String(init.body);
+              return true;
+            }
+            return false;
+          },
+          respond: () => jsonResponse(200, { id: 'c1' }),
+        },
+        { match: (url) => url.includes('media_publish'), respond: () => jsonResponse(200, { id: 'm1' }) },
+        { match: () => true, respond: () => jsonResponse(500, {}) },
+      ]),
+    });
+    const res = await adapter.publish({ metadata: { title: 'R'.repeat(3000) } });
+    expect(res.ok).toBe(true);
+    const caption = new URLSearchParams(capturedBody).get('caption') ?? '';
+    expect(caption.length).toBe(2200);
+  });
+});
+
+describe('createThreadsAdapter (Threads, F4 paso 5)', () => {
+  const TH_TOKEN = 'th-token-1';
+  const TH_USER = '123456789';
+  const VIDEO_URL = 'https://cdn.example.com/final.mp4';
+
+  function threadsFetchMock(calls: string[], failStep?: 'create' | 'publish') {
+    return stubFetch([
+      {
+        match: (url, init) => url.includes('/threads') && !url.includes('threads_publish'),
+        respond: () => {
+          calls.push('create');
+          return failStep === 'create' ? jsonResponse(400, { error: { message: 'invalid video_url' } }) : jsonResponse(200, { id: 'c1' });
+        },
+      },
+      {
+        match: (url) => url.includes('threads_publish'),
+        respond: () => {
+          calls.push('publish');
+          return failStep === 'publish' ? jsonResponse(400, { error: { message: 'creation expired' } }) : jsonResponse(200, { id: 't1' });
+        },
+      },
+      { match: () => true, respond: () => jsonResponse(500, {}) },
+    ]);
+  }
+
+  it('validate: sin token → ok:false con razón clara', async () => {
+    const v = await createThreadsAdapter().validate();
+    expect(v.ok).toBe(false);
+    expect(v.reason).toContain('THREADS_ACCESS_TOKEN');
+  });
+
+  it('validate: con token pero sin THREADS_USER_ID → ok:false', async () => {
+    const v = await createThreadsAdapter({ accessToken: TH_TOKEN }).validate();
+    expect(v.ok).toBe(false);
+    expect(v.reason).toContain('THREADS_USER_ID');
+  });
+
+  it('flujo feliz: threads (VIDEO) → threads_publish → id', async () => {
+    const calls: string[] = [];
+    const adapter = createThreadsAdapter({ accessToken: TH_TOKEN, threadsUserId: TH_USER, videoUrl: VIDEO_URL, fetchFn: threadsFetchMock(calls) });
+    const res = await adapter.publish({ metadata: { title: 'Thread de prueba' } });
+    expect(res.ok).toBe(true);
+    expect(res.id).toBe('t1');
+    expect(calls).toEqual(['create', 'publish']);
+  });
+
+  it('el create manda media_type=VIDEO + video_url + text', async () => {
+    let capturedBody = '';
+    const adapter = createThreadsAdapter({
+      accessToken: TH_TOKEN,
+      threadsUserId: TH_USER,
+      videoUrl: VIDEO_URL,
+      fetchFn: stubFetch([
+        {
+          match: (url, init) => {
+            if (url.includes('/threads') && !url.includes('threads_publish')) {
+              capturedBody = String(init.body);
+              return true;
+            }
+            return false;
+          },
+          respond: () => jsonResponse(200, { id: 'c1' }),
+        },
+        { match: (url) => url.includes('threads_publish'), respond: () => jsonResponse(200, { id: 't1' }) },
+        { match: () => true, respond: () => jsonResponse(500, {}) },
+      ]),
+    });
+    const res = await adapter.publish({ metadata: { title: 'Hola Threads' } });
+    expect(res.ok).toBe(true);
+    const params = new URLSearchParams(capturedBody);
+    expect(params.get('media_type')).toBe('VIDEO');
+    expect(params.get('video_url')).toBe(VIDEO_URL);
+    expect(params.get('text')).toBe('Hola Threads');
+  });
+
+  it('sin videoUrl → error claro (fail-soft)', async () => {
+    const adapter = createThreadsAdapter({ accessToken: TH_TOKEN, threadsUserId: TH_USER });
+    const res = await adapter.publish({});
+    expect(res.ok).toBe(false);
+    expect(res.error).toContain('video_url');
+  });
+
+  it('create falla → ok:false con HTTP y mensaje', async () => {
+    const calls: string[] = [];
+    const adapter = createThreadsAdapter({ accessToken: TH_TOKEN, threadsUserId: TH_USER, videoUrl: VIDEO_URL, fetchFn: threadsFetchMock(calls, 'create') });
+    const res = await adapter.publish({});
+    expect(res.ok).toBe(false);
+    expect(res.error).toContain('HTTP 400');
+    expect(res.error).toContain('invalid video_url');
+  });
+
+  it('threads_publish falla → ok:false con HTTP y mensaje', async () => {
+    const calls: string[] = [];
+    const adapter = createThreadsAdapter({ accessToken: TH_TOKEN, threadsUserId: TH_USER, videoUrl: VIDEO_URL, fetchFn: threadsFetchMock(calls, 'publish') });
+    const res = await adapter.publish({});
+    expect(res.ok).toBe(false);
+    expect(res.error).toContain('HTTP 400');
+    expect(res.error).toContain('creation expired');
+  });
+
+  it('text usa el título con cap 500', async () => {
+    let capturedBody = '';
+    const adapter = createThreadsAdapter({
+      accessToken: TH_TOKEN,
+      threadsUserId: TH_USER,
+      videoUrl: VIDEO_URL,
+      fetchFn: stubFetch([
+        {
+          match: (url, init) => {
+            if (url.includes('/threads') && !url.includes('threads_publish')) {
+              capturedBody = String(init.body);
+              return true;
+            }
+            return false;
+          },
+          respond: () => jsonResponse(200, { id: 'c1' }),
+        },
+        { match: (url) => url.includes('threads_publish'), respond: () => jsonResponse(200, { id: 't1' }) },
+        { match: () => true, respond: () => jsonResponse(500, {}) },
+      ]),
+    });
+    const res = await adapter.publish({ metadata: { title: 'T'.repeat(800) } });
+    expect(res.ok).toBe(true);
+    const text = new URLSearchParams(capturedBody).get('text') ?? '';
+    expect(text.length).toBe(500);
+  });
+
+  it('publishToAll: Meta sin token → fail-soft razonado', async () => {
+    const results = await publishToAll([createInstagramAdapter(), createThreadsAdapter(), createXAdapter()], { videoBuffer: MP4_BYTES });
+    expect(results).toHaveLength(3);
+    expect(results.every((r) => r.ok === false)).toBe(true);
+    expect(results[0].error).toContain('IG_ACCESS_TOKEN');
+    expect(results[1].error).toContain('THREADS_ACCESS_TOKEN');
+    expect(results[2].error).toContain('X_ACCESS_TOKEN');
   });
 });
