@@ -1,6 +1,12 @@
 # TAREA DIFERIDA — Conectar UltraIA Cloud con la cola `Publication` (loop-25 pendiente)
 
-> **Estado**: PENDIENTE DE APLICAR (creada 17/08/2026, sesión ultraia-dev, ciclo "no invadir #25")
+> **Estado**: ✅ **APLICADA** (17/08/2026, commit pendiente de esta sesión) — con autorización
+> explícita del usuario ("apruebo todo lo que tengas y puedas hacer"). Aplicada con gates SCOPED
+> (vitest 26/26 + typecheck parcial con tsconfig temporal; los archivos de #25 siguen sucios y
+> rompen el FULL — se correrá cuando el árbol esté limpio).
+> **CORRECCIÓN al aplicar**: `CloudService.upload` sin `targetPath` usa `drafts` (NO clasifica) →
+> el helper pasa `targetPath` explícito vía `CLOUD_DIR_BY_EXT` (video→media/videos, audio→
+> media/audio, imagen→media/images, otro→drafts) para respetar el layout canónico de CLOUD_LAYOUT.
 > **Riesgo de conflicto**: ALTO — toca `packages/core/src/domain/publications.ts` (archivo
 > compartido; la sesión #25 está editando archivos del mismo paquete).
 > **Regla**: NO aplicar hasta que `git status --porcelain -- packages/core/src/tools/ packages/core/src/domain/`

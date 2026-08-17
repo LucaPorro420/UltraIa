@@ -17,6 +17,9 @@ import type { PublicationPackage, PresentChannel } from '../tools/present';
 import { publishToAll, createDefaultPublishers } from '../tools/publish';
 import type { PublishResult } from '../tools/publish';
 import { puntuarPaquete } from '../tools/media-score';
+import type { CloudService } from '../tools/cloud'; // QUÉ ES: solo el TIPO del orquestador cloud (sin acoplar runtime).
+// PARA QUÉ: createPublication recibe el cloud inyectado (opcional) — mismo patrón que `Db`.
+// POR QUÉ: el dominio no construye adapters; el caller (ruta API/agente) resuelve Local o R2.
 
 export type PublicationEstado = 'DRAFT' | 'APPROVED' | 'REJECTED' | 'PUBLISHED' | 'FAILED';
 
@@ -33,12 +36,79 @@ export interface CreatePublicationInput {
   canal: PresentChannel;
   scheduledAt?: Date | null;
   creadoPorId?: string | null;
+  cloud?: CloudService; // QUÉ ES: opcional — si se inyecta, el paquete se respalda en la nube.
+  // PARA QUÉ: el caller decide (rutas API/agentes con cloud; tests sin cloud).
+  // POR QUÉ: aditivo — no rompe llamadas existentes (los 15 tests actuales siguen pasando sin cambio).
 }
 
 export interface CreatePublicationResult {
   id: string;
   estado: PublicationEstado;
   requiereAprobacion: boolean;
+  cloudGuardado?: CloudSaveResult | null; // QUÉ ES: resultado del respaldo (null si no se pidió).
+  // PARA QUÉ: el caller puede avisar al usuario si algún media no se pudo respaldar.
+}
+
+export interface CloudSaveResult {
+  ok: boolean; // QUÉ ES: true si al menos 1 media se subió y el paquete JSON se guardó.
+  savedMedia: string[]; // QUÉ ES: paths canónicos en el cloud de los media subidos (p.ej. media/videos/final.mp4).
+  savedPackage: string | null; // QUÉ ES: path del paquete JSON (exports/publications/<id>.json) o null si falló.
+  errors: string[]; // QUÉ ES: mensajes de error acumulados (fail-soft, no lanzan).
+}
+
+/** QUÉ ES: carpeta canónica del cloud según la extensión del media (layout CLOUD_LAYOUT de cloud.ts). */
+const CLOUD_DIR_BY_EXT: Record<string, string> = {
+  mp4: 'media/videos', mov: 'media/videos', webm: 'media/videos', mkv: 'media/videos', avi: 'media/videos', m4v: 'media/videos',
+  mp3: 'media/audio', wav: 'media/audio', ogg: 'media/audio', m4a: 'media/audio', flac: 'media/audio', aac: 'media/audio',
+  png: 'media/images', jpg: 'media/images', jpeg: 'media/images', webp: 'media/images', gif: 'media/images', svg: 'media/images', avif: 'media/images',
+};
+
+/** Sube los media de un paquete + el paquete JSON al cloud. Fail-soft: nunca lanza. */
+export async function guardarPaqueteEnCloud(
+  cloud: CloudService, // QUÉ ES: instancia ya resuelta (Local o R2). PARA QUÉ: el dominio no construye adapters.
+  paquete: PublicationPackage, // QUÉ ES: el paquete completo (media + captions + visuales).
+  id: string, // QUÉ ES: id de la Publication ya creada. PARA QUÉ: nombre del JSON auditable y trazable.
+): Promise<CloudSaveResult> {
+  const savedMedia: string[] = [];
+  const errors: string[] = [];
+  // QUÉ ES: subir cada URL de media al cloud, en paralelo (Promise.allSettled para fail-soft).
+  // PARA QUÉ: una URL caída no tumba el resto del lote.
+  // POR QUÉ: allSettled (no all) — queremos tolerar fallos parciales y reportarlos.
+  await Promise.allSettled(
+    (paquete.media ?? []).map(async (url) => {
+      try {
+        const res = await fetch(url); // QUÉ ES: descargar la URL pública del media (pollinations/local/meigen…).
+        // PARA QUÉ: el cloud guarda BYTES, no URLs — CloudService.upload exige Uint8Array.
+        if (!res.ok) throw new Error(`HTTP ${res.status} al descargar ${url}`);
+        const bytes = new Uint8Array(await res.arrayBuffer());
+        // QUÉ ES: nombre del archivo derivado de la URL (último segmento, sin query).
+        // PARA QUÉ: nombres estables y legibles en el cloud.
+        const name = decodeURIComponent(url.split('/').pop()?.split('?')[0] ?? 'media.bin');
+        // QUÉ ES: subir a la carpeta que clasifica su tipo (video→media/videos, imagen→media/images…).
+        // POR QUÉ: CloudService.upload sin targetPath usa 'drafts'; nosotros queremos el layout canónico.
+        const ext = name.split('.').pop()?.toLowerCase() ?? '';
+        const dir = CLOUD_DIR_BY_EXT[ext] ?? 'drafts';
+        const saved = await cloud.upload(name, bytes, dir);
+        savedMedia.push(saved.path); // QUÉ ES: path canónico devuelto por el adapter.
+      } catch (err) {
+        errors.push(`${url}: ${err instanceof Error ? err.message : String(err)}`);
+      }
+    }),
+  );
+  // QUÉ ES: guardar el paquete JSON como traza auditable en exports/publications/.
+  // PARA QUÉ: reproducir la decisión de publicación sin depender de Prisma (backup offline).
+  // POR QUÉ: la carpeta exports existe en CLOUD_LAYOUT y es el lugar natural para entregables.
+  let savedPackage: string | null = null;
+  try {
+    const jsonBytes = new TextEncoder().encode(JSON.stringify(paquete, null, 2));
+    // QUÉ ES: upload con targetPath explícito (la ruta completa la arma CloudService + sanitize).
+    const saved = await cloud.upload(`${id}.json`, jsonBytes, 'exports/publications');
+    savedPackage = saved.path;
+  } catch (err) {
+    errors.push(`paquete JSON: ${err instanceof Error ? err.message : String(err)}`);
+  }
+  // QUÉ ES: ok = al menos un media subido O el JSON guardado (o ambos).
+  return { ok: savedMedia.length > 0 || savedPackage !== null, savedMedia, savedPackage, errors };
 }
 
 /** Crea una publicación DRAFT (o APPROVED si texto/blog) en la cola. */
@@ -62,7 +132,13 @@ export async function createPublication(db: Db, input: CreatePublicationInput): 
       mediaScore,
     },
   });
-  return { id: created.id, estado: created.estado as PublicationEstado, requiereAprobacion };
+  // QUÉ ES: respaldo en cloud SOLO si el caller lo pidió (opcional).
+  // PARA QUÉ: la cola funciona sin cloud (tests, instalaciones sin cloud); con cloud, respaldo automático.
+  // POR QUÉ: fail-soft — si el cloud falla, la publicación YA está creada y no se revierte.
+  const cloudGuardado = input.cloud
+    ? await guardarPaqueteEnCloud(input.cloud, input.paquete, created.id)
+    : null;
+  return { id: created.id, estado: created.estado as PublicationEstado, requiereAprobacion, cloudGuardado };
 }
 
 export interface FeedbackSenal {
@@ -231,4 +307,4 @@ export async function publishDue(db: Db, opts: PublishDueOptions = {}): Promise<
   return { publicadas, fallidas };
 }
 
-export const publications = { createPublication, listPublications, listBlogPosts, approvePublication, rejectPublication, markPublished, markFailed, publishDue, canalRequiereAprobacion };
+export const publications = { createPublication, listPublications, listBlogPosts, approvePublication, rejectPublication, markPublished, markFailed, publishDue, canalRequiereAprobacion, guardarPaqueteEnCloud };

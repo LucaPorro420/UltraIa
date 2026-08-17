@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import {
   approvePublication,
   canalRequiereAprobacion,
@@ -15,6 +15,7 @@ import {
 } from './publications';
 import type { Db } from '../db/client';
 import type { PublicationPackage } from '../tools/present';
+import { CloudService, InMemoryCloudAdapter } from '../tools/cloud';
 
 function makePaquete(canal: 'youtube_shorts' | 'tiktok' | 'instagram' | 'blog'): PublicationPackage {
   const canales: Array<'youtube_shorts' | 'tiktok' | 'instagram' | 'blog'> = ['youtube_shorts', 'tiktok', 'instagram', 'blog'];
@@ -344,5 +345,49 @@ describe('registrarFeedback / publicationSignals (F5)', () => {
   it('registrarFeedback lanza si la publicación no existe', async () => {
     const { db } = fakeDb();
     await expect(registrarFeedback(db, 'nope', { rating: 'BAD', critique: 'x' })).rejects.toThrow();
+  });
+});
+
+describe('respaldo en UltraIA Cloud (TAREA-CLOUD-PUBLICATIONS)', () => {
+  it('createPublication con cloud inyectado sube media y paquete JSON al cloud', async () => {
+    const { db } = fakeDb();
+    const cloud = new CloudService({ adapter: new InMemoryCloudAdapter() });
+    const paquete = { ...makePaquete('youtube_shorts'), media: ['https://example.com/clip.mp4'] };
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, arrayBuffer: async () => new ArrayBuffer(4) }));
+    try {
+      const res = await createPublication(db, { paquete, canal: 'youtube_shorts', cloud });
+      expect(res.estado).toBe('DRAFT');
+      expect(res.cloudGuardado).not.toBeNull();
+      expect(res.cloudGuardado!.savedMedia).toContain('media/videos/clip.mp4');
+      expect(res.cloudGuardado!.savedPackage).toMatch(/^exports\/publications\/p\d+\.json$/);
+      expect(res.cloudGuardado!.ok).toBe(true);
+      expect(res.cloudGuardado!.errors).toHaveLength(0);
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it('createPublication con URL caída es fail-soft: publica igual y registra errores', async () => {
+    const { db, rows } = fakeDb();
+    const cloud = new CloudService({ adapter: new InMemoryCloudAdapter() });
+    const paquete = { ...makePaquete('youtube_shorts'), media: ['https://example.com/roto.mp4'] };
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false, status: 500 }));
+    try {
+      const res = await createPublication(db, { paquete, canal: 'youtube_shorts', cloud });
+      expect(res.estado).toBe('DRAFT'); // la publicación NO se bloquea
+      expect(rows).toHaveLength(1);
+      expect(res.cloudGuardado!.savedMedia).toHaveLength(0);
+      expect(res.cloudGuardado!.errors[0]).toContain('roto.mp4');
+      // ok = true porque el paquete JSON sí se guardó (traza auditable)
+      expect(res.cloudGuardado!.ok).toBe(true);
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it('createPublication sin cloud no respalda (regresión: cloudGuardado === null)', async () => {
+    const { db } = fakeDb();
+    const res = await createPublication(db, { paquete: makePaquete('blog'), canal: 'blog' });
+    expect(res.cloudGuardado).toBeNull();
   });
 });
