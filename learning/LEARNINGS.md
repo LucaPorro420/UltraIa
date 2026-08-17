@@ -191,3 +191,13 @@ Implementacion: capability growth (tools/growth.ts: analyzeChannel / planExperim
 - El playbook de "compounding wins" exige emparejar control/test SECUENCIALMENTE (cada par = un experimento): procesar el par por cada senal duplica el peso; procesar "una vez por variable" pierde las victorias repetidas. `Math.min(controles.length, tests.length)` pares por variable.
 - Regla de decision determinista (test > control +5 KPI) es lo que hace el dominio testeable sin red ni LLM; el feedback post-pub (publicationSignals) es el canal natural de senales para buildPlaybook.
 - Herramientas de video/IA en enlaces.txt pueden ser SAAS con API cerrada (VidRush: solo web app; Abacus: solo web app) — el port de PRINCIPIOS (dominio puro) es la unica via segura; nunca copiar codigo de un producto cerrado.
+
+## Higgsfield x DaVinci Resolve — capability vfx (17/08/2026) — VERIFICADO 26/26
+
+Implementacion: capability vfx (tools/vfx.ts: planReframe / planUpscale / planLutMatch / planRotoscope / planDrawToEdit / planBroll) + tool vfx_plan en llm.ts + export en tools/index.ts. Port ORIGINAL de principios del plugin (fuente learning/sources/higgsfield-davinci.md, analisis docs/RAZONAMIENTO-HIGGSFIELD-DAVINCI.md).
+
+- Un "plugin de IA" moderno = integracion en el contexto del editor (timeline) + planificacion determinista por operacion; las capacidades individuales (grade, image gen, storyboard) ya existen en UltraIa — lo nuevo es el ENCAMINAMIENTO (request -> operacion -> argv/provider).
+- Framework B-roll de Dreamina ("define el job: missing beat, frame shape, motion need, transition") es un patron de prompting repetible -> planBroll; pedir el clip >= duracion para margen de corte.
+- TikTok + yt-dlp (17/08/2026): los subtitulos auto (eng-US) se descargan SIN el video cuando la rehydration falla por impersonation -> transcript-only es viable para analisis de contenido (source cruda sin frames).
+- Codigo muerto detectado por TEST: la rama "aspecto no alcanzable" de planReframe era inalcanzable por construccion (w <= width siempre) — un test con targetRatio 2:1 lo revelo; eliminada.
+- Verificacion: la pagina oficial + AlphaSignal confirman las 7 tools y precios; el dato "Studio requerido" es contradictorio entre fuentes (agentbaltic vs alphasignal) -> marcado como ambiguo, no inventado.

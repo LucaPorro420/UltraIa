@@ -1478,6 +1478,44 @@ ormalizeTitle() (lower + strip non-alnum), dedupe() (bigram overlap > 0.6),
 - **R — Reiniciar**: AutoPub F4 canales COMPLETA (YT/TikTok/blog/X/Meta). Siguiente: F5
   restante (analytics reales por API de canal) o revisar cola. Sin push (aprobación humana).
 
+---
+
+### Iteración 38 — Capability vfx (enlaces.txt línea 811: TikTok @studioeditionoficial → Higgsfield DaVinci) (17/08/2026) — DONE `a7a3efd`
+
+- **P — Plan**: plan file loop-38. URL 811 pendiente: "Verifica la informacion y adicionalo
+  para hacerlo propio con analisis de funcionamiento". Skill `watch` (keyless, sin Whisper).
+- **I — Analizar**: yt-dlp descargó los subtítulos auto (eng-US) pero el video falló
+  (rehydration/impersonation) → transcript-only. El video muestra el plugin GRATUITO de
+  Higgsfield AI para DaVinci Resolve (7 tools IA dentro del timeline). VERIFICADO con
+  websearch: higgsfield.ai/plugins/davinci (7 tools: Generate Video/Image, AI LUT Creator,
+  Draw to Edit, Reframe, Remove Background, Upscale 8K; Resolve 19+; Nano Banana 2 +
+  Seedance 2.0; plugin gratis + créditos). Fuente cruda: `learning/sources/higgsfield-davinci.md`.
+  Análisis: `docs/RAZONAMIENTO-HIGGSFIELD-DAVINCI.md`.
+- **I — Implement** (`tools/vfx.ts`, port ORIGINAL de principios, dominio puro determinista):
+  - `planReframe` — 16:9→9:16 (o ratio arbitrario): crop windows que siguen centros de
+    acción normalizados, padding, límite de pan con interpolación (lerp) cuando el salto
+    excede maxPanPerSec, argv ffmpeg (crop+concat, re-encode). Invariante: crop siempre
+    cabe (w ≤ width) — la rama "no alcanzable" era código muerto, ELIMINADA por test.
+  - `planUpscale` — ladder 1080p/1440p/4K/8K + 2x/4x, factor, argv lanczos, nota >4x
+    (generativo vs clásico).
+  - `planLutMatch` — presets warm-cinematic/neutral-punch/teal-orange/mono/custom (mismos
+    nombres que video_edit grade) → hints + argv ffmpeg eq= + temperatureArgs + 3dl.
+  - `planRotoscope` — remove-bg: keyframes vs full, coste (0.35s/frame key vs 0.08 full),
+    alpha straight, 4 pases de limpieza.
+  - `planDrawToEdit` — boceto→video: estilo (lineart/scribble/colored-sketch/painterly) +
+    motion → prompt; seed determinista por hash.
+  - `planBroll` — framework Dreamina: missing beat → frame shape → motion → transition →
+    request + provider hint (≤10s keyless / >10s premium).
+  - Tool `vfx_plan` en llm.ts (6 acciones JSON) + export/descriptor/union en index.ts
+    (llm.ts/index.ts estaban LIMPIOS — wiring directo; la sesión concurrente sigue en
+    publish.ts/topics.ts telegram, sin colisión).
+- **V — Verify**: vitest **26/26** (6 suites) · tsc parcial 0 errores propios (solo ruido
+  transitivo del WIP telegram de la sesión concurrente en enrutador.ts + reach.ts
+  preexistente) · eslint EXIT 0. FULL pendiente árbol limpio.
+- **R — Reiniciar**: capability vfx COMPLETA. Pendientes: línea 807 enlaces.txt (Facebook
+  share — analizar repos), wiring pendiente NINGUNO (vfx ya registrado). Sin push
+  (aprobación humana).
+
 ### Iteraci�n 36 - Capability growth (patrones VidRush + Abacus.AI) (17/08/2026) - DONE PENDIENTE-COMMIT
 
 - **P - Plan**: plan file loop-36-growth.md (URLs nuevas de enlaces.txt: vidrush.ai + abacus.ai;
