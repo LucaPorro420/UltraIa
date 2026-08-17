@@ -1,9 +1,31 @@
 import { z } from 'zod';
-import { prisma, createPublication, listPublications, canalRequiereAprobacion } from '@ultraia/core';
+import { join } from 'node:path';
+import {
+  prisma,
+  createPublication,
+  listPublications,
+  canalRequiereAprobacion,
+  CloudService,
+  LocalCloudAdapter,
+  R2CloudAdapter,
+} from '@ultraia/core';
 import { present, type PresentChannel } from '@ultraia/core';
 import { getCurrentUser } from '@/lib/server/context';
 
 const CANALES = ['youtube_shorts', 'tiktok', 'instagram', 'blog'] as const;
+
+// QUÉ ES: resuelve el CloudService en runtime: R2 (Worker) si está configurado, si no local.
+// PARA QUÉ: cada Publication creada se respalda automáticamente en la nube personal.
+// POR QUÉ: mismo criterio que resolveCloudAdapter (privado en ai/llm.ts) — replicado aquí.
+function resolveCloudService(): CloudService {
+  const workerUrl = process.env.CLOUDFLARE_R2_WORKER_URL;
+  const token = process.env.CLOUDFLARE_R2_TOKEN;
+  const adapter =
+    workerUrl && token
+      ? new R2CloudAdapter({ baseUrl: workerUrl, token, publicUrl: process.env.CLOUDFLARE_R2_PUBLIC_URL })
+      : new LocalCloudAdapter(process.env.ULTRAIA_CLOUD_DIR ?? join(process.cwd(), '..', '..', '.ultraia', 'cloud'));
+  return new CloudService({ adapter });
+}
 
 /** GET /api/publications?estado=&canal=&take=&cursor= — lista la cola. */
 export async function GET(req: Request) {
@@ -53,6 +75,9 @@ export async function POST(req: Request) {
     canal: canal as PresentChannel,
     scheduledAt: scheduledAt ? new Date(scheduledAt) : null,
     creadoPorId: user.id,
+    cloud: resolveCloudService(), // QUÉ ES: respaldo automático (media + paquete JSON) en la nube personal.
+    // PARA QUÉ: AutoPub produce → cloud respalda → cloud-cli.py list lo ve (end-to-end).
+    // POR QUÉ: fail-soft — si el cloud falla, la publicación YA se creó y no se revierte.
   });
 
   return Response.json(
