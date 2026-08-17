@@ -1352,6 +1352,25 @@ ormalizeTitle() (lower + strip non-alnum), dedupe() (bigram overlap > 0.6),
   `d548e2f` (video-edit), `e30bd89` (ruta). Sin push (aprobaci�n humana). Siguiente:
   F3 branding kit editable (backlog AutoPub, no choca con #25).
 
+### Iteraci�n 32 � AutoPub F4 paso 4: adapter X API v2 (17/08/2026) � DONE `8bc63b8` ?
+
+- **P � Plan**: plan file loop-32. X = siguiente canal accionable (CLOUD-FREE-2026 verificado:
+  X API v2 Free = 17 posts/24h POR APP sin app review; Meta/IG requiere app review humana).
+- **I � Implement** (`tools/publish.ts`):
+  - Union `platform` ampliado a `'youtube' | 'tiktok' | 'x'` (aditivo; sin switches
+    exhaustivos en el repo — verificado con grep).
+  - `buildXPostText(meta)` (tweet ≤280 con hashtags) + `xAppendMultipartBody(mediaId, idx,
+    chunkB64, boundary)` (form-data manual, sin deps) + `X_CHUNK_BYTES` 5 MiB.
+  - `createXAdapter`: INIT (media upload v1.1) → APPEND x n (chunks ≤5 MiB base64) →
+    FINALIZE → `POST /2/tweets` {text, media_ids} → url `x.com/i/status/<id>`; fail-soft con
+    razones X_ACCESS_TOKEN / X INIT|APPEND i|FINALIZE|tweet fall�: HTTP N.
+  - `publish.test.ts`: +10 tests (validate, text cap 280, multipart, flujo feliz, chunking
+    3 APPENDs 0/1/2, INIT/APPEND/tweet fallan, sin video, publishToAll fail-soft).
+- **V � Verify**: vitest publish 25/25 (15+10); tsc parcial 0 errores (fix TS2322: Boolean()
+    en el match del mock); eslint 0 issues. FULL pendiente �rbol limpio.
+- **R � Reiniciar**: canal X listo. Siguiente (iteraci�n 33): wiring del canal X —
+    createDefaultPublishers({includeX}) + publishDue + tool publish_submit con toX.
+
 ### Iteraci�n 31 � AutoPub F3: branding kit editable (17/08/2026) � DONE `a5633d3` ?
 
 - **P � Plan**: plan file loop-31 (F3 pendiente del plan AUTO-PUBLICACI�N). `brandingFor(marca)`
