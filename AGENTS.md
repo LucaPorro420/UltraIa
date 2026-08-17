@@ -544,3 +544,29 @@ El usuario deja URLs en `enlaces.txt` (raíz) para que se analicen y se apliquen
 - Registro: capability `growth` → tool `growth_plan` (acciones profile/experiments/playbook) en
   `ai/llm.ts`. Export en tools/index.ts (`growth`). Cierra el pendiente F5 de AutoPub (promoción
   vía signals) en dominio puro — `buildPlaybook` se alimentaría de `publicationSignals`.
+
+## Capability telegram + APIS-GRATIS-2026 (17/08/2026, iteración 37 `e8a11e1` + wiring `5fc19ea`)
+
+- **Patrón OpenClaw** (fuente: enlaces.txt → `learning/sources/openclaw.md`, MIT ~387k stars,
+  análisis `docs/RAZONAMIENTO-OPENCLAW.md`). OpenClaw = agente personal con Gateway local
+  (valida la Fase B del runtime: token auto-generado, loopback, input no confiable) + canales
+  de mensajería. Pedido del usuario: **lista de APIs gratuitas verificadas** →
+  `docs/APIS-GRATIS-2026.md` (Telegram Bot API GRATIS total verificado 2026: mensajes
+  ilimitados, uso comercial, video 50MB, storage gratis con file_id; Discord/Slack gratis;
+  **WhatsApp NO**: marketing $0.025/msg US, free tier 1000 conv/mes DEPRECADO; keyless ya
+  integradas: pollinations/edge-tts/Tunetank/DDG/r.jina/Exa; opcionales Brave 2000/mes,
+  Firecrawl 500/mes, ElevenLabs 10k/mes).
+- `packages/core/src/tools/telegram.ts` — `createTelegramAdapter` (implementa
+  `PublisherAdapter`: publish/validate fail-soft, fetch inyectable, options con precedencia
+  `??` sobre env `TELEGRAM_BOT_TOKEN`/`TELEGRAM_CHAT_ID`); `buildMultipartBody` (multipart
+  manual sin deps, boundary + CRLF), `truncateCaption` (1024 chars sin cortar pares
+  surrogate), `buildTelegramCaption` (bilingüe es/ar), cap 50MB, 429 → `retry_after` en
+  reason. 21 tests.
+- **Wiring COMPLETO**: union `PublishPlatform` + 'telegram' · `createDefaultPublishers
+  ({includeTelegram})` · tool `publish_submit` con `toTelegram` (rama switch) · export
+  `createTelegramAdapter` en namespace publish · markPublished fluye (PublishResult).
+  96/96 scoped (telegram 21 + publish 48 + publications 27).
+- NOTA coordinación: el wiring se hizo cuando la sesión concurrente liberó
+  publish.ts/llm.ts/index.ts (su wiring Meta `a223417`); antes, los archivos estaban sucios.
+- Pendiente: canal enum Prisma para programar Telegram por cola; adapters discord/slack;
+  TikTok @studioeditionoficial (enlaces.txt 811) — página anti-bot (solo referencia).
