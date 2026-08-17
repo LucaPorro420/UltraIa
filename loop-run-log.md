@@ -1411,3 +1411,23 @@ ormalizeTitle() (lower + strip non-alnum), dedupe() (bigram overlap > 0.6),
   #17 AutoPub canales (app review/humano), #25 media-automation (sesi�n concurrente),
   game-dev (sesi�n concurrente). PUSH autorizado por el usuario (17/08/2026).
 - Commit: `7e77819` feat(screenflow) � 3 archivos, 187 insertions.
+
+---
+
+### Iteración 33 — AutoPub F4 wiring del canal X (17/08/2026) — DONE `4a0aa78`
+
+- **P — Plan**: plan file loop-33 (wiring del adapter X de la iteración 32 hacia la cola y la tool).
+- **I — Implement**: `createDefaultPublishers({includeX})` retrocompatible (default sin X), `publishDue` con includeX:true (fail-soft sin token), tool `publish_submit` con param `toX` + filtro ternario con rama X. 3 tests nuevos.
+- **V — Verify**: vitest 54/54 scoped (publish 27 + publications 29). FULL pendiente árbol limpio (#25).
+- **R — Reiniciar**: canal X listo (4 de 4 canales del orden recomendado). Siguiente: loop-34 (DeepSeek Harness).
+
+### Iteración 34 — Capability harness (patrón deepseek-harness) (17/08/2026) — DONE `PENDIENTE-COMMIT`
+
+- **P — Plan**: plan file loop-34 (enlaces.txt línea 804: deepseek-ai/deepseek-harness, MIT, 148k stars). Port ORIGINAL de principios "everything is a plugin" — dominio puro determinista (sin Cordis, sin red, reloj inyectable).
+- **I — Implement**:
+  - `tools/harness.ts` (NUEVO, ~390 líneas): HarnessPlugin/HarnessContext/HarnessRuntime + `createHarness` (boot valida ids `^[a-z0-9][a-z0-9-]{1,63}$`, duplicados, deps, ciclos Kahn; run; tick con reloj inyectable; shutdown inverso fail-soft con unwind de efectos; dump) + `defineSeam` (register/resolve) + `echoToolPlugin`/`counterSchedulerPlugin`. Exports: namespace `harness`.
+  - `harness.test.ts` (NUEVO): 19 tests (19/19 PASS).
+  - Wiring: capability `harness` en `ai/llm.ts` → tool `harness_manage` (acciones boot/run/tick/dump/shutdown, runtime PERSISTENTE por sesión de chat) + export/descriptor/union en `tools/index.ts`.
+  - `docs/RAZONAMIENTO-DEEPSEEK-HARNESS.md` + lección en `learning/LEARNINGS.md` + fuente cruda commiteada (`learning/sources/deepseek-harness.md`).
+- **V — Verify**: vitest harness 19/19 — tsc parcial (tsconfig temporal): 0 errores en harness/llm/index (ruido preexistente reach.ts de game-dev) — eslint 4 archivos EXIT 0. FULL pendiente árbol limpio (#25).
+- **R — Reiniciar**: capability harness COMPLETA. Siguiente: revisar cola (pendientes humanos #6/#17; #25 sigue en sesión concurrente). Sin push (aprobación humana).

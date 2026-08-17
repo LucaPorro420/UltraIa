@@ -18,6 +18,7 @@ import { generateTopicBriefs } from '../tools/topics';
 import { guardarBriefs, listarBriefs, marcarBriefProcesado, marcarBriefDescartado } from '../domain/briefs';
 import { present } from '../tools/present';
 import { createDefaultPublishers, publishToAll, buildBilingualMetadata } from '../tools/publish';
+import { createHarness, type HarnessRuntime } from '../tools/harness';
 import { createPublication, listPublications, approvePublication, rejectPublication, publishDue } from '../domain/publications';
 import { generarContenido, type ContentPackage } from '../tools/enrutador';
 import { computeChannelKpis } from '../tools/metrics';
@@ -522,6 +523,70 @@ export function chatStream(opts: {
           ok: results.some((r) => r.ok),
           summary: results.map((r) => (r.ok ? `${r.platform}: ${r.url || r.id}` : `${r.platform}: ${r.error}`)).join(' | ') || 'no channels selected',
         };
+      },
+    });
+  }
+  if (opts.tools?.includes('harness')) {
+    // runtime vivo de esta sesion de chat: se crea en boot(), se destruye en shutdown()
+    let runtime: HarnessRuntime | null = null;
+    tools.harness_manage = tool({
+      description:
+        'Agent harness runtime (everything-is-a-plugin, DeepSeek Harness pattern): boot a declarative plugin tree (tools/observers/schedulers with dependency order), run a task through the tools of active plugins, advance the tick clock (fires scheduled jobs), dump the runtime state, or shut it down (reversible effects unwind in reverse order, fail-soft). Deterministic and keyless. Use to compose agent runtimes declaratively and orchestrate plugin-driven execution.',
+      parameters: z.object({
+        accion: z.enum(['boot', 'run', 'tick', 'dump', 'shutdown']),
+        pluginsJson: z.string().optional(), // arbol declarativo: [{id, kind?, dependsOn?, tools?: [{name, echo?}]}]
+        tool: z.string().optional(), // para run
+        argsJson: z.string().optional(), // para run
+      }),
+      execute: async ({ accion, pluginsJson, tool: toolName, argsJson }) => {
+        // runtime PERSISTENTE por sesion de chat: boot() en una llamada, run/tick en las siguientes
+        if (accion === 'boot') {
+          if (!pluginsJson) throw new Error('boot requiere pluginsJson');
+          const specs = JSON.parse(pluginsJson) as Array<{
+            id: string;
+            kind?: 'tool' | 'observer';
+            dependsOn?: string[];
+            tools?: Array<{ name: string; echo?: boolean }>;
+          }>;
+          const plugins = specs.map((s) => ({
+            id: s.id,
+            kind: s.kind ?? 'tool',
+            dependsOn: s.dependsOn,
+            activate: () => undefined,
+            tools:
+              s.tools && s.tools.length > 0
+                ? Object.fromEntries(
+                    s.tools.map((t) => [
+                      t.name,
+                      t.echo === false
+                        ? (args: Record<string, unknown>) => ({ ok: true, result: args })
+                        : (args: Record<string, unknown>) => ({ ok: true, result: args.value ?? null }),
+                    ]),
+                  )
+                : undefined,
+          }));
+          runtime = createHarness({ plugins });
+          const res = runtime.boot();
+          return { accion, ok: res.ok, error: res.error };
+        }
+        if (!runtime) return { accion, ok: false, error: 'harness sin boot() en esta sesión' };
+        if (accion === 'run') {
+          if (!toolName) throw new Error('run requiere tool');
+          const args = argsJson ? JSON.parse(argsJson) : {};
+          const res = runtime.run({ tool: toolName, args });
+          return { accion, ...res };
+        }
+        if (accion === 'tick') {
+          runtime.tick();
+          return { accion, ok: true, tick: 'avanzado' };
+        }
+        if (accion === 'dump') return { accion, ok: true, runtime: runtime.dump() };
+        if (accion === 'shutdown') {
+          const res = runtime.shutdown();
+          runtime = null;
+          return { accion, ...res };
+        }
+        return { accion, ok: false, error: 'accion desconocida' };
       },
     });
   }

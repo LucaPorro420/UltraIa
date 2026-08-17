@@ -172,3 +172,25 @@ Implementacion: capability cloud (tools/cloud.ts) + API /api/cloud/* + pagina /c
 - .next/types de Next 15 se regenera SOLO en build; si la sesion concurrente lo borra a mitad, tsc falla con TS6053 (include pattern .next/types/**/*.ts apuntando a archivos inexistentes). Fix: borrar .next entero y re-correr (sin .next, el include no matchea nada y no falla).
 - Aislamiento de gates entre sesiones (maniobra simetrica): mover los untracked de la OTRA sesion a %TEMP%\opencode\backup-* + git checkout de llm.ts/index.ts sucios, correr gates, RESTAURAR todo al final — las dos sesiones quedan con sus working trees intactos.
 - Datos verificados 17/08 (websearch, citados en docs/CLOUD-FREE-2026.md): Meta/IG app review NO requerida para negocio propio (Standard Access, docs updated 2026-06-30); X API v2 Free = 17 posts/24h POR APP (el 1,500/mes era legacy 1.1); Supabase Free auto-pausa tras 7 dias sin actividad; Render Free Postgres expira a los 30 dias; Vercel Hobby tiene clausula "no commercial use"; Cloudflare Workers+D1+R2+Pages = $0 estable sin clausula comercial.
+
+## DeepSeek Harness — port "everything is a plugin" (17/08/2026) — VERIFICADO 19/19
+
+Implementacion: capability harness (tools/harness.ts) + tool harness_manage en llm.ts (runtime PERSISTENTE por sesion de chat) + export en tools/index.ts. Port ORIGINAL de principios (fuente learning/sources/deepseek-harness.md, analisis docs/RAZONAMIENTO-DEEPSEEK-HARNESS.md).
+
+- "No privileged core" es portable a dominio puro: boot() valida TODO el arbol (ids/duplicados/ciclos) ANTES de activar nada; si un plugin falla al activar, rollback fail-soft de los ya activos en orden inverso.
+- Efectos reversibles GARANTIZADOS por el runtime: trackear las unsubs de ctx.events.on POR PLUGIN y ejecutarlas en shutdown aunque el plugin no defina deactivate() — la reversibilidad no depende de la disciplina del plugin author.
+- Estado compartido con claves NAMESPACED `<pluginId>:<clave>` = cero colisiones entre plugins sin locking; el Map proxy con `as unknown as Map` requiere ANOTAR los parametros de los metodos (TS7006: implicit any) — el cast no da tipos contextuales.
+- Scheduler por ticks con reloj inyectable = tests deterministas sin timers reales (mismo patron que el reloj de UltraRuntime).
+- LECCION CONCURRENCIA: declarar `let runtime` DENTRO del execute de la tool shadowea la variable del scope del bloque y TS narrowing degenera a 'never' — la declaracion debe vivir en el scope que persiste entre llamadas de la tool (por sesion de chat), no dentro del callback. La sesion concurrente lo movio al lugar correcto mientras esta sesion corria tsc: reconciliar leyendo el archivo ANTES de editar.
+
+## DeepSeek Harness - todo es plugin (17/08/2026) - VERIFICADO 19/19 scoped
+
+Implementacion: capability harness (tools/harness.ts) + tool harness_manage (ai/llm.ts) + export en tools/index.ts. Port ORIGINAL de los PRINCIPIOS (deepseek-ai/deepseek-harness, MIT, 148k stars, enlaces.txt linea 804) - sin codigo copiado.
+
+- Los harness "everything-is-a-plugin" comparten un nucleo portable en ~400 lineas sin depender de Cordis: (1) validacion TOTAL del grafo antes de activar nada (ids, duplicados, deps, ciclos Kahn), (2) efectos REVERSIBLES por defecto (el runtime trackea unsubs por plugin y las deshace en shutdown inverso aunque el plugin no defina deactivate), (3) seams register/resolve con error claro si falta provider. El valor esta en el paradigma, no en la implementacion.
+- Estado compartido namespaced por plugin (`<pluginId>:<clave>`) evita colisiones sin locks - mismo patron que el state del runtime desktop.
+- Scheduler por ticks con reloj inyectable = trabajo de fondo testeable sin timers reales (counterSchedulerPlugin con schedule [{at, run}]).
+- LECCION TS (fallo real este ciclo): un let runtime declarado DENTRO del closure de execute con la rama boot que SIEMPRE retorna hace que TS estreche la variable a 
+ever en las ramas siguientes (el flujo que continua nunca ejecuto la asignacion). Fix: declarar la variable FUERA del closure (persistente por sesion de chat) - ademas es el diseno correcto: boot() en una llamada, run() en las siguientes. tsc parcial con tsconfig temporal destapa estos errores que vitest/esbuild no ven.
+- Sesiones concurrentes otra vez tocando los MISMOS archivos (harness.ts/llm.ts): la otra sesion "arreglo" a su manera (declaracion local) reintroduciendo el bug de 
+ever. Regla reafirmada: commit apenas gates verdes, staging explicito.
