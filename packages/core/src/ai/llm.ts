@@ -502,7 +502,7 @@ export function chatStream(opts: {
   if (opts.tools?.includes('publish')) {
     tools.publish_submit = tool({
       description:
-        'Publish a finished MP4 (9:16, <60s) to the configured channels (AutoPub F4): YouTube Shorts, TikTok, X and Meta (Instagram Reels / Threads), with bilingual es/ar metadata. Validates tokens first — fails soft with a clear reason when a platform is not configured. Returns one result per platform (ok/id/url or error).',
+        'Publish a finished MP4 (9:16, <60s) to the configured channels (AutoPub F4): YouTube Shorts, TikTok, X, Meta (Instagram Reels / Threads) and Telegram, with bilingual es/ar metadata. Validates tokens first — fails soft with a clear reason when a platform is not configured. Returns one result per platform (ok/id/url or error).',
       parameters: z.object({
         videoPath: z.string().min(1).max(500),
         title: z.string().min(1).max(200),
@@ -513,10 +513,11 @@ export function chatStream(opts: {
         toX: z.boolean().optional(),
         toInstagram: z.boolean().optional(),
         toThreads: z.boolean().optional(),
+        toTelegram: z.boolean().optional(),
       }),
-      execute: async ({ videoPath, title, plainScript, privacyStatus, toYoutube, toTiktok, toX, toInstagram, toThreads }) => {
+      execute: async ({ videoPath, title, plainScript, privacyStatus, toYoutube, toTiktok, toX, toInstagram, toThreads, toTelegram }) => {
         const metadata = { ...buildBilingualMetadata(title, plainScript), ...(privacyStatus ? { privacyStatus } : {}) };
-        const adapters = createDefaultPublishers({ includeX: true, includeMeta: true });
+        const adapters = createDefaultPublishers({ includeX: true, includeMeta: true, includeTelegram: true });
         const selected = adapters.filter((a) => {
           switch (a.platform) {
             case 'youtube':
@@ -529,6 +530,8 @@ export function chatStream(opts: {
               return toInstagram !== false;
             case 'threads':
               return toThreads !== false;
+            case 'telegram':
+              return toTelegram !== false;
             default:
               return true;
           }

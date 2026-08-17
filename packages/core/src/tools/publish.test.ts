@@ -247,6 +247,21 @@ describe('publishToAll + default publishers', () => {
     const adapters = createDefaultPublishers({ includeX: true, includeMeta: true });
     expect(adapters.map((a) => a.platform).sort()).toEqual(['instagram', 'threads', 'tiktok', 'x', 'youtube']);
   });
+
+  it('createDefaultPublishers({ includeTelegram: true }): 3 adapters, Telegram fail-soft sin token', async () => {
+    const adapters = createDefaultPublishers({ includeTelegram: true });
+    expect(adapters.map((a) => a.platform).sort()).toEqual(['telegram', 'tiktok', 'youtube']);
+    const results = await publishToAll(adapters, { videoBuffer: MP4_BYTES });
+    expect(results).toHaveLength(3);
+    const tg = results.find((r) => r.platform === 'telegram')!;
+    expect(tg.ok).toBe(false);
+    expect(tg.error).toContain('TELEGRAM_BOT_TOKEN');
+  });
+
+  it('createDefaultPublishers({ includeX, includeMeta, includeTelegram }): 6 adapters', () => {
+    const adapters = createDefaultPublishers({ includeX: true, includeMeta: true, includeTelegram: true });
+    expect(adapters.map((a) => a.platform).sort()).toEqual(['instagram', 'telegram', 'threads', 'tiktok', 'x', 'youtube']);
+  });
 });
 
 describe('createXAdapter (X API v2, F4 paso 4)', () => {

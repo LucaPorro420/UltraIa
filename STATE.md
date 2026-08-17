@@ -45,20 +45,19 @@ Last run: 17/08/2026 - Iteracion 36 (wiring Meta a223417, plan loop-36; scoped: 
 | 35 | **AutoPub F4 paso 5: adapters Meta** (17/08/2026) — `createInstagramAdapter` (Graph API v21, container flow REELS: media → media_publish, caption cap 2200) + `createThreadsAdapter` (Graph API v1.0: threads → threads_publish, text cap 500) + union `PublishPlatform` ampliada a 'instagram'\|'threads' + `PublishInput.videoUrl?` + helper `formBody` + tokens env IG_ACCESS_TOKEN/IG_USER_ID/THREADS_ACCESS_TOKEN/THREADS_USER_ID + 13 tests | packages/core | scoped (vitest 43/43 + tsc parcial EXIT 0 + eslint EXIT 0) + FULL pendiente árbol limpio | ✅ DONE 17/08/2026 (b28b0a9, plan loop-35) — Meta sin app review para negocio propio (verificado); siguiente: wiring (includeMeta + publishDue + tool toInstagram/toThreads) |
 | 36 | **AutoPub F4 wiring Meta** (17/08/2026) — `createDefaultPublishers({ includeX?, includeMeta? })` retrocompatible (includeMeta → IG+Threads), `publishDue` con includeMeta:true, tool `publish_submit` con toInstagram/toThreads + filtro por ramas (switch); merge verificado con sesión concurrente (llm.ts = harness + growth_plan + publish_submit Meta) + 3 tests | packages/core | scoped (vitest 73/73: publish 45 + publications 28 + tsc parcial 0 propios + eslint EXIT 0) + FULL pendiente árbol limpio | ✅ DONE 17/08/2026 (a223417, plan loop-36) — AutoPub F4 canales COMPLETA (YT/TikTok/blog/X/Meta); F4 solo falta canales blog pendientes (Meta/X/LinkedIn hechos; X en 8bc63b8/4a0aa78) |
 | 36 | **Capability growth** (enlaces.txt URLs nuevas → vidrush.ai + abacus.ai) — port ORIGINAL "perfil de canal → experimentos de UNA variable → playbook que compone victorias": `tools/growth.ts` (analyzeChannel→ChannelProfile con thumbnailStyle clasificado; planExperiments peor-KPI-primero con regla +5; buildPlaybook peso acumulado por victoria con pares control/test secuenciales) + tool `growth_plan` (profile/experiments/playbook) + export/descriptor/union en index.ts + 19 tests + docs RAZONAMIENTO-VIDRUSH-ABACUS + fuentes compactas | packages/core | scoped (vitest 38/38 + tsc parcial 0 propios + eslint 0) + FULL pendiente árbol limpio | ✅ DONE 17/08/2026 (PENDIENTE-COMMIT, plan loop-36-growth) — cierra pendiente F5 (promoción vía signals) en dominio puro |
-| 37 | **Capability Telegram adapter + lista APIs gratis** (enlaces.txt → openclaw) — `tools/telegram.ts` `createTelegramAdapter` (PublisherAdapter fail-soft, fetch inyectable, env TELEGRAM_BOT_TOKEN/CHAT_ID, multipart manual sin deps, truncateCaption 1024 sin cortar surrogates, cap 50MB, 429→retry_after) + 21 tests + `docs/APIS-GRATIS-2026.md` (Telegram GRATIS total verificado 2026; WhatsApp NO: marketing $0.025/msg, free tier deprecado) + `learning/sources/openclaw.md` + `docs/RAZONAMIENTO-OPENCLAW.md` | packages/core + docs | scoped (vitest 66/66 con regresión publish + tsc EXIT 0 + eslint EXIT 0) + FULL pendiente árbol limpio | ✅ DONE 17/08/2026 (PENDIENTE-COMMIT, plan loop-37) — wiring DIFERIDO a post-#25 (High Priority); pendiente TikTok 811, adapters discord/slack |
+| 37 | **Capability Telegram adapter + lista APIs gratis** (enlaces.txt → openclaw) — `tools/telegram.ts` `createTelegramAdapter` (PublisherAdapter fail-soft, fetch inyectable, env TELEGRAM_BOT_TOKEN/CHAT_ID, multipart manual sin deps, truncateCaption 1024 sin cortar surrogates, cap 50MB, 429→retry_after) + 21 tests + `docs/APIS-GRATIS-2026.md` (Telegram GRATIS total verificado 2026; WhatsApp NO: marketing $0.025/msg, free tier deprecado) + `learning/sources/openclaw.md` + `docs/RAZONAMIENTO-OPENCLAW.md` + **WIRING COMPLETO**: union `PublishPlatform` 'telegram' + `createDefaultPublishers({includeTelegram})` + tool `publish_submit` `toTelegram` | packages/core + docs | scoped (vitest 96/96: telegram 21 + publish 48 + publications 27; tsc 0 propios; eslint 0) + FULL pendiente árbol limpio | ✅ DONE 17/08/2026 (e8a11e1 adapter + PENDIENTE-COMMIT wiring, plan loop-37) — canal Telegram operativo; pendiente TikTok 811, adapters discord/slack |
 
 > AutoPub = plan maestro `docs/AUTO-PUBLICACION.md` (aprobado 15/08/2026). Orden de
 > ejecución recomendado: 7 → 8 → 9 → 10 → luego 11, 12, 13.
 
 ## High Priority
 
-- **Wiring canal `telegram` DIFERIDO (iteración 37 DONE, pendiente de wiring)**: el adapter
-  `createTelegramAdapter` + `TELEGRAM_PLATFORM` + `buildMultipartBody`/`truncateCaption`/
-  `buildTelegramCaption` están en `packages/core/src/tools/telegram.ts` (21/21 tests) y la
-  capability/lista de APIs en `docs/APIS-GRATIS-2026.md`; FALTA ampliar la union
-  `PublishPlatform` ('telegram') + `createDefaultPublishers` + tool `publish_submit` toTelegram
-  en `llm.ts`/`index.ts` — diferido porque la sesión concurrente está editando esos archivos
-  (precedente cloud 7315d4d: wiring lo hizo la sesión concurrente post-#25).
+- **Wiring canal `telegram` COMPLETO (iteración 37)**: union `PublishPlatform` ampliada a
+  'telegram' + `createDefaultPublishers({includeTelegram})` + tool `publish_submit` con
+  `toTelegram` (filtro rama) — adapter en `tools/telegram.ts` (21/21 tests), wiring 48/48.
+  Lista de APIs gratis verificadas en `docs/APIS-GRATIS-2026.md`. Pendiente menor: canal
+  `telegram` en la cola Publication Prisma (canal enum) si se quiere programar publicaciones
+  Telegram por la cola (hoy se publica directo vía tool).
 - **Working tree con ruido de sesión concurrente (17/08/2026)**: `recorder.ts`/`automation.ts`
   + tests (untracked, con errores TS propios y 4 tests con race promise-first/testTimeout —
   bloquean typecheck/test FULL si se corren juntos) y

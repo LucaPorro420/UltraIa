@@ -1534,3 +1534,18 @@ ormalizeTitle() (lower + strip non-alnum), dedupe() (bigram overlap > 0.6),
   + tool llm.ts/index.ts) mientras #25 edita esos archivos - documentado en High Priority
   (precedente cloud 7315d4d). Pendiente: TikTok 811, adapters discord/slack, rotacion claves
   modelo. Sin push (aprobacion humana).
+
+### Iteraci�n 37b - Wiring canal telegram COMPLETO (17/08/2026) - DONE PENDIENTE-COMMIT
+
+- La sesi�n concurrente commite� su wiring Meta (a223417, 0404af7) y publish.ts/llm.ts/index.ts
+  quedaron LIMPIOS -> el wiring diferido de telegram se pudo hacer sin conflicto.
+- **I**: publish.ts (union PublishPlatform + 'telegram', createDefaultPublishers
+  {includeTelegram} + import createTelegramAdapter + export en namespace publish) +
+  llm.ts (tool publish_submit: toTelegram zod + includeTelegram:true + rama switch 'telegram' +
+  description) + publish.test.ts (2 tests nuevos: includeTelegram fail-soft sin token + 6
+  adapters combo).
+- **V**: vitest 96/96 (telegram 21 + publish 48 + publications 27 regresion) + tsc scoped 0
+  propios (solo ruido reach.ts #25) + eslint EXIT 0. markPublished fluye con la union ampliada
+  (PublishResult incluye 'telegram' sin cambios en publications.ts).
+- **R**: canal Telegram OPERATIVO (bot token @BotFather + TELEGRAM_CHAT_ID). Pendiente menor:
+  canal enum en Prisma para programar Telegram por cola (diferido). Sin push (aprobaci�n humana).
