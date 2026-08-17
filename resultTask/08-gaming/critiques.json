@@ -1,0 +1,12 @@
+{
+  "accepted": true,
+  "overall": 1,
+  "iterations": 1,
+  "critiques": {
+    "temporal-sync": 1,
+    "identity": 1,
+    "causal": 1,
+    "multimodal": 1
+  },
+  "recommendations": []
+}

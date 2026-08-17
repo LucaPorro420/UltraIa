@@ -1,0 +1,50 @@
+{
+  "video": "Download (5).mp4",
+  "metadata": {
+    "durationSec": 16.4,
+    "resolution": "576x1024",
+    "fps": 30,
+    "codec": "h264",
+    "bitRate": 858942,
+    "sizeBytes": 1760832
+  },
+  "scenes": [
+    {
+      "index": 1,
+      "start": 0,
+      "end": 12.4,
+      "duration": 12.4,
+      "frame": "frames/download-5/scene_01.jpg"
+    },
+    {
+      "index": 2,
+      "start": 12.4,
+      "end": 16.4,
+      "duration": 4,
+      "frame": "frames/download-5/scene_02.jpg"
+    }
+  ],
+  "rhythm": {
+    "sceneCount": 2,
+    "avgSceneDurationSec": 8.2,
+    "cutsAtSec": [
+      12.4
+    ]
+  },
+  "suggestedMotions": [
+    "pan-left",
+    "pan-left"
+  ],
+  "patterns": [
+    "Presentación oscura/premium",
+    "Imagen principal ocupando gran parte del viewport",
+    "Sensación cinematográfica",
+    "Capas superpuestas",
+    "Transiciones suaves entre estados",
+    "Elementos centrales que aparecen/desaparecen con movimiento",
+    "Navegación minimalista",
+    "Mucho protagonismo de la fotografía",
+    "Sensación de sitio de alta gama"
+  ],
+  "source": "Task/Task1.md (referencia visual) + ffmpeg scene detection"
+}

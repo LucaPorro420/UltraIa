@@ -1,0 +1,40 @@
+[
+  {
+    "url": "https://image.pollinations.ai/prompt/Crea%20una%20aplicaci%C3%B3n%20web%20y%20m%C3%B3vil%20para%20explorar%20destinos%20tur%C3%ADsticos.%0A%0ASTACK%3A%0A%0AReact%0ATypeScript%0ATailwind%20CSS%0AFramer%20Motion%0AReact%20Native%0ANativeWind%0A%0AREFERENCIA%3A%0A%0AAnaliza%20los%20videos%20proporcionados%20y%20adopta%20su%20lenguaje%20cinematogr%C3%A1fico.%0A%0AEl%20usuario%20debe%20sentir%20que%20est%C3%A1%20viajando%20dentro%20de%20la%20aplicaci%C3%B3n.%0A%0AHOME%3A%0A%0AMostrar%20destino%20destacado.%0A%0AFotograf%C3%ADa%20fullscreen.%0A%0AEjemplo%3A%0A%0APATAGONIA%0A%0ATHE%20END%0AOF%20THE%20WORLD%0A%0AEXPLORE%0A%0ACuando%20el%20usuario%20hace%20scroll%3A%0A%0Ala%20fotograf%C3%ADa%20cambia.%0A%0ALa%20tipograf%C3%ADa%20se%20desplaza.%0A%0AAparecen%20datos.%0A%0ALa%20siguiente%20escena%20entra.%0A%0ACrear%20efecto%20de%20storytelling.%0A%0ADESTINATION%20EXPERIENCE%3A%0A%0ACada%20destino%20contiene%3A%0A%0AHero%0APlaces%0AHotels%0ARestaurants%0AActivities%0AGallery%0AMap%0AItinerary%0A%0APHOTO%20STORY%3A%0A%0ACrear%20una%20secci%C3%B3n%20donde%20las%20fotograf%C3%ADas%20aparecen%20progresivamente.%0A%0AUsar%3A%0A%0Aclip-path%0Ascale%0Aopacity%0Atranslate%0Aparallax%0A%0AITINERARY%20BUILDER%3A%0A%0AUsuario%20selecciona%3A%0A%0Ad%C3%ADa%0Adestino%0Aactividad%0Ahotel%0Arestaurante%0A%0ALa%20aplicaci%C3%B3n%20crea%20un%20itinerario%20visual.%0A%0ALos%20elementos%20se%20reorganizan%20mediante%20animaciones.%0A%0AMAP%3A%0A%0AMapa%20interactivo.%0A%0ALos%20puntos%20aparecen%20progresivamente.%0A%0AMOBILE%3A%0A%0ASwipe%20entre%20destinos.%0A%0AGesture%20navigation.%0A%0ABottom%20sheet.%0A%0AFullscreen%20photography.%0A%0ARESULTADO%3A%0A%0ADebe%20sentirse%20como%20una%20mezcla%20entre%3A%0A%0Arevista%20de%20viajes%0A%2B%0Adocumental%0A%2B%0Aaplicaci%C3%B3n%20premium.%2C%20style%20cinematic%2C%20motion%20zoom-in%2C%20motions%20zoom-in?width=1024&height=1024&seed=146575672&model=flux&nologo=true",
+    "provider": "pollinations",
+    "model": "flux",
+    "seed": 146575672,
+    "aspectRatio": "1024:1024",
+    "modality": "image",
+    "localFile": "assets/hero_1.jpg",
+    "confidence": 0.8,
+    "provenance": "image:pollinations:flux"
+  },
+  {
+    "url": "https://image.pollinations.ai/prompt/%E2%9C%88%EF%B8%8F%20Travel%20%2F%20Explorador%20de%20Destinos%20premium%20web%20and%20mobile%20app%20%E2%80%94%20Hero%20showcase%2C%20dark%20premium%20cinematic%20photography%2C%20deep%20black%20and%20charcoal%2C%20huge%20hero%20imagery%2C%20layered%20composition%2C%20subtle%20metallic%20accents%2C%20soft%20glow?width=768&height=1024&seed=1900&model=flux&nologo=true",
+    "provider": "pollinations",
+    "model": "flux",
+    "seed": 1900,
+    "localFile": "assets/section_1.jpg",
+    "confidence": 0.8,
+    "provenance": "section:pollinations:flux"
+  },
+  {
+    "url": "https://image.pollinations.ai/prompt/%E2%9C%88%EF%B8%8F%20Travel%20%2F%20Explorador%20de%20Destinos%20premium%20web%20and%20mobile%20app%20%E2%80%94%20Interactive%20explorer%2C%20dark%20premium%20cinematic%20photography%2C%20deep%20black%20and%20charcoal%2C%20huge%20hero%20imagery%2C%20layered%20composition%2C%20subtle%20metallic%20accents%2C%20soft%20glow?width=768&height=1024&seed=1901&model=flux&nologo=true",
+    "provider": "pollinations",
+    "model": "flux",
+    "seed": 1901,
+    "localFile": "assets/section_2.jpg",
+    "confidence": 0.8,
+    "provenance": "section:pollinations:flux"
+  },
+  {
+    "url": "https://image.pollinations.ai/prompt/%E2%9C%88%EF%B8%8F%20Travel%20%2F%20Explorador%20de%20Destinos%20premium%20web%20and%20mobile%20app%20%E2%80%94%20Editorial%20gallery%2C%20dark%20premium%20cinematic%20photography%2C%20deep%20black%20and%20charcoal%2C%20huge%20hero%20imagery%2C%20layered%20composition%2C%20subtle%20metallic%20accents%2C%20soft%20glow?width=768&height=1024&seed=1902&model=flux&nologo=true",
+    "provider": "pollinations",
+    "model": "flux",
+    "seed": 1902,
+    "localFile": "assets/section_3.jpg",
+    "confidence": 0.8,
+    "provenance": "section:pollinations:flux"
+  }
+]

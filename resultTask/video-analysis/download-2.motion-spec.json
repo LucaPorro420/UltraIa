@@ -1,0 +1,40 @@
+{
+  "video": "Download (2).mp4",
+  "metadata": {
+    "durationSec": 23.2,
+    "resolution": "576x1024",
+    "fps": 30,
+    "codec": "h264",
+    "bitRate": 1037037,
+    "sizeBytes": 3007410
+  },
+  "scenes": [
+    {
+      "index": 1,
+      "start": 0,
+      "end": 23.2,
+      "duration": 23.2,
+      "frame": "frames/download-2/scene_01.jpg"
+    }
+  ],
+  "rhythm": {
+    "sceneCount": 1,
+    "avgSceneDurationSec": 23.2,
+    "cutsAtSec": []
+  },
+  "suggestedMotions": [
+    "pan-left"
+  ],
+  "patterns": [
+    "Diseño editorial/cinematográfico para gastronomía",
+    "Fotografías enormes de producto",
+    "Tipografía grande",
+    "Secciones que cambian como escenas",
+    "Transiciones entre productos",
+    "Cards y elementos que se desplazan",
+    "Contraste negro + imágenes luminosas",
+    "Animaciones ligadas al scroll",
+    "Composición tipo landing page + storytelling visual"
+  ],
+  "source": "Task/Task1.md (referencia visual) + ffmpeg scene detection"
+}
