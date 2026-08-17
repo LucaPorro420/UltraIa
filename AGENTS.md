@@ -488,3 +488,15 @@ El usuario deja URLs en `enlaces.txt` (raíz) para que se analicen y se apliquen
 - **Pendiente loop-25**: conectar `/cloud` con la cola `Publication` (subir paquete listo desde
   publicaciones → media/videos) y con la capability `video_edit` (guardar EDL/renders); docs
   mini-guía en `docs/CLOUD-FREE-2026.md` Part 8 (acceder al cloud por CLI/agentes).
+- **Cloud CLI + tareas diferidas (17/08/2026, iteración 28 `b152b40`)**: `scripts/cloud-cli.py`
+  (stdlib puro: layout/list/upload/remove/stat/manifest/self-test; réplica del contrato cloud.ts
+  — 42 extensiones en 7 categorías, layout 9 carpetas, límite 100 MiB, humanSize binario;
+  verificado: ruff/pyflakes/py_compile OK, self-test 25/25) + `scripts/cloud-cli.test.py`
+  (suite e2e 11/11, tempdir aislado, `py -3.12 scripts/cloud-cli.test.py`) + `docs/CLOUD-CLI-GUIDE.md`
+  (la "Part 8" en archivo propio, sin tocar CLOUD-FREE-2026.md). Wiring de la capability `cloud`
+  COMPLETO por sesión concurrente (`7315d4d`: llm.ts + index.ts — NO duplicar; evidencia en
+  `docs/TAREA-WIRING-CLOUD.md`). Tareas diferidas para aplicar cuando el árbol esté limpio:
+  `docs/TAREA-CLOUD-PUBLICATIONS.md` (guardarPaqueteEnCloud en createPublication, cloud
+  inyectable, fail-soft) y `docs/TAREA-CLOUD-VIDEOEDIT.md` (guardarEdicionEnCloud: EDL/self-eval/
+  timeline → exports/edl, render → media/videos). CORRECCIÓN: EXT_TYPES tiene **42** extensiones
+  (no 41 — el texto de TOOL_DESCRIPTIONS en index.ts heredó el número viejo).
