@@ -152,4 +152,5 @@ schtasks /Create /TN "UltraIa-Cloud-Manifest" /SC DAILY /ST 02:00 `
 | `scripts/cloud-cli.test.py` | Suite e2e (11 tests, tempdir aislado) |
 | `docs/TAREA-WIRING-CLOUD.md` | Evidencia del wiring de la capability (superada por commit `7315d4d`) |
 | `docs/TAREA-CLOUD-PUBLICATIONS.md` | Tarea diferida: conectar cloud con la cola Publication |
+| `docs/TAREA-CLOUD-VIDEOEDIT.md` | Tarea diferida: archivar EDL/self-eval/timeline/render en `exports/` |
 | `packages/core/src/tools/cloud.ts` | Contrato canónico (fuente de verdad) |
