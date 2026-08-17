@@ -62,3 +62,6 @@ desktopFase/launcher/vendor/
 .ultraia/recordings/
 logs/
 screenshots/
+
+# UltraIA Cloud (capability cloud): archivos subidos localmente
+.ultraia/cloud/

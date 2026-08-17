@@ -1,0 +1,16 @@
+name = "ultraia-cloud"
+main = "worker.ts"
+compatibility_date = "2026-08-01"
+
+# Bucket R2 (crear en dash.cloudflare.com → R2 → Create bucket → "ultraia-media")
+[[r2_buckets]]
+binding = "ULTRAIA_BUCKET"
+bucket_name = "ultraia-media"
+
+# Secretos (nunca en este archivo):
+#   npx wrangler secret put CLOUD_TOKEN
+#   npx wrangler secret put CLOUD_PUBLIC_URL   # opcional: https://media.<tu>.pages.dev
+
+# Límites de protección (override si el plan lo permite):
+# [limits]
+# cpu_ms = 30_000

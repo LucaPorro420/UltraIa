@@ -15,6 +15,9 @@
       ],
       "@ultraia/core": [
         "../../packages/core/src/index.ts"
+      ],
+      "@ultraia/cloud": [
+        "../../packages/core/src/tools/cloud.ts"
       ]
     },
     "plugins": [

@@ -11,6 +11,7 @@ import {
   Map,
   Compass,
   BookOpen,
+  Cloud,
   LogOut,
 } from 'lucide-react';
 import { logoutAction } from '@/app/(app)/actions';
@@ -21,6 +22,7 @@ const ITEMS = [
   { href: '/agents/new', label: 'New agent', icon: Bot },
   { href: '/gallery', label: 'Gallery', icon: Images },
   { href: '/builder', label: 'Builder', icon: SquareDashedMousePointer },
+  { href: '/cloud', label: 'Cloud', icon: Cloud },
   { href: '/roadmap', label: 'Roadmap', icon: Map },
 ];
 
