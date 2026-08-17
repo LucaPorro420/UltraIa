@@ -565,6 +565,11 @@ El usuario deja URLs en `enlaces.txt` (raíz) para que se analicen y se apliquen
 - **Wiring COMPLETO**: union `PublishPlatform` + 'telegram' · `createDefaultPublishers
   ({includeTelegram})` · tool `publish_submit` con `toTelegram` (rama switch) · export
   `createTelegramAdapter` en namespace publish · markPublished fluye (PublishResult).
+- **Canal en la cola Publication (iteración 39)**: `TopicChannel`/`PresentChannel` ganan
+  `'telegram'` (topics/present: FORMAT_BY_CHANNEL '9:16 video', HORARIO_SUGERIDO
+  'mar/jue/sab 18:00', captionFor cap 1000, visualFor 9:16 sin srt); `CANALES_CON_APROBACION`
+  + telegram (video → DRAFT humano); `publishDue` con `includeTelegram: true`; z.enum CANALES
+  + telegram en `/api/publications`; canal es String en Prisma (sin migración). 158/158 scoped.
   96/96 scoped (telegram 21 + publish 48 + publications 27).
 - NOTA coordinación: el wiring se hizo cuando la sesión concurrente liberó
   publish.ts/llm.ts/index.ts (su wiring Meta `a223417`); antes, los archivos estaban sucios.

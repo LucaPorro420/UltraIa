@@ -14,8 +14,8 @@
 
 import { parseRss, searchWeb } from './reach';
 
-/** Canal objetivo de publicación (D1/D8 del plan maestro). */
-export type TopicChannel = 'youtube_shorts' | 'tiktok' | 'instagram' | 'blog';
+/** Canal objetivo de publicación (D1/D8 del plan maestro; telegram = canal de mensajería, iteración 39). */
+export type TopicChannel = 'youtube_shorts' | 'tiktok' | 'instagram' | 'blog' | 'telegram';
 
 /** Formato visual que el canal espera (F3 `present` lo consumirá). */
 export type TopicFormat = '9:16 video' | '1:1 imagen' | '16:9 articulo' | '16:9 video';
@@ -66,6 +66,7 @@ const CHANNEL_KEYWORDS: Record<TopicChannel, string[]> = {
   tiktok: ['tendencia', 'viral', 'hack', 'lifehack', 'misterio', 'antes', 'despues', 'pov'],
   instagram: ['estetica', 'diseno', 'inspiracion', 'idea', 'pack', 'branding', 'visual'],
   blog: ['guia', 'analisis', 'futuro', 'estrategia', 'que es', 'como funciona', 'reporte', 'caso'],
+  telegram: ['canal', 'diario', 'resumen', 'noticia', 'actualizacion', 'inteligencia artificial'],
 };
 
 /** Mapa canal → formato visual (F3 `present` lo usará). */
@@ -74,6 +75,7 @@ const FORMAT_BY_CHANNEL: Record<TopicChannel, TopicFormat> = {
   tiktok: '9:16 video',
   instagram: '1:1 imagen',
   blog: '16:9 articulo',
+  telegram: '9:16 video',
 };
 
 /** Tono por defecto según el origen del ítem. */

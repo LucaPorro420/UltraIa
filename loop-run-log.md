@@ -1587,3 +1587,27 @@ ormalizeTitle() (lower + strip non-alnum), dedupe() (bigram overlap > 0.6),
   (PublishResult incluye 'telegram' sin cambios en publications.ts).
 - **R**: canal Telegram OPERATIVO (bot token @BotFather + TELEGRAM_CHAT_ID). Pendiente menor:
   canal enum en Prisma para programar Telegram por cola (diferido). Sin push (aprobaci�n humana).
+
+### Iteracion 39 - Canal telegram en la cola Publication (17/08/2026) - DONE
+
+- El numero 38 lo uso la sesion concurrente (loop-38-tiktok-studio-edition.md, vfx/higgsfield)
+  -> esta iteracion es la 39. Pendiente 37b (canal enum Prisma) aplicado ahora: el canal es
+  String en Prisma (sin migracion); la cola ya lo aceptaba como string, faltaba el pipeline.
+- **P**: canal 'telegram' en TODO el flujo F1-F4: topics -> present -> cola -> calendario -> API.
+- **I**:
+  - topics.ts: TopicChannel + 'telegram' + CHANNEL_KEYWORDS.telegram + FORMAT_BY_CHANNEL.telegram.
+  - present.ts: FORMAT_BY_CHANNEL ('9:16 video'), HORARIO_SUGERIDO ('mar/jue/sab 18:00'),
+    hashtags base telegram, captionFor case telegram (cap 1000 < 1024 adapter), visualFor
+    case telegram (9:16, sin srt).
+  - publications.ts: CANALES_CON_APROBACION + telegram (video -> DRAFT humano, regla del
+    usuario); publishDue con includeTelegram:true.
+  - route.ts API: CANALES + telegram (z.enum).
+  - schema.prisma: comentarios canal actualizados (String, sin migracion).
+  - Tests: present.test +2 (paquete telegram: caption<=1000/srt null/9:16/horario),
+    publications.test +2 (canalRequiereAprobacion telegram true; createPublication canal
+    telegram -> DRAFT persistido).
+- **V**: vitest 158/158 (present 19 + topics 14 + publications 29 + publish 47 + telegram 21
+  + enrutador 28) + tsc scoped 0 propios (solo ruido reach.ts #25) + eslint EXIT 0.
+  Fix: TS2741 en topics.ts (Records exhaustivos exigian telegram) - completados.
+- **R**: canal telegram 100% integrado (briefs, paquetes, aprobacion, calendario, API).
+  Siguientes: adapters discord/slack, FULL gates (bloqueado por #25). Sin push (aprobacion humana).

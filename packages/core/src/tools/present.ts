@@ -82,6 +82,7 @@ export const FORMAT_BY_CHANNEL: Record<PresentChannel, TopicFormat> = {
   tiktok: '9:16 video',
   instagram: '1:1 imagen',
   blog: '16:9 articulo',
+  telegram: '9:16 video',
 };
 
 /** Horario sugerido por canal (D2: video 2-3/sem; texto 1/día; blog 1/sem). */
@@ -90,6 +91,7 @@ export const HORARIO_SUGERIDO: Record<PresentChannel, string> = {
   tiktok: 'mar/jue/sab 18:30',
   instagram: 'lun/mie/vie 20:00',
   blog: 'domingo 09:00',
+  telegram: 'mar/jue/sab 18:00',
 };
 
 /** Kits de marca por defecto. Dark Obsidian = sistema de diseño de UltraIa. */
@@ -140,6 +142,7 @@ export function hashtagsFor(tema: string, canal: PresentChannel): string[] {
     tiktok: ['#fyp', '#parati', '#viral', '#tendencia'],
     instagram: ['#instagood', '#reels', '#inspo', '#creadores'],
     blog: ['#blog', '#guia', '#analisis'],
+    telegram: ['#IA', '#inteligenciaArtificial', '#canal', '#diario'],
   };
   const tags = [...topicTags, ...base[canal]];
   // IG admite hasta 30 hashtags; el resto 5-10.
@@ -159,6 +162,9 @@ export function captionFor(tema: string, contenido: string, canal: PresentChanne
       return `${firstLine} ${tags}`.slice(0, 2200);
     case 'instagram':
       return `${tema}\n\n${contenido.slice(0, 1800)}\n\n.\n.\n.\n${tags}`;
+    case 'telegram':
+      // Telegram: caption corto (cap 1024 chars en el adapter, 4096 en mensajes texto).
+      return `${tema}\n\n${firstLine}\n\n${tags}`.slice(0, 1000);
     case 'blog':
     default:
       return `${tema}\n\n${contenido.slice(0, 300)}\n\n${tags}`;
@@ -216,6 +222,15 @@ export function visualFor(tema: string, canal: PresentChannel): VisualSpec {
         estilo: 'imagen cuadrada con tipografia display y acento de marca',
         textoOverlay: overlay,
         thumbnail: `https://pollinations.ai/p/${encodeURIComponent(overlay)}?width=1080&height=1080&nologo=true`,
+      };
+    case 'telegram':
+      // Telegram: video vertical como los shorts (9:16), sin srt (se manda caption).
+      return {
+        dimensiones: '1080x1920 (9:16)',
+        formato: '9:16 video',
+        estilo: 'video vertical corto, caption directo al canal',
+        textoOverlay: overlay,
+        thumbnail: `https://pollinations.ai/p/${encodeURIComponent(overlay)}?width=1080&height=1920&nologo=true`,
       };
     case 'blog':
     default:

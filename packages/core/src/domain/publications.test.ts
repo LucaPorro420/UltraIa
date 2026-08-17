@@ -118,6 +118,7 @@ describe('canalRequiereAprobacion', () => {
     expect(canalRequiereAprobacion('tiktok')).toBe(true);
     expect(canalRequiereAprobacion('instagram')).toBe(true);
     expect(canalRequiereAprobacion('blog')).toBe(false);
+    expect(canalRequiereAprobacion('telegram')).toBe(true);
   });
 });
 
@@ -134,6 +135,15 @@ describe('createPublication', () => {
     const res = await createPublication(db, { paquete: makePaquete('blog'), canal: 'blog' });
     expect(res.estado).toBe('APPROVED');
     expect(res.requiereAprobacion).toBe(false);
+  });
+
+  it('telegram (video) requiere aprobación → DRAFT y canal persistido (iteración 39)', async () => {
+    const { db, rows } = fakeDb();
+    const res = await createPublication(db, { paquete: makePaquete('tiktok'), canal: 'telegram' });
+    expect(res.estado).toBe('DRAFT');
+    expect(res.requiereAprobacion).toBe(true);
+    const row = rows.find((r) => r.id === res.id);
+    expect(row?.canal).toBe('telegram');
   });
 
   it('guarda caption + hashtags del canal y programación', async () => {

@@ -214,7 +214,7 @@ model Publication {
   id           String    @id @default(cuid())
   briefId      String? // brief de F1 (topics) que origino el paquete
   tema         String
-  canal        String // youtube_shorts | tiktok | instagram | blog
+  canal        String // youtube_shorts | tiktok | instagram | blog | telegram
   paqueteJson  String // PublicationPackage serializado (F3 present)
   caption      String // caption final para el canal (de captionsByChannel)
   hashtags     String    @default("[]") // JSON string[]
@@ -238,7 +238,7 @@ model Publication {
 model TopicBrief {
   id          String   @id @default(cuid())
   tema        String
-  canal       String // youtube_shorts | tiktok | instagram | blog
+  canal       String // youtube_shorts | tiktok | instagram | blog | telegram
   formato     String // 9:16 video | 1:1 imagen | 16:9 articulo
   tono        String // informativo | educativo | entretenido | inspirador | analitico | noticia
   angulo      String
