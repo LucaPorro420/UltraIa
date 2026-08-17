@@ -127,3 +127,14 @@ Fuente: enlaces.txt → learning/sources/claude-fable-5-system-prompt.md (system
 - Calibración de claims: una mención = [stated] mencionó X una vez; inferencia ≠ stated (no subir una mención a generalización).
 - No archivar: atributos protegidos / info sensible / guardrails de comportamiento (nada de adulación o supresión de crítica).
 - PowerShell: al inyectar regex en strings single-quoted, `\\s` queda literal doble-backslash en el archivo → usar Write tool o verificar el archivo escrito (lección recurrente de encoding/escaping en PS 5.1).
+
+## Diagramas editoriales — diagram-design (17/08/2026) — VERIFICADO 22/22
+
+Fuente: enlaces.txt -> learning/sources/diagram-design.md (README cathrynlavery/diagram-design, MIT).
+Analisis: docs/RAZONAMIENTO-DIAGRAM-DESIGN.md. Implementacion: capability diagram (tools/diagram.ts) + Task/generate-diagrams.ts -> resultTask/diagrams/ + docs/diagrams/.
+
+- Reglas anti-AI-slop GEOMETRICAS: coords/gaps divisibles por 4, hairlines 1px, sin sombras, border-radius <=10px, accent solo en 1-2 focos — hacen el output "editorial" y son TESTEABLES (determinismo byte-a-byte).
+- A11y por defecto: role="img" + aria-labelledby resolviendo + title/desc primeros hijos; IDs prefijados por diagrama (inline multiple seguro).
+- Autocontenido: 1 HTML offline, sin <script>, sin recursos externos (el xmlns w3.org es obligatorio en SVG — no testear contra 'http://' global).
+- El patron "tokens semanticos paper/ink/muted/accent" = mismo patron de capability que ya usa UltraIa (tools por capability en ai/llm.ts).
+- CSS: el nombre de clase editorial-card SIEMPRE esta en <style> aunque no se use — aserciones deben apuntar al ELEMENTO (<aside class=...>), no al string.

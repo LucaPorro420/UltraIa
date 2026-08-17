@@ -28,3 +28,16 @@ Cada app contiene: `plan.json` (DirectorPlan), `field.json` (MediaField),
 `results.json` (imágenes generadas), `critiques.json` (score/críticas) y
 `report.md` (resumen legible). Los motion-specs alimentan la implementación
 React/Framer Motion (protocolo de replicación visual de Task1.md).
+
+## Diagramas editoriales
+
+Generados con la capability `diagram` (patrón diagram-design, Dark Obsidian) por
+`Task/generate-diagrams.ts` — HTML autocontenidos (sin JS, sin deps, a11y).
+
+| Diagrama | Tipo | Qué muestra |
+|----------|------|-------------|
+| [timeline-download-2.html](diagrams/timeline-download-2.html) | timeline | Escenas del motion-spec de `Download (2).mp4` |
+| [timeline-download-5.html](diagrams/timeline-download-5.html) | timeline | Escenas del motion-spec de `Download (5).mp4` |
+| [motion-engine-pipeline.html](diagrams/motion-engine-pipeline.html) | data-flow | Pipeline Video Analyzer → Motion Spec JSON → React UI |
+
+Más diagramas del repo (roadmap, Desktop, Gen-Engine) en `docs/diagrams/`.

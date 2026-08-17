@@ -373,4 +373,19 @@ El usuario deja URLs en `enlaces.txt` (raíz) para que se analicen y se apliquen
 2. Analizar (índice de secciones + leer las secciones relevantes; delegar con explore si es grande).
 3. Extraer patrones transferibles → `docs/RAZONAMIENTO-<SLUG>.md` (análisis + mapeo implementado/pendiente).
 4. Implementar lo accionable como ciclo PIVR (capability/tool/tests) + lecciones en `learning/LEARNINGS.md`.
-5. La fuente queda commiteada en `learning/sources/` (precedente: claude-fable-5-system-prompt.md → capability `memory`).
+5. La fuente queda commiteada en `learning/sources/` (precedentes: claude-fable-5-system-prompt.md → capability `memory`; diagram-design.md → capability `diagram`, 17/08/2026).
+
+## Capability diagram (17/08/2026)
+
+- **Patrón diagram-design** (fuente: enlaces.txt → `learning/sources/diagram-design.md`, análisis `docs/RAZONAMIENTO-DIAGRAM-DESIGN.md`): `packages/core/src/tools/diagram.ts`
+  — generador determinista de diagramas editoriales **HTML/SVG autocontenidos** (sin JS, sin deps, offline).
+  Kinds: `timeline` / `data-flow` / `architecture` / `loop`; variantes `minimal-dark` (Dark Obsidian)
+  y `full-editorial`; tamaños `doc-inline` (800) / `doc-wide` (1200).
+- Reglas portadas (testeables): coords/gaps ÷4 (`round4`), hairlines 1px, sin sombras, border-radius ≤10px,
+  accent solo en 1-2 focos, a11y (`role="img"` + `aria-labelledby` + `title`/`desc` primeros hijos, IDs
+  prefijados por diagrama para inline seguro), sin `<script>` ni recursos externos. 22 tests.
+- Registro: capability `diagram` → tool `diagram_render` en `ai/llm.ts` (schema zod con events/steps/nodes/
+  edges/hub/stations/writeBacks + variant/size). Export en tools/index.ts (`diagram`).
+- Generador: `node_modules\.bin\vite-node.cmd Task/generate-diagrams.ts` → `resultTask/diagrams/`
+  (timelines de los 2 motion-specs + pipeline Motion Engine) y `docs/diagrams/` (roadmap-2026,
+  desktop-architecture, gen-engine-pipeline + README índice). Regeneración idempotente y determinista.

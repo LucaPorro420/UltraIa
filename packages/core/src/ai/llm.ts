@@ -25,6 +25,7 @@ import { publicationSignals } from '../domain/publications';
 import { audioLibrary } from '../omag/audiolibrary';
 import { createMemoryFs, type MemoryFs } from '../tools/memory-fs';
 import { synthSound as synth } from '../omag/sound';
+import { renderEditorialDiagram, DIAGRAM_KINDS, type DiagramKind } from '../tools/diagram';
 
 const modelCache = new Map<string, LanguageModel>();
 
@@ -613,6 +614,88 @@ export function chatStream(opts: {
       description: memDesc('Elimina una ficha completa. Úsalo SOLO cuando el usuario lo pide explícitamente (olvidar algo), nunca proactivamente. Requiere ifVersion si la ficha existe.'),
       parameters: z.object({ path: z.string().min(1).max(60), ifVersion: z.string().optional() }),
       execute: async ({ path, ifVersion }) => mfs.delete(path, ifVersion),
+    });
+  }
+
+  if (opts.tools?.includes('diagram')) {
+    const kindEnum = z.enum(DIAGRAM_KINDS);
+    const nodeSchema = z.object({
+      id: z.string().min(1).max(60),
+      label: z.string().min(1).max(120),
+      sublabel: z.string().max(200).optional(),
+      accent: z.boolean().optional(),
+    });
+    tools.diagram_render = tool({
+      description:
+        'Editorial diagram (diagram-design pattern): render a self-contained, accessible HTML/SVG diagram in the project design system (Dark Obsidian). Kinds: timeline (events on a time axis — use for motion specs, scene timing), data-flow (pipeline steps with roles — use for processing pipelines), architecture (components + connections), loop (flywheel: hub + stations with optional dashed write-back arcs). Anti-AI-slop geometry, role="img" + aria-labelledby, no JS, no external deps. Use to visualize any flow, roadmap or architecture in docs.',
+      parameters: z.object({
+        kind: kindEnum,
+        title: z.string().min(1).max(200),
+        description: z.string().max(400).optional(),
+        unit: z.string().max(40).optional(),
+        events: z
+          .array(
+            z.object({
+              label: z.string().min(1).max(120),
+              sublabel: z.string().max(200).optional(),
+              start: z.number().min(0),
+              end: z.number().min(0),
+              accent: z.boolean().optional(),
+            }),
+          )
+          .max(60)
+          .optional(),
+        steps: z
+          .array(
+            z.object({
+              id: z.string().min(1).max(60),
+              label: z.string().min(1).max(120),
+              sublabel: z.string().max(200).optional(),
+              role: z.string().max(80).optional(),
+              accent: z.boolean().optional(),
+            }),
+          )
+          .max(12)
+          .optional(),
+        nodes: z.array(nodeSchema).max(16).optional(),
+        edges: z
+          .array(
+            z.object({
+              from: z.string().min(1).max(60),
+              to: z.string().min(1).max(60),
+              label: z.string().max(120).optional(),
+              dashed: z.boolean().optional(),
+            }),
+          )
+          .max(30)
+          .optional(),
+        hub: z
+          .object({
+            label: z.string().min(1).max(120),
+            sublabel: z.string().max(200).optional(),
+          })
+          .optional(),
+        stations: z
+          .array(nodeSchema.extend({ id: z.string().min(1).max(60) }))
+          .max(10)
+          .optional(),
+        writeBacks: z.array(z.string().min(1).max(60)).max(10).optional(),
+        variant: z.enum(['minimal-dark', 'full-editorial']).optional(),
+        size: z.enum(['doc-inline', 'doc-wide']).optional(),
+      }),
+      execute: async (input) => {
+        const { kind, variant, size, ...specParts } = input;
+        const spec = { ...specParts } as never;
+        const res = renderEditorialDiagram(kind as DiagramKind, spec, { variant, size });
+        return {
+          kind: res.kind,
+          title: res.title,
+          meta: res.meta,
+          html: res.html.slice(0, 2000) + '…', // preview; full output is the saved file
+          svgChars: res.svg.length,
+          note: 'Guarda el HTML en disco para abrirlo offline (ej. docs/diagrams/<slug>.html).',
+        };
+      },
     });
   }
 

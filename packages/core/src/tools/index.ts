@@ -17,6 +17,7 @@ export * from './enrutador';
 export * from './media-score';
 export * from './metrics';
 export * from './memory-fs';
+export * from './diagram';
 
 import * as web from './web';
 import * as image from './image';
@@ -34,8 +35,9 @@ import { enrutador } from './enrutador';
 import { mediaScore } from './media-score';
 import { metrics } from './metrics';
 import { createMemoryFs } from './memory-fs';
+import { diagram } from './diagram';
 
-export const tools = { web, image, video, music, stitch, reach, skills: { runSkill }, content, g0dm0d3, topics, present: presentTools, publish, enrutador, mediaScore, metrics, memoryFs: { createMemoryFs } };
+export const tools = { web, image, video, music, stitch, reach, skills: { runSkill }, content, g0dm0d3, topics, present: presentTools, publish, enrutador, mediaScore, metrics, memoryFs: { createMemoryFs }, diagram };
 
 export const TOOL_DESCRIPTIONS: Record<string, string> = {
   calculator: 'Safely evaluate a mathematical expression (math only).',
@@ -65,6 +67,8 @@ export const TOOL_DESCRIPTIONS: Record<string, string> = {
     'Agent memory filesystem (Fable-5 pattern): structured memory across sessions — list/read/write/append/strReplace/delete with version guards (ifVersion), YAML frontmatter (name/description/sources/aliases) and [stated]/[observed]/[inferred] tagged lines. One file per subject (topics/, people/, areas/, preferences, profile). Use to persist what the user tells you and read it in later conversations.',
   metrics:
     'Publication metrics (AutoPub F5): channel KPIs (published/failed/pending counts, success rate, average pre-publication media score) and BAD-feedback signals from published posts, ready to feed the agent improvement pipeline. Use to measure and close the content loop.',
+  diagram:
+    'Editorial diagrams (diagram-design pattern): render self-contained, accessible HTML/SVG diagrams in the project design system (Dark Obsidian) — timeline (events on an axis), data-flow (pipeline steps), architecture (components + connections), loop (flywheel with write-back arcs). Anti-AI-slop geometry (coordinates divisible by 4, 1px hairlines, no shadows), role="img" + aria-labelledby, no JS, no external deps. Use to visualize pipelines, motion specs, roadmaps and architecture.',
 };
 
 export type Capability =
@@ -84,4 +88,5 @@ export type Capability =
   | 'publications'
   | 'contenido'
   | 'metrics'
-  | 'memory';
+  | 'memory'
+  | 'diagram';
