@@ -19,6 +19,7 @@ import { guardarBriefs, listarBriefs, marcarBriefProcesado, marcarBriefDescartad
 import { present } from '../tools/present';
 import { createDefaultPublishers, publishToAll, buildBilingualMetadata } from '../tools/publish';
 import { createHarness, type HarnessRuntime } from '../tools/harness';
+import { analyzeChannel, planExperiments, buildPlaybook } from '../tools/growth';
 import { createPublication, listPublications, approvePublication, rejectPublication, publishDue } from '../domain/publications';
 import { generarContenido, type ContentPackage } from '../tools/enrutador';
 import { computeChannelKpis } from '../tools/metrics';
@@ -585,6 +586,39 @@ export function chatStream(opts: {
           const res = runtime.shutdown();
           runtime = null;
           return { accion, ...res };
+        }
+        return { accion, ok: false, error: 'accion desconocida' };
+      },
+    });
+  }
+  if (opts.tools?.includes('growth')) {
+    tools.growth_plan = tool({
+      description:
+        'Channel growth engine (VidRush + Abacus.AI patterns): analyze a channel profile from samples of published videos (pacing, cut cadence, on-screen text density, hook length, thumbnail style), plan A/B experiments on ONE variable at a time (title/hook/thumbnail/duration/format — worst KPI first, capped), and build a per-channel playbook that compounds wins from engagement signals (victory = test beats control by >=5 KPI points). Deterministic, keyless. Use to model a channel, isolate what moves its metrics, and persist winning recommendations.',
+      parameters: z.object({
+        accion: z.enum(['profile', 'experiments', 'playbook']),
+        muestrasJson: z.string().optional(), // para profile: [{duracionSeg, cortes, textoPantalla, hookChars}]
+        kpisJson: z.string().optional(), // para experiments: {titulo?, hook?, thumbnail?, duracion?, formato?} 0-100
+        maxExperimentos: z.number().int().min(1).max(5).optional(),
+        canal: z.string().optional(), // para playbook
+        signalsJson: z.string().optional(), // para playbook: [{canal, variable, variante, kpi}]
+      }),
+      execute: async ({ accion, muestrasJson, kpisJson, maxExperimentos, canal, signalsJson }) => {
+        if (accion === 'profile') {
+          if (!muestrasJson) throw new Error('profile requiere muestrasJson');
+          const samples = JSON.parse(muestrasJson) as Array<{ duracionSeg: number; cortes: number; textoPantalla: boolean; hookChars: number }>;
+          return { accion, perfil: analyzeChannel(samples) };
+        }
+        if (accion === 'experiments') {
+          if (!kpisJson) throw new Error('experiments requiere kpisJson');
+          const kpis = JSON.parse(kpisJson) as Record<string, number>;
+          const perfil = muestrasJson ? analyzeChannel(JSON.parse(muestrasJson) as Array<{ duracionSeg: number; cortes: number; textoPantalla: boolean; hookChars: number }>) : undefined;
+          return { accion, perfil, experimentos: planExperiments(perfil ?? { pacingAvgSeg: 0, cutCadence: 0, onScreenTextDensity: 0, hookLengthAvg: 0, thumbnailStyle: 'mixto' }, kpis, maxExperimentos) };
+        }
+        if (accion === 'playbook') {
+          if (!canal || !signalsJson) throw new Error('playbook requiere canal + signalsJson');
+          const signals = JSON.parse(signalsJson) as Array<{ canal: string; variable: 'titulo' | 'hook' | 'thumbnail' | 'duracion' | 'formato'; variante: 'control' | 'test'; kpi: number }>;
+          return { accion, playbook: buildPlaybook(canal, signals) };
         }
         return { accion, ok: false, error: 'accion desconocida' };
       },

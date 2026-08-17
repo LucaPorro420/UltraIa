@@ -182,3 +182,12 @@ Implementacion: capability harness (tools/harness.ts) + tool harness_manage en l
 - Estado compartido con claves NAMESPACED `<pluginId>:<clave>` = cero colisiones entre plugins sin locking; el Map proxy con `as unknown as Map` requiere ANOTAR los parametros de los metodos (TS7006: implicit any) — el cast no da tipos contextuales.
 - Scheduler por ticks con reloj inyectable = tests deterministas sin timers reales (mismo patron que el reloj de UltraRuntime).
 - LECCION CONCURRENCIA: declarar `let runtime` DENTRO del execute de la tool shadowea la variable del scope del bloque y TS narrowing degenera a 'never' — la declaracion debe vivir en el scope que persiste entre llamadas de la tool (por sesion de chat), no dentro del callback. La sesion concurrente lo movio al lugar correcto mientras esta sesion corria tsc: reconciliar leyendo el archivo ANTES de editar.
+
+## VidRush + Abacus.AI — capability growth (17/08/2026) — VERIFICADO 19/19
+
+Implementacion: capability growth (tools/growth.ts: analyzeChannel / planExperiments / buildPlaybook) + tool growth_plan en llm.ts + export en tools/index.ts. Port ORIGINAL de principios (fuentes learning/sources/vidrush-ai.md + abacus-ai.md, analisis docs/RAZONAMIENTO-VIDRUSH-ABACUS.md).
+
+- Patron convergente de ambas fuentes: perfil de canal -> experimentos de UNA variable -> playbook que compone victorias. Ese es el pendiente F5 de AutoPub (promocion automatica via signals) en dominio puro.
+- El playbook de "compounding wins" exige emparejar control/test SECUENCIALMENTE (cada par = un experimento): procesar el par por cada senal duplica el peso; procesar "una vez por variable" pierde las victorias repetidas. `Math.min(controles.length, tests.length)` pares por variable.
+- Regla de decision determinista (test > control +5 KPI) es lo que hace el dominio testeable sin red ni LLM; el feedback post-pub (publicationSignals) es el canal natural de senales para buildPlaybook.
+- Herramientas de video/IA en enlaces.txt pueden ser SAAS con API cerrada (VidRush: solo web app; Abacus: solo web app) — el port de PRINCIPIOS (dominio puro) es la unica via segura; nunca copiar codigo de un producto cerrado.

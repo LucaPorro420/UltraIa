@@ -1455,3 +1455,30 @@ ormalizeTitle() (lower + strip non-alnum), dedupe() (bigram overlap > 0.6),
 - **R — Reiniciar**: canal Meta listo (adapters). Siguiente: loop-36 — wiring Meta
   (createDefaultPublishers includeMeta + publishDue + tool toInstagram/toThreads +
   markPublished platform). Sin push (aprobación humana).
+
+### Iteraci�n 36 - Capability growth (patrones VidRush + Abacus.AI) (17/08/2026) - DONE PENDIENTE-COMMIT
+
+- **P - Plan**: plan file loop-36-growth.md (URLs nuevas de enlaces.txt: vidrush.ai + abacus.ai;
+  perfiles IG/TikTok de creadores = referencia visual anti-bot, no procesados). Port ORIGINAL de
+  principios "perfil de canal -> experimentos de UNA variable -> playbook que compone victorias"
+  (convergen VidRush "Modeled on your channel" + Abacus "Autonomous YouTube Influencer Agent").
+- **I - Implement**:
+  - `tools/growth.ts` (NUEVO): `analyzeChannel(samples)` -> ChannelProfile (pacing, cutCadence,
+    onScreenTextDensity, hookLengthAvg, thumbnailStyle clasificado); `planExperiments(perfil, kpis,
+    max)` (UNA variable por experimento, peor KPI primero, hipotesis/control/test/decisionRule +5);
+    `buildPlaybook(canal, signals)` (victoria = test > control +5; peso acumulado por victoria;
+    dedupe por canal+recomendacion; orden por peso). Exports: namespace `growth`.
+  - `growth.test.ts` (NUEVO): 19 tests (19/19 PASS).
+  - Wiring: capability `growth` en `ai/llm.ts` -> tool `growth_plan` (acciones
+    profile/experiments/playbook, schema zod) + export/descriptor/union en `tools/index.ts`.
+  - `docs/RAZONAMIENTO-VIDRUSH-ABACUS.md` + fuentes crudas compactas
+    (`learning/sources/vidrush-ai.md` + `abacus-ai.md`; el HTML crudo era 2.7MB/480KB, se guardo
+    la version markdown) + leccion en `learning/LEARNINGS.md`.
+- **V - Verify**: vitest growth 19/19 + harness 19/19 (regresion) = 38/38; tsc parcial 0 errores
+  propios (ruido preexistente reach.ts de #25); eslint 4 archivos EXIT 0. FULL pendiente arbol
+  limpio (#25 sigue activo).
+- **R - Reiniciar**: capability growth COMPLETA - cierra el pendiente F5 de AutoPub (promocion
+  via signals) en dominio puro; buildPlaybook se alimentaria de publicationSignals. NOTA
+  coordinacion: la sesion concurrente uso el numero 35 para adapters Meta (b28b0a9) -> este plan
+  se renombro a loop-36-growth. Siguiente: wiring Meta (loop-36-meta de la otra sesion) o cola
+  humana (#6 Gen-Engine GPU / canales restantes app review). Sin push (aprobacion humana).
