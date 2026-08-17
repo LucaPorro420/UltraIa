@@ -23,7 +23,7 @@ import { analyzeChannel, planExperiments, buildPlaybook } from '../tools/growth'
 import { planReframe, planUpscale, planLutMatch, planRotoscope, planDrawToEdit, planBroll } from '../tools/vfx';
 import { createPublication, listPublications, approvePublication, rejectPublication, publishDue } from '../domain/publications';
 import { generarContenido, type ContentPackage } from '../tools/enrutador';
-import { computeChannelKpis } from '../tools/metrics';
+import { computeChannelKpis, fetchChannelAnalytics } from '../tools/metrics';
 import { publicationSignals } from '../domain/publications';
 import { audioLibrary } from '../omag/audiolibrary';
 import { createMemoryFs, type MemoryFs } from '../tools/memory-fs';
@@ -772,13 +772,19 @@ export function chatStream(opts: {
   if (opts.tools?.includes('metrics') && opts.db) {
     tools.publication_metrics = tool({
       description:
-        'Publication metrics (AutoPub F5): channel KPIs (published/failed/pending, success rate, avg pre-publication media score) and BAD-feedback signals from published posts (ready for the agent improvement pipeline). Use to measure results and close the content loop.',
+        'Publication metrics (AutoPub F5): channel KPIs (published/failed/pending, success rate, avg pre-publication media score), BAD-feedback signals from published posts (ready for the agent improvement pipeline), and real channel analytics (YouTube Data API v3 with YOUTUBE_API_KEY; other platforms fail-soft with a reason: TikTok approval / X OAuth / IG token / Telegram bot admin). Use to measure results and close the content loop.',
       parameters: z.object({
-        accion: z.enum(['kpis', 'signals']),
+        accion: z.enum(['kpis', 'signals', 'analytics']),
         limit: z.number().int().min(1).max(100).optional(),
+        platform: z.enum(['youtube', 'tiktok', 'x', 'instagram', 'threads', 'telegram']).optional(),
+        channelId: z.string().min(1).max(200).optional(),
       }),
-      execute: async ({ accion, limit }) => {
+      execute: async ({ accion, limit, platform, channelId }) => {
         if (accion === 'kpis') return computeChannelKpis(opts.db!);
+        if (accion === 'analytics') {
+          if (!platform) return { error: 'analytics requiere platform' };
+          return fetchChannelAnalytics({ platform, channelId });
+        }
         const res = await publicationSignals(opts.db!, limit ?? 20);
         return res;
       },
