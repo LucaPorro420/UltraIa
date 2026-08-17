@@ -1317,23 +1317,58 @@ ormalizeTitle() (lower + strip non-alnum), dedupe() (bigram overlap > 0.6),
   archivos Python (los 3 ya estï¿½n commiteados). Sin push (requiere aprobaciï¿½n humana).
 - Commits: `0e9a4d6` docs ï¿½ `b550ee4` docs ï¿½ `f2e2b5b` feat(scripts) ï¿½ 6 archivos, +172/+13/+98.
 
-### Iteración 28 — ScreenFlow: hot watch + puente cola Publication (17/08/2026) — DONE `7e77819` ?
+### Iteraciï¿½n 30 ï¿½ Tareas cloud loop-25 APLICADAS (17/08/2026) ï¿½ DONE (bd71299, d548e2f, e30bd89) ?
 
-- **P — Plan**: pendientes restantes de AGENTS.md (capability screenflow): watch de carpeta
-  `hot/` y conexión con cola Publication para métricas. Canal `'local'` NO existe en
-  PresentChannel ? puente seguro: screenflow construye PublicationPackage válido (canal blog,
-  auto-aprobado) vía la tool `present` (import read-only; publications.ts/present.ts NO se
-  tocan — sesión concurrente trabaja Publications). Plan file
+- **P ï¿½ Plan**: usuario autoriza: "continua, apruebo todo lo que tengas (y puedas) hacer".
+  Aplicar las 2 tareas diferidas (TAREA-CLOUD-PUBLICATIONS + TAREA-CLOUD-VIDEOEDIT) con gates
+  SCOPED (vitest por archivo + typecheck parcial con tsconfig temporal en %TEMP% que excluye
+  los archivos sucios de #25 del grafo). #25 sigue activo (screenflow/automation/blueprint/
+  reach/shared) â€” mis archivos objetivo (publications, video-edit, route publications) NO
+  chocan con los suyos. Gates FULL pendientes hasta ï¿½rbol limpio (documentado).
+- **I ï¿½ Implement**:
+  - `domain/publications.ts`: `guardarPaqueteEnCloud(cloud, paquete, id)` (fail-soft,
+    allSettled, bytes vï¿½a fetch, `CLOUD_DIR_BY_EXT` para targetPath canï¿½nico por tipo â€”
+    CORRECCIï¿½N vs tarea: CloudService.upload sin targetPath va a `drafts`, no clasifica) +
+    `CreatePublicationInput.cloud?` + `cloudGuardado` en el resultado + export en namespace.
+  - `domain/publications.test.ts`: +3 tests (cloud inyectado sube media+JSON; URL caï¿½da =
+    fail-soft con publicaciï¿½n creada; sin cloud = null) ï¿½ 26/26 PASS.
+  - `tools/video-edit.ts`: `guardarEdicionEnCloud(cloud, {edl, nombreBase, selfEval?,
+    timelineSvg?, renderMp4?})` ï¿½ exports/edl/*.json|.selfeval.json|.timeline.svg +
+    media/videos/*.mp4 (fail-soft; EDL = artefacto mï¿½nimo para ok) + export en namespace
+    videoEdit. NOTA: CloudService no expone `read` (vive en el adapter).
+  - `tools/video-edit.test.ts`: +3 tests (guarda EDL+self-eval+timeline y relee via
+    cloud.adapter.read; adapter caï¿½do = fail-soft; renderMp4 en media/videos) ï¿½ 32/32 PASS.
+  - Wiring caller: `apps/web/src/app/api/publications/route.ts` POST inyecta
+    `cloud: resolveCloudService()` (R2 si CLOUDFLARE_R2_WORKER_URL+TOKEN, si no
+    LocalCloudAdapter `.ultraia/cloud` â€” mismo criterio que resolveCloudAdapter privado de
+    llm.ts). LECCIï¿½N: JSDoc `/**` con lï¿½neas `//` internas NUNCA cierra â†’ tsc comiï¿½ la
+    funciï¿½n ("Cannot find name") â†’ corregido a comentarios `//` puros.
+  - Tasks .md marcadas APLICADA con las notas de correcciï¿½n.
+- **V ï¿½ Verify**: scoped por pieza: vitest publications 26/26, video-edit 32/32; tsc parcial
+  (tsconfig temporal, typeRoots absoluto, include:[]) â€” 0 errores en archivos propios
+  (ruido restante = reach/blueprint de #25, preexistente); eslint ruta: 0 errores.
+  FULL pendiente ï¿½rbol limpio (anotado en STATE.md fila 30).
+- **R ï¿½ Reiniciar**: pendientes cloud de loop-25 = CERO. Commits: `bd71299` (publications),
+  `d548e2f` (video-edit), `e30bd89` (ruta). Sin push (aprobaciï¿½n humana). Siguiente:
+  F3 branding kit editable (backlog AutoPub, no choca con #25).
+
+### Iteraciï¿½n 28 ï¿½ ScreenFlow: hot watch + puente cola Publication (17/08/2026) ï¿½ DONE `7e77819` ?
+
+- **P ï¿½ Plan**: pendientes restantes de AGENTS.md (capability screenflow): watch de carpeta
+  `hot/` y conexiï¿½n con cola Publication para mï¿½tricas. Canal `'local'` NO existe en
+  PresentChannel ? puente seguro: screenflow construye PublicationPackage vï¿½lido (canal blog,
+  auto-aprobado) vï¿½a la tool `present` (import read-only; publications.ts/present.ts NO se
+  tocan ï¿½ sesiï¿½n concurrente trabaja Publications). Plan file
   `.opencode/plans/loop-29-screenflow-hot-publication.md`.
-- **I — Implement**: `screenflow.ts` — `HOT_DIR = '.ultraia/hot'`, `resolveHotWatch(current,
+- **I ï¿½ Implement**: `screenflow.ts` ï¿½ `HOT_DIR = '.ultraia/hot'`, `resolveHotWatch(current,
   known)` (diferencia idempotente de *.json ordenados, devuelve nuevos + conocidos para
   persistir estado), `buildPublicationPackage(runId, script, manifest)` (tema=nombre del
-  script, contenido=descripción, media=final.mp4, canal blog). Exports en namespace.
+  script, contenido=descripciï¿½n, media=final.mp4, canal blog). Exports en namespace.
   `screenflow.test.ts` +8 tests (39/39).
-- **V — Verify**: gates FULL ? typecheck ? lint ? test (core 500/500 + runtime 193/193 =
-  693/693) ? build ?. Aislamiento simétrico 9 archivos concurrentes ? restaurados 9/9 hash-OK.
-- **R — Reiniciar**: capability screenflow COMPLETA (capture/actions/edit/publish/continuity +
+- **V ï¿½ Verify**: gates FULL ? typecheck ? lint ? test (core 500/500 + runtime 193/193 =
+  693/693) ? build ?. Aislamiento simï¿½trico 9 archivos concurrentes ? restaurados 9/9 hash-OK.
+- **R ï¿½ Reiniciar**: capability screenflow COMPLETA (capture/actions/edit/publish/continuity +
   exec allowlist + hot watch + puente metrics). Cola restante: #6 Gen-Engine (GPU/humano),
-  #17 AutoPub canales (app review/humano), #25 media-automation (sesión concurrente),
-  game-dev (sesión concurrente). PUSH autorizado por el usuario (17/08/2026).
-- Commit: `7e77819` feat(screenflow) — 3 archivos, 187 insertions.
+  #17 AutoPub canales (app review/humano), #25 media-automation (sesiï¿½n concurrente),
+  game-dev (sesiï¿½n concurrente). PUSH autorizado por el usuario (17/08/2026).
+- Commit: `7e77819` feat(screenflow) ï¿½ 3 archivos, 187 insertions.
