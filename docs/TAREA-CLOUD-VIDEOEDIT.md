@@ -1,7 +1,11 @@
 # TAREA DIFERIDA — Conectar `video_edit` con UltraIA Cloud (guardar EDL/renders → `exports/`)
 
-> **Estado**: PENDIENTE DE APLICAR (creada 17/08/2026, sesión ultraia-dev, ciclo "no invadir #25")
-> **Riesgo de conflicto**: MEDIO — añade una función a `packages/core/src/tools/video-edit.ts`
+> **Estado**: ✅ **APLICADA** (17/08/2026) — con autorización explícita del usuario. Verificada
+> con gates SCOPED: vitest 32/32 PASS + typecheck parcial 0 errores (grafo zod+cloud, sin tocar
+> archivos de #25). Gates FULL pendientes hasta árbol limpio.
+> **NOTA al aplicar**: `CloudService` no expone `read` (vive en el adapter) — los tests usan
+> `cloud.adapter.read(...)` para releer el EDL.
+> **Riesgo de conflicto**: MEDIO — añade una función a `packages/core/src/tools/video-edit.ts`.
 > (territorio de la iteración 23; ninguna sesión concurrente lo toca HOY, pero es archivo compartido).
 > **Regla**: NO aplicar hasta que `git status` esté limpio de sesiones concurrentes y los gates
 > FULL corran verdes. Es el ÚLTIMO pendiente cloud de loop-25 (junto a TAREA-CLOUD-PUBLICATIONS.md).

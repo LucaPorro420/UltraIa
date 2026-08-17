@@ -8,12 +8,15 @@ import {
   timelineViewSvg,
   silenceSafety,
   paddingOk,
+  guardarEdicionEnCloud,
   HARD_RULES,
   GRADE_FILTERS,
   MAX_SELF_EVAL_ATTEMPTS,
   FADE_MS,
   type Edl,
+  type SelfEvalReport,
 } from './video-edit';
+import { CloudService, InMemoryCloudAdapter } from './cloud';
 
 const segments = [
   { start: 0, end: 2.5, speaker: 'S0', text: 'Hola, esto es una prueba.' },
@@ -265,5 +268,60 @@ describe('video-edit · api pública', () => {
     expect(typeof videoEdit.selfEvalEdl).toBe('function');
     expect(typeof videoEdit.timelineViewSvg).toBe('function');
     expect(GRADE_FILTERS['neutral-punch']).toContain('contrast');
+  });
+});
+
+describe('video-edit · archivo en UltraIA Cloud (guardarEdicionEnCloud)', () => {
+  const edlMinimo: Edl = {
+    title: 'entrevista',
+    cuts: [{ source: 'take1.mp4', in: 0, out: 2.5, reason: 'intro' }],
+    grade: 'neutral-punch',
+  };
+  const selfEvalMinimo: SelfEvalReport = { ok: true, issues: [], score: 90, attemptsRemaining: 2 };
+
+  it('guarda EDL + self-eval + timeline con InMemoryCloudAdapter', async () => {
+    const cloud = new CloudService({ adapter: new InMemoryCloudAdapter() });
+    const res = await guardarEdicionEnCloud(cloud, {
+      edl: edlMinimo,
+      nombreBase: 'entrevista-2026',
+      selfEval: selfEvalMinimo,
+      timelineSvg: '<svg xmlns="http://www.w3.org/2000/svg"></svg>',
+    });
+    expect(res.ok).toBe(true);
+    expect(res.errors).toHaveLength(0);
+    expect(res.saved).toContain('exports/edl/entrevista-2026.json');
+    expect(res.saved).toContain('exports/edl/entrevista-2026.selfeval.json');
+    expect(res.saved).toContain('exports/edl/entrevista-2026.timeline.svg');
+    // el EDL se puede releer del cloud con el mismo contenido (read vive en el adapter)
+    const back = await cloud.adapter.read('exports/edl/entrevista-2026.json');
+    expect(JSON.parse(new TextDecoder().decode(back!)).title).toBe('entrevista');
+  });
+
+  it('con adapter caído es fail-soft: errors poblado, ok false, sin excepción', async () => {
+    const roto = {
+      write: async () => {
+        throw new Error('disco lleno');
+      },
+      list: async () => [],
+      read: async () => null,
+      remove: async () => false,
+      stat: async () => null,
+    };
+    const cloud = new CloudService({ adapter: roto as never });
+    const res = await guardarEdicionEnCloud(cloud, { edl: edlMinimo, nombreBase: 'x' });
+    expect(res.ok).toBe(false);
+    expect(res.saved).toHaveLength(0);
+    expect(res.errors.join(' ')).toContain('disco lleno');
+  });
+
+  it('renderMp4 se clasifica en media/videos', async () => {
+    const cloud = new CloudService({ adapter: new InMemoryCloudAdapter() });
+    const res = await guardarEdicionEnCloud(cloud, {
+      edl: edlMinimo,
+      nombreBase: 'final',
+      renderMp4: new Uint8Array([0, 0, 0, 24]),
+    });
+    expect(res.saved).toContain('media/videos/final.mp4');
+    expect(res.saved).toContain('exports/edl/final.json');
   });
 });

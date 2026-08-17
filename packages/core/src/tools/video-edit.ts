@@ -30,6 +30,9 @@
  * never inside unit tests.
  */
 import { z } from 'zod';
+import type { CloudService } from './cloud'; // QUÉ ES: solo el TIPO (sin acoplar runtime).
+// PARA QUÉ: la firma de guardarEdicionEnCloud recibe el cloud inyectado (patrón db/cloud inyectable).
+// POR QUÉ: video-edit.ts sigue siendo puro/determinista — el cloud solo se usa si el caller lo pasa.
 
 /* ------------------------------------------------------------------ */
 /* Constants (production rules)                                        */
@@ -452,6 +455,76 @@ function xmlEscape(s: string): string {
 }
 
 /* ------------------------------------------------------------------ */
+/* Archivo en nube (UltraIA Cloud) — guardar EDL/renders en exports/.   */
+/* ------------------------------------------------------------------ */
+
+export interface CloudEditSaveInput {
+  edl: Edl; // QUÉ ES: el cut list validado (buildEdl/selfEvalEdl). PARA QUÉ: es el artefacto principal a archivar.
+  nombreBase: string; // QUÉ ES: slug base del archivo (p.ej. 'entrevista-2026-08-17'). PARA QUÉ: nombres estables y legibles.
+  selfEval?: SelfEvalReport | null; // QUÉ ES: reporte del self-eval (opcional). PARA QUÉ: auditar la calidad de los cortes.
+  timelineSvg?: string | null; // QUÉ ES: SVG compuesto de la edición (opcional). PARA QUÉ: vista previa sin abrir la app.
+  renderMp4?: Uint8Array | null; // QUÉ ES: bytes del render final (opcional, lo produce el runner). PARA QUÉ: respaldo del entregable en media/videos.
+}
+
+export interface CloudEditSaveResult {
+  saved: string[]; // QUÉ ES: paths canónicos guardados (p.ej. exports/edl/x.json).
+  errors: string[]; // QUÉ ES: errores acumulados (fail-soft, no lanza).
+  ok: boolean; // QUÉ ES: true si el EDL se guardó (artefacto mínimo) — el resto es best-effort.
+}
+
+/** Archiva los artefactos de una edición en el cloud. Fail-soft: nunca lanza. */
+export async function guardarEdicionEnCloud(
+  cloud: CloudService, // QUÉ ES: instancia ya resuelta (Local o R2), inyectada por el caller.
+  input: CloudEditSaveInput, // QUÉ ES: artefactos a guardar.
+): Promise<CloudEditSaveResult> {
+  const saved: string[] = [];
+  const errors: string[] = [];
+  const dir = 'exports/edl'; // QUÉ ES: subcarpeta dentro de la carpeta canónica `exports`.
+  // PARA QUÉ: agrupar todas las ediciones en un solo lugar del layout.
+  // POR QUÉ: CLOUD_LAYOUT ya define `exports`; `edl` es una subcategoría natural (igual que media/videos).
+  const enc = new TextEncoder(); // QUÉ ES: codificador UTF-8. PARA QUÉ: CloudService.upload exige Uint8Array.
+  try {
+    // QUÉ ES: el EDL es el artefacto OBLIGATORIO — si falla, ok=false (fail-soft igual).
+    const edlBytes = enc.encode(JSON.stringify(input.edl, null, 2));
+    const edlFile = await cloud.upload(`${input.nombreBase}.json`, edlBytes, dir);
+    saved.push(edlFile.path);
+  } catch (err) {
+    errors.push(`EDL: ${err instanceof Error ? err.message : String(err)}`);
+  }
+  // QUÉ ES: self-eval opcional — un fallo aquí NO invalida la edición.
+  if (input.selfEval) {
+    try {
+      const seBytes = enc.encode(JSON.stringify(input.selfEval, null, 2));
+      const seFile = await cloud.upload(`${input.nombreBase}.selfeval.json`, seBytes, dir);
+      saved.push(seFile.path);
+    } catch (err) {
+      errors.push(`self-eval: ${err instanceof Error ? err.message : String(err)}`);
+    }
+  }
+  // QUÉ ES: timeline SVG opcional (texto plano → bytes UTF-8).
+  if (input.timelineSvg) {
+    try {
+      const svgBytes = enc.encode(input.timelineSvg);
+      const svgFile = await cloud.upload(`${input.nombreBase}.timeline.svg`, svgBytes, dir);
+      saved.push(svgFile.path);
+    } catch (err) {
+      errors.push(`timeline: ${err instanceof Error ? err.message : String(err)}`);
+    }
+  }
+  // QUÉ ES: render MP4 opcional → media/videos (clasificación automática del tipo video).
+  if (input.renderMp4) {
+    try {
+      const mp4File = await cloud.upload(`${input.nombreBase}.mp4`, input.renderMp4, 'media/videos');
+      saved.push(mp4File.path);
+    } catch (err) {
+      errors.push(`render: ${err instanceof Error ? err.message : String(err)}`);
+    }
+  }
+  // QUÉ ES: ok = el EDL (artefacto mínimo) se guardó; los opcionales son best-effort.
+  return { saved, errors, ok: saved.length > 0 && !saved.every((p) => p.includes('.mp4')) };
+}
+
+/* ------------------------------------------------------------------ */
 /* Public API                                                          */
 /* ------------------------------------------------------------------ */
 
@@ -466,4 +539,5 @@ export const videoEdit = {
   HARD_RULES,
   GRADE_FILTERS,
   MAX_SELF_EVAL_ATTEMPTS,
+  guardarEdicionEnCloud,
 };
