@@ -480,9 +480,21 @@ export function chatStream(opts: {
         canales: z.array(z.enum(['youtube_shorts', 'tiktok', 'instagram', 'blog'])).max(4).optional(),
         briefId: z.string().max(100).optional(),
         marca: z.string().max(100).optional(),
+        branding: z
+          .object({
+            // QUÉ ES: sobrescritura parcial del branding kit (F3 editable).
+            // PARA QUÉ: el agente personaliza paleta/fuente/logo/acento del paquete.
+            // POR QUÉ: aditivo y opcional — `present` hace merge sobre el kit base.
+            marca: z.string().max(100).optional(),
+            paleta: z.array(z.string().max(20)).max(10).optional(),
+            fuente: z.string().max(50).optional(),
+            logo: z.string().max(500).nullable().optional(),
+            acento: z.string().max(20).optional(),
+          })
+          .optional(),
       }),
-      execute: async ({ tema, contenido, media, canales, briefId, marca }) =>
-        present({ tema, contenido, media, canales, briefId, marca }),
+      execute: async ({ tema, contenido, media, canales, briefId, marca, branding }) =>
+        present({ tema, contenido, media, canales, briefId, marca, branding }),
     });
   }
   if (opts.tools?.includes('publish')) {

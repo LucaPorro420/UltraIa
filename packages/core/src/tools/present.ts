@@ -25,6 +25,12 @@ export interface BrandingKit {
   acento: string;
 }
 
+/** QUÉ ES: sobrescritura parcial del kit de marca (merge sobre el kit base).
+// PARA QUÉ: F3 — branding kit editable: el caller personaliza solo lo que quiera
+// (p.ej. solo `acento`) y el resto queda del kit por nombre o del default Dark Obsidian.
+// POR QUÉ: aditivo — `brandingFor(marca)` sin override mantiene el comportamiento actual. */
+export type BrandingKitInput = Partial<BrandingKit>;
+
 export interface VisualSpec {
   dimensiones: string;
   formato: TopicFormat;
@@ -66,6 +72,8 @@ export interface PresentInput {
   briefId?: string | null;
   /** Marca (default: kit Dark Obsidian). */
   marca?: string;
+  /** QUÉ ES: sobrescritura parcial del branding kit (F3 editable). */
+  branding?: BrandingKitInput;
 }
 
 /** Mapa canal → formato visual (compartido con F1 topics). */
@@ -104,10 +112,13 @@ export const BRANDING_KITS: Record<string, BrandingKit> = {
 
 const DEFAULT_KIT = BRANDING_KITS.ultrala;
 
-/** Kit de branding para una marca (default: Dark Obsidian). */
-export function brandingFor(marca?: string): BrandingKit {
-  if (marca && BRANDING_KITS[marca]) return BRANDING_KITS[marca];
-  return { ...DEFAULT_KIT, marca: marca || DEFAULT_KIT.marca };
+/** Kit de branding para una marca (default: Dark Obsidian) con sobrescritura opcional (F3). */
+export function brandingFor(marca?: string, override?: BrandingKitInput): BrandingKit {
+  const base = marca && BRANDING_KITS[marca] ? BRANDING_KITS[marca] : { ...DEFAULT_KIT, marca: marca || DEFAULT_KIT.marca };
+  // QUÉ ES: merge superficial del override sobre el kit base (solo campos presentes).
+  // PARA QUÉ: personalizar paleta/fuente/logo/acento sin reconstruir el kit completo.
+  // POR QUÉ: el spread respeta los undefined (no sobrescriben) y mantiene el kit intacto.
+  return override ? { ...base, ...override } : base;
 }
 
 /** Normaliza un tema a etiqueta URL/overlay: minúsculas, sin puntuación, guiones. */
@@ -221,7 +232,7 @@ export function visualFor(tema: string, canal: PresentChannel): VisualSpec {
 /** Orquesta el paquete completo de publicación para los canales pedidos. */
 export function present(input: PresentInput): PublicationPackage {
   const canales: PresentChannel[] = input.canales?.length ? input.canales : ['youtube_shorts', 'tiktok', 'instagram', 'blog'];
-  const branding = brandingFor(input.marca);
+  const branding = brandingFor(input.marca, input.branding);
   const captionsByChannel = {} as Record<PresentChannel, ChannelCaption>;
   const visualByChannel = {} as Record<PresentChannel, VisualSpec>;
   const horarioSugerido = {} as Record<PresentChannel, string>;
@@ -253,4 +264,4 @@ export function present(input: PresentInput): PublicationPackage {
   };
 }
 
-export const presentTools = { present, captionFor, hashtagsFor, srtFor, visualFor, brandingFor, slugify };
+export const presentTools = { present, captionFor, hashtagsFor, srtFor, visualFor, brandingFor, slugify, BRANDING_KITS };

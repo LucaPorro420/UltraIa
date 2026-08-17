@@ -30,6 +30,33 @@ describe('brandingFor', () => {
     expect(brandingFor('neo_violet').marca).toBe('Neo Violet');
     expect(brandingFor('marca-desconocida').marca).toBe('marca-desconocida');
   });
+
+  it('merge parcial: override de acento sobre el kit default (F3 editable)', () => {
+    const kit = brandingFor(undefined, { acento: '#ff5500' });
+    expect(kit.acento).toBe('#ff5500');
+    expect(kit.marca).toBe('UltraIa'); // resto del default intacto
+    expect(kit.paleta).toContain('#08080a');
+  });
+
+  it('merge parcial: override de paleta completa + fuente sobre kit por nombre', () => {
+    const kit = brandingFor('neo_violet', { paleta: ['#000', '#fff'], fuente: 'JetBrains Mono' });
+    expect(kit.marca).toBe('Neo Violet'); // del kit por nombre
+    expect(kit.paleta).toEqual(['#000', '#fff']);
+    expect(kit.fuente).toBe('JetBrains Mono');
+    expect(kit.acento).toBe('#7c5cff'); // sin override → kit por nombre
+  });
+
+  it('merge parcial: marca custom (sin kit) + override logo', () => {
+    const kit = brandingFor('MiMarca', { logo: 'https://x.com/logo.png' });
+    expect(kit.marca).toBe('MiMarca');
+    expect(kit.logo).toBe('https://x.com/logo.png');
+    expect(kit.acento).toBe('#8b5cf6'); // default Dark Obsidian
+  });
+
+  it('override con todos los campos reconstruye el kit completo', () => {
+    const kit = brandingFor('x', { marca: 'Full', paleta: ['#a'], fuente: 'F', logo: null, acento: '#b' });
+    expect(kit).toEqual({ marca: 'Full', paleta: ['#a'], fuente: 'F', logo: null, acento: '#b' });
+  });
 });
 
 describe('hashtagsFor', () => {
@@ -124,6 +151,17 @@ describe('present', () => {
     expect(pkg.canales).toEqual(['tiktok']);
     expect(pkg.briefId).toBe('brief-123');
     expect(pkg.branding.marca).toBe('Neo Violet');
+  });
+
+  it('aplica el branding editable al paquete (F3)', () => {
+    const pkg = present({
+      tema: 'Tema X',
+      contenido: 'Body',
+      branding: { acento: '#00ff88', paleta: ['#000'] },
+    });
+    expect(pkg.branding.acento).toBe('#00ff88');
+    expect(pkg.branding.paleta).toEqual(['#000']);
+    expect(pkg.branding.marca).toBe('UltraIa'); // default del kit base
   });
 
   it('formats match the F1 topic vocabulary', () => {
