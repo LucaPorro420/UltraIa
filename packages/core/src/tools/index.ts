@@ -19,6 +19,7 @@ export * from './metrics';
 export * from './memory-fs';
 export * from './diagram';
 export * from './video-edit';
+export * from './cloud';
 
 import * as web from './web';
 import * as image from './image';
@@ -39,8 +40,9 @@ import { createMemoryFs } from './memory-fs';
 import { diagram } from './diagram';
 import { videoEdit } from './video-edit';
 import { screenflow } from './screenflow';
+import { cloudTools } from './cloud';
 
-export const tools = { web, image, video, music, stitch, reach, skills: { runSkill }, content, g0dm0d3, topics, present: presentTools, publish, enrutador, mediaScore, metrics, memoryFs: { createMemoryFs }, diagram, videoEdit, screenflow };
+export const tools = { web, image, video, music, stitch, reach, skills: { runSkill }, content, g0dm0d3, topics, present: presentTools, publish, enrutador, mediaScore, metrics, memoryFs: { createMemoryFs }, diagram, videoEdit, screenflow, cloud: cloudTools };
 
 export const TOOL_DESCRIPTIONS: Record<string, string> = {
   calculator: 'Safely evaluate a mathematical expression (math only).',
@@ -76,6 +78,8 @@ export const TOOL_DESCRIPTIONS: Record<string, string> = {
     'Video editing pipeline (video-use pattern): pack phrase-level transcripts into the compact takes_packed view the model reads, build and validate an EDL (cut safety: 30-200ms padding, silences >=150ms, no overlaps), generate the ffmpeg render command (per-segment extract with 30ms audio fades + color grade + lossless concat), self-evaluate the cut list deterministically (max 3 fix cycles), and render an on-demand timeline composite SVG (filmstrip + waveform + word labels). Keyless-first. Use to plan and produce video edits from transcripts and motion specs.',
   screenflow:
     'ScreenFlow pipeline (screen-recording automation): validate a declarative ActionScript (click/type/key/scroll/open_url/exec/screenshot/wait_selector/end), plan capture runs, generate the ffmpeg gdigrab capture argv (segmented, CRF 18, silent track fallback), build the local publishing package (.ultraia/recordings/<run-id>/: final.mp4 + master + webm + poster + manifest + report), schedule runs (schtasks/cron), and resolve continuation state (resume idempotente, retry max 3, fail-soft). Deterministic, keyless. Use to automate screen recording + actions + edit + local publish pipelines.',
+  cloud:
+    'UltraIA Cloud storage (free 2026 stack): list/upload/read/remove/stat files in the project cloud — local .ultraia/cloud by default, or Cloudflare R2 via Worker when CLOUDFLARE_R2_WORKER_URL + CLOUDFLARE_R2_TOKEN are set. Uploads validated (safe canonical paths, 41 allowed extensions, 100 MiB cap). Use to persist media, drafts, briefs, exports and backups across sessions.',
 };
 
 export type Capability =
@@ -98,4 +102,5 @@ export type Capability =
   | 'memory'
   | 'diagram'
   | 'video_edit'
-  | 'screenflow';
+  | 'screenflow'
+  | 'cloud';

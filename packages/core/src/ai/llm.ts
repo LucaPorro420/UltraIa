@@ -47,6 +47,8 @@ import {
   MAX_RUN_DURATION_MIN,
   type RunState,
 } from '../tools/screenflow';
+import { cloudFilesTool, createCloudFilesHandler, LocalCloudAdapter, R2CloudAdapter, type CloudStorageAdapter } from '../tools/cloud';
+import { join } from 'node:path';
 
 const modelCache = new Map<string, LanguageModel>();
 
@@ -161,6 +163,22 @@ export class OpenAICompatibleGateway implements AiGateway {
 export function guardrailsBlock(guardrails: string[]): string {
   if (!guardrails.length) return '';
   return `\n\n## Guardrails\n${guardrails.map((g, i) => `${i + 1}. ${g}`).join('\n')}`;
+}
+
+/** Resuelve el adapter cloud en runtime: R2 (Worker) si está configurado, si no local. */
+function resolveCloudAdapter(): CloudStorageAdapter {
+  const workerUrl = process.env.CLOUDFLARE_R2_WORKER_URL;
+  const token = process.env.CLOUDFLARE_R2_TOKEN;
+  if (workerUrl && token) {
+    return new R2CloudAdapter({
+      baseUrl: workerUrl,
+      token,
+      publicUrl: process.env.CLOUDFLARE_R2_PUBLIC_URL,
+    });
+  }
+  return new LocalCloudAdapter(
+    process.env.ULTRAIA_CLOUD_DIR ?? join(process.cwd(), '..', '..', '.ultraia', 'cloud'),
+  );
 }
 
 export function chatStream(opts: {
@@ -846,6 +864,14 @@ export function chatStream(opts: {
         const r = resolveState(previous, new Date().toISOString());
         return { ...r, maxRetries: MAX_RETRIES, maxRunDurationMin: MAX_RUN_DURATION_MIN };
       },
+    });
+  }
+
+  if (opts.tools?.includes('cloud')) {
+    tools.cloud_files = tool({
+      description: cloudFilesTool.description,
+      parameters: cloudFilesTool.inputSchema,
+      execute: createCloudFilesHandler(resolveCloudAdapter()),
     });
   }
 
