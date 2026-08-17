@@ -1352,6 +1352,26 @@ ormalizeTitle() (lower + strip non-alnum), dedupe() (bigram overlap > 0.6),
   `d548e2f` (video-edit), `e30bd89` (ruta). Sin push (aprobaci�n humana). Siguiente:
   F3 branding kit editable (backlog AutoPub, no choca con #25).
 
+### Iteraci�n 31 � AutoPub F3: branding kit editable (17/08/2026) � DONE `a5633d3` ?
+
+- **P � Plan**: plan file loop-31 (F3 pendiente del plan AUTO-PUBLICACI�N). `brandingFor(marca)`
+  solo aceptaba el NOMBRE del kit (ultrala/neo_violet); paleta/fuente/logo/acento fijos.
+  Objetivo: merge parcial (BrandingKitInput) sobre el kit base, aditivo y retrocompatible.
+- **I � Implement**:
+  - `tools/present.ts`: tipo `BrandingKitInput = Partial<BrandingKit>` + `brandingFor(marca?,
+    override?)` con `{ ...base, ...override }` + `PresentInput.branding?` + `present()` lo pasa +
+    `BRANDING_KITS` exportado en presentTools.
+  - `ai/llm.ts` tool `present_package`: schema gana `branding` (zod partial con l�mites,
+    opcional) y execute lo reenv�a — aditivo, no rompe llamadas existentes.
+  - `tools/present.test.ts`: +6 tests (merge acento sobre default, paleta+fuente sobre kit por
+    nombre, marca custom + logo, override completo, y branding aplicado al paquete en present).
+- **V � Verify**: vitest present 18/18 PASS (13+5); tsc parcial (tsconfig temporal): 0 errores en
+  present/llm (ruido = reach/blueprint de #25 preexistente); eslint 3 archivos: 0 issues.
+  FULL pendiente �rbol limpio (fila 31 STATE.md).
+- **R � Reiniciar**: F3 CERRADO. Siguiente: F4 paso 4 — adapter X API v2 (canal 4 del orden
+  recomendado; X Free = 17 posts/24h POR APP sin app review, verificado en CLOUD-FREE-2026).
+  Sin push (aprobaci�n humana).
+
 ### Iteraci�n 28 � ScreenFlow: hot watch + puente cola Publication (17/08/2026) � DONE `7e77819` ?
 
 - **P � Plan**: pendientes restantes de AGENTS.md (capability screenflow): watch de carpeta
