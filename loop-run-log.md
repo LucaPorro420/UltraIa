@@ -1211,3 +1211,25 @@ ormalizeTitle() (lower + strip non-alnum), dedupe() (bigram overlap > 0.6),
 - **V â€” Verify**: typecheck âœ… lint âœ… test âœ… **655/655** (core 462 incl. 27 cloud + runtime 193) âœ… build âœ… (39 pÃ¡ginas, `/cloud` 5.62 kB en manifest). Incidentes: sesiÃ³n concurrente #25 borrÃ³ los archivos cloud **5+ veces** durante el ciclo (watcher de restauraciÃ³n en %TEMP% + gates en cadena sin pausas + commit apenas verdes) y `.next/types` corrupto â†’ TS6053 (fix: borrar `.next`). Build fallÃ³ 1Ã—: cloud-client importaba cloud.ts (node:*) â†’ `humanSize` duplicado local. Aislamiento simÃ©trico aplicado y restaurado (llm.ts/index.ts/recorder/automation intactos).
 - **R â€” Reiniciar**: HIGH PRIORITY siguiente: wiring capability `cloud` en llm.ts/index.ts (cuando #25 commitee); pendientes menores: conectar /cloud con cola Publication y video_edit; Part 8 guÃ­a CLI en CLOUD-FREE-2026.md.
 - Commit: `046dfcf` feat(cloud) â€” 17 archivos, 1866 insertions.
+### Iteración 26 — Wiring capability cloud (17/08/2026) — DONE `7315d4d` ?
+
+- **P — Plan**: HIGH PRIORITY de STATE.md (wiring diferido de la iteración 25): registrar la
+  capability `cloud` ? tool `cloud_files` en `ai/llm.ts` + export `cloud` en `tools/index.ts`.
+  Blocker original (llm.ts/index.ts sucios por sesión concurrente #25) desapareció — ambos limpios.
+  Plan file `.opencode/plans/loop-27-cloud-wiring.md`.
+- **I — Implement**: `tools/index.ts` (export * from './cloud' + `cloud: cloudTools` en tools +
+  descripción TOOL_DESCRIPTIONS.cloud + 'cloud' en union Capability) + `ai/llm.ts` (imports cloud
+  + `resolveCloudAdapter()`: R2CloudAdapter si CLOUDFLARE_R2_WORKER_URL+TOKEN, si no
+  LocalCloudAdapter `.ultraia/cloud`; registro `tools.cloud_files = tool({...})` con
+  createCloudFilesHandler — patrón screenflow).
+- **V — Verify**: gates FULL ? typecheck ? lint ? test (core 483/483 + runtime 193/193 = 676/676,
+  cloud 27/27) ? build ? (39 páginas). Maniobra de gates: 5 archivos de la sesión game-dev
+  (blueprint/reach/domain+tests, modificados con errores TS propios) y 4 de media-automation
+  (recorder/automation+tests, 4 tests con race conocido promise-first/testTimeout) aislados a
+  %TEMP%\opencode\loop27-bak ? restaurados byte-idénticos (hash verificado 9/9 OK).
+- **R — Reiniciar**: cloud wiring COMPLETO. Pendientes menores de cloud: conectar /cloud con la
+  cola Publication y video_edit; Part 8 guía CLI en CLOUD-FREE-2026.md. Cola principal sigue
+  bloqueada por sesiones concurrentes (#25 media-automation sin commit; game-dev con diffs sin
+  commitear). LECCIÓN: los errores TS del working tree concurrente no son del ciclo propio —
+  aislar + restaurar por hash, nunca corregir archivos ajenos.
+- Commit: `7315d4d` feat(core) — 3 archivos, 87 insertions.

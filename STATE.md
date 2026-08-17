@@ -1,6 +1,6 @@
 # Loop State — UltraIa
 
-Last run: 17/08/2026 - Iteracion 24 (screenflow 22/22, plan maestro completo: diagram 293bf38 + video_edit 35ae28a + screenflow 6eca58e; repo 628/628 GREEN); anterior: — Iteración 19 (PrototypeREADME + PDF, 555/555 GREEN); 20 (Fable-5 memory); 21 (prototipo empaquetado); 22 (diagram); 23 (video_edit)
+Last run: 17/08/2026 - Iteracion 26 (wiring capability cloud 7315d4d, HIGH PRIORITY de cola; repo 676/676 GREEN con aislamiento de sesiones concurrentes); anterior: Iteracion 24 (screenflow 22/22, plan maestro completo: diagram 293bf38 + video_edit 35ae28a + screenflow 6eca58e; repo 628/628 GREEN); 25 (UltraIA Cloud 046dfcf, 655/655)
 Última triage: 15/08/2026 (report-only — sin edición de código)
 
 ## Backlog priorizado (orden de ejecución)
@@ -34,30 +34,29 @@ Last run: 17/08/2026 - Iteracion 24 (screenflow 22/22, plan maestro completo: di
 | 23 | **Capability video_edit** (enlaces.txt → browser-use/video-use) — takes_packed/EDL/render/self-eval/timeline + demo resultTask/edl | packages/core | FULL | DONE 17/08/2026 (35ae28a, 29 tests) |
 | 24 | **Capability screenflow** (petición usuario) — grabación→acciones→edición→publicación local→continuidad | packages/core + scripts | FULL | DONE 17/08/2026 (6eca58e, 22 tests; runner --dry-run OK) |
 | 25 | **F2 media-automation** (enlaces.txt líneas 7-665: OBS WebSocket + ciclo PLAN→VALIDATE→AUTOMATE→RECORD→ANALYZE→EDIT→AUDIO→RENDER→VERIFY→ARCHIVE; 9 repos) + web-automation.py + PLAN-COMPLETO.md | packages/core + scripts | FULL | EN CURSO — sesión concurrente (untracked: recorder.ts/automation.ts + tests + docs/RAZONAMIENTO-MEDIA-AUTOMATION.md). NO duplicar |
-| 27 | **UltraIA Cloud + nube gratis 2026** (petición usuario 17/08: cloud + dominio gratis + app review + coste; "haz todas") — capability `cloud` (packages/core/src/tools/cloud.ts: adapters Local/InMemory/R2, validación, layout, manifest, CloudService, tool cloud_files) + API /api/cloud/{status,files,upload} + página /cloud + cloudflare/ worker R2 + docs/CLOUD-FREE-2026.md (datos verificados) + .env.cloud.example | packages/core + apps/web + cloudflare + docs | FULL | DONE 17/08/2026 (046dfcf; 27 cloud tests; FULL 655/655; build 39 páginas con /cloud). WIRING DIFERIDO: capability `cloud` en llm.ts/index.ts pendiente de que #25 commitee (High Priority) |
+| 27 | **UltraIA Cloud + nube gratis 2026** (petición usuario 17/08: cloud + dominio gratis + app review + coste; "haz todas") — capability `cloud` (packages/core/src/tools/cloud.ts: adapters Local/InMemory/R2, validación, layout, manifest, CloudService, tool cloud_files) + API /api/cloud/{status,files,upload} + página /cloud + cloudflare/ worker R2 + docs/CLOUD-FREE-2026.md (datos verificados) + .env.cloud.example | packages/core + apps/web + cloudflare + docs | FULL | ✅ DONE 17/08/2026 (046dfcf; 27 cloud tests; FULL 655/655; build 39 páginas con /cloud). **WIRING COMPLETO 17/08/2026 (7315d4d)**: capability `cloud` registrada en llm.ts (`cloud_files`, adapter local/R2 por env) + export en tools/index.ts; iteración 26 |
 
 > AutoPub = plan maestro `docs/AUTO-PUBLICACION.md` (aprobado 15/08/2026). Orden de
 > ejecución recomendado: 7 → 8 → 9 → 10 → luego 11, 12, 13.
 
 ## High Priority
 
-- **BUG ABIERTO (17/08/2026, escaneo #26)**: launcher `--web-dir` -> waitWeb agota 45s
-  con el child "Ready" y vivo; requests del MISMO proceso que spawnea el child se
-  cuelgan mientras requests externos responden 200 en ~104ms (verificado). Iteracion
-  21 DONE (5415628) pero el launcher NO verifica el arranque del zip -> prototipo sin
-  garantia. Fix planificado en `.opencode/plans/loop-26-scan-mejoras.md` (B0.1):
-  experimento decisivo (poll in-process vs curl externo en paralelo) + fix + smoke.
-- **Working tree con ruido de sesion concurrente (17/08/2026)**: `recorder.ts`/`automation.ts` (loop is acting or waiting on human)
-
 - **Working tree con ruido de sesión concurrente (17/08/2026)**: `recorder.ts`/`automation.ts`
-  + tests (untracked, con errores TS propios — bloquean typecheck FULL si se corren juntos) y
-  `docs/RAZONAMIENTO-MEDIA-AUTOMATION.md` + `learning/sources/media-automation.md` — trabajo de
+  + tests (untracked, con errores TS propios y 4 tests con race promise-first/testTimeout —
+  bloquean typecheck/test FULL si se corren juntos) y
+  `docs/RAZONAMIENTO-MEDIA-AUTOMATION.md` + `learning/sources/media-automation.md` + `docs/AUTOMATION-WEB.md` — trabajo de
   F2 media-automation en curso por otra sesión. Regla: NO tocarlo, NO commitearlo, aislar a
   `%TEMP%\opencode\*.bak` temporalmente solo para correr gates y restaurar intacto.
+  Sesión game-dev adicional: `blueprint.ts`/`reach.ts`/`shared/domain.ts` + tests modificados
+  sin commitear (errores TS propios: Capability sin importar, provider literal en cache reach)
+  — misma regla de aislamiento simétrico (iteración 26, backup verificado por hash 9/9 OK).
 - **Gen-Engine entrenamiento E0-E5** (backlog #6): requiere GPU/decisión humana — no es ciclo
   de código npm.
 - **AutoPub canales restantes** (backlog #17): Meta IG Reels/Threads, X API v2, LinkedIn —
   requiere app review/decisiones humanas.
+- **Cloud pendientes menores (iteración 26 DONE)**: conectar /cloud con la cola Publication
+  (subir paquete listo → media/videos) y con video_edit (EDL/renders); Part 8 guía CLI en
+  CLOUD-FREE-2026.md.
 - Ningún gate humano pendiente de push/merge (sigue requiriendo aprobación humana).
 
 ## Watch List
@@ -65,8 +64,8 @@ Last run: 17/08/2026 - Iteracion 24 (screenflow 22/22, plan maestro completo: di
 - **Typecheck transitorio (1 vez)**: primer run de una triage falló "command failed" en
   packages/runtime SIN errores TS; re-run EXIT=0. Posible lock/transitorio o caché stale
   `node_modules/.vite` — vigilar si se repite antes de diagnosticar.
-- **Runtime tests 193/193** (Fase A 132 + Fase B 20 + Fase C 34 + wiring system-core 5 + spike launcher 1 + 1). Total repo: 628/628 PASS (core 435 + runtime 193).
-- `.next` stale en apps/web rompe `npm run build` ("File ... not found") → limpiar antes del build (2ª vez vista 17/08/2026).
+- **Runtime tests 193/193** (Fase A 132 + Fase B 20 + Fase C 34 + wiring system-core 5 + spike launcher 1 + 1). Total repo 17/08 iteración 26: 676/676 PASS (core 483 + runtime 193) con aislamiento de sesiones concurrentes.
+- `.next` stale en apps/web rompe `npm run build` ("File ... not found") → limpiar antes del build (3ª vez vista 17/08/2026 — se limpió antes del build de la iteración 26).
 - `npx @cobusgreyling/loop doctor` y `loop status` — validar salida del CLI contra LOOP.md (v0.1.2).
 - `.vscode/settings.json` fix Pylance (local-only, gitignored) — no commitear.
 - Verificación FULL en cada commit: typecheck → lint → test → build (526/526 esperado).
