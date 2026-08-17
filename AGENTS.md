@@ -495,8 +495,13 @@ El usuario deja URLs en `enlaces.txt` (raíz) para que se analicen y se apliquen
   (suite e2e 11/11, tempdir aislado, `py -3.12 scripts/cloud-cli.test.py`) + `docs/CLOUD-CLI-GUIDE.md`
   (la "Part 8" en archivo propio, sin tocar CLOUD-FREE-2026.md). Wiring de la capability `cloud`
   COMPLETO por sesión concurrente (`7315d4d`: llm.ts + index.ts — NO duplicar; evidencia en
-  `docs/TAREA-WIRING-CLOUD.md`). Tareas diferidas para aplicar cuando el árbol esté limpio:
-  `docs/TAREA-CLOUD-PUBLICATIONS.md` (guardarPaqueteEnCloud en createPublication, cloud
-  inyectable, fail-soft) y `docs/TAREA-CLOUD-VIDEOEDIT.md` (guardarEdicionEnCloud: EDL/self-eval/
-  timeline → exports/edl, render → media/videos). CORRECCIÓN: EXT_TYPES tiene **42** extensiones
-  (no 41 — el texto de TOOL_DESCRIPTIONS en index.ts heredó el número viejo).
+  `docs/TAREA-WIRING-CLOUD.md`). **Comando `pull` (iteración 29 `f2e2b5b`)**: descarga cloud→disco
+  (destino archivo/carpeta/cwd, dry-run, fail-soft, atómico) — e2e 16/16. **Tareas loop-25
+  APLICADAS (iteración 30, autorización usuario)**: `guardarPaqueteEnCloud` en publications.ts
+  (respaldo media+paquete JSON en cloud inyectable; targetPath por tipo vía CLOUD_DIR_BY_EXT —
+  CORRECCIÓN: CloudService.upload sin targetPath va a drafts, NO clasifica; bd71299, 26/26) +
+  `guardarEdicionEnCloud` en video-edit.ts (EDL/self-eval/timeline → exports/edl, render →
+  media/videos; d548e2f, 32/32) + wiring `POST /api/publications` con CloudService (R2 si env,
+  si no local `.ultraia/cloud`; e30bd89). LECCIÓN: JSDoc `/**` con `//` internos no cierra el
+  bloque — tsc se traga la definición; usar `//` puros. **Pendientes cloud loop-25: CERO**.
+  CORRECCIÓN: EXT_TYPES tiene **42** extensiones (no 41 — el texto de TOOL_DESCRIPTIONS en index.ts heredó el número viejo).
