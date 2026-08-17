@@ -1504,3 +1504,33 @@ ormalizeTitle() (lower + strip non-alnum), dedupe() (bigram overlap > 0.6),
   coordinacion: la sesion concurrente uso el numero 35 para adapters Meta (b28b0a9) -> este plan
   se renombro a loop-36-growth. Siguiente: wiring Meta (loop-36-meta de la otra sesion) o cola
   humana (#6 Gen-Engine GPU / canales restantes app review). Sin push (aprobacion humana).
+
+### Iteraci�n 37 - Capability Telegram adapter + lista APIs gratis (enlaces.txt -> openclaw) (17/08/2026) - DONE PENDIENTE-COMMIT
+
+- **P - Plan**: plan file loop-37-telegram-adapter.md. URLs nuevas en enlaces.txt:
+  openclaw/openclaw (809) con pedido "lista api gratuitas verificadas"; Facebook (807) = 400
+  anti-bot (solo referencia); TikTok @studioeditionoficial (811) = pendiente.
+- **I - Implement**:
+  - `tools/telegram.ts` (NUEVO): `createTelegramAdapter` implementa `PublisherAdapter`
+    (publish/validate fail-soft, fetch inyectable, env TELEGRAM_BOT_TOKEN/TELEGRAM_CHAT_ID,
+    options con precedencia via ??); sendVideo multipart construido a mano sin deps
+    (`buildMultipartBody` boundary + CRLF); `truncateCaption` 1024 chars sin cortar par
+    surrogate; `buildTelegramCaption` bilingue es/ar; cap 50MB; 429 -> retry_after en reason.
+    Platform 'telegram' (union se amplia en wiring DIFERIDO).
+  - `telegram.test.ts` (NUEVO): 21 tests con fetch mock (cero llamadas reales).
+  - `docs/APIS-GRATIS-2026.md` (NUEVO): la lista pedida - Telegram GRATIS total (verificado
+    websearch 2026: optimum-web/botract/michaelheredia), Discord/Slack gratis, WhatsApp NO
+    (marketing .025/msg US, free tier 1000 conv DEPRECADO, chatbooster jun 2026),
+    keyless ya integradas (pollinations/edge-tts/Tunetank/DDG/r.jina/Exa), opcionales
+    (Brave 2000/mes, Firecrawl 500/mes, ElevenLabs 10k/mes, Deepgram 200/mes).
+  - `learning/sources/openclaw.md` + `docs/RAZONAMIENTO-OPENCLAW.md` (NUEVOS): Gateway
+    local+token = valida Fase B del runtime; canales = AutoPub; skills = capabilities.
+- **V - Verify**: vitest telegram 21/21 + publish 45/45 (regresion) = 66/66; tsc scoped EXIT 0;
+  eslint EXIT 0 (warning pages inofensivo). FULL pendiente arbol limpio (#25 activo).
+  Fixes en el ciclo: ?? en vez de || (precedencia options), surrogate test (slice cae en idx
+  1023 con 1023 a's), HeadersInit/BodyInit no existen con lib ES2022 (tipos Record/unknown),
+  validate async (PublisherAdapter exige Promise).
+- **R - Reiniciar**: adapter listo. WIRING DIFERIDO (union PublishPlatform + createDefaultPublishers
+  + tool llm.ts/index.ts) mientras #25 edita esos archivos - documentado en High Priority
+  (precedente cloud 7315d4d). Pendiente: TikTok 811, adapters discord/slack, rotacion claves
+  modelo. Sin push (aprobacion humana).
