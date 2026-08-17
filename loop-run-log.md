@@ -1316,3 +1316,24 @@ ormalizeTitle() (lower + strip non-alnum), dedupe() (bigram overlap > 0.6),
   Siguiente: esperar commit de #25 para gates FULL y aplicar ambas tareas + commit final de
   archivos Python (los 3 ya estï¿½n commiteados). Sin push (requiere aprobaciï¿½n humana).
 - Commits: `0e9a4d6` docs ï¿½ `b550ee4` docs ï¿½ `f2e2b5b` feat(scripts) ï¿½ 6 archivos, +172/+13/+98.
+
+### Iteración 28 — ScreenFlow: hot watch + puente cola Publication (17/08/2026) — DONE `7e77819` ?
+
+- **P — Plan**: pendientes restantes de AGENTS.md (capability screenflow): watch de carpeta
+  `hot/` y conexión con cola Publication para métricas. Canal `'local'` NO existe en
+  PresentChannel ? puente seguro: screenflow construye PublicationPackage válido (canal blog,
+  auto-aprobado) vía la tool `present` (import read-only; publications.ts/present.ts NO se
+  tocan — sesión concurrente trabaja Publications). Plan file
+  `.opencode/plans/loop-29-screenflow-hot-publication.md`.
+- **I — Implement**: `screenflow.ts` — `HOT_DIR = '.ultraia/hot'`, `resolveHotWatch(current,
+  known)` (diferencia idempotente de *.json ordenados, devuelve nuevos + conocidos para
+  persistir estado), `buildPublicationPackage(runId, script, manifest)` (tema=nombre del
+  script, contenido=descripción, media=final.mp4, canal blog). Exports en namespace.
+  `screenflow.test.ts` +8 tests (39/39).
+- **V — Verify**: gates FULL ? typecheck ? lint ? test (core 500/500 + runtime 193/193 =
+  693/693) ? build ?. Aislamiento simétrico 9 archivos concurrentes ? restaurados 9/9 hash-OK.
+- **R — Reiniciar**: capability screenflow COMPLETA (capture/actions/edit/publish/continuity +
+  exec allowlist + hot watch + puente metrics). Cola restante: #6 Gen-Engine (GPU/humano),
+  #17 AutoPub canales (app review/humano), #25 media-automation (sesión concurrente),
+  game-dev (sesión concurrente). PUSH autorizado por el usuario (17/08/2026).
+- Commit: `7e77819` feat(screenflow) — 3 archivos, 187 insertions.
