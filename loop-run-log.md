@@ -1610,4 +1610,6 @@ ormalizeTitle() (lower + strip non-alnum), dedupe() (bigram overlap > 0.6),
   + enrutador 28) + tsc scoped 0 propios (solo ruido reach.ts #25) + eslint EXIT 0.
   Fix: TS2741 en topics.ts (Records exhaustivos exigian telegram) - completados.
 - **R**: canal telegram 100% integrado (briefs, paquetes, aprobacion, calendario, API).
-  Siguientes: adapters discord/slack, FULL gates (bloqueado por #25). Sin push (aprobacion humana).
+  Commit 79e3436. Siguientes: adapters discord/slack, FULL gates (bloqueado por #25).
+  Sin push (aprobacion humana). NOTA: hook doc-reminder anoto 5 archivos en DOCS_TODO.md
+  (archivo de la sesion concurrente, no tocado).
