@@ -1,1 +1,665 @@
 https://github.com/asgeirtj/system_prompts_leaks/blob/main/Anthropic/claude-fable-5.md
+
+https://github.com/cathrynlavery/diagram-design
+
+https://github.com/browser-use/video-use ##Verifica el enlace y adaptalo al proyecto replicando funcionamiento e funcionalidades, etc. ## PROCESADO 17/08/2026 -> capability `video_edit` (commit 35ae28a): port de principios, 12 hard rules, 5 tools de agente, 29 tests, demo resultTask/edl. Analisis en docs/RAZONAMIENTO-VIDEO-USE.md. Fuente cruda en learning/sources/video-use.md + video-use-SKILL.md. Referencia en vendor/video-use/.
+
+Sí. Y en realidad **hay varios proyectos open source bastante más cercanos a lo que describes que una simple combinación OBS + FFmpeg**. Busqué específicamente repositorios que ya implementen partes importantes del ciclo:
+
+**automatizar acciones → grabar → analizar → editar → audio → renderizar → guardar localmente**, e incluso algunos que incorporan IA/agentes.
+
+## 🔥 Los repositorios que más te interesan
+
+| Proyecto              | Grabación   | Automatización | Edición       | Audio/IA         | Local | Mi valoración |
+| --------------------- | ----------- | -------------- | ------------- | ---------------- | ----- | ------------- |
+| **OBS WebSocket**     | ✅           | ✅              | —             | —                | ✅     | ⭐⭐⭐⭐⭐         |
+| **OBS Auto Recorder** | ✅           | ✅              | —             | —                | ✅     | ⭐⭐⭐⭐          |
+| **video-editor**      | —           | —              | ✅             | ✅ Whisper/IA     | ✅     | ⭐⭐⭐⭐⭐         |
+| **loop**              | ✅           | —              | ✅             | ✅                | ✅     | ⭐⭐⭐⭐⭐         |
+| **Argo Video**        | ✅           | ✅ Playwright   | ✅             | ✅ TTS            | ✅     | ⭐⭐⭐⭐⭐         |
+| **Playwright Recast** | ✅ navegador | ✅              | ✅             | ✅ TTS/subtítulos | ✅     | ⭐⭐⭐⭐          |
+| **Pagecast**          | ✅ navegador | ✅              | Básica        | —                | ✅     | ⭐⭐⭐⭐          |
+| **OBS Agent**         | ✅           | 🤖 agentes IA  | ✅ control OBS | 🤖               | ✅     | ⭐⭐⭐⭐⭐         |
+| **Pulsar**            | ✅           | ✅ API          | compositor    | ✅                | ✅     | ⭐⭐⭐⭐⭐         |
+
+---
+
+# 1. 🥇 OBS WebSocket — base fundamental
+
+[OBS WebSocket — GitHub](https://github.com/obsproject/obs-websocket?utm_source=chatgpt.com)
+
+Este probablemente debería ser **uno de los componentes centrales de tu arquitectura**.
+
+OBS WebSocket permite controlar OBS programáticamente:
+
+* iniciar grabación
+* detener grabación
+* cambiar escenas
+* modificar fuentes
+* controlar streaming
+* controlar filtros
+* obtener información de OBS
+* reaccionar a eventos
+* automatizar escenas
+* integrarlo con Python, JavaScript, Rust, Go, Java, etc.
+
+Actualmente viene integrado en OBS Studio 28+. ([GitHub][1])
+
+La arquitectura podría ser:
+
+```text
+                 ┌──────────────────┐
+                 │   AUTOMATION AI  │
+                 │    Controller     │
+                 └────────┬─────────┘
+                          │
+                     WebSocket
+                          │
+                          ▼
+                 ┌──────────────────┐
+                 │       OBS        │
+                 │                  │
+                 │ Scenes           │
+                 │ Screen Capture   │
+                 │ Audio Capture    │
+                 │ Recording        │
+                 └────────┬─────────┘
+                          │
+                       .mkv/.mp4
+                          ▼
+                 ┌──────────────────┐
+                 │      FFmpeg      │
+                 └────────┬─────────┘
+                          │
+                          ▼
+                 ┌──────────────────┐
+                 │ AI / EDITOR      │
+                 │ Whisper          │
+                 │ Auto-editor      │
+                 │ Remotion         │
+                 └────────┬─────────┘
+                          │
+                          ▼
+                    FINAL VIDEO
+```
+
+---
+
+# 2. 🐍 OBS Auto Recorder
+
+[OBS Auto Recorder](https://github.com/iturdikulov/obs_auto?utm_source=chatgpt.com)
+
+Este es especialmente interesante porque **ya implementa una versión pequeña del concepto que estás buscando**.
+
+Es un script Python para automatizar OBS:
+
+* hotkeys globales
+* iniciar/detener grabación
+* nombres personalizados
+* abrir automáticamente el vídeo
+* integración con OBS WebSocket
+* configuración mediante `config.ini`
+
+Está pensado para grabaciones repetitivas y automatizadas. ([GitHub][2])
+
+Lo interesante es que puedes tomarlo como **MVP de tu módulo Recorder**.
+
+---
+
+# 3. 🎬 video-editor — MUY cercano a tu idea
+
+[video-editor — GitHub](https://github.com/noeltock/video-editor?utm_source=chatgpt.com)
+
+Este proyecto me parece **especialmente relevante para lo que vienes construyendo**.
+
+Automatiza un pipeline de edición utilizando:
+
+* FFmpeg
+* Python
+* Whisper
+* procesamiento de audio
+* detección de silencios
+* edición automática
+* Remotion
+* generación de intros/outros
+* procesamiento completamente local
+
+Su flujo es aproximadamente:
+
+```text
+VIDEO RAW
+   │
+   ├── Audio
+   │      │
+   │      ├── Denoise
+   │      ├── Normalize
+   │      └── Loudness
+   │
+   ├── Whisper
+   │      │
+   │      └── timestamps
+   │
+   ▼
+ANÁLISIS
+   │
+   ▼
+DECISIONES DE EDICIÓN
+   │
+   ├── eliminar silencios
+   ├── cortar segmentos
+   ├── unir clips
+   └── ajustar ritmo
+   │
+   ▼
+REMOTION
+   │
+   ├── intro
+   ├── títulos
+   ├── lower thirds
+   └── outro
+   │
+   ▼
+FFMPEG
+   │
+   ▼
+MP4 FINAL
+```
+
+El proyecto declara que procesamiento, transcripción y renderización pueden ejecutarse localmente. ([GitHub][3])
+
+**Este es uno de los repositorios que yo estudiaría primero.**
+
+---
+
+# 4. 🧠 loop
+
+[loop — GitHub](https://github.com/tadaspetra/loop?utm_source=chatgpt.com)
+
+Este es todavía más interesante desde el punto de vista de **producto final**.
+
+Es una aplicación desktop que busca realizar:
+
+> grabar → transcribir → editar → renderizar
+
+Utiliza:
+
+* Electron
+* FFmpeg
+* grabación de pantalla
+* micrófono
+* cámara
+* transcripción
+* timeline
+* eliminación de segmentos
+* edición
+* renderizado
+
+Incluso permite editar a partir de la transcripción. ([GitHub][4])
+
+Arquitectónicamente:
+
+```text
+Electron
+   │
+   ├── Recorder
+   │
+   ├── Microphone
+   │
+   ├── Camera
+   │
+   ├── Transcript
+   │
+   ├── Timeline
+   │
+   └── Renderer
+          │
+          ▼
+        FFmpeg
+```
+
+Esto puede servirte como **referencia para la interfaz desktop**.
+
+---
+
+# 5. 🤖 Argo Video
+
+[Argo Video — GitHub](https://github.com/shreyaskarnik/argo?utm_source=chatgpt.com)
+
+Este es particularmente bueno si quieres evolucionar hacia **generación automática de vídeos demostrativos**.
+
+El concepto es:
+
+```text
+SCRIPT
+  │
+  ▼
+PLAYWRIGHT
+  │
+  ├── abrir navegador
+  ├── hacer clicks
+  ├── escribir
+  ├── navegar
+  └── grabar
+  │
+  ▼
+SCENES
+  │
+  ▼
+TTS
+  │
+  ▼
+ALIGN
+  │
+  ▼
+FFMPEG
+  │
+  ▼
+MP4
+```
+
+Utiliza Playwright para realizar las acciones y grabarlas, genera voz mediante TTS y finalmente combina todo mediante FFmpeg. ([GitHub][5])
+
+Y tiene una característica muy interesante:
+
+**Kokoro puede funcionar localmente sin API key.** ([GitHub][5])
+
+---
+
+# 6. 🌐 Playwright Recast
+
+[Playwright Recast — GitHub](https://github.com/ThePatriczek/playwright-recast?utm_source=chatgpt.com)
+
+Este proyecto toma:
+
+```text
+Playwright Trace
+       ↓
+Video
+       ↓
+Edición
+       ↓
+Subtítulos
+       ↓
+TTS
+       ↓
+Speed control
+       ↓
+Zoom
+       ↓
+Video final
+```
+
+Puede trabajar con vídeos generados mediante `recordVideo` de Playwright y posteriormente procesarlos con FFmpeg. ([GitHub][6])
+
+**Muy útil para automatizar tutoriales de aplicaciones web.**
+
+---
+
+# 7. 🌐 Pagecast
+
+[Pagecast — GitHub](https://github.com/mcpware/pagecast?utm_source=chatgpt.com)
+
+([GitHub][7])
+
+Este proyecto permite:
+
+**grabar páginas web automáticamente como vídeo/GIF** utilizando:
+
+* Playwright
+* FFmpeg
+* MCP
+
+Es interesante si tu automatización va a tener un componente de agente.
+
+Por ejemplo:
+
+```text
+AGENT
+ │
+ ▼
+MCP
+ │
+ ▼
+PLAYWRIGHT
+ │
+ ├── abrir web
+ ├── navegar
+ ├── interactuar
+ └── grabar
+ │
+ ▼
+FFMPEG
+ │
+ ▼
+VIDEO
+```
+
+---
+
+# 8. 🤖 OBS Agent
+
+[OBS Agent — GitHub](https://github.com/haasonsaas/obs-agent?utm_source=chatgpt.com)
+
+Este es **muy interesante para tu concepto de automatización basada en IA**.
+
+El proyecto propone agentes especializados:
+
+```text
+             AI DIRECTOR
+                  │
+        ┌─────────┼─────────┐
+        ▼         ▼         ▼
+     AUDIO     PRODUCER   OBS CONTROL
+     AGENT       AGENT       AGENT
+        │         │           │
+        └─────────┼───────────┘
+                  ▼
+                 OBS
+```
+
+Puede controlar programáticamente:
+
+* escenas
+* fuentes
+* grabación
+* streaming
+* filtros
+* OBS WebSocket
+* decisiones orientadas a objetivos
+
+El repositorio se define explícitamente como un sistema multiagente para automatizar OBS. ([GitHub][8])
+
+**Este encaja muchísimo con la dirección que vienes buscando.**
+
+---
+
+# 9. ⚡ Pulsar — posiblemente el más interesante para una arquitectura avanzada
+
+[Pulsar — GitHub](https://github.com/ZabLaboratory/Pulsar?utm_source=chatgpt.com)
+
+Este proyecto toma partes del motor de OBS y las orienta a un escenario **headless**.
+
+Es decir:
+
+```text
+NO necesitas necesariamente:
+
+OBS GUI
+   │
+   ▼
+operador
+```
+
+sino:
+
+```text
+          TU APLICACIÓN
+               │
+               ▼
+          PULSAR ENGINE
+               │
+       ┌───────┼────────┐
+       ▼       ▼        ▼
+    VIDEO    AUDIO    ENCODER
+       │       │        │
+       └───────┼────────┘
+               ▼
+             FILE
+```
+
+Expone capacidades mediante WebSocket/API y está pensado para aplicaciones, estaciones de control, Electron, servidores headless y rigs de automatización. ([GitHub][9])
+
+Esto abre una posibilidad mucho más interesante:
+
+**construir tu propio "OBS automatizado" sin tener OBS como interfaz principal.**
+
+---
+
+# 🧩 Cómo combinaría estos proyectos
+
+No intentaría utilizar un único repositorio.
+
+Construiría una arquitectura modular:
+
+```text
+                         ┌──────────────────────┐
+                         │     AI ORCHESTRATOR   │
+                         │                      │
+                         │ Python / Node        │
+                         │ Planner              │
+                         │ State Machine        │
+                         └──────────┬───────────┘
+                                    │
+                   ┌────────────────┼────────────────┐
+                   │                │                │
+                   ▼                ▼                ▼
+             AUTOMATION         RECORDING         CONTENT
+                   │                │                │
+             Playwright        OBS/Pulsar         Scripts
+             PyAutoGUI         WebSocket          JSON
+             AutoHotkey        Capture            Scenes
+                   │                │                │
+                   └────────────────┼────────────────┘
+                                    ▼
+                              RAW MATERIAL
+                                    │
+                                    ▼
+                         ┌────────────────────┐
+                         │     ANALYZER       │
+                         │                    │
+                         │ Whisper            │
+                         │ FFprobe            │
+                         │ Silence detection  │
+                         │ Scene detection    │
+                         └─────────┬──────────┘
+                                   │
+                                   ▼
+                         ┌────────────────────┐
+                         │   EDITOR ENGINE    │
+                         │                    │
+                         │ FFmpeg             │
+                         │ Auto-editor        │
+                         │ Remotion           │
+                         │ MoviePy             │
+                         └─────────┬──────────┘
+                                   │
+                                   ▼
+                         ┌────────────────────┐
+                         │ AUDIO PROCESSING   │
+                         │                    │
+                         │ Whisper            │
+                         │ DeepFilterNet      │
+                         │ FFmpeg filters     │
+                         │ TTS / Kokoro       │
+                         └─────────┬──────────┘
+                                   │
+                                   ▼
+                         ┌────────────────────┐
+                         │ FINAL RENDER       │
+                         │                    │
+                         │ MP4 / WebM / MKV   │
+                         └─────────┬──────────┘
+                                   │
+                                   ▼
+                         ./output/YYYY/MM/DD/
+```
+
+## ⭐ Mi selección para tu proyecto
+
+Si tu objetivo no es simplemente "hacer una grabación", sino construir **una plataforma automatizada de producción multimedia**, yo priorizaría:
+
+### Nivel 1 — Base
+
+1. **OBS WebSocket**
+2. **FFmpeg**
+3. **Playwright**
+4. **Python**
+5. **Whisper / faster-whisper**
+
+### Nivel 2 — Automatización
+
+6. **OBS Auto Recorder**
+7. **PyAutoGUI**
+8. **AutoHotkey**
+9. **Argo Video**
+
+### Nivel 3 — Edición automática
+
+10. **video-editor**
+11. **auto-editor**
+12. **Remotion**
+13. **MoviePy**
+
+### Nivel 4 — Arquitectura IA
+
+14. **OBS Agent**
+15. **Pulsar**
+16. **MCP + Playwright**
+
+---
+
+# 🚀 Y aquí veo una arquitectura todavía mejor
+
+Por lo que describes, **no construiría un script gigante**.
+
+Construiría un **Media Automation Engine** con módulos independientes:
+
+```text
+media-automation/
+│
+├── orchestrator/
+│   ├── planner
+│   ├── state_machine
+│   ├── scheduler
+│   └── recovery
+│
+├── automation/
+│   ├── playwright/
+│   ├── pyautogui/
+│   └── autohotkey/
+│
+├── recording/
+│   ├── obs/
+│   ├── websocket/
+│   └── pulsar/
+│
+├── analysis/
+│   ├── ffprobe/
+│   ├── whisper/
+│   ├── silence/
+│   └── scene_detection/
+│
+├── editing/
+│   ├── ffmpeg/
+│   ├── auto_editor/
+│   ├── moviepy/
+│   └── remotion/
+│
+├── audio/
+│   ├── denoise/
+│   ├── normalize/
+│   ├── tts/
+│   └── mixing/
+│
+├── rendering/
+│   ├── mp4/
+│   ├── webm/
+│   └── thumbnails/
+│
+├── storage/
+│   ├── projects/
+│   ├── raw/
+│   ├── processed/
+│   └── output/
+│
+└── logs/
+```
+
+Y cada ejecución tendría un **manifest JSON**:
+
+```text
+project.json
+      │
+      ├── automation
+      ├── recording
+      ├── audio
+      ├── editing
+      ├── rendering
+      └── output
+```
+
+Así puedes hacer algo mucho más potente:
+
+> **"Ejecuta el proyecto X."**
+
+Y el sistema:
+
+```text
+PLAN
+ ↓
+VALIDATE
+ ↓
+AUTOMATE
+ ↓
+RECORD
+ ↓
+ANALYZE
+ ↓
+EDIT
+ ↓
+AUDIO
+ ↓
+RENDER
+ ↓
+VERIFY
+ ↓
+ARCHIVE
+```
+
+Si falla:
+
+```text
+             ERROR
+               ↓
+          DIAGNOSTIC
+               ↓
+        ┌──────┴──────┐
+        │             │
+     RECOVER       RETRY
+        │             │
+        └──────┬──────┘
+               ↓
+             RESUME
+```
+
+**Esto encaja especialmente bien con tu idea anterior de un ciclo PIVR (Planificar → Implementar → Verificar → Reiniciar)** y permitiría que la automatización no tenga que empezar desde cero cuando falla una etapa.
+
+### 🔎 Repositorios que yo clonaría primero
+
+**Para estudiar la arquitectura:**
+
+1. [OBS WebSocket](https://github.com/obsproject/obs-websocket?utm_source=chatgpt.com)
+2. [video-editor](https://github.com/noeltock/video-editor?utm_source=chatgpt.com)
+3. [loop](https://github.com/tadaspetra/loop?utm_source=chatgpt.com)
+4. [Argo Video](https://github.com/shreyaskarnik/argo?utm_source=chatgpt.com)
+5. [OBS Agent](https://github.com/haasonsaas/obs-agent?utm_source=chatgpt.com)
+6. [Pulsar](https://github.com/ZabLaboratory/Pulsar?utm_source=chatgpt.com)
+
+**Y como componentes auxiliares:**
+
+7. [OBS Auto Recorder](https://github.com/iturdikulov/obs_auto?utm_source=chatgpt.com)
+8. [Playwright Recast](https://github.com/ThePatriczek/playwright-recast?utm_source=chatgpt.com)
+9. [Pagecast](https://github.com/mcpware/pagecast?utm_source=chatgpt.com)
+10. [obs-websocket-py](https://github.com/Elektordi/obs-websocket-py?utm_source=chatgpt.com)
+
+**De todos ellos, `video-editor + Argo + OBS WebSocket + Pulsar + Playwright` me parece la combinación más prometedora para convertir tu idea en una plataforma de producción multimedia automatizada y local.**
+
+[1]: https://github.com/obsproject/obs-websocket?utm_source=chatgpt.com "GitHub - obsproject/obs-websocket: Remote-control of OBS Studio through WebSocket · GitHub"
+[2]: https://github.com/iturdikulov/obs_auto?utm_source=chatgpt.com "GitHub - iturdikulov/obs_auto: A Python script to automate OBS Studio recording · GitHub"
+[3]: https://github.com/noeltock/video-editor?utm_source=chatgpt.com "GitHub - noeltock/video-editor: Edit screen recordings like an editor would, from your terminal. A Claude Code skill that merges, AI auto-edits, and studio-polishes Screen Studio takes into finished videos. · GitHub"
+[4]: https://github.com/tadaspetra/loop?utm_source=chatgpt.com "GitHub - tadaspetra/loop: Record, Cut, Edit, Render with AI · GitHub"
+[5]: https://github.com/shreyaskarnik/argo?utm_source=chatgpt.com "GitHub - shreyaskarnik/argo: Turn Playwright scripts into polished product demo videos with AI voiceover · GitHub"
+[6]: https://github.com/ThePatriczek/playwright-recast?utm_source=chatgpt.com "GitHub - ThePatriczek/playwright-recast: Fluent pipeline library for processing Playwright traces into polished demo videos with TTS voiceover, subtitles, speed control, and zoom. · GitHub"
+[7]: https://github.com/mcpware/pagecast?utm_source=chatgpt.com "GitHub - mcpware/pagecast: Record any browser page as GIF or video via MCP — powered by Playwright + ffmpeg · GitHub"
+[8]: https://github.com/haasonsaas/obs-agent?utm_source=chatgpt.com "GitHub - haasonsaas/obs-agent: AI-powered multi-agent system for controlling OBS Studio programmatically · GitHub"
+[9]: https://github.com/ZabLaboratory/Pulsar?utm_source=chatgpt.com "GitHub - ZabLaboratory/Pulsar: Headless broadcast engine forked from OBS Studio. obs-websocket v5 + multi-destination + adaptive bitrate. Bundled in Prism. · GitHub"

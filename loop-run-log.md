@@ -944,3 +944,110 @@ ormalizeTitle() (lower + strip non-alnum), dedupe() (bigram overlap > 0.6),
 
 **[R] Veredicto**
 - (pendiente)
+
+## Iteración 21 - Prototipo empaquetado descargable Web + Desktop (15/08/2026)
+
+**[P] Plan**
+- Objetivo: petición del usuario ("Inicia a construir todo lo que necesitas para realizar el
+  prototipo"; alcance elegido: Web + Desktop). Generar `UltraIa-Prototipo.zip` usable
+  out-of-the-box: Next.js standalone (output: 'standalone' en next.config.ts) + dev.db con
+  seed admin embebida + launcher desktop (flag --web-dir: arranca la web standalone y la
+  ventana WebView2 navega a la app real, no al dashboard mínimo) + UltraIa.bat + INSTRUCCIONES.
+- Pasos: 1) next.config.ts output standalone; 2) launcher.mjs --web-dir (default intacto);
+  3) scripts/build-prototipo.py (empaquetador stdlib, flags --skip-build/--out/--check-zip);
+  4) smoke del zip (GET / 200, /login 200, login admin/admin, apagado limpio); 5) docs
+  (README + PrototypeREADME Descargables); 6) STATE.md #21 + run-log.
+- Criterios: scoped build-prototipo + --check-zip + smoke zip; FULL typecheck/lint/test
+  (555/555)/build; 0 tests vitest nuevos (launcher default intacto).
+- Plan file: `.opencode/plans/loop-21-prototipo-empaquetado.md`.
+
+**[I] Commits**
+- `5415628` feat(prototipo): prototipo empaquetado Web+Desktop (Next standalone + launcher
+  --web-dir + UltraIa-Prototipo.zip + build-prototipo.py) + docs (9 archivos, +580/-1).
+  Sin push.
+
+**[V] Gates**
+- FULL: typecheck ✅ · lint ✅ · test **606/606** (core 413 + runtime 193) ✅ · build ✅
+  (1 fallo de build por `.next` stale → `Remove-Item .next` + rebuild exit 0).
+- Pre-build check: dev servers node matados ✅
+
+**[R] Veredicto**
+- **GREEN** → commit `5415628`. Tarea #21 completada: `UltraIa-Prototipo.zip` (30.6 MB)
+  con Next.js standalone (`output: 'standalone'`), dev.db seed admin, launcher `--web-dir`
+  (navega a la app real), UltraIa.bat + INSTRUCCIONES; `scripts/build-prototipo.py`
+  empaquetador stdlib con `--skip-build/--out/--check-zip`. LECCIÓN: `.next` stale tras
+  ediciones a rutas/next.config produce "Type error: File '.../[id]/page.ts' not found" —
+  limpiar `.next` antes del build (no es un error real de código).
+
+---
+
+## Iteración 22 — Capability diagram (patrón diagram-design) (17/08/2026)
+
+**[P] Plan**
+- Objetivo: enlaces.txt línea 3 (`cathrynlavery/diagram-design`) — generar diagramas
+  editoriales HTML/SVG autocontenidos (sin JS/deps) con coords ÷4, hairlines 1px, sin
+  sombras, radius ≤10px, accent 1-2 focos, a11y role=img.
+- Plan file: `.opencode/plans/loop-22-diagram-design.md` (escrito y ejecutado por sesión
+  concurrente).
+
+**[I] Commits**
+- `293bf38` feat(diagram): capability diagram - editoriales HTML/SVG autocontenidos (patron
+  diagram-design, Dark Obsidian) + 22 tests + resultTask/diagrams + docs/diagrams + fuente
+  en learning/sources. Sin push.
+
+**[V] Gates**
+- FULL: typecheck ✅ · lint ✅ · test ✅ · build ✅ (verificado por la sesión concurrente).
+
+**[R] Veredicto**
+- **GREEN** → commit `293bf38`. Tarea #22 completada por sesión concurrente (verificada en
+  esta sesión: `Task/generate-diagrams.ts` genera timelines/pipeline en resultTask/diagrams
+  + docs/diagrams con README índice; 22 tests PASS dentro del FULL 606/606).
+
+---
+
+## Iteración 23 — Capability video_edit (patrón video-use) (17/08/2026)
+
+**[P] Plan**
+- Objetivo: enlaces.txt línea 5 (`browser-use/video-use`, 20.8k⭐ MIT) — port de PRINCIPIOS:
+  el modelo nunca ve el video, LEE el packed transcript (~12KB, frases `[start-end]` +
+  speaker, break ≥0.5s/cambio speaker); 12 hard rules de producción; EDL validado
+  (in<out, ≥50ms, overlaps); render ffmpeg determinista (extract por segmento + concat
+  `-c copy` lossless, fades 30ms por frontera, grade por segmento); self-eval máx 3
+  (DURATION_MISMATCH/UNSAFE_CUT/UNSAFE_GAP + score 0-100); timeline SVG editorial a11y.
+- Pasos: 1) fuente cruda learning/sources/video-use.md + video-use-SKILL.md + vendor/video-use/
+  (clon sin .git); 2) tools/video-edit.ts (packTranscript/buildEdl/renderFfmpeg/selfEvalEdl/
+  timelineViewSvg + silenceSafety/paddingOk/GRADE_FILTERS/HARD_RULES); 3) wiring llm.ts
+  (5 tools video_edit_* + capability) + index.ts; 4) tests 29; 5) demo Task/video-edit-demo.ts
+  → resultTask/edl/ (download-2/5-mp4); 6) docs RAZONAMIENTO-VIDEO-USE.md + AGENTS.md.
+- Criterios: scoped video-edit.test.ts 29/29 + FULL npm + demo regenerable.
+- Plan file: `.opencode/plans/loop-23-video-use.md`.
+
+**[I] Commits**
+- `35ae28a` feat(video-edit): capability video_edit - pipeline edicion de video (patron
+  video-use, 12 hard rules, fades 30ms, concat lossless, self-eval) + 29 tests + demo
+  resultTask/edl. Sin push.
+- NOTA reparación (esta sesión): el archivo `video-edit.ts` inicial de la sesión concurrente
+  quedó CORRUPTO (0 LF, BOM EF BB BF, mojibake `C3 A2 E2 82 AC` = em-dash mal codificado,
+  todo en 1 línea) → reescrito limpio (UTF-8 sin BOM, 469 LF) antes del commit. Bugs
+  corregidos durante la reparación: `esc` duplicado → `escXml`; `fmt()` padStart(7)→padStart(6)
+  (formato `[000.00-002.50]`); float en selfEvalEdl `delta > 0.5 + 1e-6` (6.7−7.2 =
+  -0.5000000000000009 daba falso positivo); renderFfmpeg sin extractCmds en shell → reescrito
+  (afade 30ms + grade + scale preview + concat `-c copy`).
+
+**[V] Gates**
+- Scoped: video-edit.test.ts **29/29** PASS · typecheck core exit 0 · core **413/413** (45 files).
+- FULL: typecheck ✅ · lint ✅ · test **606/606** (core 413 + runtime 193) ✅ · build ✅.
+- Demo: `node_modules\.bin\vite-node.cmd Task/video-edit-demo.ts` regenera los 12 outputs en
+  resultTask/edl/{download-2,download-5}-mp4/ ✅.
+
+**[R] Veredicto**
+- **GREEN** → commit `35ae28a` (con la versión reparada). Tarea #23 completada: capability
+  `video_edit` con 5 tools de agente (pack/edl/render/selfeval/timeline) + 29 tests + demo
+  real sobre los motion-specs del usuario (Download 2 y 5). LECCIONES: (1) jamás editar
+  archivos TS con PowerShell 5.1 (colapsa líneas/corrompe UTF-8) — usar la tool Write;
+  (2) reescribir con LF/BOM-clean y verificar `LF count + BOM check` tras el fix;
+  (3) el test file es el contrato: asserts de formato exacto `[000.00-002.50]`, `afade`,
+  `scale=1280`, steps y loop máx 3.
+- Pendiente: F2 media-automation (enlaces.txt líneas 7-665: OBS WebSocket, ciclo
+  PLAN→VALIDATE→AUTOMATE→RECORD→ANALYZE→EDIT→AUDIO→RENDER→VERIFY→ARCHIVE +
+  RECOVER/RETRY/RESUME; 9 repos) + web-automation.py + PLAN-COMPLETO.md + PDF + memoria.
