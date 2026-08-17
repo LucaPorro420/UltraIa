@@ -371,9 +371,11 @@ export async function publishToAll(adapters: PublisherAdapter[], input: PublishI
   return results;
 }
 
-/** Crea los adaptadores por defecto (YT + TikTok). */
-export function createDefaultPublishers(): PublisherAdapter[] {
-  return [createYouTubeAdapter(), createTikTokAdapter()];
+/** Crea los adaptadores por defecto (YT + TikTok; opcionalmente X — canal F4 paso 4).
+// includeX=false por defecto para no cambiar el comportamiento de las colas existentes. */
+export function createDefaultPublishers(opts: { includeX?: boolean } = {}): PublisherAdapter[] {
+  const base = [createYouTubeAdapter(), createTikTokAdapter()];
+  return opts.includeX ? [...base, createXAdapter()] : base;
 }
 
 export const publish = { createYouTubeAdapter, createTikTokAdapter, createXAdapter, createDefaultPublishers, publishToAll, buildBilingualMetadata, buildXPostText, xAppendMultipartBody };

@@ -289,7 +289,7 @@ export async function publishDue(db: Db, opts: PublishDueOptions = {}): Promise<
       if (opts.publishFn) {
         resultado = await opts.publishFn({ metadata });
       } else {
-        resultado = await publishToAll(createDefaultPublishers(), { metadata });
+        resultado = await publishToAll(createDefaultPublishers({ includeX: true }), { metadata });
       }
       if (resultado.some((r) => r.ok)) {
         await markPublished(db, pub.id, resultado);

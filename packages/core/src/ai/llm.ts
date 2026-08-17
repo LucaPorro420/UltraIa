@@ -500,7 +500,7 @@ export function chatStream(opts: {
   if (opts.tools?.includes('publish')) {
     tools.publish_submit = tool({
       description:
-        'Publish a finished MP4 (9:16, <60s) to the configured channels (AutoPub F4): YouTube Shorts and TikTok, with bilingual es/ar metadata. Validates tokens first — fails soft with a clear reason when a platform is not configured. Returns one result per platform (ok/id/url or error).',
+        'Publish a finished MP4 (9:16, <60s) to the configured channels (AutoPub F4): YouTube Shorts, TikTok and X, with bilingual es/ar metadata. Validates tokens first — fails soft with a clear reason when a platform is not configured. Returns one result per platform (ok/id/url or error).',
       parameters: z.object({
         videoPath: z.string().min(1).max(500),
         title: z.string().min(1).max(200),
@@ -508,11 +508,14 @@ export function chatStream(opts: {
         privacyStatus: z.enum(['public', 'private', 'unlisted']).optional(),
         toYoutube: z.boolean().optional(),
         toTiktok: z.boolean().optional(),
+        toX: z.boolean().optional(),
       }),
-      execute: async ({ videoPath, title, plainScript, privacyStatus, toYoutube, toTiktok }) => {
+      execute: async ({ videoPath, title, plainScript, privacyStatus, toYoutube, toTiktok, toX }) => {
         const metadata = { ...buildBilingualMetadata(title, plainScript), ...(privacyStatus ? { privacyStatus } : {}) };
-        const adapters = createDefaultPublishers();
-        const selected = adapters.filter((a) => (a.platform === 'youtube' ? toYoutube !== false : toTiktok !== false));
+        const adapters = createDefaultPublishers({ includeX: true });
+        const selected = adapters.filter((a) =>
+          a.platform === 'youtube' ? toYoutube !== false : a.platform === 'tiktok' ? toTiktok !== false : toX !== false,
+        );
         const results = await publishToAll(selected, { videoPath, metadata });
         return {
           results,

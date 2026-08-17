@@ -241,6 +241,15 @@ describe('publishDue', () => {
     expect(res).toEqual({ publicadas: 0, fallidas: 1 });
     expect(rows[0].error).toBe('red caída');
   });
+
+  it('resultado ok con plataforma x → PUBLISHED (canal X fluye por markPublished)', async () => {
+    const { db, rows } = fakeDb();
+    await createPublication(db, { paquete: makePaquete('blog'), canal: 'blog', scheduledAt: new Date('2026-08-14T10:00:00Z') });
+    const publishFn = async () => [{ platform: 'x' as const, ok: true, id: 'x1', url: 'https://x.com/i/status/x1' }];
+    const res = await publishDue(db, { publishFn });
+    expect(res).toEqual({ publicadas: 1, fallidas: 0 });
+    expect(rows[0].estado).toBe('PUBLISHED');
+  });
 });
 
 describe('listPublications', () => {

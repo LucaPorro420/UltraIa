@@ -212,6 +212,21 @@ describe('publishToAll + default publishers', () => {
     expect(DEFAULT_METADATA.tags).toContain('الذكاء الاصطناعي');
     expect(DEFAULT_METADATA.privacyStatus).toBe('public');
   });
+
+  it('createDefaultPublishers(): 2 adapters (youtube+tiktok) sin X — retrocompatible', () => {
+    const adapters = createDefaultPublishers();
+    expect(adapters.map((a) => a.platform).sort()).toEqual(['tiktok', 'youtube']);
+  });
+
+  it('createDefaultPublishers({ includeX: true }): 3 adapters, X fail-soft sin token', async () => {
+    const adapters = createDefaultPublishers({ includeX: true });
+    expect(adapters.map((a) => a.platform).sort()).toEqual(['tiktok', 'x', 'youtube']);
+    const results = await publishToAll(adapters, { videoBuffer: MP4_BYTES });
+    expect(results).toHaveLength(3);
+    const x = results.find((r) => r.platform === 'x')!;
+    expect(x.ok).toBe(false);
+    expect(x.error).toContain('X_ACCESS_TOKEN');
+  });
 });
 
 describe('createXAdapter (X API v2, F4 paso 4)', () => {
