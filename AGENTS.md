@@ -505,3 +505,42 @@ El usuario deja URLs en `enlaces.txt` (raíz) para que se analicen y se apliquen
   si no local `.ultraia/cloud`; e30bd89). LECCIÓN: JSDoc `/**` con `//` internos no cierra el
   bloque — tsc se traga la definición; usar `//` puros. **Pendientes cloud loop-25: CERO**.
   CORRECCIÓN: EXT_TYPES tiene **42** extensiones (no 41 — el texto de TOOL_DESCRIPTIONS en index.ts heredó el número viejo).
+
+## Capability harness (17/08/2026, iteración 34 `325aab6`)
+
+- **Patrón deepseek-harness** (fuente: enlaces.txt → `learning/sources/deepseek-harness.md`, repo
+  deepseek-ai/deepseek-harness MIT; análisis `docs/RAZONAMIENTO-DEEPSEEK-HARNESS.md`):
+  `packages/core/src/tools/harness.ts` — port ORIGINAL de los PRINCIPIOS ("everything is a plugin").
+- `createHarness` (boot con validación de dependencias topológica Kahn, `run`, `tick` con reloj
+  inyectable, `shutdown` inverso fail-soft con unwind y dump), `defineSeam` (register/resolve),
+  plugins `echoTool` + `counterScheduler`, state namespaced por plugin, efectos reversibles
+  trackeados para unwind. Tool `harness_manage` (acciones boot/run/tick/dump/shutdown; runtime
+  PERSISTENTE por sesión). 19 tests. Lección: el runtime de la tool debe vivir en el scope que
+  persiste entre llamadas (fuera del execute) — declararlo dentro shadowea y TS narrowing
+  degenera a 'never'.
+- AutoPub F4 wiring canal X (iteración 33 `4a0aa78`): `createDefaultPublishers({includeX})`
+  retrocompatible, `publishDue` con X, tool `publish_submit` con `toX` — canal X completo (4/4).
+- AutoPub F4 paso 5 (iteración 35 `b28b0a9`, sesión principal): adapters Meta —
+  `createInstagramAdapter` (Graph API v21 container flow REELS: media→media_publish, caption cap
+  2200) + `createThreadsAdapter` (Graph API v1.0: threads→threads_publish, text cap 500) +
+  `PublishInput.videoUrl?` + helper `formBody` + tokens env `IG_ACCESS_TOKEN`/`IG_USER_ID`/
+  `THREADS_ACCESS_TOKEN`/`THREADS_USER_ID` + 13 tests (43/43 scoped). Meta sin app review para
+  negocio propio (verificado en CLOUD-FREE-2026.md).
+
+## Capability growth (17/08/2026, iteración 36 `2212389`)
+
+- **Patrón VidRush + Abacus.AI** (fuentes: enlaces.txt URLs nuevas → `learning/sources/vidrush-ai.md`
+  + `abacus-ai.md` compactas; análisis `docs/RAZONAMIENTO-VIDRUSH-ABACUS.md`). Ambos convergen en:
+  **perfil de canal → experimentos de UNA variable → playbook que compone victorias** (VidRush
+  "Modeled on your channel" + aprobación del plan antes de generar; Abacus "Autonomous YouTube
+  Influencer Agent").
+- `packages/core/src/tools/growth.ts` — dominio puro determinista (zod): `analyzeChannel(samples)`
+  → `ChannelProfile` (pacingAvgSeg, cutCadence, onScreenTextDensity, hookLengthAvg, thumbnailStyle
+  clasificado texto-grande/closeup/comparativo/mixto); `planExperiments(perfil, kpis, max)` —
+  UNA variable por experimento, peor KPI primero, hipótesis/control/test/decisionRule (+5 pts);
+  `buildPlaybook(canal, signals)` — victoria = test > control +5, pares control/test SECUENCIALES
+  (cada par = 1 experimento, `Math.min` de longitudes), peso acumulado por victoria, dedupe por
+  canal+recomendación, orden por peso desc. 19 tests.
+- Registro: capability `growth` → tool `growth_plan` (acciones profile/experiments/playbook) en
+  `ai/llm.ts`. Export en tools/index.ts (`growth`). Cierra el pendiente F5 de AutoPub (promoción
+  vía signals) en dominio puro — `buildPlaybook` se alimentaría de `publicationSignals`.
