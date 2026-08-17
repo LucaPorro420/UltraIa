@@ -24,6 +24,24 @@ export const RETRY_BACKOFF_MS = 1000;
 export const MAX_RUN_DURATION_MIN = 90; // protección anti-runaway
 export const RECORDINGS_ROOT = '.ultraia/recordings';
 
+/**
+ * Allowlist de binarios permitidos en acciones `exec` (política de seguridad).
+ * Solo intérpretes/herramientas del proyecto y utilidades benignas; sin shells,
+ * sin admin, sin borrado. La extensión .exe/.cmd/.bat es tolerada al comparar.
+ */
+export const EXEC_ALLOWLIST: readonly string[] = Object.freeze([
+  'python',
+  'py',
+  'python3',
+  'node',
+  'npm',
+  'npx',
+  'ffmpeg',
+  'ffprobe',
+  'yt-dlp',
+  'mkdir',
+]);
+
 export const ACTION_TYPES = [
   'sleep',
   'click',
@@ -124,6 +142,59 @@ const ACTION_ESTIMATE_MS: Record<ActionType, number> = {
   end: 0,
 };
 
+/* ------------------------------------------------------------------ */
+/* Allowlist de exec (seguridad)                                       */
+/* ------------------------------------------------------------------ */
+
+/** Metacaracteres de shell que un exec sin shell nunca debería contener. */
+const EXEC_FORBIDDEN_PATTERNS: ReadonlyArray<{ pattern: RegExp; label: string }> = Object.freeze([
+  { pattern: /[;\r\n]/, label: 'separador de comandos (; o salto de línea)' },
+  { pattern: /&&/, label: 'encadenado &&' },
+  { pattern: /\|\|/, label: 'encadenado ||' },
+  { pattern: /\|/, label: 'pipe |' },
+  { pattern: />/, label: 'redirección >' },
+  { pattern: /</, label: 'redirección <' },
+  { pattern: /`/, label: 'backtick' },
+  { pattern: /\$\(/, label: 'subshell $(' },
+  { pattern: /\$\(\(/, label: 'aritmética $((' },
+]);
+
+/** Binario base (primer token) con extensión .exe/.cmd/.bat tolerada. */
+function execBaseBinary(cmd: string): string {
+  const first = cmd.trim().split(/\s+/)[0] ?? '';
+  return first.replace(/\.(exe|cmd|bat)$/i, '').toLowerCase();
+}
+
+function isAbsoluteBinary(bin: string): boolean {
+  return (
+    bin.startsWith('/') ||
+    bin.startsWith('\\') ||
+    bin.startsWith('./') ||
+    bin.startsWith('../') ||
+    /^[a-zA-Z]:[\\/]/.test(bin)
+  );
+}
+
+/**
+ * Valida un comando `exec` contra la allowlist (política de seguridad):
+ * binario base permitido, sin rutas absolutas como binario y sin metacaracteres
+ * de shell. Determinista, sin I/O. El runner conserva su fail-soft en runtime.
+ */
+export function validateExecCmd(cmd: string): { ok: boolean; error?: string } {
+  const trimmed = cmd.trim();
+  if (!trimmed) return { ok: false, error: 'exec vacío' };
+  if (trimmed.length > 500) return { ok: false, error: 'exec supera 500 caracteres' };
+  for (const { pattern, label } of EXEC_FORBIDDEN_PATTERNS) {
+    if (pattern.test(trimmed)) return { ok: false, error: `exec contiene ${label} — no permitido` };
+  }
+  const bin = execBaseBinary(trimmed);
+  if (isAbsoluteBinary(trimmed)) return { ok: false, error: 'exec no admite rutas absolutas como binario' };
+  if (!EXEC_ALLOWLIST.includes(bin)) {
+    return { ok: false, error: `binario "${bin}" fuera de la allowlist (${EXEC_ALLOWLIST.join(', ')})` };
+  }
+  return { ok: true };
+}
+
 /**
  * Valida un ActionScript JSON declarativo: tipos conocidos, bounds de
  * coordenadas, mínimo 1 acción, cierre con 'end' (o warning), duración
@@ -152,6 +223,13 @@ export function validateActionScript(input: unknown): ValidateResult {
   }
   const openUrls = actions.filter((a) => a.type === 'open_url').length;
   if (openUrls > 10) warnings.push(`demasiadas open_url (${openUrls}) — revisar si son necesarias`);
+
+  for (const a of actions) {
+    if (a.type === 'exec') {
+      const v = validateExecCmd(a.cmd);
+      if (!v.ok) errors.push(`acciones[${actions.indexOf(a)}].exec: ${v.error}`);
+    }
+  }
 
   const estimate = actions.reduce((acc, a) => {
     if (a.type === 'sleep') return acc + a.ms;
@@ -376,6 +454,8 @@ export const screenflow = {
   buildManifest,
   scheduleCmd,
   resolveState,
+  validateExecCmd,
+  EXEC_ALLOWLIST,
   ACTION_TYPES,
   MAX_RETRIES,
   RETRY_BACKOFF_MS,

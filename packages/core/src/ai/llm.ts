@@ -816,7 +816,7 @@ export function chatStream(opts: {
   if (opts.tools?.includes('screenflow')) {
     tools.screenflow_plan = tool({
       description:
-        'Validate a declarative ActionScript for ScreenFlow (screen-recording automation) and plan the capture runs: checks action types, coordinate bounds, estimated duration (anti-runaway max 90min), warns about missing "end" action or zero open_url. Returns ok/errors/warnings/estimatedDurationSec/runs. Use before any screenflow run.',
+        'Validate a declarative ActionScript for ScreenFlow (screen-recording automation) and plan the capture runs: checks action types, coordinate bounds, estimated duration (anti-runaway max 90min), warns about missing "end" action or zero open_url. exec actions are restricted to an allowlist of safe binaries (python/py/python3, node/npm/npx, ffmpeg/ffprobe, yt-dlp, mkdir) — no shells, no absolute-path binaries, no shell metacharacters. Returns ok/errors/warnings/estimatedDurationSec/runs. Use before any screenflow run.',
       parameters: z.object({
         scriptJson: z.string().min(1).max(100000), // ActionScript JSON
         actionsPerRun: z.number().int().min(1).max(50).optional(),

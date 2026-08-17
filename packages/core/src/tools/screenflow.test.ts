@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   screenflow,
   validateActionScript,
+  validateExecCmd,
   planRuns,
   buildFfmpegCapture,
   buildOutputNaming,
@@ -216,5 +217,85 @@ describe('screenflow · api pública', () => {
     expect(screenflow.RECORDINGS_ROOT).toBe('.ultraia/recordings');
     expect(typeof screenflow.buildManifest).toBe('function');
     expect(typeof screenflow.resolveState).toBe('function');
+  });
+});
+
+describe('screenflow · exec allowlist (validateExecCmd)', () => {
+  it('acepta binarios de la allowlist con argumentos', () => {
+    expect(validateExecCmd('python scripts/topics.py --dry-run')).toEqual({ ok: true });
+    expect(validateExecCmd('ffmpeg -version')).toEqual({ ok: true });
+    expect(validateExecCmd('node Task/run_screenflow.ts --dry-run')).toEqual({ ok: true });
+    expect(validateExecCmd('npm run build')).toEqual({ ok: true });
+  });
+
+  it('tolera la extensión .exe/.cmd/.bat en el binario base', () => {
+    expect(validateExecCmd('python.exe scripts/topics.py')).toEqual({ ok: true });
+    expect(validateExecCmd('ffmpeg.exe -version')).toEqual({ ok: true });
+  });
+
+  it('rechaza binarios fuera de la allowlist', () => {
+    const r = validateExecCmd('rm -rf /tmp');
+    expect(r.ok).toBe(false);
+    expect(r.error).toContain('allowlist');
+    expect(validateExecCmd('powershell -c "x"').ok).toBe(false);
+    expect(validateExecCmd('cmd /c dir').ok).toBe(false);
+    expect(validateExecCmd('del /f *.mp4').ok).toBe(false);
+    expect(validateExecCmd('format c:').ok).toBe(false);
+  });
+
+  it('rechaza rutas absolutas como binario', () => {
+    const r = validateExecCmd('C:\\Windows\\System32\\cmd.exe /c dir');
+    expect(r.ok).toBe(false);
+    expect(validateExecCmd('C:/Windows/System32/powershell.exe -c x').ok).toBe(false);
+    expect(validateExecCmd('./script.sh').ok).toBe(false);
+    expect(validateExecCmd('/usr/bin/rm -rf x').ok).toBe(false);
+  });
+
+  it('rechaza metacaracteres de shell', () => {
+    expect(validateExecCmd('python x.py; rm -rf /').ok).toBe(false);
+    expect(validateExecCmd('python x.py && node y.js').ok).toBe(false);
+    expect(validateExecCmd('python x.py | ffmpeg -i -').ok).toBe(false);
+    expect(validateExecCmd('python x.py > out.txt').ok).toBe(false);
+    expect(validateExecCmd('node -e "`rm -rf /`"').ok).toBe(false);
+    expect(validateExecCmd('node -e "$(rm -rf /)"').ok).toBe(false);
+    expect(validateExecCmd('ffmpeg -i a.mp4\r\nrm -rf /').ok).toBe(false);
+  });
+
+  it('rechaza vacío y exceso de longitud', () => {
+    expect(validateExecCmd('   ').ok).toBe(false);
+    expect(validateExecCmd('x'.repeat(501)).ok).toBe(false);
+  });
+
+  it('validateActionScript acepta exec permitido', () => {
+    const r = validateActionScript({
+      name: 'x',
+      actions: [
+        { type: 'exec', cmd: 'python scripts/topics.py --dry-run' },
+        { type: 'end' },
+      ],
+    });
+    expect(r.ok).toBe(true);
+    expect(r.errors).toEqual([]);
+  });
+
+  it('validateActionScript rechaza exec denegado con error acumulado', () => {
+    const r = validateActionScript({
+      name: 'x',
+      actions: [
+        { type: 'exec', cmd: 'rm -rf /tmp' },
+        { type: 'exec', cmd: 'powershell -c "x"' },
+        { type: 'end' },
+      ],
+    });
+    expect(r.ok).toBe(false);
+    expect(r.errors.length).toBe(2);
+    expect(r.errors[0]).toContain('exec');
+    expect(r.errors[0]).toContain('allowlist');
+  });
+
+  it('namespace expone EXEC_ALLOWLIST y validateExecCmd', () => {
+    expect(screenflow.EXEC_ALLOWLIST).toContain('python');
+    expect(screenflow.EXEC_ALLOWLIST).toContain('ffmpeg');
+    expect(typeof screenflow.validateExecCmd).toBe('function');
   });
 });
