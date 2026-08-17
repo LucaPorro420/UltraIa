@@ -12,6 +12,7 @@
  * `scripts/screenflow/actions.py` y `Task/run_screenflow.ts`.
  */
 import { z } from 'zod';
+import { present, type PublicationPackage } from './present';
 
 /* ------------------------------------------------------------------ */
 /* Constants                                                           */
@@ -23,6 +24,8 @@ export const MAX_RETRIES = 3;
 export const RETRY_BACKOFF_MS = 1000;
 export const MAX_RUN_DURATION_MIN = 90; // protección anti-runaway
 export const RECORDINGS_ROOT = '.ultraia/recordings';
+/** Carpeta de "hot" drops: scripts JSON dejados aquí se detectan con resolveHotWatch. */
+export const HOT_DIR = '.ultraia/hot';
 
 /**
  * Allowlist de binarios permitidos en acciones `exec` (política de seguridad).
@@ -443,6 +446,53 @@ export function resolveState(previous: RunState | null, nowIso: string): {
 }
 
 /* ------------------------------------------------------------------ */
+/* Hot watch (carpeta .ultraia/hot) + puente cola Publication          */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Detecta scripts JSON nuevos en la carpeta `hot/` (watch determinista):
+ * recibe el listado actual del directorio y los nombres ya conocidos,
+ * devuelve los nuevos (`*.json` ordenados) y el nuevo set de conocidos
+ * (known ∪ nuevos) para persistir el estado del watch. Idempotente:
+ * llamar de nuevo con los conocidos devueltos → sin nuevos.
+ */
+export function resolveHotWatch(
+  current: string[],
+  known: string[] = [],
+): { nuevos: string[]; conocidos: string[] } {
+  const jsonFiles = current
+    .filter((f) => f.toLowerCase().endsWith('.json'))
+    .sort();
+  const seen = new Set(known);
+  const nuevos = jsonFiles.filter((f) => !seen.has(f));
+  for (const n of nuevos) seen.add(n);
+  return { nuevos, conocidos: [...seen].sort() };
+}
+
+/**
+ * Construye un `PublicationPackage` válido para la cola de publicaciones
+ * (AutoPub F4) a partir de un run de ScreenFlow: tema = nombre del script,
+ * contenido = descripción, media = final.mp4 del run, canal `blog` (texto —
+ * auto-aprobado por la regla híbrida). El runner decide si crea la
+ * publicación con `createPublication(db, { paquete, canal: 'blog' })` para
+ * que los runs locales generen métricas. Keyless y determinista.
+ */
+export function buildPublicationPackage(
+  runId: string,
+  script: ActionScript,
+  manifest: ReturnType<typeof buildManifest>,
+): PublicationPackage {
+  const { dir } = buildOutputNaming(runId, script.name);
+  return present({
+    tema: script.name,
+    contenido: script.description ?? `${script.name} (grabación de pantalla automatizada)`,
+    media: [`${dir}/final.mp4`],
+    canales: ['blog'],
+    marca: 'UltraIa',
+  });
+}
+
+/* ------------------------------------------------------------------ */
 /* Public API                                                          */
 /* ------------------------------------------------------------------ */
 
@@ -455,10 +505,13 @@ export const screenflow = {
   scheduleCmd,
   resolveState,
   validateExecCmd,
+  resolveHotWatch,
+  buildPublicationPackage,
   EXEC_ALLOWLIST,
   ACTION_TYPES,
   MAX_RETRIES,
   RETRY_BACKOFF_MS,
   MAX_RUN_DURATION_MIN,
   RECORDINGS_ROOT,
+  HOT_DIR,
 };

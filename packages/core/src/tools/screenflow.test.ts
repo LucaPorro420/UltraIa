@@ -3,13 +3,16 @@ import {
   screenflow,
   validateActionScript,
   validateExecCmd,
+  resolveHotWatch,
+  buildPublicationPackage,
+  buildManifest,
   planRuns,
   buildFfmpegCapture,
   buildOutputNaming,
-  buildManifest,
   scheduleCmd,
   resolveState,
   MAX_RETRIES,
+  HOT_DIR,
   type ActionScript,
 } from './screenflow';
 
@@ -297,5 +300,70 @@ describe('screenflow · exec allowlist (validateExecCmd)', () => {
     expect(screenflow.EXEC_ALLOWLIST).toContain('python');
     expect(screenflow.EXEC_ALLOWLIST).toContain('ffmpeg');
     expect(typeof screenflow.validateExecCmd).toBe('function');
+  });
+});
+
+describe('screenflow · hot watch (resolveHotWatch)', () => {
+  it('detecta scripts JSON nuevos', () => {
+    const r = resolveHotWatch(['a.json', 'b.txt', 'c.json'], ['a.json']);
+    expect(r.nuevos).toEqual(['c.json']);
+    expect(r.conocidos).toEqual(['a.json', 'c.json']);
+  });
+
+  it('idempotente: con los conocidos devueltos no hay nuevos', () => {
+    const first = resolveHotWatch(['a.json', 'b.json']);
+    const second = resolveHotWatch(['a.json', 'b.json'], first.conocidos);
+    expect(first.nuevos).toEqual(['a.json', 'b.json']);
+    expect(second.nuevos).toEqual([]);
+  });
+
+  it('ignora archivos que no son .json', () => {
+    const r = resolveHotWatch(['script.json', 'video.mp4', 'data.txt', 'X.JSON']);
+    expect(r.nuevos).toEqual(['X.JSON', 'script.json']); // case-insensitive + ordenado
+  });
+
+  it('sin archivos no devuelve nuevos', () => {
+    expect(resolveHotWatch([]).nuevos).toEqual([]);
+    expect(resolveHotWatch(['a.json'], ['a.json']).nuevos).toEqual([]);
+  });
+});
+
+describe('screenflow · puente cola Publication (buildPublicationPackage)', () => {
+  const script: ActionScript = {
+    name: 'demo-tutorial',
+    description: 'Demo pipeline ScreenFlow',
+    actions: [{ type: 'sleep', ms: 100 }, { type: 'end' }],
+  };
+
+  it('construye un PublicationPackage válido (canal blog)', () => {
+    const manifest = buildManifest('20260817130000-demo', script, planRuns(script));
+    const pkg = buildPublicationPackage('20260817130000-demo', script, manifest);
+    expect(pkg.tema).toBe('demo-tutorial');
+    expect(pkg.contenido).toContain('Demo pipeline');
+    expect(pkg.canales).toEqual(['blog']);
+    expect(pkg.media).toEqual(['.ultraia/recordings/20260817130000-demo/final.mp4']);
+    expect(pkg.captionsByChannel.blog.caption).toBeTruthy();
+    expect(pkg.horarioSugerido.blog).toBeTruthy();
+    expect(pkg.branding.marca).toBeTruthy();
+  });
+
+  it('usa el nombre como contenido cuando no hay descripción', () => {
+    const manifest = buildManifest('20260817130000-x', { name: 'sin-desc', actions: [{ type: 'end' }] }, []);
+    const pkg = buildPublicationPackage('20260817130000-x', { name: 'sin-desc', actions: [{ type: 'end' }] }, manifest);
+    expect(pkg.contenido).toContain('sin-desc');
+  });
+
+  it('determinista', () => {
+    const manifest = buildManifest('20260817130000-demo', script, planRuns(script));
+    const a = buildPublicationPackage('20260817130000-demo', script, manifest);
+    const b = buildPublicationPackage('20260817130000-demo', script, manifest);
+    expect(JSON.stringify(a)).toBe(JSON.stringify(b));
+  });
+
+  it('namespace expone HOT_DIR y los nuevos helpers', () => {
+    expect(HOT_DIR).toBe('.ultraia/hot');
+    expect(screenflow.HOT_DIR).toBe('.ultraia/hot');
+    expect(typeof screenflow.resolveHotWatch).toBe('function');
+    expect(typeof screenflow.buildPublicationPackage).toBe('function');
   });
 });
