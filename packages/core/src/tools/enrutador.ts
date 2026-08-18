@@ -79,12 +79,18 @@ const CTA_BY_CANAL: Record<Idioma, Record<TopicBrief['canal'], string>> = {
     tiktok: 'Guárdalo y compártelo con quien lo necesita.',
     instagram: 'Comenta qué tema quieres que desglose después.',
     blog: 'Suscríbete al blog y recibe el siguiente artículo.',
+    telegram: 'Únete al canal para el resumen diario de IA.',
+    discord: 'Entra a la comunidad y comenta este tema.',
+    slack: 'Comparte este resumen con tu equipo.',
   },
   ar: {
     youtube_shorts: 'تابعني لمزيد من اختصارات الذكاء الاصطناعي في 60 ثانية.',
     tiktok: 'احفظه وشاركه مع من يحتاجه.',
     instagram: 'علّق على الموضوع الذي تريد أن أشرحه بعد ذلك.',
     blog: 'اشترك في المدونة واستقبل المقال التالي.',
+    telegram: 'انضم إلى القناة للحصول على ملخص الذكاء الاصطناعي اليومي.',
+    discord: 'ادخل إلى المجتمع وعلّق على هذا الموضوع.',
+    slack: 'شارك هذا الملخص مع فريقك.',
   },
 };
 

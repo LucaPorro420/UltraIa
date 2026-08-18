@@ -578,8 +578,9 @@ El usuario deja URLs en `enlaces.txt` (raíz) para que se analicen y se apliquen
   cap 4000, JSON `{ok,error}` fail-soft). Union `PublishPlatform` + discord/slack ·
   `createDefaultPublishers({includeDiscord, includeSlack})` · `CANALES_CON_APROBACION` +
   discord/slack (video → DRAFT) · TopicChannel/PresentChannel + discord/slack (9:16,
-  horarios 'lun/mie/vie 19:00'/'mar/jue 09:00'). 17+17 tests. DIFERIDO: tool `publish_submit`
-  toDiscord/toSlack en llm.ts (ahora sin bloqueo).
+  horarios 'lun/mie/vie 19:00'/'mar/jue 09:00'). 17+17 tests. WIRING COMPLETO (iteración 42):
+  tool `publish_submit` con `toDiscord`/`toSlack` (ramas switch + includeDiscord/includeSlack)
+  + descriptor publish 8 plataformas en index.ts + enrutador CTA_BY_CANAL es/ar exhaustivo.
   96/96 scoped (telegram 21 + publish 48 + publications 27).
 - NOTA coordinación: el wiring se hizo cuando la sesión concurrente liberó
   publish.ts/llm.ts/index.ts (su wiring Meta `a223417`); antes, los archivos estaban sucios.

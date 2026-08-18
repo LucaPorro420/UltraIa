@@ -1688,3 +1688,17 @@ ormalizeTitle() (lower + strip non-alnum), dedupe() (bigram overlap > 0.6),
 - **R**: Discord y Slack publicables desde la cola con aprobacion humana. Diferido: tool
   publish_submit toDiscord/toSlack en llm.ts (ahora sin bloqueo - llm.ts limpio). Sin push
   (aprobacion humana).
+
+### Iteracion 42 - Wiring publish_submit toDiscord/toSlack (17/08/2026) - DONE
+
+- La sesion concurrente commiteo F5 analytics (5afe2f7: metrics.ts/test + llm.ts + index.ts)
+  -> llm.ts/index.ts LIMPIOS -> el diferido de la iteracion 41 se cierra sin choque.
+- **I**: llm.ts (publish_submit: description con Discord/Slack + params toDiscord/toSlack +
+  ramas switch 'discord'/'slack' + createDefaultPublishers includeDiscord/includeSlack) +
+  index.ts (descriptor publish: 8 plataformas) + enrutador.ts (FIX TS2739 propio: CTA_BY_CANAL
+  es/ar exhaustivo con telegram/discord/slack).
+- **V**: vitest 175/175 (enrutador 28 + present 20 + topics 14 + llm 2 + publish 47 + discord
+  17 + slack 17 + publications 30) + tsc scoped 0 propios (solo ruido reach.ts #25) + eslint
+  EXIT 0 (apps/web sin cambios).
+- **R**: publish_submit cubre las 8 plataformas (YT/TikTok/X/IG/Threads/Telegram/Discord/
+  Slack) con fail-soft por token. Sin push (aprobacion humana).
