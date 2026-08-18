@@ -5,6 +5,7 @@ import {
   defaultGenerators,
   ImageGeneratorAdapter,
   MusicGeneratorAdapter,
+  VfxGeneratorAdapter,
   VideoGeneratorAdapter,
 } from './generators';
 
@@ -87,8 +88,9 @@ describe('AudioGeneratorAdapter', () => {
 });
 
 describe('defaultGenerators', () => {
-  it('exposes image, audio, video and music adapters', () => {
+  it('exposes image, audio, video, music and vfx adapters', () => {
     const gens = defaultGenerators();
-    expect(gens.map((g) => g.modality)).toEqual(['image', 'audio', 'video', 'music']);
+    expect(gens.map((g) => g.modality)).toEqual(['image', 'audio', 'video', 'music', 'vfx']);
+    expect(gens.find((g) => g.name === 'vfx-code')).toBeInstanceOf(VfxGeneratorAdapter);
   });
 });
