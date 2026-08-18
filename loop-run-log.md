@@ -2075,3 +2075,9 @@ de código, sin commit.
 - **[I] C3 (consolidacion)**: STATE.md fila 62 DONE + High Priority ITERACION 62 CERRADA + banner Last run con iteracion 62 al frente.
 - **[V] docs-only** (precedente loop-44/56/57b): manifest.json JSON valido (py json.load, 15 skills) + estructura no descubrible verificada (sin SKILL.md en raiz de skills-avoid) + 15/15 copias + espejos sync por hash (8/8: loop-* + ultraia-request + state-integrity-check) + git diff --check limpio. Sin .ts tocados. FULL typecheck DIFERIDO (r58 ACTIVA con errores TS propios en packages/core).
 - **[R] DONE** - commit con pathspec explicito. Siguiente: 60 motion o esperar liberacion de r58 para FULL.
+
+### Iteracion 60 - Capability motion (18/08/2026, fase P - plan preparado, ejecucion diferida)
+- **[P] Sensado**: r58-UTEC-5260 sigue ACTIVA editando packages/core (sdf.ts mtime 20:30:59; wiring tools.sdf_render YA en llm.ts + export sdf en index.ts). videoqa (59) DONE sin wiring (DIFERIDO - index.ts/llm.ts no lo referencian). motion.ts NO existe. Tomar 60 ahora = colision garantizada en llm.ts/index.ts (precedente iter-58: sobrescritura).
+- **[P] Razonamiento + prediccion**: plan file .opencode/plans/loop-60-motion.md escrito (dominio puro motion.ts: planFlowAnalysis Farneback/LK + buildFlowRunnerArgv + trajectoryFit splines/catmull-rom + decomposeCameraScene + motionField F(x,y,t) + tool motion_analyze + wiring diferido + runner scripts/motion_flow.py fail-soft). PREDICCION: C1 22-26/25-30 PASS -> C2 100% scoped + tsc core 0 -> C3 FULL verdes ~308+ tests core.
+- **[V] SIN CODIGO (fase P)**: plan file creado, sin .ts tocados, sin colision. Lock ajeno respetado (r58 ACTIVA).
+- **[R] DIFERIDO**: ejecutar cuando r58 libere (lock expirado > 30 min o fila 58 DONE). Si r58 toma la 60 antes (motion.ts untracked ajeno) -> CEDER sin duplicar (precedente iter-58).
