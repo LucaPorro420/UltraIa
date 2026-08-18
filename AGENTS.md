@@ -611,13 +611,13 @@ El usuario deja URLs en `enlaces.txt` (raÃ­z) para que se analicen y se apliquen
 - **npm overrides ELIMINADOS del root** (npm no soporta overrides por workspace; rompÃ­a
   mobile): apps/web declara `react@19.1.0` exacto, mobile `react@19.2.3` (RN 0.86). react
   duplicado en el monorepo es INTENCIONAL (expo-doctor lo marca 20/21, ignorar).
-- **Capability codevfx** (patrón Elemental Sandbox VFX — fuente: enlaces.txt Instagram
-  DcJDsghiJne ? repo achrefelouafi/LinearAbiltyCastingThreeJS MIT; análisis
-  docs/RAZONAMIENTO-CODEVFX.md): packages/core/src/tools/codevfx.ts — port ORIGINAL de los
-  PRINCIPIOS (nada de código copiado, attribution header): efectos 100% código sin
+- **Capability codevfx** (patrï¿½n Elemental Sandbox VFX ï¿½ fuente: enlaces.txt Instagram
+  DcJDsghiJne ? repo achrefelouafi/LinearAbiltyCastingThreeJS MIT; anï¿½lisis
+  docs/RAZONAMIENTO-CODEVFX.md): packages/core/src/tools/codevfx.ts ï¿½ port ORIGINAL de los
+  PRINCIPIOS (nada de cï¿½digo copiado, attribution header): efectos 100% cï¿½digo sin
   texturas/sprites/meshes. planEffect(kind, {intensity, speed}) ? 9 kinds (fire/ice/
-  lightning/meteor/beam/ground + void/plasma/frost) con paleta base/acento/energía, física
-  (gravedad/viento/fricción — fuego sube, beam no cae), partículas escaladas por intensidad,
+  lightning/meteor/beam/ground + void/plasma/frost) con paleta base/acento/energï¿½a, fï¿½sica
+  (gravedad/viento/fricciï¿½n ï¿½ fuego sube, beam no cae), partï¿½culas escaladas por intensidad,
   GLSL hand-written por kind y hotkeys Q/W/E/R/F/X/V/C/B; colorimetryAnalyze (HSL + calor +
   coherencia: spread sat =35 y calor =1.2 + dominante por luminancia); curvatureShade (0-1,
   luz/lightDir); perspectivePlan (fov desde distancia + offsets parallax por capa);
@@ -625,9 +625,60 @@ El usuario deja URLs en `enlaces.txt` (raÃ­z) para que se analicen y se apliquen
   pointermove + hotkey). Registro: capability codevfx ? tool vfx_code (acciones plan/
   colorimetria/curvatura/perspectiva/render) en ai/llm.ts. Export en tools/index.ts (codevfx).
   Demo: node_modules\.bin\vite-node.cmd Task/codevfx-demo.ts ? resultTask/codevfx/ (plans,
-  colorimetria, curvatura, perspectiva + effects/*.html ×9). Tests: codevfx.test.ts 29 PASS.
-- LECCIÓN 45: npm overrides de react en root rompen el workspace mobile (npm no soporta
-  overrides por ruta); cada app declara su react exacto. Metro no resuelve node:* ? el móvil
-  replica los tipos de la API en src/api/types.ts. expo-doctor marca la duplicación react
-  (web 19.1.0 / mobile 19.2.3) — intencional en monorepo. Red puro HSL: el hue del rojo
+  colorimetria, curvatura, perspectiva + effects/*.html ï¿½9). Tests: codevfx.test.ts 29 PASS.
+- LECCIï¿½N 45: npm overrides de react en root rompen el workspace mobile (npm no soporta
+  overrides por ruta); cada app declara su react exacto. Metro no resuelve node:* ? el mï¿½vil
+  replica los tipos de la API en src/api/types.ts. expo-doctor marca la duplicaciï¿½n react
+  (web 19.1.0 / mobile 19.2.3) ï¿½ intencional en monorepo. Red puro HSL: el hue del rojo
   puro es 0, no 340 (test corregido).
+
+## Ronda de consolidaciÃ³n + travel (18/08/2026, loop-46 `78d25e0` `85c1d26` `9fed227`)
+
+- **Push histÃ³rico**: `git push origin master` â€” 110 commits locales (todo el backlog de
+  agosto, incl. los fixes de la sesiÃ³n concurrente #25) ahora en GitHub
+  (github.com/LucaPorro420/UltraIa, rama `master`). Ronda: gates FULL verdes + 3 commits
+  propios + push (decisiÃ³n usuario: push directo ahora; PR draft para features grandes
+  en adelante).
+- **Fix BodyInit (`78d25e0`)**: `buildMultipartBody` de telegram/discord/slack devuelve
+  `Uint8Array` y el fetch usa cast `body as unknown as NonNullable<RequestInit['body']>` â€”
+  `BodyInit` NO existe en core (tsconfig core: `types:["node"]`, `lib:["ES2022"]`); en web
+  (lib DOM/ES2022) `Buffer<ArrayBufferLike>`/`Uint8Array<ArrayBufferLike>` no son asignables
+  a `BodyInit`. Web typecheck lo exige. (b601ec5 de #25 ya habÃ­a quitado las extensiones
+  `.js` de esos imports â€” causa original de raza con el dev server.)
+- **repomix (`85c1d26`, L825)**: `npm i -D repomix@1.18.0` + script npm `repomix`
+  (`--include "packages/core/src,packages/runtime/src,apps/web/src,apps/mobile/src,scripts,Task,start.py"`)
+  â€” empaqueta el repo completo en `repomix-output.xml` (~505k tokens, 336 archivos) para
+  dar contexto a cualquier LLM; respeta .gitignore, security check automÃ¡tico (excluye
+  p.ej. slack.test.ts por su token de prueba). Output NUNCA commiteado
+  (`.gitignore`: `repomix-output.*`). GuÃ­a: `docs/REPOMIX.md`.
+- **Capability travel (`9fed227`, pedido usuario "tomas de paisajes - videos de viajes")**:
+  `packages/core/src/tools/travel.ts` â€” dominio puro determinista: `planTravelVideo(destino,
+  {idioma es/ar, estilo aventura/relax/cultura/naturaleza, duracion 30-60s, escenas 3-7})`
+  (hook + escenas con MOTIONS del vocabulario canonico + prompts de imagen 9:16 + narracion
+  bilingue + CTA + musica sugerida), `buildTakeManifest` (tomas guardadas de historias ->
+  `.ultraia/travel/tomas/<slug>/manifest.json`, slug idempotente), `buildTravelRender` (argv
+  ffmpeg determinista: Ken Burns zoompan por escena + xfade encadenado + narracion edge-tts
+  + BGM 0.25 -> `travel-<slug>.mp4`, emite render.sh/steps/manifest), `replicateLandscape`
+  (N variaciones hora x clima x lente -> URLs pollinations keyless), `travelLeadImage` (still
+  9:16). Tool `travel_plan` (acciones plan/toma/render/replicar/lead) en ai/llm.ts bajo
+  capability `travel` + export en tools/index.ts (`travel`, `slugifyDestino` â€” NO usar
+  `slugify`/`RenderOptions`: colisionan con present/video-edit). 18 tests.
+- **Verificaciones enlaces.txt (18/08)**: L676 tomassporro = perfil IG de paisajes
+  (anti-bot, login wall â€” fuente de tomas, alimenta travel); L678 melisaescobart_ = video
+  promocional de VidRush (ya analizado, growth); L793/795 wearebrand.io = marketing web
+  (nada accionable); L683/L686/L689/L797/L800 = recursos dev/design (PDFs, certificados,
+  doodle pack, fonts â€” nada accionable); L821 Db_CpPGJxpE = Kage (Three.js scroll-world de
+  Meng To, open-source + AI coding skills) -> `learning/sources/kage-threejs.md` +
+  `docs/RAZONAMIENTO-TESTTASKSKILLS.md`, aplicacion pendiente en Watch List (landing
+  mundo 3D por seccion â€” decision de producto).
+- **Concurrencia #25 (reglas confirmadas esta ronda)**: la sesion concurrente sigue viva
+  (commiteo `8ae11bf`/`68f23eb` durante gates). Su WIP (automation/recorder/reach/blueprint/
+  shared) tiene 5 tests rojos conocidos y errores TS propios -> aislar a
+  `%TEMP%\opencode\wip-quarantine-20260818\` durante gates FULL y restaurar con hash-check
+  despues (worktree == index == WIP). Los test files untracked NO quedan en el manifest â€”
+  copiarlos tambien (mismo dir, hash por Get-FileHash). `.next` corrupto recurrente por raza:
+  matar node.exe + `Remove-Item .next` antes de cada build; a veces requiere 2 intentos.
+  LEY: `git add` explicito (nunca `.`), NO tocar DOCS_TODO/blueprint/reach/automation/
+  recorder/plans loop-46 ni los untracked de #25 (docs/AUTOMATION-WEB.md,
+  docs/RAZONAMIENTO-{GAME-DEV,MEDIA-AUTOMATION}.md, scripts/web-automation.py, ...).
+  POST-COMMIT HOOK: `[doc-reminder] anotados N archivo(s) en DOCS_TODO.md` corre solo.

@@ -435,3 +435,37 @@ Cada commit agrega una sección con fecha y la lista de archivos `.ts/.tsx` toca
 - [ ] packages/core/src/tools/codevfx.test.ts
 - [ ] packages/core/src/tools/codevfx.ts
 - [ ] packages/core/src/tools/index.ts
+
+## 2026-08-18T03:51:02.164Z
+- [ ] packages/core/src/tools/discord.ts
+- [ ] packages/core/src/tools/publish.ts
+- [ ] packages/core/src/tools/slack.test.ts
+- [ ] packages/core/src/tools/slack.ts
+
+## 2026-08-18T04:11:20.501Z
+- [ ] apps/web/next.config.ts
+- [ ] packages/core/src/domain/blueprint.test.ts
+- [ ] packages/core/src/domain/blueprint.ts
+- [ ] packages/core/src/shared/domain.ts
+- [ ] packages/core/src/tools/present.test.ts
+- [ ] packages/core/src/tools/reach.test.ts
+- [ ] packages/core/src/tools/reach.ts
+
+## 2026-08-18T04:17:02.493Z
+- [ ] packages/core/src/tools/discord.ts
+- [ ] packages/core/src/tools/slack.ts
+- [ ] packages/core/src/tools/telegram.ts
+
+## 2026-08-18T05:28:04.291Z
+- [x] packages/core/src/ai/llm.ts
+- [x] packages/core/src/tools/index.ts
+- [x] packages/core/src/tools/travel.test.ts
+- [x] packages/core/src/tools/travel.ts
+
+## 2026-08-18T06:00:00.000Z — completados en la ronda de consolidación (loop-46)
+- [x] packages/core/src/tools/telegram.ts (fix BodyInit 78d25e0 — JSDoc completo)
+- [x] packages/core/src/tools/discord.ts (fix BodyInit 78d25e0 — JSDoc completo)
+- [x] packages/core/src/tools/slack.ts (fix BodyInit 78d25e0 — JSDoc completo)
+- [x] packages/core/src/tools/travel.ts + travel.test.ts (capability travel 9fed227 — JSDoc es/ar completo)
+- [x] docs/REPOMIX.md (guía repomix 85c1d26)
+- [x] AGENTS.md (sección loop-46: push histórico, fix BodyInit, repomix, travel, verificaciones enlaces.txt, reglas concurrencia #25)
