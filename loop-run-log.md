@@ -1794,3 +1794,39 @@ ormalizeTitle() (lower + strip non-alnum), dedupe() (bigram overlap > 0.6),
 
 ### Iteracion 46 - Consolidar arbol (18/08/2026) - PAUSADA (sesion concurrente activa)
 - Plan aprobado por usuario: 6 iteraciones 46->51 (46 consolidar arbol, 47 movil E2E + EAS build, 48 repomix 815, 49 LinkedIn, 50 Desktop WebView2, 51 codevfx->OMAG). Usuario: sesion #25 'ya termino' + cuenta Expo para EAS.
+
+### Iteracion 46 - Ronda de consolidacion + push + travel (18/08/2026) - DONE (parcial: sub-items futuros)
+
+- **P**: plan maestro aprobado (decisión usuario 18/08): push directo a master ahora; PR draft
+  para features grandes en adelante. Ronda F1-F6: fix BodyInit + push historico, repomix (L825),
+  verificacion URLs enlaces.txt (IG/TikTok), capability travel (tomas de paisajes -> videos),
+  docs, cierre.
+- **F1 I**: cast BodyInit en discord.ts/slack.ts (telegram ya lo tenia). V: gates FULL verdes
+  (typecheck, lint, test 903/903 con 3 test files #25 cuarentenados, build 43 paginas). Commit
+  78d25e0. **PUSH 974f866..78d25e0 (110 commits)** -> github.com/LucaPorro420/UltraIa (master).
+- **F2 I**: repomix@1.18.0 devDep + script npm repomix (--include core/runtime/web/mobile/
+  scripts/Task/start.py) + .gitignore (repomix-output.*; quitar repomix.md -> colisionaba con
+  docs/REPOMIX.md por ignorecase) + docs/REPOMIX.md. V: npm run repomix OK (336 archivos, 505k
+  tokens, security check excluye slack.test.ts); gates FULL verdes (test 888/888). Commit 85c1d26.
+- **F3 I**: URLs verificadas via r.jina.ai (8/8): tomassporro = paisajes IG (anti-bot, login wall)
+  -> alimenta travel; melisaescobart_ = promo VidRush (ya en growth); wearebrand.io = marketing;
+  L683/686/689/797/800 = recursos dev/design; Db_CpPGJxpE = Kage (Three.js, ver F4). Capability
+  travel: packages/core/src/tools/travel.ts (planTravelVideo, buildTakeManifest, buildTravelRender
+  zoompan+xfade+edge-tts+BGM, replicateLandscape pollinations keyless, travelLeadImage, slugify
+  Destino) + tool travel_plan (plan/toma/render/replicar/lead) en llm.ts + export index.ts.
+  V: typecheck FULL 0, lint 0, test 906/906 (core 713 + runtime 193), build 43 pag (2 intentos por
+  raza .next). Commit 9fed227 + PUSH.
+- **F4 I**: Kage (reel Db_CpPGJxpE, techinsixty/Meng To) -> learning/sources/kage-threejs.md +
+  docs/RAZONAMIENTO-TESTTASKSKILLS.md (mapeo: aurora-canvas + codevfx cubren el patron; landing
+  scroll-world 3D -> Watch List, decision de producto). F5: AGENTS.md seccion loop-46 + DOCS_TODO
+  completados. Commit 14d101e + PUSH.
+- **V FULL**: 4 commits propios (78d25e0, 85c1d26, 9fed227, 14d101e) + push 9fed227..14d101e.
+  Arbol: solo WIP #25 restante (no tocar).
+- **R**: sub-items futuros del plan maestro: 47 movil E2E + EAS build, 49 LinkedIn, 50 Desktop
+  WebView2, 51 codevfx->OMAG. Concurrencia #25 sigue viva (commitea durante gates) - protocolo
+  cuarentena %TEMP%\opencode\wip-quarantine-20260818\ confirmado.
+
+### Iteracion 47 - (futura) Movil E2E + EAS build
+### Iteracion 49 - (futura) LinkedIn adapter
+### Iteracion 50 - (futura) Desktop WebView2
+### Iteracion 51 - (futura) codevfx -> OMAG
