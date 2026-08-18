@@ -1905,3 +1905,14 @@ ormalizeTitle() (lower + strip non-alnum), dedupe() (bigram overlap > 0.6),
 - **V**: gates FULL verdes (typecheck 0, lint 0, test 193/193 runtime, build 43 paginas; 3 test files #25 cuarentenados).
 - **Commit**: 4deb4e9 + push c1248f2..4deb4e9.
 - **R**: codevfx -> OMAG COMPLETO. Pipeline OMAG ahora genera VFX procedimentales como assets nativos (HTML5 canvas + GLSL), criticables en el correction loop. Plan maestro backlog completado (iteraciones 46-51).
+
+### Iteracion 52 - Screenflow mejoras: hot watch + cola Publication (18/08/2026) - DONE
+
+- **P**: plan loop-52-screenflow-hot-publication.md — hot watch runner que vigila .ultraia/hot/, ejecuta scripts via run_screenflow.ts, crea Publication blog (auto-approve) + cloud opcional.
+- **I**: 
+  - Task/screenflow-hot-watch.ts: poll .ultraia/hot cada N seg (default 10s), esolveHotWatch detecta *.json nuevos, spawnea un_screenflow.ts, crea Publication blog (auto-approve) con createPublication + guardarPaqueteEnCloud opcional; flags --once, --interval, --db, --cloud, --dry-run, --hot-dir.
+  - Tests: 10 nuevos (hot watch runner integración mock: resolveHotWatch + buildPublicationPackage + resolveState flujo completo, idempotencia, give-up, published no reanuda, determinista sin generadoAt).
+  - Fix: present.generadoAt no-determinista ? test determinista compara sin ese campo.
+- **V**: gates FULL verdes (typecheck 0, lint 0, test 737+193 runtime, build 43 paginas; 3 test files #25 cuarentenados).
+- **Commit**: be35a83 + push e17306a..be35a83.
+- **R**: Screenflow hot watch + cola Publication COMPLETO. Pipeline: hot folder -> runner -> captura/acciones/edicion -> local publish -> Publication queue (blog) -> métricas.
