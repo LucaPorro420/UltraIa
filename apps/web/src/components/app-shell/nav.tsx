@@ -12,6 +12,7 @@ import {
   Compass,
   BookOpen,
   Cloud,
+  BarChart3,
   LogOut,
 } from 'lucide-react';
 import { logoutAction } from '@/app/(app)/actions';
@@ -23,6 +24,7 @@ const ITEMS = [
   { href: '/gallery', label: 'Gallery', icon: Images },
   { href: '/builder', label: 'Builder', icon: SquareDashedMousePointer },
   { href: '/cloud', label: 'Cloud', icon: Cloud },
+  { href: '/metrics', label: 'Métricas', icon: BarChart3 },
   { href: '/roadmap', label: 'Roadmap', icon: Map },
 ];
 
