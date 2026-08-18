@@ -216,3 +216,10 @@ Implementacion: capability vfx (tools/vfx.ts: planReframe / planUpscale / planLu
 - Numeracion de iteraciones: la sesion concurrente reuso el 39 (telegram cola) -> verificar
   `git log` y el run-log ANTES de numerar una iteracion; renombrar plan con `git mv`
   (nunca amend).
+- Raza de bitacora REAL (17/08, iteracion 41): la sesion concurrente commiteo
+  "adapters Discord + Slack (iteracion 41)" (bef1fc0) mientras yo editaba el run-log y
+  absorbio MI seccion "Iteracion 41 - Endpoint metrics" en SU commit -> mi chore 0412fe4
+  solo llevo STATE.md (mensaje dice "run-log + STATE.md", incorrecto). Resultado: dos
+  secciones 41 en run-log + dos filas 41 en STATE.md (precedente: dos filas 36). Regla:
+  ANTES de commitear bitacora, verificar `git log --oneline -3 -- loop-run-log.md STATE.md`;
+  si la sesion absorbio tu edit, NO reescribir (evita otra raza), dejar evidencia y anotar.
