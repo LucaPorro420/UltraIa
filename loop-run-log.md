@@ -1656,6 +1656,25 @@ ormalizeTitle() (lower + strip non-alnum), dedupe() (bigram overlap > 0.6),
   sesion concurrente termine discord/slack antes de tocar llm.ts/publish.ts.
   Sin push (aprobacion humana).
 
+### Iteracion 43 - UI de metricas AutoPub (pagina /metrics) (17/08/2026) - DONE
+
+- El numero 42 lo uso la sesion concurrente (wiring publish_submit toDiscord/toSlack,
+  0f9547a) -> esta iteracion es la 43; plan file RENOMBRADO loop-42 -> loop-43 (git mv,
+  precedente loop-39 -> loop-40).
+- **P**: cerrar F5 punta a punta: faltaba la UI que consume el endpoint metrics
+  (a8bf697). Archivos del shell verificados limpios antes de empezar.
+- **I**: `(app)/metrics/page.tsx` (server, requireUser, patron cloud) +
+  `components/metrics-client.tsx` (client: StatCards totales + tabla por canal con
+  badges de canal + tasaExito/scorePromedio + panel analytics reales con select
+  platform + input channelId + boton -> GET /api/publications/metrics?platform=&channelId=
+  -> vistas/subscriptores/videoCount o fail-soft amber con la razon; fetch con cookies de
+  sesion, maneja 401/403) + entrada '/metrics' (BarChart3) en nav.tsx tras Cloud.
+- **V**: tsc web --noEmit 0 propios + eslint EXIT 0 (fix propio: Button no soporta
+  size='icon' -> className px-2.5). Build FULL bloqueado (arbol ajeno).
+- **R**: F5 completo punta a punta (dominio + tool + endpoint + UI). Commit c8939f6.
+  Verificacion post-commit: 0f9547a (wiring discord/slack) llego DESPUES de mi commit,
+  sin tocar mis archivos. Sin push (aprobacion humana).
+
 ### Iteracion 41 - Adapters Discord + Slack (17/08/2026) - DONE
 
 - La sesion concurrente uso el 40 (F5 analytics 5afe2f7: metrics.ts/test + llm.ts + index.ts
