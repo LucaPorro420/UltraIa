@@ -257,6 +257,8 @@ export function buildTravelRender(plan: TravelPlan, opts?: TravelRenderOptions):
   }
 
   // Step 2: chained xfade (offsets accumulate: duration - fade)
+  // For k-th xfade adding clip k (1-indexed: k=1 adds clip1 to clip0, k=2 adds clip2 to v1, etc.)
+  // offset = sum of durations of clips 0..k-1 - k * fadeSec
   const inputs: string[] = [];
   const labels: string[] = [];
   let fc = `[0:v][1:v]xfade=transition=fade:duration=${fadeSec}:offset=${Math.max(0, plan.escenas[0].duracionSeg - fadeSec)}[v1]`;
@@ -264,9 +266,10 @@ export function buildTravelRender(plan: TravelPlan, opts?: TravelRenderOptions):
   labels.push('v1');
   for (let i = 2; i < n; i++) {
     inputs.push('-i', `clip-${i}.mp4`);
-    const offset = i === 2
-      ? plan.escenas.slice(0, 2).reduce((a, s) => a + s.duracionSeg, 0) - fadeSec
-      : plan.escenas.slice(0, i + 1).reduce((a, s) => a + s.duracionSeg, 0) - (i + 1) * fadeSec;
+    // i is the index of the clip being added (0-indexed). We've already processed clips 0..i-1.
+    // The xfade number k = i (since first xfade k=1 added clip1, second k=2 adds clip2, etc.)
+    // offset = sum of first i scenes - i * fadeSec
+    const offset = plan.escenas.slice(0, i).reduce((a, s) => a + s.duracionSeg, 0) - i * fadeSec;
     fc += `;[${labels[i - 2]}][${i}:v]xfade=transition=fade:duration=${fadeSec}:offset=${Math.max(0, offset)}[v${i}]`;
     labels.push(`v${i}`);
   }

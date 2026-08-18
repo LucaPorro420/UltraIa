@@ -1,0 +1,69 @@
+{
+  "slug": "islandia",
+  "titulo": "Viaje a Islandia",
+  "destino": "Islandia",
+  "idioma": "es",
+  "estilo": "aventura",
+  "duracionSeg": 60,
+  "hook": "Islandia no es para los débiles. Es para los que despiertan antes que el sol.",
+  "escenas": [
+    {
+      "lugar": "Islandia",
+      "descripcion": "El amanecer rompe sobre las montañas",
+      "motion": "pan right",
+      "duracionSeg": 9,
+      "promptImagen": "cinematic travel photography of Islandia, el amanecer rompe sobre las montañas, pan right, golden hour, 35mm, ultra detailed, 9:16 vertical",
+      "narracion": "El amanecer rompe sobre las montañas"
+    },
+    {
+      "lugar": "Islandia",
+      "descripcion": "El camino serpentea entre los valles",
+      "motion": "tilt up",
+      "duracionSeg": 9,
+      "promptImagen": "cinematic travel photography of Islandia, el camino serpentea entre los valles, tilt up, golden hour, 35mm, ultra detailed, 9:16 vertical",
+      "narracion": "El camino serpentea entre los valles"
+    },
+    {
+      "lugar": "Islandia",
+      "descripcion": "El río baja con fuerza tras la lluvia",
+      "motion": "zoom in",
+      "duracionSeg": 9,
+      "promptImagen": "cinematic travel photography of Islandia, el río baja con fuerza tras la lluvia, zoom in, golden hour, 35mm, ultra detailed, 9:16 vertical",
+      "narracion": "El río baja con fuerza tras la lluvia"
+    },
+    {
+      "lugar": "Islandia",
+      "descripcion": "La cumbre se asoma entre las nubes",
+      "motion": "crane down",
+      "duracionSeg": 9,
+      "promptImagen": "cinematic travel photography of Islandia, la cumbre se asoma entre las nubes, crane down, golden hour, 35mm, ultra detailed, 9:16 vertical",
+      "narracion": "La cumbre se asoma entre las nubes"
+    },
+    {
+      "lugar": "Islandia",
+      "descripcion": "El viento golpea la llanura abierta",
+      "motion": "static",
+      "duracionSeg": 9,
+      "promptImagen": "cinematic travel photography of Islandia, el viento golpea la llanura abierta, static, golden hour, 35mm, ultra detailed, 9:16 vertical",
+      "narracion": "El viento golpea la llanura abierta"
+    },
+    {
+      "lugar": "Islandia",
+      "descripcion": "El sendero desaparece en el bosque",
+      "motion": "pan left",
+      "duracionSeg": 9,
+      "promptImagen": "cinematic travel photography of Islandia, el sendero desaparece en el bosque, pan left, golden hour, 35mm, ultra detailed, 9:16 vertical",
+      "narracion": "El sendero desaparece en el bosque"
+    },
+    {
+      "lugar": "Islandia",
+      "descripcion": "La noche cae sobre el campamento",
+      "motion": "push out",
+      "duracionSeg": 9,
+      "promptImagen": "cinematic travel photography of Islandia, la noche cae sobre el campamento, push out, golden hour, 35mm, ultra detailed, 9:16 vertical",
+      "narracion": "La noche cae sobre el campamento"
+    }
+  ],
+  "cta": "Guarda este video para tu próxima aventura. 🎒",
+  "musicaSugerida": "epic orchestral percussion"
+}

@@ -1,0 +1,461 @@
+{
+  "30s": [
+    {
+      "id": "30s-vfx-0",
+      "kind": "frost",
+      "name": "Hoarfrost",
+      "palette": {
+        "base": "#bae6fd",
+        "accent": "#f8fafc",
+        "energy": "#0ea5e9"
+      },
+      "physics": {
+        "gravity": -4,
+        "wind": -16,
+        "friction": 0.99
+      },
+      "shaderGlsl": "vec3 frostFx(vec2 uv, float t) { float h = sin(uv.x*31.0 + t)*0.5 + sin(uv.y*47.0 + t*0.7)*0.5; float branch = smoothstep(0.42, 0.0, abs(h) - 0.08); return vec3(0.73, 0.9, 0.99)*branch; }",
+      "layers": [
+        {
+          "id": "branch",
+          "blend": "source-over",
+          "opacity": 0.9
+        },
+        {
+          "id": "glint",
+          "blend": "screen",
+          "opacity": 0.5
+        }
+      ],
+      "hotkey": "B",
+      "particles": {
+        "count": 218,
+        "minSize": 1.2,
+        "maxSize": 3.4,
+        "life": 2.16
+      },
+      "speed": 0.5,
+      "intensity": 30,
+      "startPct": 0,
+      "endPct": 0.5,
+      "blendMode": "screen",
+      "opacity": 0.3
+    },
+    {
+      "id": "30s-vfx-1",
+      "kind": "ground",
+      "name": "Terra Surge",
+      "palette": {
+        "base": "#d6a354",
+        "accent": "#f5e6c8",
+        "energy": "#a16207"
+      },
+      "physics": {
+        "gravity": -60,
+        "wind": 6,
+        "friction": 0.98
+      },
+      "shaderGlsl": "vec3 terra(vec2 uv, float t) { float ridge = abs(fract(uv.y*9.0 + sin(uv.x*14.0 + t)*0.5) - 0.5)*2.0; float surge = smoothstep(0.5, 0.0, length(uv - vec2(0.5, 0.05 + 0.3*ridge))); return vec3(0.84, 0.64, 0.33) * (surge*0.8 + 0.2); }",
+      "layers": [
+        {
+          "id": "surge",
+          "blend": "source-over",
+          "opacity": 0.85
+        },
+        {
+          "id": "debris",
+          "blend": "screen",
+          "opacity": 0.5
+        }
+      ],
+      "hotkey": "X",
+      "particles": {
+        "count": 289,
+        "minSize": 1.2,
+        "maxSize": 3.4,
+        "life": 1.1
+      },
+      "speed": 0.3,
+      "intensity": 20,
+      "startPct": 0.5,
+      "endPct": 1,
+      "blendMode": "screen",
+      "opacity": 0.4
+    }
+  ],
+  "60s": [
+    {
+      "id": "60s-vfx-0",
+      "kind": "fire",
+      "name": "Pyro Blast",
+      "palette": {
+        "base": "#ff6b35",
+        "accent": "#ffd166",
+        "energy": "#ff2d2d"
+      },
+      "physics": {
+        "gravity": -140,
+        "wind": 18,
+        "friction": 0.985
+      },
+      "shaderGlsl": "vec3 fire(vec2 uv, float t) { float d = length(uv - vec2(0.5, 0.1)); float n = sin(uv.x*28.0 - t*9.0)*0.5 + 0.5; float core = smoothstep(0.42, 0.0, d*(1.0 - 0.35*n)); return vec3(1.0, 0.42 + 0.35*n, 0.18) * core; }",
+      "layers": [
+        {
+          "id": "core",
+          "blend": "lighter",
+          "opacity": 1
+        },
+        {
+          "id": "smoke",
+          "blend": "multiply",
+          "opacity": 0.55
+        }
+      ],
+      "hotkey": "Q",
+      "particles": {
+        "count": 454,
+        "minSize": 1.2,
+        "maxSize": 3.4,
+        "life": 1.68
+      },
+      "speed": 1.2,
+      "intensity": 60,
+      "startPct": 0,
+      "endPct": 0.3333333333333333,
+      "blendMode": "screen",
+      "opacity": 0.3
+    },
+    {
+      "id": "60s-vfx-1",
+      "kind": "lightning",
+      "name": "Storm Arc",
+      "palette": {
+        "base": "#c4b5fd",
+        "accent": "#ffffff",
+        "energy": "#8b5cf6"
+      },
+      "physics": {
+        "gravity": 60,
+        "wind": 40,
+        "friction": 0.95
+      },
+      "shaderGlsl": "vec3 bolt(vec2 uv, float t) { float seg = fract(sin(uv.x*97.0 + t*23.0)*43758.5); float y = abs(uv.y - 0.5 - (seg-0.5)*0.7); float w = 0.012 + 0.02*(1.0-uv.y); float b = smoothstep(w, 0.0, y); return vec3(0.98, 0.93, 1.0) * b * (0.6 + 0.4*sin(t*30.0)); }",
+      "layers": [
+        {
+          "id": "arc",
+          "blend": "lighter",
+          "opacity": 1
+        },
+        {
+          "id": "spark",
+          "blend": "screen",
+          "opacity": 0.7
+        }
+      ],
+      "hotkey": "E",
+      "particles": {
+        "count": 221,
+        "minSize": 1.2,
+        "maxSize": 3.4,
+        "life": 0.43
+      },
+      "speed": 0.8,
+      "intensity": 40,
+      "startPct": 0.3333333333333333,
+      "endPct": 0.6666666666666666,
+      "blendMode": "screen",
+      "opacity": 0.4
+    },
+    {
+      "id": "60s-vfx-2",
+      "kind": "meteor",
+      "name": "Meteor Streak",
+      "palette": {
+        "base": "#fb923c",
+        "accent": "#fde68a",
+        "energy": "#ea580c"
+      },
+      "physics": {
+        "gravity": 240,
+        "wind": -30,
+        "friction": 0.98
+      },
+      "shaderGlsl": "vec3 meteor(vec2 uv, float t) { float trail = exp(-uv.y*7.0); float core = smoothstep(0.08, 0.0, length(uv - vec2(0.5, 0.9 - 0.8*t))); return vec3(1.0, 0.65, 0.35) * (trail*0.7 + core); }",
+      "layers": [
+        {
+          "id": "streak",
+          "blend": "lighter",
+          "opacity": 1
+        },
+        {
+          "id": "shock",
+          "blend": "screen",
+          "opacity": 0.4
+        }
+      ],
+      "hotkey": "R",
+      "particles": {
+        "count": 151,
+        "minSize": 1.2,
+        "maxSize": 3.4,
+        "life": 0.72
+      },
+      "speed": 0.5,
+      "intensity": 30,
+      "startPct": 0.6666666666666666,
+      "endPct": 1,
+      "blendMode": "screen",
+      "opacity": 0.5
+    }
+  ],
+  "2min": [
+    {
+      "id": "2min-vfx-0",
+      "kind": "plasma",
+      "name": "Plasma Field",
+      "palette": {
+        "base": "#f0abfc",
+        "accent": "#818cf8",
+        "energy": "#e879f9"
+      },
+      "physics": {
+        "gravity": 0,
+        "wind": 12,
+        "friction": 0.99
+      },
+      "shaderGlsl": "vec3 plasmaFx(vec2 uv, float t) { float v = sin(uv.x*10.0 + t*2.5) + sin(uv.y*10.0 + t*3.1) + sin((uv.x+uv.y)*7.0 - t*1.7); v /= 3.0; return vec3(0.94, 0.67, 0.98)*smoothstep(-0.2, 0.9, v); }",
+      "layers": [
+        {
+          "id": "field",
+          "blend": "screen",
+          "opacity": 0.85
+        },
+        {
+          "id": "wave",
+          "blend": "lighter",
+          "opacity": 0.4
+        }
+      ],
+      "hotkey": "C",
+      "particles": {
+        "count": 450,
+        "minSize": 1.2,
+        "maxSize": 3.4,
+        "life": 1.2
+      },
+      "speed": 0.7,
+      "intensity": 50,
+      "startPct": 0,
+      "endPct": 0.3333333333333333,
+      "blendMode": "screen",
+      "opacity": 0.3
+    },
+    {
+      "id": "2min-vfx-1",
+      "kind": "beam",
+      "name": "Focus Beam",
+      "palette": {
+        "base": "#a5f3fc",
+        "accent": "#f0fdfa",
+        "energy": "#22d3ee"
+      },
+      "physics": {
+        "gravity": 0,
+        "wind": 0,
+        "friction": 0.99
+      },
+      "shaderGlsl": "vec3 beam(vec2 uv, float t) { float x = abs(uv.x - 0.5); float body = smoothstep(0.18, 0.04, x + 0.06*sin(uv.y*40.0 + t*8.0)); float edge = smoothstep(0.22, 0.18, x); return vec3(0.65, 0.95, 1.0)*(body*0.9 + edge*0.35); }",
+      "layers": [
+        {
+          "id": "beam",
+          "blend": "lighter",
+          "opacity": 0.9
+        },
+        {
+          "id": "haze",
+          "blend": "screen",
+          "opacity": 0.3
+        }
+      ],
+      "hotkey": "F",
+      "particles": {
+        "count": 460,
+        "minSize": 1.2,
+        "maxSize": 3.4,
+        "life": 0.95
+      },
+      "speed": 0.6,
+      "intensity": 40,
+      "startPct": 0.3333333333333333,
+      "endPct": 0.6666666666666666,
+      "blendMode": "screen",
+      "opacity": 0.4
+    },
+    {
+      "id": "2min-vfx-2",
+      "kind": "void",
+      "name": "Void Singularity",
+      "palette": {
+        "base": "#312e81",
+        "accent": "#a78bfa",
+        "energy": "#0f0f17"
+      },
+      "physics": {
+        "gravity": -12,
+        "wind": 0,
+        "friction": 0.99
+      },
+      "shaderGlsl": "vec3 voidFx(vec2 uv, float t) { float d = length(uv - vec2(0.5)); float ring = smoothstep(0.06, 0.0, abs(d - 0.32 - 0.05*sin(t*2.0))); float swirl = 0.5 + 0.5*sin(atan(uv.y-0.5, uv.x-0.5)*5.0 - t*3.0); return mix(vec3(0.05,0.04,0.09), vec3(0.65,0.55,0.98), ring*swirl); }",
+      "layers": [
+        {
+          "id": "ring",
+          "blend": "lighter",
+          "opacity": 0.8
+        },
+        {
+          "id": "absorb",
+          "blend": "multiply",
+          "opacity": 0.7
+        }
+      ],
+      "hotkey": "V",
+      "particles": {
+        "count": 252,
+        "minSize": 1.2,
+        "maxSize": 3.4,
+        "life": 1.62
+      },
+      "speed": 0.4,
+      "intensity": 30,
+      "startPct": 0.6666666666666666,
+      "endPct": 1,
+      "blendMode": "screen",
+      "opacity": 0.5
+    }
+  ],
+  "30min": [
+    {
+      "id": "30min-vfx-0",
+      "kind": "frost",
+      "name": "Hoarfrost",
+      "palette": {
+        "base": "#bae6fd",
+        "accent": "#f8fafc",
+        "energy": "#0ea5e9"
+      },
+      "physics": {
+        "gravity": -4,
+        "wind": -16,
+        "friction": 0.99
+      },
+      "shaderGlsl": "vec3 frostFx(vec2 uv, float t) { float h = sin(uv.x*31.0 + t)*0.5 + sin(uv.y*47.0 + t*0.7)*0.5; float branch = smoothstep(0.42, 0.0, abs(h) - 0.08); return vec3(0.73, 0.9, 0.99)*branch; }",
+      "layers": [
+        {
+          "id": "branch",
+          "blend": "source-over",
+          "opacity": 0.9
+        },
+        {
+          "id": "glint",
+          "blend": "screen",
+          "opacity": 0.5
+        }
+      ],
+      "hotkey": "B",
+      "particles": {
+        "count": 198,
+        "minSize": 1.2,
+        "maxSize": 3.4,
+        "life": 2.04
+      },
+      "speed": 0.2,
+      "intensity": 20,
+      "startPct": 0,
+      "endPct": 0.3333333333333333,
+      "blendMode": "screen",
+      "opacity": 0.3
+    },
+    {
+      "id": "30min-vfx-1",
+      "kind": "ground",
+      "name": "Terra Surge",
+      "palette": {
+        "base": "#d6a354",
+        "accent": "#f5e6c8",
+        "energy": "#a16207"
+      },
+      "physics": {
+        "gravity": -60,
+        "wind": 6,
+        "friction": 0.98
+      },
+      "shaderGlsl": "vec3 terra(vec2 uv, float t) { float ridge = abs(fract(uv.y*9.0 + sin(uv.x*14.0 + t)*0.5) - 0.5)*2.0; float surge = smoothstep(0.5, 0.0, length(uv - vec2(0.5, 0.05 + 0.3*ridge))); return vec3(0.84, 0.64, 0.33) * (surge*0.8 + 0.2); }",
+      "layers": [
+        {
+          "id": "surge",
+          "blend": "source-over",
+          "opacity": 0.85
+        },
+        {
+          "id": "debris",
+          "blend": "screen",
+          "opacity": 0.5
+        }
+      ],
+      "hotkey": "X",
+      "particles": {
+        "count": 274,
+        "minSize": 1.2,
+        "maxSize": 3.4,
+        "life": 1.07
+      },
+      "speed": 0.15,
+      "intensity": 15,
+      "startPct": 0.3333333333333333,
+      "endPct": 0.6666666666666666,
+      "blendMode": "screen",
+      "opacity": 0.4
+    },
+    {
+      "id": "30min-vfx-2",
+      "kind": "ice",
+      "name": "Cryo Field",
+      "palette": {
+        "base": "#7dd3fc",
+        "accent": "#e0f2fe",
+        "energy": "#38bdf8"
+      },
+      "physics": {
+        "gravity": 22,
+        "wind": -8,
+        "friction": 0.99
+      },
+      "shaderGlsl": "vec3 ice(vec2 uv, float t) { float d = length(uv - vec2(0.5, 0.6)); float c = 0.5 + 0.5*sin(uv.x*46.0 + uv.y*31.0 + t*3.5); float spike = smoothstep(0.36, 0.0, d - 0.06*c); return vec3(0.49 + 0.18*c, 0.83 + 0.12*c, 0.99) * spike; }",
+      "layers": [
+        {
+          "id": "crystal",
+          "blend": "source-over",
+          "opacity": 0.9
+        },
+        {
+          "id": "glow",
+          "blend": "screen",
+          "opacity": 0.5
+        }
+      ],
+      "hotkey": "W",
+      "particles": {
+        "count": 256,
+        "minSize": 1.2,
+        "maxSize": 3.4,
+        "life": 1.84
+      },
+      "speed": 0.3,
+      "intensity": 25,
+      "startPct": 0.6666666666666666,
+      "endPct": 1,
+      "blendMode": "screen",
+      "opacity": 0.5
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "generatedAt": "2026-08-18T12:52:26.181Z",
+  "videos": {
+    "30s": {
+      "planSlug": "patagonia",
+      "estilo": "naturaleza",
+      "suggestedStyle": "nature soundscape ambient",
+      "tunetankQuery": "ambient",
+      "fallback": "composeMusic procedural",
+      "durationSec": 30,
+      "loopCount": 1,
+      "volume": 0.25
+    },
+    "60s": {
+      "planSlug": "islandia",
+      "estilo": "aventura",
+      "suggestedStyle": "epic orchestral percussion",
+      "tunetankQuery": "epic",
+      "fallback": "composeMusic procedural",
+      "durationSec": 60,
+      "loopCount": 1,
+      "volume": 0.25
+    },
+    "2min": {
+      "planSlug": "marruecos",
+      "estilo": "cultura",
+      "suggestedStyle": "world folk strings",
+      "tunetankQuery": "folk",
+      "fallback": "composeMusic procedural",
+      "durationSec": 120,
+      "loopCount": 1,
+      "volume": 0.25
+    },
+    "30min": {
+      "planSlug": "bali",
+      "estilo": "relax",
+      "suggestedStyle": "ambient acoustic piano",
+      "tunetankQuery": "piano",
+      "fallback": "composeMusic procedural",
+      "durationSec": 1800,
+      "loopCount": 30,
+      "volume": 0.25
+    }
+  }
+}

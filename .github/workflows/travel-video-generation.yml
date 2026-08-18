@@ -1,0 +1,271 @@
+# UltraIa Travel Video Generation — GitHub Actions Workflow
+# Triggers: manual (workflow_dispatch), push to main with changes to travel scripts
+# Output: MP4 artifacts + release with videos
+# Free tier: 2000 min/month on ubuntu-latest (this job ~15-30 min)
+
+name: Generate Travel Videos
+
+on:
+  workflow_dispatch:
+    inputs:
+      videos:
+        description: 'Which videos to generate (comma-separated)'
+        required: false
+        default: '30s,60s,2min'
+        type: choice
+        options:
+          - 30s,60s,2min
+          - 30s,60s,2min,30min
+          - 30s
+          - 60s
+          - 2min
+          - 30min
+      upload_release:
+        description: 'Create GitHub Release with videos'
+        required: false
+        default: 'true'
+        type: boolean
+
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/render-travel-*.sh'
+      - 'scripts/generate-all-travel-videos.sh'
+      - 'resultTask/travel/plan-*.json'
+      - 'resultTask/travel/render-*.json'
+      - 'resultTask/travel/vfx-overlays.json'
+      - 'resultTask/travel/music-manifest.json'
+      - 'Dockerfile.travel-video'
+
+permissions:
+  contents: write      # for creating release
+  actions: read        # for workflow status
+  packages: read       # for container registry if needed
+
+env:
+  # Videos to generate (can be overridden by workflow_dispatch input)
+  VIDEOS_TO_GENERATE: ${{ github.event.inputs.videos || '30s,60s,2min' }}
+  # Output directory
+  OUTPUT_DIR: resultTask/travel/output
+
+jobs:
+  generate:
+    name: Generate Travel Videos
+    runs-on: ubuntu-latest
+    timeout-minutes: 45  # 30min video takes ~30 min encode
+
+    steps:
+      # -------------------------------------------------------------------------
+      # Checkout & Setup
+      # -------------------------------------------------------------------------
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # needed for git history in scripts
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+          cache-dependency-path: package-lock.json
+
+      - name: Install system dependencies (ffmpeg, python3, pip)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg python3 python3-pip curl
+          ffmpeg -version | head -1
+          ffprobe -version | head -1
+
+      - name: Install edge-tts (for TTS narration)
+        run: |
+          pip3 install --user edge-tts
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+          edge-tts --version
+
+      - name: Cache npm dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.npm
+            node_modules
+            packages/core/node_modules
+            packages/runtime/node_modules
+            apps/web/node_modules
+          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-npm-
+
+      - name: Install npm dependencies
+        run: npm ci --workspaces --include-workspace-root
+
+      - name: Build core package (for runtime tools)
+        run: npm run build -w @ultraia/core
+
+      # -------------------------------------------------------------------------
+      # Verify Footage Exists
+      # -------------------------------------------------------------------------
+      - name: Verify footage directory
+        run: |
+          ls -la VideoTask&Memory/historyTravelTP/
+          echo "Footage count: $(find VideoTask&Memory/historyTravelTP -name '*.mp4' | wc -l)"
+
+      - name: Show footage manifest
+        run: cat resultTask/travel/footage-manifest.json | jq '.totalClips, .totalDurationSec'
+
+      # -------------------------------------------------------------------------
+      # Generate Videos
+      # -------------------------------------------------------------------------
+      - name: Make scripts executable
+        run: chmod +x scripts/*.sh
+
+      - name: Generate videos (30s, 60s, 2min)
+        if: contains(env.VIDEOS_TO_GENERATE, '30s') || contains(env.VIDEOS_TO_GENERATE, '60s') || contains(env.VIDEOS_TO_GENERATE, '2min')
+        run: |
+          # Parse comma-separated list
+          IFS=',' read -ra VIDEOS <<< "${{ env.VIDEOS_TO_GENERATE }}"
+          
+          # Create output dir
+          mkdir -p "${{ env.OUTPUT_DIR }}"
+          
+          # Run master generator (it handles 30s/60s/2min, skips 30min)
+          bash scripts/generate-all-travel-videos.sh 2>&1 | tee build.log
+
+      - name: Generate 30min video (optional, long-running)
+        if: contains(env.VIDEOS_TO_GENERATE, '30min')
+        run: |
+          echo "Generating 30min video (this takes ~30-45 min)..."
+          mkdir -p "${{ env.OUTPUT_DIR }}"
+          # Run the 30min render script directly
+          bash scripts/render-travel-30min.sh 2>&1 | tee build-30min.log
+          # Move output if generated
+          if [ -f travel-30min.mp4 ]; then
+            mv travel-30min.mp4 "${{ env.OUTPUT_DIR }}/"
+          fi
+
+      # -------------------------------------------------------------------------
+      # Verify Outputs
+      # -------------------------------------------------------------------------
+      - name: Verify generated videos
+        run: |
+          echo "=== Generated Videos ==="
+          ls -la "${{ env.OUTPUT_DIR }}/"
+          echo ""
+          echo "=== Video Details ==="
+          for f in "${{ env.OUTPUT_DIR }}/"*.mp4; do
+            if [ -f "$f" ]; then
+              echo "File: $(basename "$f")"
+              ffprobe -v error -show_entries format=duration,bit_rate,size -of default=noprint_wrappers=1:nokey=1 "$f" | \
+                awk -F= '{printf "  %s: %s\n", $1, $2}'
+              echo ""
+            fi
+          done
+
+      # -------------------------------------------------------------------------
+      # Upload Artifacts
+      # -------------------------------------------------------------------------
+      - name: Upload videos as artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: travel-videos-${{ github.run_id }}
+          path: ${{ env.OUTPUT_DIR }}/*.mp4
+          retention-days: 30
+          compression-level: 6
+
+      - name: Upload manifests and logs
+        uses: actions/upload-artifact@v4
+        with:
+          name: travel-manifests-${{ github.run_id }}
+          path: |
+            resultTask/travel/*.json
+            build*.log
+          retention-days: 30
+
+      # -------------------------------------------------------------------------
+      # Create GitHub Release (optional)
+      # -------------------------------------------------------------------------
+      - name: Create Release with videos
+        if: github.event.inputs.upload_release == 'true' || github.event_name == 'push'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: travel-videos-${{ github.run_number }}
+          name: "Travel Videos #${{ github.run_number }}"
+          body: |
+            Auto-generated travel videos from @tomassporro footage.
+            
+            **Generated:** ${{ github.event.inputs.videos || '30s, 60s, 2min' }}
+            **Commit:** ${{ github.sha }}
+            **Workflow:** ${{ github.run_id }}
+            
+            | Video | Duration | Style | VFX |
+            |-------|----------|-------|-----|
+            | travel-30s.mp4 | ~30s | naturaleza | frost, ground |
+            | travel-60s.mp4 | ~60s | aventura | fire, lightning, meteor |
+            | travel-2min.mp4 | ~2min | cultura | plasma, beam, void |
+            | travel-30min.mp4 | ~30min | relax | frost, ground, ice |
+            
+            **Pipeline:** UltraIa (travel.ts + video-edit.ts + codevfx.ts + music.ts + omag/tts.ts)
+          files: ${{ env.OUTPUT_DIR }}/*.mp4
+          draft: false
+          prerelease: false
+          generate_release_notes: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # -------------------------------------------------------------------------
+  # Docker Build (alternative path)
+  # -------------------------------------------------------------------------
+  docker-build:
+    name: Build Docker Image
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event.inputs.videos == 'docker'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: Dockerfile.travel-video
+          push: false
+          load: true
+          tags: ultraia-travel:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Test Docker image (quick 30s only)
+        run: |
+          docker run --rm \
+            -v $(pwd)/resultTask/travel/output:/app/output \
+            ultraia-travel:latest \
+            bash -c "VIDEOS_TO_GENERATE=30s bash scripts/generate-all-travel-videos.sh"
+
+  # -------------------------------------------------------------------------
+  # Summary
+  # -------------------------------------------------------------------------
+  summary:
+    name: Summary
+    runs-on: ubuntu-latest
+    needs: [generate]
+    if: always()
+    steps:
+      - name: Job summary
+        run: |
+          echo "## Travel Video Generation Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Workflow:** ${{ github.workflow }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Run:** #${{ github.run_number }} (${{ github.run_id }})" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Videos requested:** ${{ github.event.inputs.videos || '30s,60s,2min' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status:** ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Artifacts" >> $GITHUB_STEP_SUMMARY
+          echo "- \`travel-videos-${{ github.run_id }}\` — MP4 files (30 days)" >> $GITHUB_STEP_SUMMARY
+          echo "- \`travel-manifests-${{ github.run_id }}\` — JSON plans + logs (30 days)" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ github.event.inputs.upload_release }}" = "true" ]; then
+            echo "- **Release:** \`travel-videos-${{ github.run_number }}\` with videos attached" >> $GITHUB_STEP_SUMMARY
+          fi

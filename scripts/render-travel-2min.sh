@@ -1,0 +1,59 @@
+#!/bin/bash
+# Auto-generated render script for travel-2min.mp4
+# Generated: 2026-08-18T12:55:18.033Z
+
+set -e  # Exit on error
+
+TMPDIR=$(mktemp -d)
+cd "$TMPDIR"
+
+# TODO: Copy source clips to $TMPDIR/
+# cp /path/to/VideoTask&Memory/historyTravelTP/*.mp4 .
+
+# Step 1: [0] Ken Burns: Las calles antiguas despiertan al alba (pan right, 10s) → clip-0.mp4
+ffmpeg -y -loop 1 -i ./imagenes/img-0.jpg -vf scale=720:1280,crop=720:1280,zoompan=z='1.0000+0.0008*on':d=250:s=720x1280:fps=25 -t 10 -c:v libx264 -preset fast -pix_fmt yuv420p clip-0.mp4
+
+# Step 2: [1] Ken Burns: El mercado hierve de colores y voces (tilt up, 10s) → clip-1.mp4
+ffmpeg -y -loop 1 -i ./imagenes/img-1.jpg -vf scale=720:1280,crop=720:1280,zoompan=z='1.0008+0.0008*on':d=250:s=720x1280:fps=25 -t 10 -c:v libx264 -preset fast -pix_fmt yuv420p clip-1.mp4
+
+# Step 3: [2] Ken Burns: La torre vigila la ciudad desde hace siglos (zoom in, 10s) → clip-2.mp4
+ffmpeg -y -loop 1 -i ./imagenes/img-2.jpg -vf scale=720:1280,crop=720:1280,zoompan=z='1.0016+0.0008*on':d=250:s=720x1280:fps=25 -t 10 -c:v libx264 -preset fast -pix_fmt yuv420p clip-2.mp4
+
+# Step 4: [3] Ken Burns: El museo guarda los secretos del pasado (crane down, 10s) → clip-3.mp4
+ffmpeg -y -loop 1 -i ./imagenes/img-3.jpg -vf scale=720:1280,crop=720:1280,zoompan=z='1.0024+0.0008*on':d=250:s=720x1280:fps=25 -t 10 -c:v libx264 -preset fast -pix_fmt yuv420p clip-3.mp4
+
+# Step 5: [4] Ken Burns: Los muros cuentan batallas olvidadas (static, 10s) → clip-4.mp4
+ffmpeg -y -loop 1 -i ./imagenes/img-4.jpg -vf scale=720:1280,crop=720:1280,zoompan=z='1.0032+0.0008*on':d=250:s=720x1280:fps=25 -t 10 -c:v libx264 -preset fast -pix_fmt yuv420p clip-4.mp4
+
+# Step 6: [5] Ken Burns: El río separa dos mundos (pan left, 10s) → clip-5.mp4
+ffmpeg -y -loop 1 -i ./imagenes/img-5.jpg -vf scale=720:1280,crop=720:1280,zoompan=z='1.0040+0.0008*on':d=250:s=720x1280:fps=25 -t 10 -c:v libx264 -preset fast -pix_fmt yuv420p clip-5.mp4
+
+# Step 7: [6] Ken Burns: Las luces encienden la plaza mayor (push out, 10s) → clip-6.mp4
+ffmpeg -y -loop 1 -i ./imagenes/img-6.jpg -vf scale=720:1280,crop=720:1280,zoompan=z='1.0048+0.0008*on':d=250:s=720x1280:fps=25 -t 10 -c:v libx264 -preset fast -pix_fmt yuv420p clip-6.mp4
+
+# Step 8: [7] Ken Burns: Las calles antiguas despiertan al alba (orbit, 10s) → clip-7.mp4
+ffmpeg -y -loop 1 -i ./imagenes/img-7.jpg -vf scale=720:1280,crop=720:1280,zoompan=z='1.0056+0.0008*on':d=250:s=720x1280:fps=25 -t 10 -c:v libx264 -preset fast -pix_fmt yuv420p clip-7.mp4
+
+# Step 9: [8] Ken Burns: El mercado hierve de colores y voces (track left, 10s) → clip-8.mp4
+ffmpeg -y -loop 1 -i ./imagenes/img-8.jpg -vf scale=720:1280,crop=720:1280,zoompan=z='1.0064+0.0008*on':d=250:s=720x1280:fps=25 -t 10 -c:v libx264 -preset fast -pix_fmt yuv420p clip-8.mp4
+
+# Step 10: [9] Ken Burns: La torre vigila la ciudad desde hace siglos (aerial, 10s) → clip-9.mp4
+ffmpeg -y -loop 1 -i ./imagenes/img-9.jpg -vf scale=720:1280,crop=720:1280,zoompan=z='1.0072+0.0008*on':d=250:s=720x1280:fps=25 -t 10 -c:v libx264 -preset fast -pix_fmt yuv420p clip-9.mp4
+
+# Step 11: [10] Ken Burns: El museo guarda los secretos del pasado (handheld, 10s) → clip-10.mp4
+ffmpeg -y -loop 1 -i ./imagenes/img-10.jpg -vf scale=720:1280,crop=720:1280,zoompan=z='1.0080+0.0008*on':d=250:s=720x1280:fps=25 -t 10 -c:v libx264 -preset fast -pix_fmt yuv420p clip-10.mp4
+
+# Step 12: [11] Ken Burns: Los muros cuentan batallas olvidadas (push in, 10s) → clip-11.mp4
+ffmpeg -y -loop 1 -i ./imagenes/img-11.jpg -vf scale=720:1280,crop=720:1280,zoompan=z='1.0088+0.0008*on':d=250:s=720x1280:fps=25 -t 10 -c:v libx264 -preset fast -pix_fmt yuv420p clip-11.mp4
+
+# Final render: render final: travel-2min.mp4 (113.4s, 720x1280@25fps)
+# VFX Overlays: plasma, beam, void
+# This is a placeholder for the overlay filtergraph
+# Color grade: warm-cinematic
+ffmpeg -y -i clip-0.mp4 -i clip-1.mp4 -i clip-2.mp4 -i clip-3.mp4 -i clip-4.mp4 -i clip-5.mp4 -i clip-6.mp4 -i clip-7.mp4 -i clip-8.mp4 -i clip-9.mp4 -i clip-10.mp4 -i clip-11.mp4 -filter_complex [0:v][1:v]xfade=transition=fade:duration=0.6:offset=9.4[v1];[v1][2:v]xfade=transition=fade:duration=0.6:offset=18.8[v2];[v2][3:v]xfade=transition=fade:duration=0.6:offset=28.2[v3];[v3][4:v]xfade=transition=fade:duration=0.6:offset=37.6[v4];[v4][5:v]xfade=transition=fade:duration=0.6:offset=47[v5];[v5][6:v]xfade=transition=fade:duration=0.6:offset=56.4[v6];[v6][7:v]xfade=transition=fade:duration=0.6:offset=65.8[v7];[v7][8:v]xfade=transition=fade:duration=0.6:offset=75.2[v8];[v8][9:v]xfade=transition=fade:duration=0.6:offset=84.6[v9];[v9][10:v]xfade=transition=fade:duration=0.6:offset=94[v10];[v10][11:v]xfade=transition=fade:duration=0.6:offset=103.4[v11] -map [v11] -c:v libx264 -preset fast -pix_fmt yuv420p -movflags +faststart -c:a aac -b:a 128k -t 113.40 travel-2min.mp4
+
+# Copy result to output
+cp "travel-2min.mp4" /path/to/output/
+echo "Done: travel-2min.mp4"
+echo "Duration: 113.4s"
+echo "Scenes: 12"

@@ -1,0 +1,109 @@
+{
+  "slug": "marruecos",
+  "titulo": "Viaje a Marruecos",
+  "destino": "Marruecos",
+  "idioma": "es",
+  "estilo": "cultura",
+  "duracionSeg": 120,
+  "hook": "Cada piedra de Marruecos tiene una historia. Hoy te cuento una.",
+  "escenas": [
+    {
+      "lugar": "Marruecos",
+      "descripcion": "Las calles antiguas despiertan al alba",
+      "motion": "pan right",
+      "duracionSeg": 10,
+      "promptImagen": "cinematic travel photography of Marruecos, las calles antiguas despiertan al alba, pan right, golden hour, 35mm, ultra detailed, 9:16 vertical",
+      "narracion": "Las calles antiguas despiertan al alba"
+    },
+    {
+      "lugar": "Marruecos",
+      "descripcion": "El mercado hierve de colores y voces",
+      "motion": "tilt up",
+      "duracionSeg": 10,
+      "promptImagen": "cinematic travel photography of Marruecos, el mercado hierve de colores y voces, tilt up, golden hour, 35mm, ultra detailed, 9:16 vertical",
+      "narracion": "El mercado hierve de colores y voces"
+    },
+    {
+      "lugar": "Marruecos",
+      "descripcion": "La torre vigila la ciudad desde hace siglos",
+      "motion": "zoom in",
+      "duracionSeg": 10,
+      "promptImagen": "cinematic travel photography of Marruecos, la torre vigila la ciudad desde hace siglos, zoom in, golden hour, 35mm, ultra detailed, 9:16 vertical",
+      "narracion": "La torre vigila la ciudad desde hace siglos"
+    },
+    {
+      "lugar": "Marruecos",
+      "descripcion": "El museo guarda los secretos del pasado",
+      "motion": "crane down",
+      "duracionSeg": 10,
+      "promptImagen": "cinematic travel photography of Marruecos, el museo guarda los secretos del pasado, crane down, golden hour, 35mm, ultra detailed, 9:16 vertical",
+      "narracion": "El museo guarda los secretos del pasado"
+    },
+    {
+      "lugar": "Marruecos",
+      "descripcion": "Los muros cuentan batallas olvidadas",
+      "motion": "static",
+      "duracionSeg": 10,
+      "promptImagen": "cinematic travel photography of Marruecos, los muros cuentan batallas olvidadas, static, golden hour, 35mm, ultra detailed, 9:16 vertical",
+      "narracion": "Los muros cuentan batallas olvidadas"
+    },
+    {
+      "lugar": "Marruecos",
+      "descripcion": "El río separa dos mundos",
+      "motion": "pan left",
+      "duracionSeg": 10,
+      "promptImagen": "cinematic travel photography of Marruecos, el río separa dos mundos, pan left, golden hour, 35mm, ultra detailed, 9:16 vertical",
+      "narracion": "El río separa dos mundos"
+    },
+    {
+      "lugar": "Marruecos",
+      "descripcion": "Las luces encienden la plaza mayor",
+      "motion": "push out",
+      "duracionSeg": 10,
+      "promptImagen": "cinematic travel photography of Marruecos, las luces encienden la plaza mayor, push out, golden hour, 35mm, ultra detailed, 9:16 vertical",
+      "narracion": "Las luces encienden la plaza mayor"
+    },
+    {
+      "lugar": "Marruecos",
+      "descripcion": "Las calles antiguas despiertan al alba",
+      "motion": "orbit",
+      "duracionSeg": 10,
+      "promptImagen": "cinematic travel photography of Marruecos, las calles antiguas despiertan al alba, orbit, golden hour, 35mm, ultra detailed, 9:16 vertical",
+      "narracion": "Las calles antiguas despiertan al alba"
+    },
+    {
+      "lugar": "Marruecos",
+      "descripcion": "El mercado hierve de colores y voces",
+      "motion": "track left",
+      "duracionSeg": 10,
+      "promptImagen": "cinematic travel photography of Marruecos, el mercado hierve de colores y voces, track left, golden hour, 35mm, ultra detailed, 9:16 vertical",
+      "narracion": "El mercado hierve de colores y voces"
+    },
+    {
+      "lugar": "Marruecos",
+      "descripcion": "La torre vigila la ciudad desde hace siglos",
+      "motion": "aerial",
+      "duracionSeg": 10,
+      "promptImagen": "cinematic travel photography of Marruecos, la torre vigila la ciudad desde hace siglos, aerial, golden hour, 35mm, ultra detailed, 9:16 vertical",
+      "narracion": "La torre vigila la ciudad desde hace siglos"
+    },
+    {
+      "lugar": "Marruecos",
+      "descripcion": "El museo guarda los secretos del pasado",
+      "motion": "handheld",
+      "duracionSeg": 10,
+      "promptImagen": "cinematic travel photography of Marruecos, el museo guarda los secretos del pasado, handheld, golden hour, 35mm, ultra detailed, 9:16 vertical",
+      "narracion": "El museo guarda los secretos del pasado"
+    },
+    {
+      "lugar": "Marruecos",
+      "descripcion": "Los muros cuentan batallas olvidadas",
+      "motion": "push in",
+      "duracionSeg": 10,
+      "promptImagen": "cinematic travel photography of Marruecos, los muros cuentan batallas olvidadas, push in, golden hour, 35mm, ultra detailed, 9:16 vertical",
+      "narracion": "Los muros cuentan batallas olvidadas"
+    }
+  ],
+  "cta": "Sígueme para más historias viajeras. 📖",
+  "musicaSugerida": "world folk strings"
+}

@@ -1,0 +1,119 @@
+#!/bin/bash
+# Auto-generated render script for travel-30min.mp4
+# Generated: 2026-08-18T12:55:18.038Z
+
+set -e  # Exit on error
+
+TMPDIR=$(mktemp -d)
+cd "$TMPDIR"
+
+# TODO: Copy source clips to $TMPDIR/
+# cp /path/to/VideoTask&Memory/historyTravelTP/*.mp4 .
+
+# Step 1: [0] Ken Burns: La laguna refleja el cielo en calma (pan right, 60s) → clip-0.mp4
+ffmpeg -y -loop 1 -i ./imagenes/img-0.jpg -vf scale=720:1280,crop=720:1280,zoompan=z='1.0000+0.0008*on':d=1500:s=720x1280:fps=25 -t 60 -c:v libx264 -preset fast -pix_fmt yuv420p clip-0.mp4
+
+# Step 2: [1] Ken Burns: La brisa mece los pastos dorados (tilt up, 60s) → clip-1.mp4
+ffmpeg -y -loop 1 -i ./imagenes/img-1.jpg -vf scale=720:1280,crop=720:1280,zoompan=z='1.0008+0.0008*on':d=1500:s=720x1280:fps=25 -t 60 -c:v libx264 -preset fast -pix_fmt yuv420p clip-1.mp4
+
+# Step 3: [2] Ken Burns: El mar acaricia la orilla vacía (zoom in, 60s) → clip-2.mp4
+ffmpeg -y -loop 1 -i ./imagenes/img-2.jpg -vf scale=720:1280,crop=720:1280,zoompan=z='1.0016+0.0008*on':d=1500:s=720x1280:fps=25 -t 60 -c:v libx264 -preset fast -pix_fmt yuv420p clip-2.mp4
+
+# Step 4: [3] Ken Burns: Las nubes pasan lentas sobre el valle (crane down, 60s) → clip-3.mp4
+ffmpeg -y -loop 1 -i ./imagenes/img-3.jpg -vf scale=720:1280,crop=720:1280,zoompan=z='1.0024+0.0008*on':d=1500:s=720x1280:fps=25 -t 60 -c:v libx264 -preset fast -pix_fmt yuv420p clip-3.mp4
+
+# Step 5: [4] Ken Burns: El bosque huele a tierra mojada (static, 60s) → clip-4.mp4
+ffmpeg -y -loop 1 -i ./imagenes/img-4.jpg -vf scale=720:1280,crop=720:1280,zoompan=z='1.0032+0.0008*on':d=1500:s=720x1280:fps=25 -t 60 -c:v libx264 -preset fast -pix_fmt yuv420p clip-4.mp4
+
+# Step 6: [5] Ken Burns: El sol se pone en silencio (pan left, 60s) → clip-5.mp4
+ffmpeg -y -loop 1 -i ./imagenes/img-5.jpg -vf scale=720:1280,crop=720:1280,zoompan=z='1.0040+0.0008*on':d=1500:s=720x1280:fps=25 -t 60 -c:v libx264 -preset fast -pix_fmt yuv420p clip-5.mp4
+
+# Step 7: [6] Ken Burns: Las estrellas aparecen una a una (push out, 60s) → clip-6.mp4
+ffmpeg -y -loop 1 -i ./imagenes/img-6.jpg -vf scale=720:1280,crop=720:1280,zoompan=z='1.0048+0.0008*on':d=1500:s=720x1280:fps=25 -t 60 -c:v libx264 -preset fast -pix_fmt yuv420p clip-6.mp4
+
+# Step 8: [7] Ken Burns: La laguna refleja el cielo en calma (orbit, 60s) → clip-7.mp4
+ffmpeg -y -loop 1 -i ./imagenes/img-7.jpg -vf scale=720:1280,crop=720:1280,zoompan=z='1.0056+0.0008*on':d=1500:s=720x1280:fps=25 -t 60 -c:v libx264 -preset fast -pix_fmt yuv420p clip-7.mp4
+
+# Step 9: [8] Ken Burns: La brisa mece los pastos dorados (track right, 60s) → clip-8.mp4
+ffmpeg -y -loop 1 -i ./imagenes/img-8.jpg -vf scale=720:1280,crop=720:1280,zoompan=z='1.0064+0.0008*on':d=1500:s=720x1280:fps=25 -t 60 -c:v libx264 -preset fast -pix_fmt yuv420p clip-8.mp4
+
+# Step 10: [9] Ken Burns: El mar acaricia la orilla vacía (aerial, 60s) → clip-9.mp4
+ffmpeg -y -loop 1 -i ./imagenes/img-9.jpg -vf scale=720:1280,crop=720:1280,zoompan=z='1.0072+0.0008*on':d=1500:s=720x1280:fps=25 -t 60 -c:v libx264 -preset fast -pix_fmt yuv420p clip-9.mp4
+
+# Step 11: [10] Ken Burns: Las nubes pasan lentas sobre el valle (handheld, 60s) → clip-10.mp4
+ffmpeg -y -loop 1 -i ./imagenes/img-10.jpg -vf scale=720:1280,crop=720:1280,zoompan=z='1.0080+0.0008*on':d=1500:s=720x1280:fps=25 -t 60 -c:v libx264 -preset fast -pix_fmt yuv420p clip-10.mp4
+
+# Step 12: [11] Ken Burns: El bosque huele a tierra mojada (push in, 60s) → clip-11.mp4
+ffmpeg -y -loop 1 -i ./imagenes/img-11.jpg -vf scale=720:1280,crop=720:1280,zoompan=z='1.0088+0.0008*on':d=1500:s=720x1280:fps=25 -t 60 -c:v libx264 -preset fast -pix_fmt yuv420p clip-11.mp4
+
+# Step 13: [12] Ken Burns: El sol se pone en silencio (tilt down, 60s) → clip-12.mp4
+ffmpeg -y -loop 1 -i ./imagenes/img-12.jpg -vf scale=720:1280,crop=720:1280,zoompan=z='1.0096+0.0008*on':d=1500:s=720x1280:fps=25 -t 60 -c:v libx264 -preset fast -pix_fmt yuv420p clip-12.mp4
+
+# Step 14: [13] Ken Burns: Las estrellas aparecen una a una (crane up, 60s) → clip-13.mp4
+ffmpeg -y -loop 1 -i ./imagenes/img-13.jpg -vf scale=720:1280,crop=720:1280,zoompan=z='1.0104+0.0008*on':d=1500:s=720x1280:fps=25 -t 60 -c:v libx264 -preset fast -pix_fmt yuv420p clip-13.mp4
+
+# Step 15: [14] Ken Burns: La laguna refleja el cielo en calma (zoom out, 60s) → clip-14.mp4
+ffmpeg -y -loop 1 -i ./imagenes/img-14.jpg -vf scale=720:1280,crop=720:1280,zoompan=z='1.0112+0.0008*on':d=1500:s=720x1280:fps=25 -t 60 -c:v libx264 -preset fast -pix_fmt yuv420p clip-14.mp4
+
+# Step 16: [15] Ken Burns: La brisa mece los pastos dorados (pan right, 60s) → clip-15.mp4
+ffmpeg -y -loop 1 -i ./imagenes/img-15.jpg -vf scale=720:1280,crop=720:1280,zoompan=z='1.0120+0.0008*on':d=1500:s=720x1280:fps=25 -t 60 -c:v libx264 -preset fast -pix_fmt yuv420p clip-15.mp4
+
+# Step 17: [16] Ken Burns: El mar acaricia la orilla vacía (tilt up, 60s) → clip-16.mp4
+ffmpeg -y -loop 1 -i ./imagenes/img-16.jpg -vf scale=720:1280,crop=720:1280,zoompan=z='1.0128+0.0008*on':d=1500:s=720x1280:fps=25 -t 60 -c:v libx264 -preset fast -pix_fmt yuv420p clip-16.mp4
+
+# Step 18: [17] Ken Burns: Las nubes pasan lentas sobre el valle (zoom in, 60s) → clip-17.mp4
+ffmpeg -y -loop 1 -i ./imagenes/img-17.jpg -vf scale=720:1280,crop=720:1280,zoompan=z='1.0136+0.0008*on':d=1500:s=720x1280:fps=25 -t 60 -c:v libx264 -preset fast -pix_fmt yuv420p clip-17.mp4
+
+# Step 19: [18] Ken Burns: El bosque huele a tierra mojada (crane down, 60s) → clip-18.mp4
+ffmpeg -y -loop 1 -i ./imagenes/img-18.jpg -vf scale=720:1280,crop=720:1280,zoompan=z='1.0144+0.0008*on':d=1500:s=720x1280:fps=25 -t 60 -c:v libx264 -preset fast -pix_fmt yuv420p clip-18.mp4
+
+# Step 20: [19] Ken Burns: El sol se pone en silencio (static, 60s) → clip-19.mp4
+ffmpeg -y -loop 1 -i ./imagenes/img-19.jpg -vf scale=720:1280,crop=720:1280,zoompan=z='1.0152+0.0008*on':d=1500:s=720x1280:fps=25 -t 60 -c:v libx264 -preset fast -pix_fmt yuv420p clip-19.mp4
+
+# Step 21: [20] Ken Burns: Las estrellas aparecen una a una (pan left, 60s) → clip-20.mp4
+ffmpeg -y -loop 1 -i ./imagenes/img-20.jpg -vf scale=720:1280,crop=720:1280,zoompan=z='1.0160+0.0008*on':d=1500:s=720x1280:fps=25 -t 60 -c:v libx264 -preset fast -pix_fmt yuv420p clip-20.mp4
+
+# Step 22: [21] Ken Burns: La laguna refleja el cielo en calma (push out, 60s) → clip-21.mp4
+ffmpeg -y -loop 1 -i ./imagenes/img-21.jpg -vf scale=720:1280,crop=720:1280,zoompan=z='1.0168+0.0008*on':d=1500:s=720x1280:fps=25 -t 60 -c:v libx264 -preset fast -pix_fmt yuv420p clip-21.mp4
+
+# Step 23: [22] Ken Burns: La brisa mece los pastos dorados (orbit, 60s) → clip-22.mp4
+ffmpeg -y -loop 1 -i ./imagenes/img-22.jpg -vf scale=720:1280,crop=720:1280,zoompan=z='1.0176+0.0008*on':d=1500:s=720x1280:fps=25 -t 60 -c:v libx264 -preset fast -pix_fmt yuv420p clip-22.mp4
+
+# Step 24: [23] Ken Burns: El mar acaricia la orilla vacía (track left, 60s) → clip-23.mp4
+ffmpeg -y -loop 1 -i ./imagenes/img-23.jpg -vf scale=720:1280,crop=720:1280,zoompan=z='1.0184+0.0008*on':d=1500:s=720x1280:fps=25 -t 60 -c:v libx264 -preset fast -pix_fmt yuv420p clip-23.mp4
+
+# Step 25: [24] Ken Burns: Las nubes pasan lentas sobre el valle (aerial, 60s) → clip-24.mp4
+ffmpeg -y -loop 1 -i ./imagenes/img-24.jpg -vf scale=720:1280,crop=720:1280,zoompan=z='1.0192+0.0008*on':d=1500:s=720x1280:fps=25 -t 60 -c:v libx264 -preset fast -pix_fmt yuv420p clip-24.mp4
+
+# Step 26: [25] Ken Burns: El bosque huele a tierra mojada (handheld, 60s) → clip-25.mp4
+ffmpeg -y -loop 1 -i ./imagenes/img-25.jpg -vf scale=720:1280,crop=720:1280,zoompan=z='1.0200+0.0008*on':d=1500:s=720x1280:fps=25 -t 60 -c:v libx264 -preset fast -pix_fmt yuv420p clip-25.mp4
+
+# Step 27: [26] Ken Burns: El sol se pone en silencio (push in, 60s) → clip-26.mp4
+ffmpeg -y -loop 1 -i ./imagenes/img-26.jpg -vf scale=720:1280,crop=720:1280,zoompan=z='1.0208+0.0008*on':d=1500:s=720x1280:fps=25 -t 60 -c:v libx264 -preset fast -pix_fmt yuv420p clip-26.mp4
+
+# Step 28: [27] Ken Burns: Las estrellas aparecen una a una (tilt down, 60s) → clip-27.mp4
+ffmpeg -y -loop 1 -i ./imagenes/img-27.jpg -vf scale=720:1280,crop=720:1280,zoompan=z='1.0216+0.0008*on':d=1500:s=720x1280:fps=25 -t 60 -c:v libx264 -preset fast -pix_fmt yuv420p clip-27.mp4
+
+# Step 29: [28] Ken Burns: La laguna refleja el cielo en calma (crane up, 60s) → clip-28.mp4
+ffmpeg -y -loop 1 -i ./imagenes/img-28.jpg -vf scale=720:1280,crop=720:1280,zoompan=z='1.0224+0.0008*on':d=1500:s=720x1280:fps=25 -t 60 -c:v libx264 -preset fast -pix_fmt yuv420p clip-28.mp4
+
+# Step 30: [29] Ken Burns: La brisa mece los pastos dorados (zoom out, 60s) → clip-29.mp4
+ffmpeg -y -loop 1 -i ./imagenes/img-29.jpg -vf scale=720:1280,crop=720:1280,zoompan=z='1.0232+0.0008*on':d=1500:s=720x1280:fps=25 -t 60 -c:v libx264 -preset fast -pix_fmt yuv420p clip-29.mp4
+
+# Step 31: [30] Ken Burns: El mar acaricia la orilla vacía (pan right, 60s) → clip-30.mp4
+ffmpeg -y -loop 1 -i ./imagenes/img-30.jpg -vf scale=720:1280,crop=720:1280,zoompan=z='1.0240+0.0008*on':d=1500:s=720x1280:fps=25 -t 60 -c:v libx264 -preset fast -pix_fmt yuv420p clip-30.mp4
+
+# Step 32: [31] Ken Burns: Las nubes pasan lentas sobre el valle (tilt up, 60s) → clip-31.mp4
+ffmpeg -y -loop 1 -i ./imagenes/img-31.jpg -vf scale=720:1280,crop=720:1280,zoompan=z='1.0248+0.0008*on':d=1500:s=720x1280:fps=25 -t 60 -c:v libx264 -preset fast -pix_fmt yuv420p clip-31.mp4
+
+# Final render: render final: travel-30min.mp4 (1901.4s, 720x1280@25fps)
+# VFX Overlays: frost, ground, ice
+# This is a placeholder for the overlay filtergraph
+# Color grade: warm-cinematic
+ffmpeg -y -i clip-0.mp4 -i clip-1.mp4 -i clip-2.mp4 -i clip-3.mp4 -i clip-4.mp4 -i clip-5.mp4 -i clip-6.mp4 -i clip-7.mp4 -i clip-8.mp4 -i clip-9.mp4 -i clip-10.mp4 -i clip-11.mp4 -i clip-12.mp4 -i clip-13.mp4 -i clip-14.mp4 -i clip-15.mp4 -i clip-16.mp4 -i clip-17.mp4 -i clip-18.mp4 -i clip-19.mp4 -i clip-20.mp4 -i clip-21.mp4 -i clip-22.mp4 -i clip-23.mp4 -i clip-24.mp4 -i clip-25.mp4 -i clip-26.mp4 -i clip-27.mp4 -i clip-28.mp4 -i clip-29.mp4 -i clip-30.mp4 -i clip-31.mp4 -filter_complex [0:v][1:v]xfade=transition=fade:duration=0.6:offset=59.4[v1];[v1][2:v]xfade=transition=fade:duration=0.6:offset=118.8[v2];[v2][3:v]xfade=transition=fade:duration=0.6:offset=178.2[v3];[v3][4:v]xfade=transition=fade:duration=0.6:offset=237.6[v4];[v4][5:v]xfade=transition=fade:duration=0.6:offset=297[v5];[v5][6:v]xfade=transition=fade:duration=0.6:offset=356.4[v6];[v6][7:v]xfade=transition=fade:duration=0.6:offset=415.8[v7];[v7][8:v]xfade=transition=fade:duration=0.6:offset=475.2[v8];[v8][9:v]xfade=transition=fade:duration=0.6:offset=534.6[v9];[v9][10:v]xfade=transition=fade:duration=0.6:offset=594[v10];[v10][11:v]xfade=transition=fade:duration=0.6:offset=653.4[v11];[v11][12:v]xfade=transition=fade:duration=0.6:offset=712.8[v12];[v12][13:v]xfade=transition=fade:duration=0.6:offset=772.2[v13];[v13][14:v]xfade=transition=fade:duration=0.6:offset=831.6[v14];[v14][15:v]xfade=transition=fade:duration=0.6:offset=891[v15];[v15][16:v]xfade=transition=fade:duration=0.6:offset=950.4[v16];[v16][17:v]xfade=transition=fade:duration=0.6:offset=1009.8[v17];[v17][18:v]xfade=transition=fade:duration=0.6:offset=1069.2[v18];[v18][19:v]xfade=transition=fade:duration=0.6:offset=1128.6[v19];[v19][20:v]xfade=transition=fade:duration=0.6:offset=1188[v20];[v20][21:v]xfade=transition=fade:duration=0.6:offset=1247.4[v21];[v21][22:v]xfade=transition=fade:duration=0.6:offset=1306.8[v22];[v22][23:v]xfade=transition=fade:duration=0.6:offset=1366.2[v23];[v23][24:v]xfade=transition=fade:duration=0.6:offset=1425.6[v24];[v24][25:v]xfade=transition=fade:duration=0.6:offset=1485[v25];[v25][26:v]xfade=transition=fade:duration=0.6:offset=1544.4[v26];[v26][27:v]xfade=transition=fade:duration=0.6:offset=1603.8[v27];[v27][28:v]xfade=transition=fade:duration=0.6:offset=1663.2[v28];[v28][29:v]xfade=transition=fade:duration=0.6:offset=1722.6[v29];[v29][30:v]xfade=transition=fade:duration=0.6:offset=1782[v30];[v30][31:v]xfade=transition=fade:duration=0.6:offset=1841.4[v31] -map [v31] -c:v libx264 -preset fast -pix_fmt yuv420p -movflags +faststart -c:a aac -b:a 128k -t 1901.40 travel-30min.mp4
+
+# Copy result to output
+cp "travel-30min.mp4" /path/to/output/
+echo "Done: travel-30min.mp4"
+echo "Duration: 1901.4s"
+echo "Scenes: 32"

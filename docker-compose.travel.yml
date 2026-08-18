@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  travel-video:
+    build:
+      context: .
+      dockerfile: Dockerfile.travel-video
+    image: ultraia-travel:local
+    container_name: ultraia-travel-gen
+    environment:
+      - VIDEOS_TO_GENERATE=${VIDEOS_TO_GENERATE:-30s,60s,2min}
+    volumes:
+      # Source footage (read-only)
+      - ./VideoTask&Memory/historyTravelTP:/app/VideoTask&Memory/historyTravelTP:ro
+      # Output videos
+      - ./resultTask/travel/output:/app/output
+      # Manifests and scripts (read-only)
+      - ./resultTask/travel:/app/resultTask/travel:ro
+      - ./scripts:/app/scripts:ro
+    # For 30min video, increase timeout
+    # deploy:
+    #   resources:
+    #     limits:
+    #       cpus: '4'
+    #       memory: 8G
+    stdin_open: true
+    tty: true
+
+  # Quick test service (just verify ffmpeg/edge-tts work)
+  travel-test:
+    build:
+      context: .
+      dockerfile: Dockerfile.travel-video
+    image: ultraia-travel:test
+    container_name: ultraia-travel-test
+    command: >
+      bash -c "
+        echo '=== FFmpeg ===' && ffmpeg -version | head -1 &&
+        echo '=== FFprobe ===' && ffprobe -version | head -1 &&
+        echo '=== edge-tts ===' && edge-tts --version &&
+        echo '=== Node ===' && node --version &&
+        echo '=== Footage ===' && ls -la /app/VideoTask&Memory/historyTravelTP/*.mp4 | wc -l
+      "
+    volumes:
+      - ./VideoTask&Memory/historyTravelTP:/app/VideoTask&Memory/historyTravelTP:ro

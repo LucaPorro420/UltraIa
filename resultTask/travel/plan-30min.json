@@ -1,0 +1,269 @@
+{
+  "slug": "bali",
+  "titulo": "Viaje a Bali",
+  "destino": "Bali",
+  "idioma": "es",
+  "estilo": "relax",
+  "duracionSeg": 1800,
+  "hook": "Cierra los ojos. Respira. Bali te está esperando.",
+  "escenas": [
+    {
+      "lugar": "Bali",
+      "descripcion": "La laguna refleja el cielo en calma",
+      "motion": "pan right",
+      "duracionSeg": 60,
+      "promptImagen": "cinematic travel photography of Bali, la laguna refleja el cielo en calma, pan right, golden hour, 35mm, ultra detailed, 9:16 vertical",
+      "narracion": "La laguna refleja el cielo en calma"
+    },
+    {
+      "lugar": "Bali",
+      "descripcion": "La brisa mece los pastos dorados",
+      "motion": "tilt up",
+      "duracionSeg": 60,
+      "promptImagen": "cinematic travel photography of Bali, la brisa mece los pastos dorados, tilt up, golden hour, 35mm, ultra detailed, 9:16 vertical",
+      "narracion": "La brisa mece los pastos dorados"
+    },
+    {
+      "lugar": "Bali",
+      "descripcion": "El mar acaricia la orilla vacía",
+      "motion": "zoom in",
+      "duracionSeg": 60,
+      "promptImagen": "cinematic travel photography of Bali, el mar acaricia la orilla vacía, zoom in, golden hour, 35mm, ultra detailed, 9:16 vertical",
+      "narracion": "El mar acaricia la orilla vacía"
+    },
+    {
+      "lugar": "Bali",
+      "descripcion": "Las nubes pasan lentas sobre el valle",
+      "motion": "crane down",
+      "duracionSeg": 60,
+      "promptImagen": "cinematic travel photography of Bali, las nubes pasan lentas sobre el valle, crane down, golden hour, 35mm, ultra detailed, 9:16 vertical",
+      "narracion": "Las nubes pasan lentas sobre el valle"
+    },
+    {
+      "lugar": "Bali",
+      "descripcion": "El bosque huele a tierra mojada",
+      "motion": "static",
+      "duracionSeg": 60,
+      "promptImagen": "cinematic travel photography of Bali, el bosque huele a tierra mojada, static, golden hour, 35mm, ultra detailed, 9:16 vertical",
+      "narracion": "El bosque huele a tierra mojada"
+    },
+    {
+      "lugar": "Bali",
+      "descripcion": "El sol se pone en silencio",
+      "motion": "pan left",
+      "duracionSeg": 60,
+      "promptImagen": "cinematic travel photography of Bali, el sol se pone en silencio, pan left, golden hour, 35mm, ultra detailed, 9:16 vertical",
+      "narracion": "El sol se pone en silencio"
+    },
+    {
+      "lugar": "Bali",
+      "descripcion": "Las estrellas aparecen una a una",
+      "motion": "push out",
+      "duracionSeg": 60,
+      "promptImagen": "cinematic travel photography of Bali, las estrellas aparecen una a una, push out, golden hour, 35mm, ultra detailed, 9:16 vertical",
+      "narracion": "Las estrellas aparecen una a una"
+    },
+    {
+      "lugar": "Bali",
+      "descripcion": "La laguna refleja el cielo en calma",
+      "motion": "orbit",
+      "duracionSeg": 60,
+      "promptImagen": "cinematic travel photography of Bali, la laguna refleja el cielo en calma, orbit, golden hour, 35mm, ultra detailed, 9:16 vertical",
+      "narracion": "La laguna refleja el cielo en calma"
+    },
+    {
+      "lugar": "Bali",
+      "descripcion": "La brisa mece los pastos dorados",
+      "motion": "track right",
+      "duracionSeg": 60,
+      "promptImagen": "cinematic travel photography of Bali, la brisa mece los pastos dorados, track right, golden hour, 35mm, ultra detailed, 9:16 vertical",
+      "narracion": "La brisa mece los pastos dorados"
+    },
+    {
+      "lugar": "Bali",
+      "descripcion": "El mar acaricia la orilla vacía",
+      "motion": "aerial",
+      "duracionSeg": 60,
+      "promptImagen": "cinematic travel photography of Bali, el mar acaricia la orilla vacía, aerial, golden hour, 35mm, ultra detailed, 9:16 vertical",
+      "narracion": "El mar acaricia la orilla vacía"
+    },
+    {
+      "lugar": "Bali",
+      "descripcion": "Las nubes pasan lentas sobre el valle",
+      "motion": "handheld",
+      "duracionSeg": 60,
+      "promptImagen": "cinematic travel photography of Bali, las nubes pasan lentas sobre el valle, handheld, golden hour, 35mm, ultra detailed, 9:16 vertical",
+      "narracion": "Las nubes pasan lentas sobre el valle"
+    },
+    {
+      "lugar": "Bali",
+      "descripcion": "El bosque huele a tierra mojada",
+      "motion": "push in",
+      "duracionSeg": 60,
+      "promptImagen": "cinematic travel photography of Bali, el bosque huele a tierra mojada, push in, golden hour, 35mm, ultra detailed, 9:16 vertical",
+      "narracion": "El bosque huele a tierra mojada"
+    },
+    {
+      "lugar": "Bali",
+      "descripcion": "El sol se pone en silencio",
+      "motion": "tilt down",
+      "duracionSeg": 60,
+      "promptImagen": "cinematic travel photography of Bali, el sol se pone en silencio, tilt down, golden hour, 35mm, ultra detailed, 9:16 vertical",
+      "narracion": "El sol se pone en silencio"
+    },
+    {
+      "lugar": "Bali",
+      "descripcion": "Las estrellas aparecen una a una",
+      "motion": "crane up",
+      "duracionSeg": 60,
+      "promptImagen": "cinematic travel photography of Bali, las estrellas aparecen una a una, crane up, golden hour, 35mm, ultra detailed, 9:16 vertical",
+      "narracion": "Las estrellas aparecen una a una"
+    },
+    {
+      "lugar": "Bali",
+      "descripcion": "La laguna refleja el cielo en calma",
+      "motion": "zoom out",
+      "duracionSeg": 60,
+      "promptImagen": "cinematic travel photography of Bali, la laguna refleja el cielo en calma, zoom out, golden hour, 35mm, ultra detailed, 9:16 vertical",
+      "narracion": "La laguna refleja el cielo en calma"
+    },
+    {
+      "lugar": "Bali",
+      "descripcion": "La brisa mece los pastos dorados",
+      "motion": "pan right",
+      "duracionSeg": 60,
+      "promptImagen": "cinematic travel photography of Bali, la brisa mece los pastos dorados, pan right, golden hour, 35mm, ultra detailed, 9:16 vertical",
+      "narracion": "La brisa mece los pastos dorados"
+    },
+    {
+      "lugar": "Bali",
+      "descripcion": "El mar acaricia la orilla vacía",
+      "motion": "tilt up",
+      "duracionSeg": 60,
+      "promptImagen": "cinematic travel photography of Bali, el mar acaricia la orilla vacía, tilt up, golden hour, 35mm, ultra detailed, 9:16 vertical",
+      "narracion": "El mar acaricia la orilla vacía"
+    },
+    {
+      "lugar": "Bali",
+      "descripcion": "Las nubes pasan lentas sobre el valle",
+      "motion": "zoom in",
+      "duracionSeg": 60,
+      "promptImagen": "cinematic travel photography of Bali, las nubes pasan lentas sobre el valle, zoom in, golden hour, 35mm, ultra detailed, 9:16 vertical",
+      "narracion": "Las nubes pasan lentas sobre el valle"
+    },
+    {
+      "lugar": "Bali",
+      "descripcion": "El bosque huele a tierra mojada",
+      "motion": "crane down",
+      "duracionSeg": 60,
+      "promptImagen": "cinematic travel photography of Bali, el bosque huele a tierra mojada, crane down, golden hour, 35mm, ultra detailed, 9:16 vertical",
+      "narracion": "El bosque huele a tierra mojada"
+    },
+    {
+      "lugar": "Bali",
+      "descripcion": "El sol se pone en silencio",
+      "motion": "static",
+      "duracionSeg": 60,
+      "promptImagen": "cinematic travel photography of Bali, el sol se pone en silencio, static, golden hour, 35mm, ultra detailed, 9:16 vertical",
+      "narracion": "El sol se pone en silencio"
+    },
+    {
+      "lugar": "Bali",
+      "descripcion": "Las estrellas aparecen una a una",
+      "motion": "pan left",
+      "duracionSeg": 60,
+      "promptImagen": "cinematic travel photography of Bali, las estrellas aparecen una a una, pan left, golden hour, 35mm, ultra detailed, 9:16 vertical",
+      "narracion": "Las estrellas aparecen una a una"
+    },
+    {
+      "lugar": "Bali",
+      "descripcion": "La laguna refleja el cielo en calma",
+      "motion": "push out",
+      "duracionSeg": 60,
+      "promptImagen": "cinematic travel photography of Bali, la laguna refleja el cielo en calma, push out, golden hour, 35mm, ultra detailed, 9:16 vertical",
+      "narracion": "La laguna refleja el cielo en calma"
+    },
+    {
+      "lugar": "Bali",
+      "descripcion": "La brisa mece los pastos dorados",
+      "motion": "orbit",
+      "duracionSeg": 60,
+      "promptImagen": "cinematic travel photography of Bali, la brisa mece los pastos dorados, orbit, golden hour, 35mm, ultra detailed, 9:16 vertical",
+      "narracion": "La brisa mece los pastos dorados"
+    },
+    {
+      "lugar": "Bali",
+      "descripcion": "El mar acaricia la orilla vacía",
+      "motion": "track left",
+      "duracionSeg": 60,
+      "promptImagen": "cinematic travel photography of Bali, el mar acaricia la orilla vacía, track left, golden hour, 35mm, ultra detailed, 9:16 vertical",
+      "narracion": "El mar acaricia la orilla vacía"
+    },
+    {
+      "lugar": "Bali",
+      "descripcion": "Las nubes pasan lentas sobre el valle",
+      "motion": "aerial",
+      "duracionSeg": 60,
+      "promptImagen": "cinematic travel photography of Bali, las nubes pasan lentas sobre el valle, aerial, golden hour, 35mm, ultra detailed, 9:16 vertical",
+      "narracion": "Las nubes pasan lentas sobre el valle"
+    },
+    {
+      "lugar": "Bali",
+      "descripcion": "El bosque huele a tierra mojada",
+      "motion": "handheld",
+      "duracionSeg": 60,
+      "promptImagen": "cinematic travel photography of Bali, el bosque huele a tierra mojada, handheld, golden hour, 35mm, ultra detailed, 9:16 vertical",
+      "narracion": "El bosque huele a tierra mojada"
+    },
+    {
+      "lugar": "Bali",
+      "descripcion": "El sol se pone en silencio",
+      "motion": "push in",
+      "duracionSeg": 60,
+      "promptImagen": "cinematic travel photography of Bali, el sol se pone en silencio, push in, golden hour, 35mm, ultra detailed, 9:16 vertical",
+      "narracion": "El sol se pone en silencio"
+    },
+    {
+      "lugar": "Bali",
+      "descripcion": "Las estrellas aparecen una a una",
+      "motion": "tilt down",
+      "duracionSeg": 60,
+      "promptImagen": "cinematic travel photography of Bali, las estrellas aparecen una a una, tilt down, golden hour, 35mm, ultra detailed, 9:16 vertical",
+      "narracion": "Las estrellas aparecen una a una"
+    },
+    {
+      "lugar": "Bali",
+      "descripcion": "La laguna refleja el cielo en calma",
+      "motion": "crane up",
+      "duracionSeg": 60,
+      "promptImagen": "cinematic travel photography of Bali, la laguna refleja el cielo en calma, crane up, golden hour, 35mm, ultra detailed, 9:16 vertical",
+      "narracion": "La laguna refleja el cielo en calma"
+    },
+    {
+      "lugar": "Bali",
+      "descripcion": "La brisa mece los pastos dorados",
+      "motion": "zoom out",
+      "duracionSeg": 60,
+      "promptImagen": "cinematic travel photography of Bali, la brisa mece los pastos dorados, zoom out, golden hour, 35mm, ultra detailed, 9:16 vertical",
+      "narracion": "La brisa mece los pastos dorados"
+    },
+    {
+      "lugar": "Bali",
+      "descripcion": "El mar acaricia la orilla vacía",
+      "motion": "pan right",
+      "duracionSeg": 60,
+      "promptImagen": "cinematic travel photography of Bali, el mar acaricia la orilla vacía, pan right, golden hour, 35mm, ultra detailed, 9:16 vertical",
+      "narracion": "El mar acaricia la orilla vacía"
+    },
+    {
+      "lugar": "Bali",
+      "descripcion": "Las nubes pasan lentas sobre el valle",
+      "motion": "tilt up",
+      "duracionSeg": 60,
+      "promptImagen": "cinematic travel photography of Bali, las nubes pasan lentas sobre el valle, tilt up, golden hour, 35mm, ultra detailed, 9:16 vertical",
+      "narracion": "Las nubes pasan lentas sobre el valle"
+    }
+  ],
+  "cta": "Guárdalo para cuando necesites respirar. 🌿",
+  "musicaSugerida": "ambient acoustic piano"
+}

@@ -1,0 +1,45 @@
+{
+  "slug": "patagonia",
+  "titulo": "Viaje a Patagonia",
+  "destino": "Patagonia",
+  "idioma": "es",
+  "estilo": "naturaleza",
+  "duracionSeg": 30,
+  "hook": "La naturaleza no posa. Solo existe. Y Patagonia es su mejor obra.",
+  "escenas": [
+    {
+      "lugar": "Patagonia",
+      "descripcion": "El glaciar avanza en silencio",
+      "motion": "pan right",
+      "duracionSeg": 8,
+      "promptImagen": "cinematic travel photography of Patagonia, el glaciar avanza en silencio, pan right, golden hour, 35mm, ultra detailed, 9:16 vertical",
+      "narracion": "El glaciar avanza en silencio"
+    },
+    {
+      "lugar": "Patagonia",
+      "descripcion": "La cascada cae entre la niebla",
+      "motion": "tilt up",
+      "duracionSeg": 8,
+      "promptImagen": "cinematic travel photography of Patagonia, la cascada cae entre la niebla, tilt up, golden hour, 35mm, ultra detailed, 9:16 vertical",
+      "narracion": "La cascada cae entre la niebla"
+    },
+    {
+      "lugar": "Patagonia",
+      "descripcion": "El cañón se abre en capas de color",
+      "motion": "zoom in",
+      "duracionSeg": 8,
+      "promptImagen": "cinematic travel photography of Patagonia, el cañón se abre en capas de color, zoom in, golden hour, 35mm, ultra detailed, 9:16 vertical",
+      "narracion": "El cañón se abre en capas de color"
+    },
+    {
+      "lugar": "Patagonia",
+      "descripcion": "El desierto guarda dunas infinitas",
+      "motion": "crane down",
+      "duracionSeg": 8,
+      "promptImagen": "cinematic travel photography of Patagonia, el desierto guarda dunas infinitas, crane down, golden hour, 35mm, ultra detailed, 9:16 vertical",
+      "narracion": "El desierto guarda dunas infinitas"
+    }
+  ],
+  "cta": "Comparte este paisaje con quien lo necesita. 🌄",
+  "musicaSugerida": "nature soundscape ambient"
+}
