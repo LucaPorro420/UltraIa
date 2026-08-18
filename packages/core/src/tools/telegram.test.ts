@@ -35,7 +35,7 @@ describe('buildMultipartBody', () => {
       ],
       'BND',
     );
-    const text = body.toString('utf8');
+    const text = Buffer.from(body).toString('utf8');
     expect(contentType).toBe('multipart/form-data; boundary=BND');
     expect(text).toContain('--BND\r\nContent-Disposition: form-data; name="chat_id"\r\n\r\n123\r\n');
     expect(text).toContain('--BND\r\nContent-Disposition: form-data; name="video"; filename="v.mp4"\r\nContent-Type: video/mp4\r\n\r\nMP4DATA\r\n');

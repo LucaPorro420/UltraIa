@@ -49,9 +49,12 @@ function randomBoundary(): string {
 /**
  * Construye un cuerpo multipart/form-data en un Buffer (sin deps).
  * Cada parte: --boundary\r\nContent-Disposition...\r\n\r\n<value>\r\n; cierre --boundary--\r\n.
+ * El retorno se tipa como Uint8Array (Buffer ES un Uint8Array) para que el body
+ * sea asignable a BodyInit bajo lib DOM del tsconfig de web (Buffer<ArrayBufferLike>
+ * de @types/node nuevo NO es asignable a BodyInit).
  */
-export function buildMultipartBody(parts: Array<{ name: string; value?: string; filename?: string; contentType?: string; data?: Buffer }>, boundary: string): { body: Buffer; contentType: string } {
-  const chunks: Buffer[] = [];
+export function buildMultipartBody(parts: Array<{ name: string; value?: string; filename?: string; contentType?: string; data?: Uint8Array }>, boundary: string): { body: Uint8Array; contentType: string } {
+  const chunks: Uint8Array[] = [];
   const push = (s: string) => chunks.push(Buffer.from(s, 'utf8'));
   for (const part of parts) {
     push(`--${boundary}\r\n`);

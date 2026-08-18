@@ -135,7 +135,7 @@ describe('createDiscordAdapter — publish', () => {
 describe('buildMultipartBody compartido (discord usa el de telegram.js)', () => {
   it('payload_json es un JSON string válido parseable', () => {
     const { body } = buildMultipartBody([{ name: 'payload_json', value: JSON.stringify({ content: 'hola' }) }], 'B');
-    const text = body.toString('utf8');
+    const text = Buffer.from(body).toString('utf8');
     const m = text.match(/name="payload_json"\r\n\r\n(\{.*?\})\r\n/s);
     expect(m).toBeTruthy();
     expect(JSON.parse(m![1])).toEqual({ content: 'hola' });
