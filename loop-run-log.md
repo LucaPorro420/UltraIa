@@ -2048,3 +2048,12 @@ de código, sin commit.
 
 - **[V] docs-only + harness** (NOTA concurrencia): sesion r58-UTEC-5260 tomo el lock (task 58 sdf, ACTIVA, heartbeat 19:50) con sdf.ts/sdf.test.ts untracked y errores TS propios a mitad -> NO piso su lock ni muevo sus archivos (leccion iter-55: raza de escritura). Mis paths (opencode.json/LOOP.md/AGENTS.md/skills) son disjuntos de packages/core. Verificacion aplicada: precedente loop-44/56 docs-only: JSON valido (py json.load) + harness tests (mark_done 4/4 PASS + py_compile OK) + espejos sync por hash (ultraia-request 8BBC2502... == .opencode) + git diff --check limpio. FULL typecheck DIFERIDO a liberacion de r58 (sus errores TS lo rompen) - registrado en STATE.md High Priority.
 - **[R] DONE** - commit con pathspec explicito (7 archivos: opencode.json, LOOP.md, AGENTS.md, skills/ultraia-request/SKILL.md, STATE.md, loop-run-log.md, learning/LEARNINGS.md). Siguiente: 58 sdf (en manos de r58); tras su liberacion, correr FULL y continuar 59 videoqa.
+
+### Iteracion 58 - Capability sdf (18/08/2026) - CEDIDA a sesion concurrente
+
+- **[P] Sensado**: plan loop-58-sdf.md escrito; lock r55 libros intacto (NO tocar llm.ts/index.ts -> wiring diferido). Patron: codevfx.
+- **[I] C1**: mi implementacion sdf.ts (dominio puro zod: primitivas sphere/box/torus/capsule/plane + ops union/intersection/subtraction/smoothUnion + raymarchPlanSchema + cameraBasis/rayDirection/shadePoint + glslFromScene + renderSdfHtml autocontenido) + sdf.test.ts (29 tests).
+- **[I] C2 (ajuste)**: 23/29 -> fixes (smoothUnion k=0 -> min; MAXDIST const en GLSL; plan.camera.fov en vez de plan.fov; test zod camera.fov; smoothUnion test con diferencia < k).
+- **[V] COLISION DETECTADA (Ajuste)**: sdf.ts y sdf.test.ts SOBRESCRITOS por sesion concurrente (mtime 19:53:23/19:54:15, escritos hace segundos; diseno ajeno: SDF_PRIMITIVES/SDF_OPS, primitivas con indice/targets, planSdfScene/sdfSceneGlsl/rayMarchPlan/renderSdfHtml + 8 describes propios). Estado ajeno 20/31 PASS (11 fallos en progreso). Mi archivo desaparecio del disco (solo sobrevive en conversacion).
+- **[R] CEDIDO (precedente r54->r55 iter-55)**: la capability sdf queda a cargo de la sesion concurrente; mi diseno queda DESCARTADO (evitar doble capability). No se tocan sus archivos. Pendiente consolidacion: verificar tests ajenos al liberar + UN solo wiring en llm.ts (diferido por r55) + dedupe.
+
