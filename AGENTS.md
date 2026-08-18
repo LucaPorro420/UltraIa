@@ -582,6 +582,12 @@ El usuario deja URLs en `enlaces.txt` (raíz) para que se analicen y se apliquen
   tool `publish_submit` con `toDiscord`/`toSlack` (ramas switch + includeDiscord/includeSlack)
   + descriptor publish 8 plataformas en index.ts + enrutador CTA_BY_CANAL es/ar exhaustivo.
   96/96 scoped (telegram 21 + publish 48 + publications 27).
+- **Guía operativa (iteración 44)**: `docs/CANALES-CONFIG-2026.md` — tabla resumen
+  canal/variables/coste/dónde + paso a paso por canal (Telegram BotFather, Discord webhook,
+  Slack app, YouTube OAuth2, TikTok, X, Meta IG/Threads sin app review) + cómo probar
+  (API cola / publish_submit / adapter aislado vite-node). `.env.example` raíz con las 13
+  variables exactas (verificadas contra `process.env.*` de los adapters; X solo
+  `X_ACCESS_TOKEN`).
 - NOTA coordinación: el wiring se hizo cuando la sesión concurrente liberó
   publish.ts/llm.ts/index.ts (su wiring Meta `a223417`); antes, los archivos estaban sucios.
 - Pendiente: canal enum Prisma para programar Telegram por cola; adapters discord/slack;

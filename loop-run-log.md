@@ -1721,3 +1721,23 @@ ormalizeTitle() (lower + strip non-alnum), dedupe() (bigram overlap > 0.6),
   EXIT 0 (apps/web sin cambios).
 - **R**: publish_submit cubre las 8 plataformas (YT/TikTok/X/IG/Threads/Telegram/Discord/
   Slack) con fail-soft por token. Sin push (aprobacion humana).
+
+### Iteracion 44 - Guia operativa CANALES-CONFIG-2026 (17/08/2026) - DONE
+
+- La sesion concurrente uso el 43 (UI /metrics c8939f6 + bitacora e5a1b18). LECCION suya
+  aprendida (dd505cc): verificar git log antes de commitear bitacora (la sesion concurrente
+  absorbe edits del run-log en sus commits).
+- **P**: 8 plataformas completas -> falta el COMO configurar. 100% docs + .env.example
+  (verificado limpio). Arbol #25 sigue sucio (18) -> FULL bloqueado.
+- **I**:
+  - `.env.example` raiz: seccion AutoPub con las 13 variables EXACTAS (verificadas contra
+    `process.env.*` de publish.ts/telegram.ts/discord.ts/slack.ts; X solo X_ACCESS_TOKEN,
+    sin secrets — corregido tras primera version).
+  - `docs/CANALES-CONFIG-2026.md` (NUEVO): tabla resumen (canal/variables/coste/donde),
+    paso a paso por canal (Telegram BotFather, Discord webhook, Slack app, YouTube OAuth2
+    scopes, TikTok Content Posting, X OAuth2, Meta IG/Threads sin app review negocio
+    propio), como probar (API cola + tool publish_submit + adapter aislado vite-node),
+    regla aprobacion humana, pendientes (LinkedIn, X 17/24h, YouTube refresh).
+- **V**: sin .ts tocados -> sin gates de codigo; git diff verificado UTF-8 intacto (tool
+  Edit, leccion 41/26).
+- **R**: configurar canales = seguir CANALES-CONFIG-2026.md. Sin push (aprobacion humana).
