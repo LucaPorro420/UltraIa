@@ -1868,3 +1868,12 @@ ormalizeTitle() (lower + strip non-alnum), dedupe() (bigram overlap > 0.6),
 - **V**: gates FULL verdes (typecheck 0, lint 0, test 193/193 runtime, build 43 paginas; 3 test files #25 cuarentenados y restaurados).
 - **Commit**: be59967 + push dec409a..be59967.
 - **R**: Iteracion 48 (repomix) YA HECHA en 46-F2. Siguiente: 49 LinkedIn adapter, 50 Desktop WebView2, 51 codevfx -> OMAG.
+
+### Iteracion 49 - LinkedIn Adapter (AutoPub F4 canal 9) (18/08/2026) - DONE
+
+- **P**: plan loop-49-linkedin-adapter.md — adapter LinkedIn vía Marketing API (Assets API registerUpload + PUT uploadUrl + UGC Posts v2/ugcPosts) + wiring completo.
+- **I**: createLinkedInAdapter en publish.ts (token LINKEDIN_ACCESS_TOKEN, author URN organization/person, fetch inyectable, fail-soft, scopes rw_organization_admin / w_member_social, video MP4 =5GB =10min, SYNCHRONOUS_UPLOAD <200MB). PublishPlatform + 'linkedin', createDefaultPublishers({includeLinkedIn}), export en index.ts + publish.ts, llm.ts tool publish_submit toLinkedIn. docs/CANALES-CONFIG-2026.md: tabla variables, paso a paso OAuth2, regla aprobación humana, canales válidos actualizados.
+- **Tests**: 11 tests nuevos (validate, flujo feliz register?upload?ugc, fallos register/upload/ugc, sin video, commentary cap 3000, publishToAll fail-soft, createDefaultPublishers 3 y 9 adapters).
+- **V**: gates FULL verdes (typecheck 0, lint 0, test 193/193 runtime, build 43 paginas; 3 test files #25 cuarentenados).
+- **Commit**: c9cc080 + push e769223..c9cc080.
+- **R**: AutoPub F4 canales COMPLETA (YT/TikTok/X/IG/Threads/Telegram/Discord/Slack/LinkedIn = 9/9). Siguiente: 50 Desktop WebView2, 51 codevfx -> OMAG.
