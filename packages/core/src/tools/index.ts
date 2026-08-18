@@ -22,6 +22,7 @@ export * from './video-edit';
 export * from './cloud';
 export * from './travel';
 export * from './generative';
+export * from './libros';
 
 import * as web from './web';
 import * as image from './image';
@@ -49,8 +50,9 @@ import { vfx } from './vfx';
 import { codevfx } from './codevfx';
 import { travel } from './travel';
 import { generative } from './generative';
+import { libros } from './libros';
 
-export const tools = { web, image, video, music, stitch, reach, skills: { runSkill }, content, g0dm0d3, topics, present: presentTools, publish, enrutador, mediaScore, metrics, memoryFs: { createMemoryFs }, diagram, videoEdit, screenflow, cloud: cloudTools, harness, growth, vfx, codevfx, travel, generative };
+export const tools = { web, image, video, music, stitch, reach, skills: { runSkill }, content, g0dm0d3, topics, present: presentTools, publish, enrutador, mediaScore, metrics, memoryFs: { createMemoryFs }, diagram, videoEdit, screenflow, cloud: cloudTools, harness, growth, vfx, codevfx, travel, generative, libros };
 
 export const TOOL_DESCRIPTIONS: Record<string, string> = {
   calculator: 'Safely evaluate a mathematical expression (math only).',
@@ -104,6 +106,8 @@ export const TOOL_DESCRIPTIONS: Record<string, string> = {
     'Knowledge research engine: search arXiv papers (Atom API), GitHub repositories and the live web (Exa when EXA_API_KEY is set, DuckDuckGo keyless), fetch-and-extract any URL as clean text via r.jina.ai, with in-memory/file cache and cross-source URL dedupe. Fail-soft, keyless-first. Use to gather verifiable knowledge (papers, repos, docs) and feed the learning/truth memory.',
   enlaces:
     'Link curation & knowledge integration: parse the project enlaces.txt URL list, classify entries (pending vs already processed), and download/commit raw sources into learning/sources/<slug>.md — the protocol for turning user-shared links into capabilities/docs/tests. Deterministic, idempotent. Use to process new links and integrate external knowledge into the project.',
+  libros:
+    'Free programming books catalog in Spanish (librosgratis.dev / midudev pattern): 115 free books and tutorials in 32 sections across 8 categories — search with multi-term scoring (title 3 > author 2 > section 1, accents-insensitive), list by section, aggregate categories, and validate new resource proposals against the README rules. Deterministic, keyless. Use to recommend free Spanish learning resources for any programming topic.',
 };
 
 export type Capability =
@@ -135,4 +139,5 @@ export type Capability =
   | 'travel'
   | 'generative'
   | 'research'
-  | 'enlaces';
+  | 'enlaces'
+  | 'libros';

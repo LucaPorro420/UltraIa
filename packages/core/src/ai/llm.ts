@@ -45,6 +45,7 @@ import {
 } from '../tools/generative';
 import { researchSearch, searchArxiv, researchWeb, researchGitHub, fetchAndExtract } from '../tools/research';
 import { classifyEnlaces, contentChecksum } from '../tools/enlaces';
+import { buscarLibros, librosPorSeccion, categoriasLibros, validarPropuestaLibro } from '../tools/libros';
 import { createPublication, listPublications, approvePublication, rejectPublication, publishDue } from '../domain/publications';
 import { generarContenido, type ContentPackage } from '../tools/enrutador';
 import { computeChannelKpis, fetchChannelAnalytics } from '../tools/metrics';
@@ -994,6 +995,43 @@ export function chatStream(opts: {
           case 'checksum': {
             if (!texto) throw new Error('checksum requiere texto');
             return { accion, checksum: contentChecksum(texto) };
+          }
+          default:
+            return { accion, ok: false, error: 'accion desconocida' };
+        }
+      },
+    });
+  }
+  if (opts.tools?.includes('libros')) {
+    tools.libros_buscar = tool({
+      description:
+        'Free programming books catalog in Spanish (librosgratis.dev / midudev pattern): search 115 free books/tutorials across 32 sections with multi-term scoring (title 3 > author 2 > section 1, accents-insensitive), list books of a section, aggregate the 8 categories (Fundamentos/Desarrollo web/Lenguajes/Plataformas/Frameworks/Herramientas/Bases de datos/IA y datos), and validate a new resource proposal against the README rules (title >=3 chars, http(s) URL, author, format PDF/HTML/ePub/eBook, free + Spanish confirmation). Deterministic, keyless. Use to recommend free Spanish programming learning resources or check catalog proposals.',
+      parameters: z.object({
+        accion: z.enum(['buscar', 'seccion', 'categorias', 'proponer']),
+        query: z.string().min(1).max(200).optional(), // para buscar: términos libres
+        seccion: z.string().max(60).optional(), // para seccion/buscar: id o nombre de sección
+        formato: z.string().max(20).optional(), // para buscar: PDF/HTML/ePub/eBook (substring)
+        max: z.number().int().min(1).max(115).optional(), // para buscar: límite (default 20)
+        propuestaJson: z.string().optional(), // para proponer: {titulo, autor, url, formato, gratis, espanol}
+      }),
+      execute: async ({ accion, query, seccion, formato, max, propuestaJson }) => {
+        switch (accion) {
+          case 'buscar': {
+            if (!query) throw new Error('buscar requiere query');
+            return { accion, total: buscarLibros(query, { seccion, formato, max }).length, libros: buscarLibros(query, { seccion, formato, max }) };
+          }
+          case 'seccion': {
+            if (!seccion) throw new Error('seccion requiere seccion');
+            const libros = librosPorSeccion(seccion);
+            if (libros.length === 0) return { accion, seccion, libros: [], ok: false, error: 'seccion no encontrada' };
+            return { accion, seccion, total: libros.length, libros };
+          }
+          case 'categorias':
+            return { accion, categorias: categoriasLibros() };
+          case 'proponer': {
+            if (!propuestaJson) throw new Error('proponer requiere propuestaJson');
+            const r = validarPropuestaLibro(JSON.parse(propuestaJson));
+            return { accion, ...r };
           }
           default:
             return { accion, ok: false, error: 'accion desconocida' };
