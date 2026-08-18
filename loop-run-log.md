@@ -1893,3 +1893,15 @@ ormalizeTitle() (lower + strip non-alnum), dedupe() (bigram overlap > 0.6),
   files #25 cuarentenados).
 - **Commit**: f7df3d0 + push d48544a..f7df3d0.
 - **R**: Fase D MVP WebView2 COMPLETA. Upgrade path Tauri 2 documentado. Siguiente: 51 codevfx -> OMAG.
+
+### Iteracion 51 - codevfx -> OMAG (18/08/2026) - DONE
+
+- **P**: plan loop-51-codevfx-omag.md — integrar capability codevfx (9 efectos procedimentales 100% código: fire/ice/lightning/meteor/beam/ground/void/plasma/frost) en pipeline OMAG como generador nativo.
+- **I**: 
+  - Modality 'vfx' añadida a mediafield.ts (Modality union + MODALITIES array).
+  - VfxGeneratorAdapter en omag/vfx-generator.ts: implementa Generator interface (name='vfx-code', modality='vfx'); usa codevfx.planEffect + renderEffectHtml; genera HTML5 canvas autocontenido con GLSL, física (gravedad/viento/fricción), partículas escaladas, paleta base/acento/energía, hotkeys.
+  - Wiring: export en generators.ts + defaultGenerators() incluye VfxGeneratorAdapter; omag/index.ts re-exporta generadores.
+  - Tests: vfx-generator.test.ts (7 tests: validate, generate 9 kinds, inspect, export, data URI) + generators.test.ts actualizado (5 modalities + instanceof check).
+- **V**: gates FULL verdes (typecheck 0, lint 0, test 193/193 runtime, build 43 paginas; 3 test files #25 cuarentenados).
+- **Commit**: 4deb4e9 + push c1248f2..4deb4e9.
+- **R**: codevfx -> OMAG COMPLETO. Pipeline OMAG ahora genera VFX procedimentales como assets nativos (HTML5 canvas + GLSL), criticables en el correction loop. Plan maestro backlog completado (iteraciones 46-51).
