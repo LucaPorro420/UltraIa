@@ -22,6 +22,7 @@ import { createHarness, type HarnessRuntime } from '../tools/harness';
 import { analyzeChannel, planExperiments, buildPlaybook } from '../tools/growth';
 import { planReframe, planUpscale, planLutMatch, planRotoscope, planDrawToEdit, planBroll } from '../tools/vfx';
 import { planEffect, colorimetryAnalyze, curvatureShade, perspectivePlan, renderEffectHtml, EFFECT_KINDS } from '../tools/codevfx';
+import { planTravelVideo, buildTakeManifest, buildTravelRender, replicateLandscape, travelLeadImage, type TravelPlan } from '../tools/travel';
 import { createPublication, listPublications, approvePublication, rejectPublication, publishDue } from '../domain/publications';
 import { generarContenido, type ContentPackage } from '../tools/enrutador';
 import { computeChannelKpis, fetchChannelAnalytics } from '../tools/metrics';
@@ -728,6 +729,61 @@ export function chatStream(opts: {
             if (!kind) throw new Error('render requiere kind');
             const plan = planEffect(kind, opts);
             return { accion, plan, html: renderEffectHtml(plan, opts) };
+          }
+          default:
+            return { accion, ok: false, error: 'accion desconocida' };
+        }
+      },
+    });
+  }
+  if (opts.tools?.includes('travel')) {
+    tools.travel_plan = tool({
+      description:
+        'Travel video engine ("tomas de paisajes"): plan a 9:16 travel video from a destination (hook + 3-7 scenes with camera MOTIONS + bilingual es/ar narration + CTA), persist a saved landscape take manifest (.ultraia/travel/tomas/<slug>/), build the deterministic ffmpeg render pipeline (Ken Burns zoompan + chained xfade + narration TTS + BGM -> travel-<slug>.mp4), replicate a landscape as N prompt variations (time x weather x lens, Pollinations keyless URLs), and build the lead image URL of a plan. Deterministic, keyless. Use to turn saved landscape references (e.g. IG stories of landscapes) into automated travel videos.',
+      parameters: z.object({
+        accion: z.enum(['plan', 'toma', 'render', 'replicar', 'lead']),
+        destino: z.string().min(1).max(100).optional(), // para plan
+        idioma: z.enum(['es', 'ar']).optional(),
+        estilo: z.enum(['aventura', 'relax', 'cultura', 'naturaleza']).optional(),
+        duracionSeg: z.number().int().min(30).max(60).optional(),
+        escenas: z.number().int().min(3).max(7).optional(),
+        tomaJson: z.string().optional(), // para toma: {fuente, lugar, descripcion, tags[], tipo?, guardadoEn?}
+        planJson: z.string().optional(), // para render/lead: TravelPlan serializado
+        opcionesJson: z.string().optional(), // para render: {imagenesDir, narracionMp3, bgmMp3, outFile}; para replicar: {variaciones, seed}
+        promptBase: z.string().optional(), // para replicar
+      }),
+      execute: async ({ accion, destino, idioma, estilo, duracionSeg, escenas, tomaJson, planJson, opcionesJson, promptBase }) => {
+        switch (accion) {
+          case 'plan': {
+            if (!destino) throw new Error('plan requiere destino');
+            return { accion, plan: planTravelVideo(destino, { idioma, estilo, duracionSeg, escenas }) };
+          }
+          case 'toma': {
+            if (!tomaJson) throw new Error('toma requiere tomaJson');
+            return { accion, manifest: buildTakeManifest(JSON.parse(tomaJson)) };
+          }
+          case 'render': {
+            if (!planJson) throw new Error('render requiere planJson');
+            const plan = JSON.parse(planJson) as TravelPlan;
+            const opts = opcionesJson ? (JSON.parse(opcionesJson) as Record<string, unknown>) : {};
+            const render = buildTravelRender(plan, {
+              imagenesDir: opts.imagenesDir as string | undefined,
+              narracionMp3: opts.narracionMp3 === undefined ? null : (opts.narracionMp3 as string | null),
+              bgmMp3: opts.bgmMp3 === undefined ? null : (opts.bgmMp3 as string | null),
+              outFile: opts.outFile as string | undefined,
+            });
+            return { accion, pasos: render.pasos, argv: render.argv, renderSh: render.renderSh, manifest: render.manifest };
+          }
+          case 'replicar': {
+            if (!promptBase) throw new Error('replicar requiere promptBase');
+            const opts = opcionesJson ? (JSON.parse(opcionesJson) as { variaciones?: number; seed?: number }) : {};
+            return { accion, replicas: replicateLandscape(promptBase, opts) };
+          }
+          case 'lead': {
+            if (!planJson) throw new Error('lead requiere planJson');
+            const plan = JSON.parse(planJson) as TravelPlan;
+            const opts = opcionesJson ? (JSON.parse(opcionesJson) as { width?: number; height?: number; seed?: number }) : {};
+            return { accion, imagen: travelLeadImage(plan, opts) };
           }
           default:
             return { accion, ok: false, error: 'accion desconocida' };
