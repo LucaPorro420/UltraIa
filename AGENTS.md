@@ -338,23 +338,15 @@ Harness de desarrollo continuo del proyecto, orquestado por loop-engineering
 
 ### Protocolo del bucle (obligatorio para TODO agente del proyecto)
 
-1. **P — Planificar**: leer `STATE.md` + `learning/LEARNINGS.md` + `loop-run-log.md` +
-   `loop-constraints.md`; verificar que la primera tarea sigue `pendiente`; escribir el plan en
-   `.opencode/plans/loop-<taskid>-<slug>.md` (plantilla: contexto, objetivo, pasos, ARCHIVOS A
-   TOCAR, criterios scoped+FULL, riesgos, esfuerzo) + resumen `[P]` en `loop-run-log.md`. No editar código.
-2. **I — Implementar**: leer el plan del archivo; pre-flight `git status --porcelain`; ejecutar con
-   las tools del proyecto (workspaces, worktree si aplica); staging EXPLÍCITO (`git add <archivos
-   del plan>`, NUNCA `git add .`); commit por iteración con mensaje `feat|fix|chore(scope): <descripción>`.
-3. **V — Verificar**: gates en orden CI: `npm run typecheck` → `npm run lint` → `npm run test` →
-   `npm run build`. Gates duales: scoped (tests del paquete afectado) en iteraciones intermedias,
-   FULL en cada commit. Antes del build: matar dev servers (`taskkill /T /F`). Commit SOLO con
-   gates GREEN; si RED → máx 3 intentos, luego escalar a High Priority. Opcional: verifier
-   sub-agent (skill `loop-verifier` → APPROVE/REJECT). Registrar evidencia en `loop-run-log.md`
-   y `STATE.md` (tarea DONE + commit hash + tests).
-4. **R — Reiniciar**: si V=GREEN → siguiente ciclo inmediato (auto plan→build, sin esperar al
-   humano); si REJECT → reinyectar el error al plan (máx 3 intentos por ítem, luego escalar a
-   High Priority). JSON de presupuesto por ciclo (formato loop-budget). Al terminar el backlog o
-   agotar límites → reportar en `STATE.md`.
+El bucle PIVR implementa el **bucle IA de 4 fases** (skill `ultraia-request`): cada ciclo es
+**Sensado → Razonamiento → Acción → Ajuste**, mapeado así en los puntos del loop:
+
+| Fase IA | Punto PIVR | Qué hace |
+|---------|-----------|----------|
+| **Entrada (Sensado)** — leer el estado real, leer el problema | **P pasos 1-3 + pre-flight** | Leer `STATE.md` + `learning/LEARNINGS.md` + `loop-run-log.md` + `loop-constraints.md`; lock (concurrency-guard); `git status`; tomar la primera tarea `pendiente`. NUNCA inventar estado |
+| **Proceso (Razonamiento)** — elegir la acción, predecir qué pasará | **P pasos 4-5** | Escribir el plan (plantilla ampliada: contexto, objetivo, pasos, ARCHIVOS A TOCAR, RECURSOS/PRESUPUESTO, NO-hacer, criterios scoped+FULL, TOLERANCIAS, riesgos, esfuerzo, prioridad P0-P5) + PREDICCIÓN del resultado esperado + resumen `[P]` en `loop-run-log.md`. No editar código |
+| **Ejecución (Acción)** — aplicar la decisión, cambiar el estado | **I pasos 6-11** | Leer el plan del archivo; pre-flight `git status --porcelain`; ejecutar con las tools del proyecto (workspaces, worktree si aplica); staging EXPLÍCITO (`git add <archivos del plan>`, NUNCA `git add .`); commit por iteración con mensaje `feat|fix|chore(scope): <descripción>` |
+| **Ajuste (Aprendizaje)** — medir (recompensa/error), guardar el dato, ajustar reglas | **V pasos 12-17 + R pasos 18-21** | Gates en orden CI: `npm run typecheck` → `npm run lint` → `npm run test` → `npm run build`; gates duales (scoped en iteraciones intermedias, FULL en cada commit); antes del build: matar dev servers (`taskkill /T /F`); commit SOLO con gates GREEN (si RED → máx 3 intentos, luego escalar a High Priority); opcional verifier (`loop-verifier` → APPROVE/REJECT); evidencia en `loop-run-log.md` + `STATE.md` (tarea DONE + commit hash + tests) + lección en `learning/LEARNINGS.md`; si V=GREEN → siguiente ciclo inmediato; si REJECT → reinyectar el error al plan (máx 3 intentos por ítem, luego High Priority); JSON de presupuesto por ciclo (formato loop-budget: tokens Y tiempo); al terminar el backlog o agotar límites → reportar en `STATE.md` |
 
 ### Auto-conmutación Plan→Build
 

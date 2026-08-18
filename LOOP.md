@@ -14,18 +14,18 @@
 
 ## Fases (protocolo en AGENTS.md §Loop PIVR)
 
-1. **P — Planificar**: leer STATE.md + learning/LEARNINGS.md + loop-run-log.md; tomar la primera
-   tarea del backlog; escribir el plan en `.opencode/plans/loop-<taskid>-<slug>.md` (plantilla en
-   skill loop-piv) + resumen `[P]` en loop-run-log.md. Sin editar código.
-2. **I — Implementar**: leer el plan desde su archivo; ejecutar con tools del proyecto;
-   staging explícito (`git add <archivos del plan>`, nunca `git add .`); commit por iteración
-   (`feat|fix|chore(scope): …`).
-3. **V — Verificar**: gates CI en orden: `npm run typecheck` → `npm run lint` → `npm run test` →
-   `npm run build`. Dual: scoped en iteraciones intermedias, FULL en cada commit. Opcional:
-   verifier sub-agent (skill `loop-verifier`, APPROVE/REJECT). Evidencia en loop-run-log.md + STATE.md.
-4. **R — Reiniciar**: V=GREEN → siguiente ciclo inmediato (auto-switch P→B sin esperar al humano);
-   REJECT → reinyectar error al plan (máx 3 intentos por ítem, luego High Priority).
-   JSON de presupuesto por ciclo (formato loop-budget).
+El loop PIVR es la implementación del **bucle IA de 4 fases** (skill `ultraia-request`,
+Sensado/Razonamiento/Acción/Ajuste) mapeado en sus puntos:
+
+| Fase IA | Punto PIVR | Qué hace |
+|---------|-----------|----------|
+| **Entrada (Sensado)** — recibe datos del entorno/estado, lee el problema | **P pasos 1-3 + pre-flight** | Leer STATE.md + run-log + LEARNINGS + constraints; lock (concurrency-guard); `git status`; tomar la primera tarea pendiente. NUNCA inventar estado |
+| **Proceso (Razonamiento)** — elige la acción con su modelo, predice qué pasará | **P pasos 4-5** | Escribir plan file (plantilla ampliada: RECURSOS/PRESUPUESTO, NO-hacer, TOLERANCIAS, P0-P5) + PREDICCIÓN del resultado esperado + `[P]` en run-log |
+| **Ejecución (Acción)** — aplica la decisión, cambia el estado | **I pasos 6-11** | Ejecutar el plan con tools; staging explícito (`git add <archivos>`, nunca `.`); commit por iteración |
+| **Ajuste (Aprendizaje)** — mide (recompensa/error), guarda el dato, ajusta reglas | **V pasos 12-17 + R pasos 18-21** | Gates GREEN/RED = recompensa/error; evidencia en run-log + JSON presupuesto (tokens Y tiempo); lección en LEARNINGS.md; reinyectar error al plan (máx 3) |
+
+Ciclo completo: `Sensado → Razonamiento → Acción → Ajuste` por cada tarea, 3 pasadas
+(C1 base / C2 ajuste / C3 consolidación) para tareas grandes — decisión usuario 18/08/2026.
 
 ## Human Gates
 
