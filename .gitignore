@@ -71,3 +71,8 @@ apps/mobile/.expo/
 apps/mobile/dist/
 apps/mobile/.vscode/
 apps/mobile/.claude/
+
+# repomix (L825): paquete del repo para LLMs — regenerable, nunca commitear
+repomix-output.*
+repomix-output/
+repomix.config.json
