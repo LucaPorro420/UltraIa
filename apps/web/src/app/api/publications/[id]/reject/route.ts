@@ -2,8 +2,8 @@ import { prisma, rejectPublication } from '@ultraia/core';
 import { getCurrentUser } from '@/lib/server/context';
 
 /** POST /api/publications/[id]/reject — rechazo humano del paquete (DRAFT → REJECTED). */
-export async function POST(_req: Request, { params }: { params: Promise<{ id: string }> }) {
-  const user = await getCurrentUser();
+export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
+  const user = await getCurrentUser(req);
   if (!user) return new Response('Unauthorized', { status: 401 });
 
   const { id } = await params;

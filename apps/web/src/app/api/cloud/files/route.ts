@@ -6,7 +6,7 @@ const service = () => new CloudService({ adapter: localCloudAdapter() });
 
 /** GET /api/cloud/files?base= — lista archivos + manifest agregado. */
 export async function GET(req: Request) {
-  const user = await getCurrentUser();
+  const user = await getCurrentUser(req);
   if (!user) return new Response('Unauthorized', { status: 401 });
 
   const { searchParams } = new URL(req.url);
@@ -18,7 +18,7 @@ export async function GET(req: Request) {
 
 /** DELETE /api/cloud/files — body { path } → borra (fail-soft). */
 export async function DELETE(req: Request) {
-  const user = await getCurrentUser();
+  const user = await getCurrentUser(req);
   if (!user) return new Response('Unauthorized', { status: 401 });
 
   const body = (await req.json().catch(() => null)) as { path?: string } | null;

@@ -29,7 +29,7 @@ function resolveCloudService(): CloudService {
 
 /** GET /api/publications?estado=&canal=&take=&cursor= — lista la cola. */
 export async function GET(req: Request) {
-  const user = await getCurrentUser();
+  const user = await getCurrentUser(req);
   if (!user) return new Response('Unauthorized', { status: 401 });
 
   const { searchParams } = new URL(req.url);
@@ -53,7 +53,7 @@ const createSchema = z.object({
 
 /** POST /api/publications — crea una publicación en la cola desde un PublicationPackage. */
 export async function POST(req: Request) {
-  const user = await getCurrentUser();
+  const user = await getCurrentUser(req);
   if (!user) return new Response('Unauthorized', { status: 401 });
 
   const parsed = createSchema.safeParse(await req.json().catch(() => null));

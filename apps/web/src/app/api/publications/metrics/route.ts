@@ -9,7 +9,7 @@ import { getCurrentUser } from '@/lib/server/context';
  * Sin query → comportamiento previo (solo KPIs de la cola).
  */
 export async function GET(req: Request) {
-  const user = await getCurrentUser();
+  const user = await getCurrentUser(req);
   if (!user) return new Response('Unauthorized', { status: 401 });
   if (user.role !== 'ADMIN') return new Response('Forbidden', { status: 403 });
 

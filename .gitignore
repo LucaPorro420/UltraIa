@@ -65,3 +65,9 @@ screenshots/
 
 # UltraIA Cloud (capability cloud): archivos subidos localmente
 .ultraia/cloud/
+
+# Expo mobile (Fase mobile)
+apps/mobile/.expo/
+apps/mobile/dist/
+apps/mobile/.vscode/
+apps/mobile/.claude/
