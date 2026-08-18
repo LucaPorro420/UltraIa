@@ -257,3 +257,10 @@ Implementacion: capability vfx (tools/vfx.ts: planReframe / planUpscale / planLu
   secciones 41 en run-log + dos filas 41 en STATE.md (precedente: dos filas 36). Regla:
   ANTES de commitear bitacora, verificar `git log --oneline -3 -- loop-run-log.md STATE.md`;
   si la sesion absorbio tu edit, NO reescribir (evita otra raza), dejar evidencia y anotar.
+- Verificar contra el INDICE, no contra resumenes editoriales (18/08, iteracion 55): el README
+  de librosgratis.dev declara "115 recursos" pero su resumen por categorias suma 114 (Fundamentos
+  "13" vs 14 reales) — el indice de secciones es la fuente fiel. Y: titulos repetidos pueden ser
+  legitimos (dos "Introduccion a TypeScript" con autores y URLs distintos) — el dedupe correcto
+  es por URL, no por titulo.
+
+- Fuente FundamentosDeLaProgramacion (18/08, ciclo 56, 3 pasadas): el transcript de ChatGPT (3504 lineas) es ~60% ya implementado en UltraIa (generative.ts 38 exports verificados, codevfx 6, video-edit tolerancias/hard-rules, omag sound/critics) - el mapeo contra codigo real (grep de exports) evita duplicar capabilities y valida el patron keyless-first + determinista. Los 4 gaps reales (sdf/videoqa/motion/replica) se confirman con grep antes de planear. El Bloque B (31 practicas de requests) es esencialmente el harness PIVR ya en produccion (~25/31 vigentes) - la mejora de mayor ROI es formalizar los 6 gaps (prioridades P0-P5, tolerancias, presupuesto de tiempo, plantilla 13 campos, fases IA explicitas, config declarativa de loop) como skill ultraia-request (tarea 57). Leccion operativa: numerar tareas nuevas verificando el lock .ultraia/loop/session.lock ANTES (la sesion r55 tomo el id 55 -> renumerar a 56-62 y no pisar sus paths); STATE.md con filas huerfanas/duplicados/encoding roto se repara en el mismo ciclo docs sin gates de codigo (precedente loop-44).

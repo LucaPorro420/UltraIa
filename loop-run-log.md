@@ -2005,3 +2005,16 @@ de código, sin commit.
 - **[V] WIP #25 restaurado byte-exact**: 13/13 SHA256 == manifest wip-quarantine-20260818-r54 (leccion: `git checkout-index` escribe LF mientras el worktree original es CRLF -> restaurar desde backup, no desde index).
 - **[V] concurrencia resuelta**: sesion r54-OVERRIDE-915455659 detectada (triage 16:44 + no-op JSON 17:02 + lock override 17:07) - registro explicito "sin commit" (outcome no-op); esta sesion retomo el lock y cerro la iteracion.
 - **[R] DONE** - iteracion 54 cerrada (506c037). Push NO realizado (sin autorizacion explicita). Pendiente conocido: fila 53 de STATE.md sin entrada (drift bitacora, cerrar cuando el humano lo pida).
+### Iteracion 55 - Capability libros (18/08/2026) - EN CURSO
+
+- **[P] Plan**: enlaces.txt L826 -> midudev/libros-programacion-gratis (librosgratis.dev). Analisis: catalogo 115 recursos / 32 secciones / 8 categorias, formato uniforme [Titulo](url) - Autor · Formato, reglas de propuesta en README. Plan file .opencode/plans/loop-55-libros-programacion.md: capability libros keyless determinista (buscarLibros multi-termino con score, librosPorSeccion, categoriasLibros, validarPropuestaLibro) + wiring llm.ts/index.ts (verificados limpios) + tests ~24 + fuentes/docs. Pre-flight: sin lock, sin kill switch, HEAD 27af647 (cierre iter-54). NOTA: sesion #25 borro 3 test files suyos del worktree (connections/publications/publish.test.ts) tras iter-54 - NO se tocan (backup r54 disponible).
+
+### Iteracion 56 - Fuente FundamentosDeLaProgramacion (18/08/2026, sesion principal, 3 pasadas)
+
+- **[P] Sensado**: lock .ultraia/loop/session.lock pertenece a sesion r55-OVERRIDE (tarea 55 libros, heartbeat 18:11) - NO pisar; numeracion propia 56-62. Arbol: ~130 staged de #25/travel/planes + WIP libros untracked. Sin loop-pause-all. Plan: .opencode/plans/loop-56-fuente-fundamentos.md.
+- **[I] C1 (base)**: learning/sources/fundamentos-programacion.md (fuente fiel del transcript 3504 lineas: 37 secciones Replica Engine + 31 practicas de requests) + docs/RAZONAMIENTO-FUNDAMENTOS-PROGRAMACION.md (mapeo implementado/parcial/pendiente).
+- **[I] C2 (ajuste)**: verificacion de claims con grep de exports: generative.ts 38 (perlin/simplex/mandelbrot/flowField/lSystem/valuesToSvg/interpolateKeyframes/catmullRom/particleFrames/kenBurnsFrames/buildVideoPlan/synthWave-Fm-Granular-PinkNoise/applyAdsr/sequenceNotes/mixSynths), codevfx 6 (planEffect/colorimetryAnalyze/curvatureShade/perspectivePlan/renderEffectHtml), video-edit tolerancias (FADE_MS/SAFE_SILENCE_MS/HARD_RULES/MAX_SELF_EVAL_ATTEMPTS=3), omag sound/critics/vfx-generator, vfx 6 planners, travel. Gaps confirmados: cero PSNR/SSIM/SDF/raymarch/opticalFlow en packages.
+- **[I] C3 (consolidacion)**: STATE.md reparado (banner 46-PAUSADA -> estado real; duplicados #16/#17 eliminados + #36->36b + #41->41b; huerfanas 45-54 movidas a tabla, fila 53 creada de 5b85233; lineas con encoding roto limpiadas; filas 56-62 agregadas) + nota High Priority sesion r55 + leccion en LEARNINGS.md.
+- **[V] docs-only**: sin .ts tocados (precedente loop-44); UTF-8 via tool Write/Edit; state-integrity: STATE.md sin filas fuera de tabla ni IDs duplicados (renumeracion 36b/41b documentada).
+- **[R] DONE** - commit docs (fuente + razonamiento + STATE.md + run-log + LEARNINGS + plan file). Siguiente: 57 harness ultraia-request.
+
