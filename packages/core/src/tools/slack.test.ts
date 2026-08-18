@@ -12,7 +12,7 @@ import {
   isValidSlackBotToken,
   buildSlackCaption,
   createSlackAdapter,
-} from './slack.js';
+} from './slack';
 
 const REAL_ENV = { ...process.env };
 const GOOD_TOKEN = 'xoxb-1234567890-abcdefghij';

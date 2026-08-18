@@ -10,9 +10,9 @@
  * (mismo patrón que RF-12). Fail-soft: sin token → validate() false con razón clara.
  */
 
-import { createTelegramAdapter } from './telegram.js';
-import { createDiscordAdapter } from './discord.js';
-import { createSlackAdapter } from './slack.js';
+import { createTelegramAdapter } from './telegram';
+import { createDiscordAdapter } from './discord';
+import { createSlackAdapter } from './slack';
 
 export interface PublishMetadata {
   title: string;

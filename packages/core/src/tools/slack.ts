@@ -13,8 +13,8 @@
  * ok:false (nunca lanza).
  */
 
-import type { PublishInput, PublishResult, PublisherAdapter, PublishPlatform } from './publish.js';
-import { buildMultipartBody, truncateCaption } from './telegram.js';
+import type { PublishInput, PublishResult, PublisherAdapter, PublishPlatform } from './publish';
+import { buildMultipartBody, truncateCaption } from './telegram';
 
 /** Plataforma del adapter. */
 export const SLACK_PLATFORM = 'slack' as const;

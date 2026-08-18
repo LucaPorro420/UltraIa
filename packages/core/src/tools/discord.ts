@@ -12,8 +12,8 @@
  * ok:false con razón (nunca lanza). Discord responde 204 No Content en éxito.
  */
 
-import type { PublishInput, PublishResult, PublisherAdapter, PublishPlatform } from './publish.js';
-import { buildMultipartBody, truncateCaption } from './telegram.js';
+import type { PublishInput, PublishResult, PublisherAdapter, PublishPlatform } from './publish';
+import { buildMultipartBody, truncateCaption } from './telegram';
 
 /** Plataforma del adapter. */
 export const DISCORD_PLATFORM = 'discord' as const;
