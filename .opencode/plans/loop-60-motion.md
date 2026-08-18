@@ -110,3 +110,8 @@ Capability `motion` en `packages/core/src/tools/motion.ts`:
 ## Estado del plan
 
 - [ ] PENDIENTE DE EJECUCIÓN (escrito 18/08 20:35; r58 ACTIVA en task 58)
+- [x] **CEDIDO 18/08 20:45**: la sesión r58-UTEC-5260 tomó la tarea 60 (motion.ts mtime
+  20:37:50 + motion.test.ts 20:43:58, untracked, implementación AJENA en progreso).
+  Este plan queda como referencia de diseño (NO ejecutar para no duplicar —
+  precedente iter-58: mi sdf.ts fue sobrescrita; la capability queda a cargo de r58).
+  Al liberar: verificar tests ajenos + UN solo wiring de motion en llm.ts/index.ts.
