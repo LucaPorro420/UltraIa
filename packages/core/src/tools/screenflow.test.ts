@@ -425,7 +425,12 @@ describe('screenflow · hot watch runner (integración mock)', () => {
     const manifest = buildManifest('20260817120000-demo', validScript, planRuns(validScript));
     const pkg1 = buildPublicationPackage('20260817120000-demo', validScript, manifest);
     const pkg2 = buildPublicationPackage('20260817120000-demo', validScript, manifest);
-    expect(JSON.stringify(pkg1)).toBe(JSON.stringify(pkg2));
+    // generadoAt es no-determinista (new Date().toISOString()) -> comparar sin ese campo
+    const stripGeneradoAt = (obj: any) => {
+      const { generadoAt, ...rest } = obj;
+      return rest;
+    };
+    expect(JSON.stringify(stripGeneradoAt(pkg1))).toBe(JSON.stringify(stripGeneradoAt(pkg2)));
   });
 
   it('resolveState: give-up tras MAX_RETRIES', () => {

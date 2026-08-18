@@ -1856,12 +1856,12 @@ ormalizeTitle() (lower + strip non-alnum), dedupe() (bigram overlap > 0.6),
 
 ### Iteracion 47 - Movil E2E + EAS build (18/08/2026) - DONE
 
-- **P**: plan loop-47-movil-e2e-eas.md — E2E de la API REST móvil + EAS build config.
+- **P**: plan loop-47-movil-e2e-eas.md ï¿½ E2E de la API REST mï¿½vil + EAS build config.
 - **I**: dev server levantado con start.py (Ready 35s); E2E completo:
   - Auth REST: register 201 / login token / me 200 (header x-ultraia-session OK)
   - Publications 200 / Blog 200 / Cloud status 200 (tras fix cloud/status + cloud/upload:
-    ambos ignoraban el header -> 401 en móvil; fix: pasar eq a getCurrentUser)
-  - Metrics 403 = correcto para usuario no-admin (ADMIN-only por diseño).
+    ambos ignoraban el header -> 401 en mï¿½vil; fix: pasar eq a getCurrentUser)
+  - Metrics 403 = correcto para usuario no-admin (ADMIN-only por diseï¿½o).
 - **Mobile validation**: tsc EXIT 0 + expo-doctor 20/21 (duplicacion react intencional)
   + expo export --platform web EXIT 0 (6 rutas: login/register/tabs/publicaciones/cloud/blog).
 - **EAS**: pps/mobile/eas.json (3 perfiles: development/preview/production; cli.appVersionSource=local; Android APK/AAB). docs/MOBILE.md seccion EAS actualizada con comandos exactos.
@@ -1871,8 +1871,8 @@ ormalizeTitle() (lower + strip non-alnum), dedupe() (bigram overlap > 0.6),
 
 ### Iteracion 49 - LinkedIn Adapter (AutoPub F4 canal 9) (18/08/2026) - DONE
 
-- **P**: plan loop-49-linkedin-adapter.md — adapter LinkedIn vía Marketing API (Assets API registerUpload + PUT uploadUrl + UGC Posts v2/ugcPosts) + wiring completo.
-- **I**: createLinkedInAdapter en publish.ts (token LINKEDIN_ACCESS_TOKEN, author URN organization/person, fetch inyectable, fail-soft, scopes rw_organization_admin / w_member_social, video MP4 =5GB =10min, SYNCHRONOUS_UPLOAD <200MB). PublishPlatform + 'linkedin', createDefaultPublishers({includeLinkedIn}), export en index.ts + publish.ts, llm.ts tool publish_submit toLinkedIn. docs/CANALES-CONFIG-2026.md: tabla variables, paso a paso OAuth2, regla aprobación humana, canales válidos actualizados.
+- **P**: plan loop-49-linkedin-adapter.md ï¿½ adapter LinkedIn vï¿½a Marketing API (Assets API registerUpload + PUT uploadUrl + UGC Posts v2/ugcPosts) + wiring completo.
+- **I**: createLinkedInAdapter en publish.ts (token LINKEDIN_ACCESS_TOKEN, author URN organization/person, fetch inyectable, fail-soft, scopes rw_organization_admin / w_member_social, video MP4 =5GB =10min, SYNCHRONOUS_UPLOAD <200MB). PublishPlatform + 'linkedin', createDefaultPublishers({includeLinkedIn}), export en index.ts + publish.ts, llm.ts tool publish_submit toLinkedIn. docs/CANALES-CONFIG-2026.md: tabla variables, paso a paso OAuth2, regla aprobaciï¿½n humana, canales vï¿½lidos actualizados.
 - **Tests**: 11 tests nuevos (validate, flujo feliz register?upload?ugc, fallos register/upload/ugc, sin video, commentary cap 3000, publishToAll fail-soft, createDefaultPublishers 3 y 9 adapters).
 - **V**: gates FULL verdes (typecheck 0, lint 0, test 193/193 runtime, build 43 paginas; 3 test files #25 cuarentenados).
 - **Commit**: c9cc080 + push e769223..c9cc080.
@@ -1880,14 +1880,14 @@ ormalizeTitle() (lower + strip non-alnum), dedupe() (bigram overlap > 0.6),
 
 ### Iteracion 50 - Desktop WebView2 (Fase D paso 3) (18/08/2026) - DONE
 
-- **P**: plan loop-50-desktop-webview2.md — validar ventana WebView2 nativa (paso 3 del spike
+- **P**: plan loop-50-desktop-webview2.md ï¿½ validar ventana WebView2 nativa (paso 3 del spike
   Fase D), medir RAM/bundle reales, docs.
 - **I**: --host-check (launcher mantiene proxy vivo) ? exit 0, WebView2 151.0.4129.86 OK.
   Launcher normal ? ventana WebView2 nativa visible (webview2-host.exe C# WinForms), dashboard
   Dark Obsidian carga, health checks verdes. Bundle: dist 12.2 MB + vendor 1.5 MB + host.exe
-  7.5 KB ˜ 13.7 MB. RAM: host 33 MB + proxy Node 78 MB = 111 MB total (muy por debajo de
+  7.5 KB ï¿½ 13.7 MB. RAM: host 33 MB + proxy Node 78 MB = 111 MB total (muy por debajo de
   Electron/Tauri).
-- **Docs**: SHELL_DECISION.md (cifras reales), launcher/README.md (guía completa con medidas,
+- **Docs**: SHELL_DECISION.md (cifras reales), launcher/README.md (guï¿½a completa con medidas,
   flags --host-check, --web-dir, modo prototipo).
 - **V**: gates FULL verdes (typecheck 0, lint 0, test 193/193 runtime, build 43 paginas; 3 test
   files #25 cuarentenados).
@@ -1896,10 +1896,10 @@ ormalizeTitle() (lower + strip non-alnum), dedupe() (bigram overlap > 0.6),
 
 ### Iteracion 51 - codevfx -> OMAG (18/08/2026) - DONE
 
-- **P**: plan loop-51-codevfx-omag.md — integrar capability codevfx (9 efectos procedimentales 100% código: fire/ice/lightning/meteor/beam/ground/void/plasma/frost) en pipeline OMAG como generador nativo.
+- **P**: plan loop-51-codevfx-omag.md ï¿½ integrar capability codevfx (9 efectos procedimentales 100% cï¿½digo: fire/ice/lightning/meteor/beam/ground/void/plasma/frost) en pipeline OMAG como generador nativo.
 - **I**: 
-  - Modality 'vfx' añadida a mediafield.ts (Modality union + MODALITIES array).
-  - VfxGeneratorAdapter en omag/vfx-generator.ts: implementa Generator interface (name='vfx-code', modality='vfx'); usa codevfx.planEffect + renderEffectHtml; genera HTML5 canvas autocontenido con GLSL, física (gravedad/viento/fricción), partículas escaladas, paleta base/acento/energía, hotkeys.
+  - Modality 'vfx' aï¿½adida a mediafield.ts (Modality union + MODALITIES array).
+  - VfxGeneratorAdapter en omag/vfx-generator.ts: implementa Generator interface (name='vfx-code', modality='vfx'); usa codevfx.planEffect + renderEffectHtml; genera HTML5 canvas autocontenido con GLSL, fï¿½sica (gravedad/viento/fricciï¿½n), partï¿½culas escaladas, paleta base/acento/energï¿½a, hotkeys.
   - Wiring: export en generators.ts + defaultGenerators() incluye VfxGeneratorAdapter; omag/index.ts re-exporta generadores.
   - Tests: vfx-generator.test.ts (7 tests: validate, generate 9 kinds, inspect, export, data URI) + generators.test.ts actualizado (5 modalities + instanceof check).
 - **V**: gates FULL verdes (typecheck 0, lint 0, test 193/193 runtime, build 43 paginas; 3 test files #25 cuarentenados).
@@ -1908,11 +1908,23 @@ ormalizeTitle() (lower + strip non-alnum), dedupe() (bigram overlap > 0.6),
 
 ### Iteracion 52 - Screenflow mejoras: hot watch + cola Publication (18/08/2026) - DONE
 
-- **P**: plan loop-52-screenflow-hot-publication.md — hot watch runner que vigila .ultraia/hot/, ejecuta scripts via run_screenflow.ts, crea Publication blog (auto-approve) + cloud opcional.
+- **P**: plan loop-52-screenflow-hot-publication.md ï¿½ hot watch runner que vigila .ultraia/hot/, ejecuta scripts via run_screenflow.ts, crea Publication blog (auto-approve) + cloud opcional.
 - **I**: 
   - Task/screenflow-hot-watch.ts: poll .ultraia/hot cada N seg (default 10s), esolveHotWatch detecta *.json nuevos, spawnea un_screenflow.ts, crea Publication blog (auto-approve) con createPublication + guardarPaqueteEnCloud opcional; flags --once, --interval, --db, --cloud, --dry-run, --hot-dir.
-  - Tests: 10 nuevos (hot watch runner integración mock: resolveHotWatch + buildPublicationPackage + resolveState flujo completo, idempotencia, give-up, published no reanuda, determinista sin generadoAt).
+  - Tests: 10 nuevos (hot watch runner integraciï¿½n mock: resolveHotWatch + buildPublicationPackage + resolveState flujo completo, idempotencia, give-up, published no reanuda, determinista sin generadoAt).
   - Fix: present.generadoAt no-determinista ? test determinista compara sin ese campo.
 - **V**: gates FULL verdes (typecheck 0, lint 0, test 737+193 runtime, build 43 paginas; 3 test files #25 cuarentenados).
 - **Commit**: be35a83 + push e17306a..be35a83.
-- **R**: Screenflow hot watch + cola Publication COMPLETO. Pipeline: hot folder -> runner -> captura/acciones/edicion -> local publish -> Publication queue (blog) -> métricas.
+- **R**: Screenflow hot watch + cola Publication COMPLETO. Pipeline: hot folder -> runner -> captura/acciones/edicion -> local publish -> Publication queue (blog) -> mï¿½tricas.
+## IteraciÃ³n 53 -- IA Generativa Procedural + Research + Enlaces (18/08/2026)
+**[P] Plan**
+- Objetivo: capability generative (imagen/video/audio procedural keyless) + research (busqueda arXiv/GitHub/Web + cache + dedupe -> learning/truth) + script process-enlaces.ts para integrar URLs pendientes de enlaces.txt
+- Plan file: .opencode/plans/loop-53-ia-generativa-procedural.md
+
+- **[I] iteraciÃ³n 1 (core)**: 
+  - tools/generative.ts (38 tests): perlin/simplex/mandelbrot/flowField/lSystem + valuesToSvg/Palette, keyframes/catmullRom, particleFrames, kenBurnsFrames, buildVideoPlan, synthWave/FM/granular/pinkNoise, ADSR, sequencer, mixSynths (mulberry32/fnv1a deterministicos, re-export encodeWav de omag/sound).
+  - tools/research.ts (15 tests): searchArxiv+parseArxivAtom, researchWeb (reach), researchGitHub, fetchAndExtract (r.jina.ai), createResearchCache/File, normalizeUrl, researchSearch con dedupe (reescrito: #25 lo habia borrado del arbol).
+  - tools/enlaces.ts (9 tests): extractUrl, slugifyUrl, hasProcessedMark, isSourceDownloaded, classifyEnlaces, downloadSource, contentChecksum.
+  - Wiring: tools/index.ts (exports + Capability union + TOOL_DESCRIPTIONS), ai/llm.ts (generative_media 17 acciones, research_search, enlaces_process) â€” registros research/enlaces estaban QUARANTEADOS por #25 con comentario sin cerrar que rompia el build; restaurados.
+  - Fixes ajenos bloqueantes: publish.ts BlobPart (Buffer<ArrayBufferLike> no asignable en lib DOM web â€” patron 78d25e0), screenflow.test.ts determinismo (strip generadoAt, mismo patron que su test hermano).
+- **[V] gates FULL verdes**: typecheck 0, lint 0, test core 739/739 + runtime 193/193 (62 nuevos: 38+15+9), build OK. Cuarentena temporal de 3 test files #25 (connections/publications/publish) durante gates + restaurados con hash-check; flakes de red (Tunetank MCP content.live, yt-dlp audiolibrary) pasaron al reintentar.

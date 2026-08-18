@@ -21,7 +21,7 @@ export interface PublishMetadata {
   privacyStatus: 'public' | 'private' | 'unlisted';
 }
 
-export type PublishPlatform = 'youtube' | 'tiktok' | 'x' | 'instagram' | 'threads' | 'telegram' | 'discord' | 'slack' | 'linkedin';
+export type PublishPlatform = 'youtube' | 'tiktok' | 'x' | 'instagram' | 'threads' | 'facebook' | 'linkedin' | 'telegram' | 'discord' | 'slack';
 
 export interface PublishInput {
   /** Ruta del MP4 final (9:16, <60s). */
@@ -73,6 +73,9 @@ export const X_CHUNK_BYTES = 5 * 1024 * 1024;
 /** LinkedIn API endpoints (Assets API + UGC Posts). */
 export const LINKEDIN_ASSETS_URL = 'https://api.linkedin.com/rest/assets?action=registerUpload';
 export const LINKEDIN_UGCP_URL = 'https://api.linkedin.com/v2/ugcPosts';
+
+/** Facebook Graph API v21 (Pages: me/accounts → page token → {page-id}/photos|videos). */
+export const FB_GRAPH_URL = 'https://graph.facebook.com/v21.0';
 
 /** Receta para video feedshare (LinkedIn). */
 export const LINKEDIN_VIDEO_RECIPE = 'urn:li:digitalmediaRecipe:feedshare-video';
@@ -654,6 +657,88 @@ export function createLinkedInAdapter(options: LinkedInAdapterOptions = {}): Pub
   };
 }
 
+// ----------------------------------------------------------------------- Facebook Pages
+
+export interface FacebookAdapterOptions {
+  /** Page Access Token (obtenido via me/accounts con user token). */
+  accessToken?: string;
+  /** ID de la página de Facebook. */
+  pageId?: string;
+  fetchFn?: typeof fetch;
+  /** Default: env FB_ACCESS_TOKEN. */
+  tokenFromEnv?: () => string | undefined;
+  /** Default: env FB_PAGE_ID. */
+  pageIdFromEnv?: () => string | undefined;
+}
+
+/** QUÉ ES: adapter Facebook Pages vía Graph API v21 (container flow simplificado: photo/video directo).
+ * PARA QUÉ: AutoPub F6 — canal Facebook Pages (requiere Page Access Token con permisos pages_manage_posts, pages_read_engagement).
+ * POR QUÉ: mismo patrón fail-soft/fetch inyectable que YouTube/TikTok/Meta IG.
+ * Flujo: POST {page-id}/photos (imagen) o {page-id}/videos (video) con published=true. */
+export function createFacebookAdapter(options: FacebookAdapterOptions = {}): PublisherAdapter {
+  const token = () => options.accessToken ?? options.tokenFromEnv?.() ?? process.env.FB_ACCESS_TOKEN;
+  const pageId = () => options.pageId ?? options.pageIdFromEnv?.() ?? process.env.FB_PAGE_ID;
+  const fetchFn = options.fetchFn ?? globalThis.fetch;
+
+  return {
+    platform: 'facebook',
+    async validate() {
+      if (!token()) return { ok: false, reason: 'FB_ACCESS_TOKEN no configurado' };
+      if (!pageId()) return { ok: false, reason: 'FB_PAGE_ID no configurado' };
+      return { ok: true };
+    },
+    async publish(input) {
+      const accessToken = token();
+      const fbPageId = pageId();
+      if (!accessToken) return { platform: 'facebook', ok: false, error: 'FB_ACCESS_TOKEN no configurado' };
+      if (!fbPageId) return { platform: 'facebook', ok: false, error: 'FB_PAGE_ID no configurado' };
+
+      const bytes = await videoBytes(input);
+      if (!bytes) return { platform: 'facebook', ok: false, error: 'No se pudo leer el video (videoPath o videoBuffer requerido)' };
+
+      const meta = mergedMetadata(input);
+      const caption = `${meta.title}\n\n${meta.description}`.slice(0, 5000);
+
+      try {
+        // Detectar si es video (MP4) o imagen por content-type/extension
+        // Asumimos video si input.videoPath termina en .mp4 o bytes empiezan con ftyp (MP4)
+        const isVideo = input.videoPath?.endsWith('.mp4') ?? bytes.subarray(0, 4).toString('hex') === '66747970'; // 'ftyp'
+
+        const endpoint = isVideo
+          ? `${FB_GRAPH_URL}/${fbPageId}/videos`
+          : `${FB_GRAPH_URL}/${fbPageId}/photos`;
+
+        const form = new FormData();
+        form.append('access_token', accessToken);
+        form.append('published', 'true');
+        // Uint8Array nuevo: Buffer<ArrayBufferLike> no es asignable a BlobPart en el lib DOM de web
+        const fileBytes = new Uint8Array(bytes);
+        if (isVideo) {
+          form.append('file', new Blob([fileBytes], { type: 'video/mp4' }), 'video.mp4');
+          form.append('description', caption);
+        } else {
+          form.append('source', new Blob([fileBytes], { type: 'image/jpeg' }), 'image.jpg');
+          form.append('caption', caption);
+        }
+
+        const res = await fetchFn(endpoint, {
+          method: 'POST',
+          body: form,
+        });
+
+        const data = (await res.json().catch(() => ({}))) as { id?: string; error?: { message?: string } };
+        if (!res.ok || !data.id) {
+          return { platform: 'facebook', ok: false, error: `Facebook ${isVideo ? 'video' : 'photo'} falló: HTTP ${res.status} (${data.error?.message || 'sin id'})` };
+        }
+
+        return { platform: 'facebook', ok: true, id: data.id, url: `https://www.facebook.com/${data.id}` };
+      } catch (err) {
+        return { platform: 'facebook', ok: false, error: `Facebook error: ${(err as Error).message}` };
+      }
+    },
+  };
+}
+
 // ------------------------------------------------------------------- helpers
 
 /** Corre todos los adapters sobre el mismo input y agrega resultados. */
@@ -670,12 +755,21 @@ export async function publishToAll(adapters: PublisherAdapter[], input: PublishI
   return results;
 }
 
-/** Crea los adaptadores por defecto (YT + TikTok; opcionalmente X — canal F4 paso 4 — y Meta IG/Threads — paso 5 — y Telegram — paso 6 — y Discord/Slack — paso 7 — y LinkedIn — paso 8).
-// includeX/includeMeta/includeTelegram/includeDiscord/includeSlack/includeLinkedIn=false por defecto para no cambiar el comportamiento de las colas existentes. */
-export function createDefaultPublishers(opts: { includeX?: boolean; includeMeta?: boolean; includeTelegram?: boolean; includeDiscord?: boolean; includeSlack?: boolean; includeLinkedIn?: boolean } = {}): PublisherAdapter[] {
+/** Crea los adaptadores por defecto (YT + TikTok; opcionalmente X — canal F4 paso 4 — y Meta IG/Threads — paso 5 — y Facebook — paso 6 — y Telegram — paso 7 — y Discord/Slack — paso 8 — y LinkedIn — paso 9).
+// includeX/includeMeta/includeFacebook/includeTelegram/includeDiscord/includeSlack/includeLinkedIn=false por defecto para no cambiar el comportamiento de las colas existentes. */
+export function createDefaultPublishers(opts: {
+  includeX?: boolean;
+  includeMeta?: boolean;
+  includeFacebook?: boolean;
+  includeTelegram?: boolean;
+  includeDiscord?: boolean;
+  includeSlack?: boolean;
+  includeLinkedIn?: boolean;
+} = {}): PublisherAdapter[] {
   const base = [createYouTubeAdapter(), createTikTokAdapter()];
   if (opts.includeX) base.push(createXAdapter());
   if (opts.includeMeta) base.push(createInstagramAdapter(), createThreadsAdapter());
+  if (opts.includeFacebook) base.push(createFacebookAdapter());
   if (opts.includeTelegram) base.push(createTelegramAdapter());
   if (opts.includeDiscord) base.push(createDiscordAdapter());
   if (opts.includeSlack) base.push(createSlackAdapter());
@@ -683,4 +777,4 @@ export function createDefaultPublishers(opts: { includeX?: boolean; includeMeta?
   return base;
 }
 
-export const publish = { createYouTubeAdapter, createTikTokAdapter, createXAdapter, createInstagramAdapter, createThreadsAdapter, createTelegramAdapter, createDiscordAdapter, createSlackAdapter, createLinkedInAdapter, createDefaultPublishers, publishToAll, buildBilingualMetadata, buildXPostText, xAppendMultipartBody, formBody, IG_MEDIA_URL, THREADS_MEDIA_URL, LINKEDIN_ASSETS_URL, LINKEDIN_UGCP_URL, LINKEDIN_VIDEO_RECIPE };
+export const publish = { createYouTubeAdapter, createTikTokAdapter, createXAdapter, createInstagramAdapter, createThreadsAdapter, createFacebookAdapter, createTelegramAdapter, createDiscordAdapter, createSlackAdapter, createLinkedInAdapter, createDefaultPublishers, publishToAll, buildBilingualMetadata, buildXPostText, xAppendMultipartBody, formBody, IG_MEDIA_URL, THREADS_MEDIA_URL, LINKEDIN_ASSETS_URL, LINKEDIN_UGCP_URL, LINKEDIN_VIDEO_RECIPE, FB_GRAPH_URL };

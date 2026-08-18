@@ -21,6 +21,7 @@ export * from './diagram';
 export * from './video-edit';
 export * from './cloud';
 export * from './travel';
+export * from './generative';
 
 import * as web from './web';
 import * as image from './image';
@@ -47,8 +48,9 @@ import { growth } from './growth';
 import { vfx } from './vfx';
 import { codevfx } from './codevfx';
 import { travel } from './travel';
+import { generative } from './generative';
 
-export const tools = { web, image, video, music, stitch, reach, skills: { runSkill }, content, g0dm0d3, topics, present: presentTools, publish, enrutador, mediaScore, metrics, memoryFs: { createMemoryFs }, diagram, videoEdit, screenflow, cloud: cloudTools, harness, growth, vfx, codevfx, travel };
+export const tools = { web, image, video, music, stitch, reach, skills: { runSkill }, content, g0dm0d3, topics, present: presentTools, publish, enrutador, mediaScore, metrics, memoryFs: { createMemoryFs }, diagram, videoEdit, screenflow, cloud: cloudTools, harness, growth, vfx, codevfx, travel, generative };
 
 export const TOOL_DESCRIPTIONS: Record<string, string> = {
   calculator: 'Safely evaluate a mathematical expression (math only).',
@@ -96,6 +98,12 @@ export const TOOL_DESCRIPTIONS: Record<string, string> = {
     'Code-driven visual effects (Elemental Sandbox pattern �?" 100% code, no assets): plan procedural effects (fire/ice/lightning/meteor/beam/ground/void/plasma/frost) with palette, physics, particles and hand-written GLSL; analyze colorimetry coherence (HSL warmth/saturation); compute curvature shading; plan camera perspective with parallax; render a self-contained HTML5 canvas demo. Deterministic, keyless. Use to design VFX scenes purely from math.',
   travel:
     'Travel video engine ("tomas de paisajes" pattern): plan a 9:16 travel video from a destination (hook + scenes with camera MOTIONS + bilingual es/ar narration + CTA + per-scene image prompts), persist a saved landscape "take" manifest (.ultraia/travel/tomas/<slug>/), build the deterministic ffmpeg render pipeline (Ken Burns zoompan + chained xfade + narration TTS + background music), and replicate a landscape as N prompt variations (time of day x weather x lens) with keyless Pollinations URLs. Deterministic, keyless. Use to turn saved landscape references into automated travel videos.',
+  generative:
+    'Procedural media generation engine (game-engine style, 100% code — no assets, no models, no network): images from math (Perlin/Simplex noise, Mandelbrot fractals, flow fields, L-systems → self-contained SVG), video motion (keyframe interpolation linear/cubic Catmull-Rom, deterministic particle simulations with gravity/wind/friction, parametric Ken Burns camera windows, multi-scene video plans), and audio synthesis (sine/square/saw/triangle waves, FM, granular, pink noise, ADSR envelopes, BPM sequencer, multi-track mixing → PCM/WAV). Fully deterministic (seeded PRNG, checksums). Use to generate visual/audio assets entirely in code.',
+  research:
+    'Knowledge research engine: search arXiv papers (Atom API), GitHub repositories and the live web (Exa when EXA_API_KEY is set, DuckDuckGo keyless), fetch-and-extract any URL as clean text via r.jina.ai, with in-memory/file cache and cross-source URL dedupe. Fail-soft, keyless-first. Use to gather verifiable knowledge (papers, repos, docs) and feed the learning/truth memory.',
+  enlaces:
+    'Link curation & knowledge integration: parse the project enlaces.txt URL list, classify entries (pending vs already processed), and download/commit raw sources into learning/sources/<slug>.md — the protocol for turning user-shared links into capabilities/docs/tests. Deterministic, idempotent. Use to process new links and integrate external knowledge into the project.',
 };
 
 export type Capability =
@@ -124,4 +132,7 @@ export type Capability =
   | 'growth'
   | 'vfx'
   | 'codevfx'
-  | 'travel';
+  | 'travel'
+  | 'generative'
+  | 'research'
+  | 'enlaces';

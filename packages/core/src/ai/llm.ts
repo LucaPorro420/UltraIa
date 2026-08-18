@@ -23,6 +23,28 @@ import { analyzeChannel, planExperiments, buildPlaybook } from '../tools/growth'
 import { planReframe, planUpscale, planLutMatch, planRotoscope, planDrawToEdit, planBroll } from '../tools/vfx';
 import { planEffect, colorimetryAnalyze, curvatureShade, perspectivePlan, renderEffectHtml, EFFECT_KINDS } from '../tools/codevfx';
 import { planTravelVideo, buildTakeManifest, buildTravelRender, replicateLandscape, travelLeadImage, type TravelPlan } from '../tools/travel';
+import {
+  perlinNoise,
+  simplexNoiseField,
+  mandelbrot,
+  flowField,
+  lSystem,
+  valuesToSvg,
+  valuesToSvgPalette,
+  interpolateKeyframes,
+  particleFrames,
+  kenBurnsFrames,
+  buildVideoPlan,
+  synthWave,
+  synthFm,
+  synthGranular,
+  synthPinkNoise,
+  applyAdsr,
+  sequenceNotes,
+  mixSynths,
+} from '../tools/generative';
+import { researchSearch, searchArxiv, researchWeb, researchGitHub, fetchAndExtract } from '../tools/research';
+import { classifyEnlaces, contentChecksum } from '../tools/enlaces';
 import { createPublication, listPublications, approvePublication, rejectPublication, publishDue } from '../domain/publications';
 import { generarContenido, type ContentPackage } from '../tools/enrutador';
 import { computeChannelKpis, fetchChannelAnalytics } from '../tools/metrics';
@@ -787,6 +809,191 @@ export function chatStream(opts: {
             const plan = JSON.parse(planJson) as TravelPlan;
             const opts = opcionesJson ? (JSON.parse(opcionesJson) as { width?: number; height?: number; seed?: number }) : {};
             return { accion, imagen: travelLeadImage(plan, opts) };
+          }
+          default:
+            return { accion, ok: false, error: 'accion desconocida' };
+        }
+      },
+    });
+  }
+  if (opts.tools?.includes('generative')) {
+    tools.generative_media = tool({
+      description:
+        'Procedural media generation engine (game-engine style, 100% code — no assets, no models, no network): images from math (perlin/simplex noise fields, mandelbrot fractals, flow fields, L-systems -> self-contained SVG), video motion (keyframe interpolation, particle simulations, Ken Burns camera windows, multi-scene video plans) and audio synthesis (waves, FM, granular, pink noise, ADSR, BPM sequencer, mixing -> PCM/WAV). Fully deterministic (seeded, checksums). Use to generate visual/audio assets entirely in code.',
+      parameters: z.object({
+        medio: z.enum(['imagen', 'video', 'audio']),
+        accion: z.enum([
+          'perlin',
+          'simplex',
+          'mandelbrot',
+          'flujo',
+          'lsystem',
+          'svg',
+          'keyframes',
+          'particulas',
+          'kenburns',
+          'video_plan',
+          'onda',
+          'fm',
+          'granular',
+          'ruido_rosa',
+          'adsr',
+          'secuencia',
+          'mix',
+        ]),
+        ancho: z.number().int().min(1).max(1024).optional(),
+        alto: z.number().int().min(1).max(1024).optional(),
+        opcionesJson: z.string().optional(), // seed/scale/octaves/zoom/fps/gravedad/frecuencias/bpm...
+        patronJson: z.string().optional(), // para lsystem {axioma, reglas, iteraciones} y secuencia {pattern[]}
+        keyframesJson: z.string().optional(), // para keyframes [{t, value[]}]
+      }),
+      execute: async ({ medio, accion, ancho, alto, opcionesJson, patronJson, keyframesJson }) => {
+        const opts = opcionesJson ? (JSON.parse(opcionesJson) as Record<string, any>) : {};
+        const w = ancho ?? 128;
+        const h = alto ?? 128;
+        switch (accion) {
+          case 'perlin':
+            return { accion, checksum: undefined, campo: Array.from(perlinNoise(w, h, opts)) };
+          case 'simplex':
+            return { accion, campo: Array.from(simplexNoiseField(w, h, opts)) };
+          case 'mandelbrot':
+            return { accion, campo: Array.from(mandelbrot(w, h, opts)) };
+          case 'flujo':
+            return { accion, campo: Array.from(flowField(w, h, opts)) };
+          case 'lsystem': {
+            const p = patronJson ? (JSON.parse(patronJson) as { axioma?: string; reglas?: Record<string, string>; iteraciones?: number }) : {};
+            const s = lSystem(p.axioma ?? 'F', p.reglas ?? { F: 'F+F--F+F' }, p.iteraciones ?? 3);
+            return { accion, cadena: s, checksum: contentChecksum(s) };
+          }
+          case 'svg': {
+            const field = opts.fuente === 'mandelbrot' ? mandelbrot(w, h, opts) : perlinNoise(w, h, opts);
+            const paleta = opts.paleta as string[] | undefined;
+            const svg = paleta ? valuesToSvgPalette(field, w, h, paleta, opts) : valuesToSvg(field, w, h, opts);
+            return { accion, svg };
+          }
+          case 'keyframes': {
+            const kfs = keyframesJson ? (JSON.parse(keyframesJson) as Array<{ t: number; value: number[] }>) : [{ t: 0, value: [0] }, { t: 1, value: [1] }];
+            const t = opts.t ?? 0.5;
+            return { accion, valores: interpolateKeyframes(kfs, t, opts.metodo === 'cubic' ? 'cubic' : 'linear') };
+          }
+          case 'particulas':
+            return { accion, frames: particleFrames({ ...opts, count: opts.count ?? 32, steps: opts.steps ?? 24 }) };
+          case 'kenburns':
+            return { accion, frames: kenBurnsFrames(opts.duracion ?? 3, opts.fps ?? 30, opts) };
+          case 'video_plan': {
+            const escenas = opts.escenas as Array<{ durationSec: number; label?: string; camera?: Record<string, unknown> }> | undefined;
+            if (!escenas || escenas.length === 0) throw new Error('video_plan requiere escenas[{durationSec,label?}]');
+            const plan = buildVideoPlan(escenas, { fps: opts.fps ?? 30, width: opts.width ?? 1920, height: opts.height ?? 1080 });
+            return { accion, fps: plan.fps, escenas: plan.sceneRanges, checksum: plan.checksum, frames: plan.frames.length };
+          }
+          case 'onda': {
+            const r = synthWave({ ...opts, durationSec: opts.duracion ?? 1 });
+            return { accion, kind: r.kind, duracionSec: r.durationSec, samples: r.pcm.length, checksum: undefined, pcm: Array.from(r.pcm.slice(0, 512)) };
+          }
+          case 'fm': {
+            const r = synthFm({ ...opts, durationSec: opts.duracion ?? 1 });
+            return { accion, kind: r.kind, duracionSec: r.durationSec, samples: r.pcm.length, pcm: Array.from(r.pcm.slice(0, 512)) };
+          }
+          case 'granular': {
+            const r = synthGranular({ ...opts, durationSec: opts.duracion ?? 1.5 });
+            return { accion, kind: r.kind, duracionSec: r.durationSec, samples: r.pcm.length, pcm: Array.from(r.pcm.slice(0, 512)) };
+          }
+          case 'ruido_rosa': {
+            const r = synthPinkNoise({ ...opts, durationSec: opts.duracion ?? 1.5 });
+            return { accion, kind: r.kind, duracionSec: r.durationSec, samples: r.pcm.length, pcm: Array.from(r.pcm.slice(0, 512)) };
+          }
+          case 'adsr': {
+            const base = synthWave({ ...opts, durationSec: opts.duracion ?? 1 });
+            const r = applyAdsr(base, opts);
+            return { accion, kind: r.kind, duracionSec: r.durationSec, samples: r.pcm.length, pcm: Array.from(r.pcm.slice(0, 512)) };
+          }
+          case 'secuencia': {
+            const p = patronJson ? (JSON.parse(patronJson) as { pattern: Array<{ step: number; freq: number; type?: string }> }) : { pattern: [{ step: 0, freq: 220 }] };
+            const r = sequenceNotes({ ...opts, pattern: p.pattern.map((n) => ({ ...n, type: n.type as 'sine' | 'square' | 'saw' | 'triangle' | undefined })) });
+            return { accion, kind: r.kind, duracionSec: r.durationSec, samples: r.pcm.length, pcm: Array.from(r.pcm.slice(0, 512)) };
+          }
+          case 'mix': {
+            const partes = opts.partes as Array<{ tipo: string; freq?: number; duracion?: number; type?: string }> | undefined;
+            const results = (partes ?? []).map((p) => synthWave({ freq: p.freq, durationSec: p.duracion, type: p.type as never }));
+            const r = mixSynths(results.length ? results : [synthWave({}), synthFm({})]);
+            return { accion, kind: r.kind, duracionSec: r.durationSec, samples: r.pcm.length, pcm: Array.from(r.pcm.slice(0, 512)) };
+          }
+          default:
+            return { accion, ok: false, error: `accion ${accion} no soportada para ${medio}` };
+        }
+      },
+    });
+  }
+  // QUARANTINED #25 restored 18/08: research.ts/enlaces.ts existen y pasan tests — registros activos.
+  if (opts.tools?.includes('research')) {
+    tools.research_search = tool({
+      description:
+        'Knowledge research engine: search arXiv papers (Atom API), GitHub repositories and the live web (Exa when EXA_API_KEY is set, DuckDuckGo keyless), and fetch-and-extract any URL as clean text via r.jina.ai. Cross-source URL dedupe + in-memory cache. Fail-soft, keyless-first. Use to gather verifiable knowledge (papers, repos, docs) to feed the learning/truth memory.',
+      parameters: z.object({
+        accion: z.enum(['arxiv', 'web', 'github', 'fetch', 'buscar']),
+        query: z.string().min(1).max(200).optional(),
+        url: z.string().url().optional(),
+        maxResults: z.number().int().min(1).max(20).optional(),
+        fuentes: z.string().optional(), // "arxiv,web,github" para accion buscar
+      }),
+      execute: async ({ accion, query, url, maxResults, fuentes }) => {
+        switch (accion) {
+          case 'arxiv': {
+            if (!query) throw new Error('arxiv requiere query');
+            const r = await searchArxiv(query, { maxResults });
+            return { accion, query, items: r.items };
+          }
+          case 'web': {
+            if (!query) throw new Error('web requiere query');
+            const r = await researchWeb(query, { maxResults });
+            return { accion, query, items: r.items };
+          }
+          case 'github': {
+            if (!query) throw new Error('github requiere query');
+            const r = await researchGitHub(query, { maxResults });
+            return { accion, query, items: r.items };
+          }
+          case 'fetch': {
+            if (!url) throw new Error('fetch requiere url');
+            const r = await fetchAndExtract(url);
+            return { accion, url, titulo: r.title, chars: r.chars, texto: r.text.slice(0, 4000) };
+          }
+          case 'buscar': {
+            if (!query) throw new Error('buscar requiere query');
+            const sources = fuentes ? (fuentes.split(',').map((s) => s.trim()) as Array<'arxiv' | 'web' | 'github'>) : undefined;
+            const report = await researchSearch(query, { sources, maxResults });
+            return { accion, query, items: report.items, deduped: report.deduped, fuentes: report.sources };
+          }
+          default:
+            return { accion, ok: false, error: 'accion desconocida' };
+        }
+      },
+    });
+  }
+  if (opts.tools?.includes('enlaces')) {
+    tools.enlaces_process = tool({
+      description:
+        'Link curation & knowledge integration: classify the project enlaces.txt (pending vs already processed via ## PROCESADO marks or learning/sources/<slug>.md presence), derive idempotent slugs per URL, and report the pending list ready for download. Deterministic, idempotent. Use to process new links and integrate external knowledge into the project.',
+      parameters: z.object({
+        accion: z.enum(['clasificar', 'checksum']),
+        contenido: z.string().min(1).max(100_000).optional(), // contenido de enlaces.txt
+        texto: z.string().optional(), // para checksum
+      }),
+      execute: async ({ accion, contenido, texto }) => {
+        switch (accion) {
+          case 'clasificar': {
+            if (!contenido) throw new Error('clasificar requiere contenido de enlaces.txt');
+            const out = classifyEnlaces(contenido, { checkDisk: false });
+            return {
+              accion,
+              total: out.entries.length,
+              pendientes: out.pending.map((e) => ({ linea: e.line, url: e.url, slug: e.slug })),
+              procesados: out.processed.length,
+            };
+          }
+          case 'checksum': {
+            if (!texto) throw new Error('checksum requiere texto');
+            return { accion, checksum: contentChecksum(texto) };
           }
           default:
             return { accion, ok: false, error: 'accion desconocida' };
