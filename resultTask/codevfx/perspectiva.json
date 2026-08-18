@@ -1,0 +1,58 @@
+{
+  "threeLayers": {
+    "camera": {
+      "fov": 74,
+      "distance": 12,
+      "tilt": 18,
+      "roll": 0,
+      "parallax": 0.7
+    },
+    "layerOffsets": [
+      {
+        "depth": 0,
+        "offsetPx": 0
+      },
+      {
+        "depth": 0.5,
+        "offsetPx": 17
+      },
+      {
+        "depth": 1,
+        "offsetPx": 34
+      }
+    ],
+    "aspect": "16:9"
+  },
+  "fiveLayers": {
+    "camera": {
+      "fov": 74,
+      "distance": 12,
+      "tilt": 24,
+      "roll": 0,
+      "parallax": 0.7
+    },
+    "layerOffsets": [
+      {
+        "depth": 0,
+        "offsetPx": 0
+      },
+      {
+        "depth": 0.25,
+        "offsetPx": 9
+      },
+      {
+        "depth": 0.5,
+        "offsetPx": 17
+      },
+      {
+        "depth": 0.75,
+        "offsetPx": 26
+      },
+      {
+        "depth": 1,
+        "offsetPx": 34
+      }
+    ],
+    "aspect": "16:9"
+  }
+}

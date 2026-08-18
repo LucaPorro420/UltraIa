@@ -1,0 +1,32 @@
+{
+  "plano": {
+    "shadow": "#6c48c0",
+    "highlight": "#9970f7",
+    "factor": 0.22,
+    "gradient": [
+      "#9970f7",
+      "#966cf7",
+      "#6c48c0"
+    ]
+  },
+  "medio": {
+    "shadow": "#51358f",
+    "highlight": "#aa88f8",
+    "factor": 0.42000000000000004,
+    "gradient": [
+      "#aa88f8",
+      "#a17bf8",
+      "#51358f"
+    ]
+  },
+  "curvo": {
+    "shadow": "#35235d",
+    "highlight": "#bca0fa",
+    "factor": 0.62,
+    "gradient": [
+      "#bca0fa",
+      "#ab89f9",
+      "#35235d"
+    ]
+  }
+}

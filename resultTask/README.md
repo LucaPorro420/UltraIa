@@ -53,3 +53,15 @@ Generados con la capability `diagram` (patrón diagram-design, Dark Obsidian) po
 | [motion-engine-pipeline.html](diagrams/motion-engine-pipeline.html) | data-flow | Pipeline Video Analyzer → Motion Spec JSON → React UI |
 
 Más diagramas del repo (roadmap, Desktop, Gen-Engine) en `docs/diagrams/`.
+## Efectos por código (capability codevfx)
+
+Patrón Elemental Sandbox (repo achrefelouafi/LinearAbiltyCastingThreeJS, MIT — Three.js + GLSL a mano,
+post https://www.instagram.com/p/DcJDsghiJne/): efectos 100% código, sin texturas/sprites/meshes.
+
+- `codevfx/plans.json` — planes de los 9 kinds (paleta, física, partículas, GLSL, hotkeys Q/W/E/R/F/X/V/C/B).
+- `codevfx/colorimetria.json` — coherencia HSL (calor/saturación/dominante) de cada paleta.
+- `codevfx/curvatura.json` — sombreado por curvatura (0/0.5/1) de la primary Dark Obsidian.
+- `codevfx/perspectiva.json` — cámara (fov/distancia/tilt) + offsets de parallax por capa.
+- `codevfx/effects/*.html` — demo canvas autocontenida por kind (abrir en navegador; reacciona a pointer y hotkey).
+
+Abrir en navegador: `start resultTask/codevfx/effects/fire.html`

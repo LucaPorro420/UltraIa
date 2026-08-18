@@ -21,6 +21,7 @@ import { createDefaultPublishers, publishToAll, buildBilingualMetadata } from '.
 import { createHarness, type HarnessRuntime } from '../tools/harness';
 import { analyzeChannel, planExperiments, buildPlaybook } from '../tools/growth';
 import { planReframe, planUpscale, planLutMatch, planRotoscope, planDrawToEdit, planBroll } from '../tools/vfx';
+import { planEffect, colorimetryAnalyze, curvatureShade, perspectivePlan, renderEffectHtml, EFFECT_KINDS } from '../tools/codevfx';
 import { createPublication, listPublications, approvePublication, rejectPublication, publishDue } from '../domain/publications';
 import { generarContenido, type ContentPackage } from '../tools/enrutador';
 import { computeChannelKpis, fetchChannelAnalytics } from '../tools/metrics';
@@ -688,6 +689,49 @@ export function chatStream(opts: {
           return { accion, playbook: buildPlaybook(canal, signals) };
         }
         return { accion, ok: false, error: 'accion desconocida' };
+      },
+    });
+  }
+  if (opts.tools?.includes('codevfx')) {
+    tools.vfx_code = tool({
+      description:
+        'Code-driven visual effects engine (Elemental Sandbox pattern, 100% code — no assets, no textures): plan a procedural effect (fire/ice/lightning/meteor/beam/ground/void/plasma/frost) with palette, physics, particles and hand-written GLSL, analyze colorimetry of a palette (HSL warmth/saturation coherence), compute curvature shading of a surface, plan camera perspective with parallax layer offsets, and render a self-contained HTML5 canvas demo. Deterministic, keyless. Use to design VFX scenes purely from math.',
+      parameters: z.object({
+        accion: z.enum(['plan', 'colorimetria', 'curvatura', 'perspectiva', 'render']),
+        kind: z.enum(EFFECT_KINDS).optional(), // para plan/render
+        opcionesJson: z.string().optional(), // para plan/render: {intensity, speed, width, height, title}
+        coloresJson: z.string().optional(), // para colorimetria: ["#ff6b35", ...]
+        hex: z.string().optional(), // para curvatura: color base
+        curvatura: z.number().min(0).max(1).optional(), // 0 plano .. 1 muy curvo
+        capas: z.number().int().min(1).max(8).optional(), // para perspectiva
+        distancia: z.number().min(1).max(100).optional(), // para perspectiva
+      }),
+      execute: async ({ accion, kind, opcionesJson, coloresJson, hex, curvatura, capas, distancia }) => {
+        const opts = opcionesJson ? (JSON.parse(opcionesJson) as Record<string, unknown>) : {};
+        switch (accion) {
+          case 'plan': {
+            if (!kind) throw new Error('plan requiere kind');
+            return { accion, plan: planEffect(kind, opts) };
+          }
+          case 'colorimetria': {
+            if (!coloresJson) throw new Error('colorimetria requiere coloresJson');
+            return { accion, reporte: colorimetryAnalyze(JSON.parse(coloresJson) as string[]) };
+          }
+          case 'curvatura': {
+            if (!hex) throw new Error('curvatura requiere hex');
+            return { accion, resultado: curvatureShade(hex, curvatura ?? 0.5) };
+          }
+          case 'perspectiva': {
+            return { accion, plan: perspectivePlan(capas ?? 3, { distance: distancia }) };
+          }
+          case 'render': {
+            if (!kind) throw new Error('render requiere kind');
+            const plan = planEffect(kind, opts);
+            return { accion, plan, html: renderEffectHtml(plan, opts) };
+          }
+          default:
+            return { accion, ok: false, error: 'accion desconocida' };
+        }
       },
     });
   }

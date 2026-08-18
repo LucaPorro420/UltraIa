@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>codevfx — Void Singularity</title>
+<style>
+  html,body{margin:0;height:100%;background:#08080a;overflow:hidden}
+  canvas{display:block;width:100%;height:100%;cursor:crosshair}
+  .tag{position:fixed;left:10px;bottom:8px;font:11px ui-monospace,monospace;color:#8b8b98;opacity:.85}
+  .kbd{position:fixed;right:10px;bottom:8px;font:11px ui-monospace,monospace;color:#8b5cf6}
+</style>
+</head>
+<body>
+<canvas id="fx"></canvas>
+<div class="tag">Void Singularity — 100% code, sin assets</div>
+<div class="kbd">V · 336 partículas</div>
+<script>
+// GLSL hand-written (referencia del fragment shader del efecto):
+// vec3 voidFx(vec2 uv, float t) { float d = length(uv - vec2(0.5)); float ring = smoothstep(0.06, 0.0, abs(d - 0.32 - 0.05*sin(t*2.0))); float swirl = 0.5 + 0.5*sin(atan(uv.y-0.5, uv.x-0.5)*5.0 - t*3.0); return mix(vec3(0.05,0.04,0.09), vec3(0.65,0.55,0.98), ring*swirl); }
+const kind = "void";
+const palette = {"base":"#312e81","accent":"#a78bfa","energy":"#0f0f17"};
+const physics = {"gravity":-12,"wind":0,"friction":0.99};
+const layers = [{"id":"ring","blend":"lighter","opacity":0.8},{"id":"absorb","blend":"multiply","opacity":0.7}];
+const opts = { count: 336, life: 1.94, speed: 1 };
+const cv = document.getElementById('fx');
+const ctx = cv.getContext('2d');
+function fit(){ const d = Math.min(window.devicePixelRatio||1, 2); cv.width = innerWidth*d; cv.height = innerHeight*d; ctx.setTransform(d,0,0,d,0,0); }
+fit(); addEventListener('resize', fit);
+let intensity = 50, t = 0;
+addEventListener('pointermove', e => { intensity = clamp(50 + (e.clientX/innerWidth - .5)*100, 0, 100); });
+addEventListener('keydown', e => { if (e.key.toLowerCase() === "v") intensity = 100; });
+function clamp(v,a,b){ return v<a?a:v>b?b:v; }
+function hex(c){ const n=parseInt(c.slice(1),16); return [n>>16&255, n>>8&255, n&255]; }
+function part(){ return { x: Math.random()*innerWidth, y: innerHeight + Math.random()*40, vx: (Math.random()-.5)*60, vy: -(Math.random()*180+60), s: opts.speed*(.4+Math.random()*1.4), life: 0, max: opts.life*(.6+Math.random()*.8) }; }
+let ps = Array.from({ length: opts.count }, part);
+function tick(){
+  t += .016*opts.speed;
+  const w = innerWidth, h = innerHeight;
+  ctx.fillStyle = 'rgba(8,8,10,' + (kind==='beam'||kind==='plasma' ? .12 : .24) + ')';
+  ctx.fillRect(0,0,w,h);
+  const [br,bg,bb] = hex(palette.base), [ar,ag,ab] = hex(palette.accent);
+  ctx.globalCompositeOperation = 'lighter';
+  ps.forEach(p => {
+    p.vy += physics.gravity*opts.speed*.016*(1 - intensity/140);
+    p.vx += physics.wind*opts.speed*.016 + (Math.random()-.5)*8;
+    p.vx *= physics.friction; p.vy *= physics.friction;
+    p.x += p.vx*.016*opts.speed*60*.016; p.y += p.vy*.016*opts.speed*60*.016;
+    p.life += .016;
+    const lifeF = 1 - p.life/p.max;
+    if (p.life >= p.max || p.y > h+30 || p.y < -40) { Object.assign(p, part()); return; }
+    const r = (p.s*2.2)*(.5+lifeF);
+    const g2 = ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,r);
+    const mixA = (intensity/100);
+    g2.addColorStop(0, 'rgba(' + Math.round(br+(ar-br)*mixA) + ',' + Math.round(bg+(ag-bg)*mixA) + ',' + Math.round(bb+(ab-bb)*mixA) + ',' + (.85*lifeF) + ')');
+    g2.addColorStop(1, 'rgba(' + Math.round(br) + ',' + Math.round(bg) + ',' + Math.round(bb) + ',0)');
+    ctx.fillStyle = g2; ctx.beginPath(); ctx.arc(p.x,p.y,r,0,6.283); ctx.fill();
+  });
+  // Capa de halo en el centro según el blend del plan
+  layers.forEach(l => {
+    ctx.globalCompositeOperation = l.blend;
+    ctx.globalAlpha = l.opacity*(.5 + intensity/200);
+    const g3 = ctx.createRadialGradient(w/2,h*.42,0,w/2,h*.42,w*.28);
+    g3.addColorStop(0, hex(palette.energy).length ? 'rgba(' + hex(palette.energy).join(',') + ',.5)' : 'rgba(139,92,246,.5)');
+    g3.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = g3; ctx.fillRect(0,0,w,h);
+  });
+  ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
+  requestAnimationFrame(tick);
+}
+tick();
+</script>
+</body>
+</html>
