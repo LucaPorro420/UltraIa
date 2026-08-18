@@ -14,7 +14,9 @@ import {
   MAX_RETRIES,
   HOT_DIR,
   type ActionScript,
+  type RunState,
 } from './screenflow';
+import type { PublicationPackage } from './present';
 
 const validScript: ActionScript = {
   name: 'demo-tutorial',
@@ -353,11 +355,16 @@ describe('screenflow · puente cola Publication (buildPublicationPackage)', () =
     expect(pkg.contenido).toContain('sin-desc');
   });
 
-  it('determinista', () => {
+  it('determinista (sin campo generadoAt)', () => {
     const manifest = buildManifest('20260817130000-demo', script, planRuns(script));
     const a = buildPublicationPackage('20260817130000-demo', script, manifest);
     const b = buildPublicationPackage('20260817130000-demo', script, manifest);
-    expect(JSON.stringify(a)).toBe(JSON.stringify(b));
+    // generadoAt es no-determinista (new Date().toISOString()) -> comparar sin ese campo
+    const stripGeneradoAt = (obj: any) => {
+      const { generadoAt, ...rest } = obj;
+      return rest;
+    };
+    expect(JSON.stringify(stripGeneradoAt(a))).toBe(JSON.stringify(stripGeneradoAt(b)));
   });
 
   it('namespace expone HOT_DIR y los nuevos helpers', () => {
@@ -365,5 +372,77 @@ describe('screenflow · puente cola Publication (buildPublicationPackage)', () =
     expect(screenflow.HOT_DIR).toBe('.ultraia/hot');
     expect(typeof screenflow.resolveHotWatch).toBe('function');
     expect(typeof screenflow.buildPublicationPackage).toBe('function');
+  });
+});
+
+describe('screenflow · hot watch runner (integración mock)', () => {
+  const validScript: ActionScript = {
+    name: 'hot-test',
+    description: 'Test hot watch',
+    actions: [{ type: 'sleep', ms: 100 }, { type: 'end' }],
+  };
+
+  function makeRunState(overrides: Partial<RunState> = {}): RunState {
+    return {
+      script: 'hot-test',
+      runId: '20260817120000-hot-test',
+      step: 0,
+      attempts: 0,
+      status: 'pending',
+      startedAt: '2026-08-17T12:00:00.000Z',
+      updatedAt: '2026-08-17T12:00:00.000Z',
+      ...overrides,
+    };
+  }
+
+  it('resolveHotWatch + buildPublicationPackage + resolveState flujo completo', () => {
+    // 1. detecta script nuevo
+    const { nuevos, conocidos } = resolveHotWatch(['demo.json', 'old.json'], ['old.json']);
+    expect(nuevos).toEqual(['demo.json']);
+    expect(conocidos).toEqual(['demo.json', 'old.json']);
+
+    // 2. buildPublicationPackage genera pkg válido para blog
+    const manifest = buildManifest('20260817120000-demo', validScript, planRuns(validScript));
+    const pkg = buildPublicationPackage('20260817120000-demo', validScript, manifest);
+    expect(pkg.canales).toEqual(['blog']);
+    expect(pkg.tema).toBe('hot-test');
+
+    // 3. resolveState con run previo interrupted → resume
+    const prev = makeRunState({ status: 'running', step: 2, attempts: 0 });
+    const { action, state } = resolveState(prev, '2026-08-17T12:01:00.000Z');
+    expect(action).toBe('resume');
+    expect(state.attempts).toBe(1);
+    expect(state.step).toBe(2);
+  });
+
+  it('resolveHotWatch idempotente + buildPublicationPackage determinista', () => {
+    const first = resolveHotWatch(['a.json', 'b.json']);
+    const second = resolveHotWatch(['a.json', 'b.json', 'c.json'], first.conocidos);
+    expect(first.nuevos).toEqual(['a.json', 'b.json']);
+    expect(second.nuevos).toEqual(['c.json']);
+    expect(second.conocidos).toEqual(['a.json', 'b.json', 'c.json']);
+
+    const manifest = buildManifest('20260817120000-demo', validScript, planRuns(validScript));
+    const pkg1 = buildPublicationPackage('20260817120000-demo', validScript, manifest);
+    const pkg2 = buildPublicationPackage('20260817120000-demo', validScript, manifest);
+    expect(JSON.stringify(pkg1)).toBe(JSON.stringify(pkg2));
+  });
+
+  it('resolveState: give-up tras MAX_RETRIES', () => {
+    const prev = makeRunState({ status: 'running', attempts: 3 }); // MAX_RETRIES = 3
+    const { action, state } = resolveState(prev, '2026-08-17T12:01:00.000Z');
+    expect(action).toBe('give-up');
+    expect(state.status).toBe('failed');
+  });
+
+  it('resolveState: published no se reanuda', () => {
+    const prev = makeRunState({ status: 'published' });
+    const { action } = resolveState(prev, '2026-08-17T12:01:00.000Z');
+    expect(action).toBe('start');
+  });
+
+  it('buildManifest incluye HOT_DIR y RECORDINGS_ROOT en namespace', () => {
+    expect(screenflow.HOT_DIR).toBe('.ultraia/hot');
+    expect(screenflow.RECORDINGS_ROOT).toBe('.ultraia/recordings');
   });
 });
