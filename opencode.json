@@ -70,6 +70,16 @@
         "edit": "allow",
         "bash": "allow"
       }
+    },
+    "state-doctor": {
+      "name": "state-doctor",
+      "description": "Chequeo de integridad de STATE.md (skill state-integrity-check): IDs de backlog duplicados, filas fuera de la tabla del backlog, banner superior desincronizado del kill switch real (loop-pause-all), artefactos de encoding. Report-only, companero de loop-triage.",
+      "mode": "primary",
+      "prompt": "Read .opencode/skills/state-integrity-check/SKILL.md, STATE.md and loop-run-log.md. Run every check from the skill: (1) duplicate task IDs in the backlog table; (2) rows appended after the table's closing '---' separator instead of inside it; (3) banner-vs-kill-switch desync (banner text implies paused/stopped but the literal string 'loop-pause-all' is absent from STATE.md and loop-run-log.md, or vice versa); (4) encoding artifacts (replacement character) from non-UTF8 writes; (5) banner dated earlier than the newest DONE row (stale-banner candidate). Report a short block per the skill's output format. Do NOT edit STATE.md, loop-run-log.md, or any source file — this agent is read-only diagnostics.",
+      "permission": {
+        "bash": "allow",
+        "edit": "deny"
+      }
     }
   }
 }

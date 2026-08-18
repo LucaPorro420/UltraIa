@@ -141,23 +141,36 @@ def next_task() -> Task | None:
 
 
 def mark_done(task_id: int) -> None:
-    """Marca la tarea como DONE en STATE.md con la fecha actual."""
+    """Marca DONE (fecha actual) SOLO la fila de STATE.md cuyo ID == task_id.
+
+    FIX 2026-08-18 (auditoria harness): la version anterior aplicaba el
+    reemplazo a CUALQUIER fila que siguiera 'pendiente', sin filtrar por
+    task_id (el parametro solo se usaba en el print). Con una sola fila
+    pendiente a la vez es invisible; con dos sesiones concurrentes que
+    dejan mas de una fila 'pendiente' simultanea (ya documentado en
+    STATE.md: iteraciones 25/26/41/46), marcaba DONE tareas ajenas sin
+    que nadie las hubiera hecho. Ver docs/RAZONAMIENTO-AUDITORIA-HARNESS-2026-08-18.md.
+    """
     if not STATE.exists():
         return
     today = dt.datetime.now(dt.timezone.utc).date().isoformat()
     lines = STATE.read_text(encoding="utf-8", errors="replace").splitlines()
     out = []
+    matched = False
     for line in lines:
-        if TASK_RE.match(line):
+        m = TASK_RE.match(line)
+        if m and int(m.group(1)) == task_id:
             line = re.sub(
                 r"\|\s*pendiente(?:\s*—\s*SIGUIENTE)?\s*\|",
                 f"| ✅ DONE {today} |",
                 line,
                 flags=re.IGNORECASE,
             )
+            matched = True
         out.append(line)
     STATE.write_text("\n".join(out) + "\n", encoding="utf-8")
-    print(f"[state] tarea #{task_id} marcada DONE {today}")
+    status = "marcada DONE" if matched else "NO encontrada (¿el ID cambió en STATE.md?)"
+    print(f"[state] tarea #{task_id} {status} {today}")
 
 
 def log(entry: str) -> None:
