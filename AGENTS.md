@@ -670,7 +670,22 @@ El usuario deja URLs en `enlaces.txt` (raíz) para que se analicen y se apliquen
   despues (worktree == index == WIP). Los test files untracked NO quedan en el manifest —
   copiarlos tambien (mismo dir, hash por Get-FileHash). `.next` corrupto recurrente por raza:
   matar node.exe + `Remove-Item .next` antes de cada build; a veces requiere 2 intentos.
-  LEY: `git add` explicito (nunca `.`), NO tocar DOCS_TODO/blueprint/reach/automation/
-  recorder/plans loop-46 ni los untracked de #25 (docs/AUTOMATION-WEB.md,
-  docs/RAZONAMIENTO-{GAME-DEV,MEDIA-AUTOMATION}.md, scripts/web-automation.py, ...).
-  POST-COMMIT HOOK: `[doc-reminder] anotados N archivo(s) en DOCS_TODO.md` corre solo.
+LEY: `git add` explicito (nunca `.`), NO tocar DOCS_TODO/blueprint/reach/automation/
+   recorder/plans loop-46 ni los untracked de #25 (docs/AUTOMATION-WEB.md,
+   docs/RAZONAMIENTO-{GAME-DEV,MEDIA-AUTOMATION}.md, scripts/web-automation.py, ...).
+   POST-COMMIT HOOK: `[doc-reminder] anotados N archivo(s) en DOCS_TODO.md` corre solo.
+
+## Skills inventory (18/08/2026, iteración 62)
+
+- `docs/SKILLS-INVENTARIO.md` — inventario completo clasificado: **recomendadas**
+  (harness loop-* + ultraia-request + capability skills) / **condicionales** (gstack
+  plan/qa/design/investigate/ship — usar según contexto) / **evitadas**.
+- **`.opencode/skills-avoid/`** — cuarentena de skills globales evitados: 15 copias de
+  referencia de SKILL.md (ios-*, benchmark-models, pair-agent, open-gstack-browser,
+  setup-browser-cookies, setup-gbrain, sync-gbrain, landing-report, setup-deploy,
+  supabase-postgres-best-practices, AUTOPROGRAM) + `README.md` + `manifest.json`
+  (motivo + ruta original + restauración). NO descubierta por opencode (patrón de
+  discovery es `.opencode/skills/<name>/SKILL.md`; `skills-avoid` es directorio hermano).
+- Reglas: skills del harness son OBLIGATORIOS (no mover a cuarentena); un skill evitado
+  NO vuelve a cargarse sin decisión explícita; al instalar skills nuevos de terceros,
+  evaluar y actualizar inventario + manifest si aplica.

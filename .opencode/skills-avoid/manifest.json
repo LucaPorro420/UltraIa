@@ -1,0 +1,24 @@
+{
+  "creado": "2026-08-18",
+  "iteracion": "62",
+  "fuente": "docs/RAZONAMIENTO-FUNDAMENTOS-PROGRAMACION.md (decisions de implementacion #62) + inventario skills 18/08/2026",
+  "nota": "Cuarentena NO descubierta por opencode (patron de discovery: .opencode/skills/<name>/SKILL.md). Copias de referencia de SKILL.md globales evitados. Nada se borra del sistema global.",
+  "restauracion": "copiar <name>/SKILL.md de vuelta a la ruta original (campo 'origen')",
+  "skills": [
+    { "name": "ios-clean", "motivo": "Requiere app iOS real con DebugBridge (gstack ios-qa) - UltraIa no tiene app iOS nativa (solo Expo/mobile web)", "origen": "C:\\Users\\UTEC-5695\\.claude\\skills\\gstack\\ios-clean\\SKILL.md" },
+    { "name": "ios-design-review", "motivo": "Auditoria visual en iPhone real - no aplica (sin app iOS nativa)", "origen": "C:\\Users\\UTEC-5695\\.claude\\skills\\gstack\\ios-design-review\\SKILL.md" },
+    { "name": "ios-fix", "motivo": "Auto-fix en dispositivo real - no aplica (sin app iOS nativa)", "origen": "C:\\Users\\UTEC-5695\\.claude\\skills\\gstack\\ios-fix\\SKILL.md" },
+    { "name": "ios-qa", "motivo": "QA en iPhone real via USB - no aplica (sin app iOS nativa)", "origen": "C:\\Users\\UTEC-5695\\.claude\\skills\\gstack\\ios-qa\\SKILL.md" },
+    { "name": "ios-sync", "motivo": "Regenera DebugBridge de gstack - no aplica (sin app iOS nativa)", "origen": "C:\\Users\\UTEC-5695\\.claude\\skills\\gstack\\ios-sync\\SKILL.md" },
+    { "name": "benchmark-models", "motivo": "Benchmark cruzado Claude/GPT/Gemini para skills gstack - no se usa en el harness PIVR de UltraIa", "origen": "C:\\Users\\UTEC-5695\\.claude\\skills\\gstack\\benchmark-models\\SKILL.md" },
+    { "name": "pair-agent", "motivo": "Empareja un agente remoto con el browser - no aplica al flujo local del proyecto", "origen": "C:\\Users\\UTEC-5695\\.claude\\skills\\gstack\\pair-agent\\SKILL.md" },
+    { "name": "open-gstack-browser", "motivo": "Browser visible con sidebar gstack - QA se hace con browser-automation headless propio", "origen": "C:\\Users\\UTEC-5695\\.claude\\skills\\gstack\\open-gstack-browser\\SKILL.md" },
+    { "name": "setup-browser-cookies", "motivo": "Importa cookies del Chromium real - no aplica (QA headless sin sesiones reales)", "origen": "C:\\Users\\UTEC-5695\\.claude\\skills\\gstack\\setup-browser-cookies\\SKILL.md" },
+    { "name": "setup-gbrain", "motivo": "Instala/registra gbrain (PGLite/Supabase MCP) - no se usa gbrain en el harness", "origen": "C:\\Users\\UTEC-5695\\.claude\\skills\\gstack\\setup-gbrain\\SKILL.md" },
+    { "name": "sync-gbrain", "motivo": "Re-indexa gbrain del repo - no se usa gbrain en el harness", "origen": "C:\\Users\\UTEC-5695\\.claude\\skills\\gstack\\sync-gbrain\\SKILL.md" },
+    { "name": "landing-report", "motivo": "Dashboard de cola de PRs por workspace - no aplica (flujo PIVR sin PRs automaticos)", "origen": "C:\\Users\\UTEC-5695\\.claude\\skills\\gstack\\landing-report\\SKILL.md" },
+    { "name": "setup-deploy", "motivo": "Configura deploy para land-and-deploy de gstack - deploy se documenta en DEPLOY.md/CLOUD-FREE-2026.md", "origen": "C:\\Users\\UTEC-5695\\.claude\\skills\\gstack\\setup-deploy\\SKILL.md" },
+    { "name": "supabase-postgres-best-practices", "motivo": "Optimizacion Postgres Supabase - UltraIa usa SQLite (Prisma) en local; Supabase solo documentado como opcion cloud", "origen": "C:\\Users\\UTEC-5695\\.agents\\skills\\supabase-postgres-best-practices\\SKILL.md" },
+    { "name": "AUTOPROGRAM", "motivo": "Agente alternativo de rectified search - no aplica al harness PIVR propio (skill de terceros en ~/.agents)", "origen": "C:\\Users\\UTEC-5695\\.agents\\skills\\AUTOPROGRAM\\SKILL.md" }
+  ]
+}
