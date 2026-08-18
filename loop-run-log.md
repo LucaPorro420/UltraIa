@@ -1860,7 +1860,8 @@ ormalizeTitle() (lower + strip non-alnum), dedupe() (bigram overlap > 0.6),
 - **I**: dev server levantado con start.py (Ready 35s); E2E completo:
   - Auth REST: register 201 / login token / me 200 (header x-ultraia-session OK)
   - Publications 200 / Blog 200 / Cloud status 200 (tras fix cloud/status + cloud/upload:
-    ambos ignoraban el header -> 401 en m�vil; fix: pasar eq a getCurrentUser)
+    ambos ignoraban el header -> 401 en m�vil; fix: pasar 
+eq a getCurrentUser)
   - Metrics 403 = correcto para usuario no-admin (ADMIN-only por dise�o).
 - **Mobile validation**: tsc EXIT 0 + expo-doctor 20/21 (duplicacion react intencional)
   + expo export --platform web EXIT 0 (6 rutas: login/register/tabs/publicaciones/cloud/blog).
@@ -1910,7 +1911,9 @@ ormalizeTitle() (lower + strip non-alnum), dedupe() (bigram overlap > 0.6),
 
 - **P**: plan loop-52-screenflow-hot-publication.md � hot watch runner que vigila .ultraia/hot/, ejecuta scripts via run_screenflow.ts, crea Publication blog (auto-approve) + cloud opcional.
 - **I**: 
-  - Task/screenflow-hot-watch.ts: poll .ultraia/hot cada N seg (default 10s), esolveHotWatch detecta *.json nuevos, spawnea un_screenflow.ts, crea Publication blog (auto-approve) con createPublication + guardarPaqueteEnCloud opcional; flags --once, --interval, --db, --cloud, --dry-run, --hot-dir.
+  - Task/screenflow-hot-watch.ts: poll .ultraia/hot cada N seg (default 10s), 
+esolveHotWatch detecta *.json nuevos, spawnea 
+un_screenflow.ts, crea Publication blog (auto-approve) con createPublication + guardarPaqueteEnCloud opcional; flags --once, --interval, --db, --cloud, --dry-run, --hot-dir.
   - Tests: 10 nuevos (hot watch runner integraci�n mock: resolveHotWatch + buildPublicationPackage + resolveState flujo completo, idempotencia, give-up, published no reanuda, determinista sin generadoAt).
   - Fix: present.generadoAt no-determinista ? test determinista compara sin ese campo.
 - **V**: gates FULL verdes (typecheck 0, lint 0, test 737+193 runtime, build 43 paginas; 3 test files #25 cuarentenados).
@@ -1928,3 +1931,77 @@ ormalizeTitle() (lower + strip non-alnum), dedupe() (bigram overlap > 0.6),
   - Wiring: tools/index.ts (exports + Capability union + TOOL_DESCRIPTIONS), ai/llm.ts (generative_media 17 acciones, research_search, enlaces_process) — registros research/enlaces estaban QUARANTEADOS por #25 con comentario sin cerrar que rompia el build; restaurados.
   - Fixes ajenos bloqueantes: publish.ts BlobPart (Buffer<ArrayBufferLike> no asignable en lib DOM web — patron 78d25e0), screenflow.test.ts determinismo (strip generadoAt, mismo patron que su test hermano).
 - **[V] gates FULL verdes**: typecheck 0, lint 0, test core 739/739 + runtime 193/193 (62 nuevos: 38+15+9), build OK. Cuarentena temporal de 3 test files #25 (connections/publications/publish) durante gates + restaurados con hash-check; flakes de red (Tunetank MCP content.live, yt-dlp audiolibrary) pasaron al reintentar.
+### Iteracion 54 - Harness self-improvement (18/08/2026) - EN CURSO
+
+- **[P] Plan**: paquete listo del plan loop-54-harness-self-improvement.md (escrito por la ronda
+  de auditoria 18/08): fix `mark_done` en scripts/loop_piv.py (filtro por task_id — bug de
+  concurrencia verificado, repro 2/4 FAIL en test de regresion) + skill
+  `loop-concurrency-guard` (lock .ultraia/loop/session.lock + cuarentena formalizada) + skill
+  `state-integrity-check` (5 checks read-only) + agente `state-doctor` en opencode.json
+  (primary, edit:deny) + sync skills/loop-piv y skills/loop-verifier desde .opencode/skills/
+  + docs/RAZONAMIENTO-AUDITORIA-HARNESS-2026-08-18.md. Lo pendiente: gates FULL + commit del
+  paquete (paso 8 del plan: pegar fila 54 en STATE.md como pendiente, correr gates, commitear).
+  Pre-flight: lock de sesion propio tomado (r54-UTEC-5260), sin lock ajeno, sin procesos de la
+  sesion #25 activos (solo opencode de esta sesion). Arbol: indice con batch staged de #25
+  (128 archivos: automation/recorder/blueprint/reach/connections/F6 + travel media + cuentas.txt
+  + planes 46-53) — se cuarentenara a %TEMP%\opencode\wip-quarantine-20260818-r54\ durante
+  gates y se restaurara byte-exact (hash-check). NO se tocan: STATE.md/run-log fuera del bloque
+  propio, WIP #25, cuentas.txt, .ultraia/.
+
+## 2026-08-18T16:44:17-03:00 — Triage
+
+Report-only (state doctor + triage, sin edición de código). Hallazgos:
+
+- **Iteración 54 EN CURSO**: paquete harness self-improvement staged pero sin commit (gates FULL + commit = paso 8 pendiente del plan). Pre-flight OK (lock r54-UTEC-5260, sin procesos #25).
+- **Index ~128 archivos staged** (batch #25 + iter-54 + travel media + cuentas.txt + planes 46-53): `cuentas.txt` staged A — verificar sin secrets antes de commit; iter-54 declara NO tocarlo (cuarentena r54 + hash-check).
+- **Deletions staged de test files** (reach.test.ts -260, blueprint.test.ts, vfx-generator.test.ts): confirmar intencionalidad antes de commitear (reach.test.ts borrado con reach.ts modificado = sospechoso).
+- **Bitácora drift**: HEAD `5b85233` (iter-53) sin `[R]`/hash en run-log; `b4b3bf9` (travel videos) sin entrada. Cerrar cuando el humano lo pida.
+- **STATE.md desync**: banner "ITERACIÓN 46 PAUSADA" obsoleto (47-52 DONE, sin `loop-pause-all`); 4 IDs duplicados (#16/#17/#36/#41); 10 filas huérfanas (19/20/45-52); 5 líneas `�` en STATE.md + 244 en run-log (encoding PS 5.1).
+- **enlaces.txt L826 nuevo**: midudev/libros-programacion-gratis — pendiente de análisis (protocolo enlaces.txt).
+- **`.ultraia/travel/` sin .gitignore** (~60 renders staged) — decidir ignorar o versionar.
+- **Migrations nuevas sin commit**: add_channel_connection + connections.ts (WIP #25/iter-53-hud — NO tocar, vigilar prisma generate).
+
+```json
+{
+  "run_id": "2026-08-18T16:44:17-03:00",
+  "pattern": "triage",
+  "duration_s": 2400,
+  "items_found": 8,
+  "actions_taken": 3,
+  "escalations": 2,
+  "tokens_estimate": 18000,
+  "outcome": "report-only"
+}
+```
+
+## 2026-08-18T17:02:00-03:00 — [P] SKIP — lock activo de r54-UTEC-5260-20260818194015 (heartbeat 2026-08-18T16:40:15 local, age 21.7 min)
+
+Petición usuario "repite el loop por mejores" → ciclo PIVR NO iniciado por concurrency-guard:
+lock `.ultraia/loop/session.lock` con `task_id: 54` (harness self-improvement) y heartbeat
+< 30 min → sesión concurrente ACTIVA (opencode PIDs 15632/21328 vivos desde 16:28-16:29).
+Esa sesión está en la fase final de iter-54 (gates FULL + commit del paquete). No es error:
+cortesía entre sesiones. El backlog no tiene otra tarea accionable (todo DONE salvo #6 GPU
+humana y #25 EN CURSO de la sesión #25). Retomar cuando el lock expire (heartbeat > 30 min
+= sesión muerta) o el usuario confirme que la sesión r54 terminó. Sin sub-agents, sin edición
+de código, sin commit.
+
+```json
+{
+  "run_id": "2026-08-18T17:02:00-03:00",
+  "pattern": "piv",
+  "duration_s": 300,
+  "items_found": 1,
+  "actions_taken": 0,
+  "escalations": 0,
+  "tokens_estimate": 4000,
+  "outcome": "no-op"
+}
+```
+
+### Iteracion 54 - cierre (18/08/2026, sesion r54-UTEC-5260-20260818194015)
+
+- **[I] commit 506c037** (feat(loop)): fix `mark_done` en scripts/loop_piv.py (filtro `int(m.group(1)) == task_id` + matched flag; repro 2/4 FAIL -> 4/4 PASS en loop_piv_mark_done.test.py) + skill `loop-concurrency-guard` + skill `state-integrity-check` (raiz + .opencode espejos) + agente `state-doctor` (opencode.json, read-only) + sync skills loop-piv/loop-verifier + docs/RAZONAMIENTO-AUDITORIA-HARNESS-2026-08-18.md + plan loop-54-harness-self-improvement.md.
+- **[V] gates FULL GREEN**: typecheck core/web/runtime 0 errores (con WIP #25 en arbol) · lint 0 · test OK (aislamiento temporal de 3 archivos #25: connections.test.ts/publications.ts/publish.test.ts; flakes de red Tunetank content.live re-intentados hasta GREEN; runtime 193/193) · build OK (43 paginas).
+- **[V] WIP #25 restaurado byte-exact**: 13/13 SHA256 == manifest wip-quarantine-20260818-r54 (leccion: `git checkout-index` escribe LF mientras el worktree original es CRLF -> restaurar desde backup, no desde index).
+- **[V] concurrencia resuelta**: sesion r54-OVERRIDE-915455659 detectada (triage 16:44 + no-op JSON 17:02 + lock override 17:07) - registro explicito "sin commit" (outcome no-op); esta sesion retomo el lock y cerro la iteracion.
+- **[R] DONE** - iteracion 54 cerrada (506c037). Push NO realizado (sin autorizacion explicita). Pendiente conocido: fila 53 de STATE.md sin entrada (drift bitacora, cerrar cuando el humano lo pida).
