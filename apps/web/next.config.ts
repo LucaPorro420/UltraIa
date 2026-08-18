@@ -10,6 +10,7 @@ const nextConfig: NextConfig = {
         'child_process',
         'crypto',
         'fs',
+        'fs/promises',
         'path',
         'net',
         'tls',

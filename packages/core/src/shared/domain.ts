@@ -7,13 +7,14 @@ import type { BlueprintDraft } from '../ai/schemas';
 export type Capability = 'web' | 'image' | 'video' | 'music' | 'design' | 'branding' | 'chat';
 
 // * `generateBlueprintDraft` pide a la IA que disene un agente a partir de una descripcion.
-// * Entrada:  { name?, taskDescription }
+// * Entrada:  { name?, taskDescription, capabilities? }
 // * Salida:   BlueprintDraft (prompt, modelo, herramientas sugeridas, rúbrica de evaluacion)
 // * Real en:  packages/core/src/domain/blueprint.ts
-// TODO: conectar la eleccion de capacidades del usuario como sugerencia al LLM.
 export type GenerateBlueprintDraftInput = {
   name?: string | null;
   taskDescription: string;
+  /** Capacidades que el usuario quiere sugerir al LLM (filtro sugerido). */
+  capabilities?: Capability[];
 };
 
 // * `createAgentBlueprint` guarda el borrador en la base de datos (tabla AgentBlueprint + AgentVersion).

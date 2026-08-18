@@ -1675,6 +1675,33 @@ ormalizeTitle() (lower + strip non-alnum), dedupe() (bigram overlap > 0.6),
   Verificacion post-commit: 0f9547a (wiring discord/slack) llego DESPUES de mi commit,
   sin tocar mis archivos. Sin push (aprobacion humana).
 
+### Iteracion 47 - Fix imports .js del wiring concurrente (webpack resolver) + verif dev server (17/08/2026) - DONE
+
+- Numeracion: ellos usaron 44 (canales-config), 45 (mobile+codevfx), 46 (consolidar arbol)
+  -> esta es la 47. Sin plan file propio (fix de mantenimiento, no feature).
+- **Problema**: el dev server NO arranca en HEAD. Diagnostico: `next dev` muere con
+  `Module not found: Can't resolve './telegram.js'` en publish.ts:13 — los imports con
+  extension `.js` del wiring (telegram/discord/slack) NO los resuelve el webpack de Next
+  (vitest/tsc si mapean .js->.ts; por eso sus gates pasaban). TODO el repo usa imports SIN
+  extension; los 12 imports .js eran todos del wiring concurrente.
+- **I**: quitar extension `.js` en 7 archivos (publish.ts, telegram.ts, discord.ts,
+  slack.ts + 3 tests). Vitest 130/130 (publish+discord+slack+telegram+publications).
+- **V**: tras el fix, el dev server COMPILA el instrumentation ("Ready in 26.2s",
+  "Compiled /login", GET 200) pero el bundle de /_error muere con
+  `UnhandledSchemeError: Reading from "node:fs/promises" is not handled` via
+  memory-fs.ts -> index.ts (Import trace cortado en index.ts = el bundle arrastra index.ts
+  completo; fallback 'fs/promises' en next.config.ts NO lo resuelve -> revertido).
+  **Causa raiz**: node:fs/promises en el grafo que webpack intenta bundlear — deuda
+  PREEXISTENTE desde memory-fs (15/08; el ultimo smoke test con dev fue el 14/08).
+  Verificacion runtime de /metrics QUEDA BLOQUEADA hasta resolver memory-fs (lo tiene la
+  sesion concurrente en loop-46 "consolidar arbol": telegram.ts y next.config.ts sucios
+  AHORA mismo - no tocar).
+- **R**: commits b601ec5 (3 archivos; incluyo SIN querer el fix Uint8Array de la sesion en
+  telegram.ts - correcto y necesario, lo acepto) + 8ae11bf (4 archivos, pathspec para no
+  llevarme su staging de present/reach). Los fixes .js son necesarios para que el dev
+  server siquiera llegue a compilar. High Priority: dev server bloqueado por memory-fs.
+  Sin push (aprobacion humana).
+
 ### Iteracion 41 - Adapters Discord + Slack (17/08/2026) - DONE
 
 - La sesion concurrente uso el 40 (F5 analytics 5afe2f7: metrics.ts/test + llm.ts + index.ts
@@ -1764,3 +1791,6 @@ ormalizeTitle() (lower + strip non-alnum), dedupe() (bigram overlap > 0.6),
   core 734 passed/5 failed (los 5 de #25: automation/reach/recorder - no mios), eslint sin cambios.
   Commit b4d7695.
 - **R**: app movil + VFX por codigo listos. FULL bloqueado por arbol #25 (sin push, aprobacion humana).
+
+### Iteracion 46 - Consolidar arbol (18/08/2026) - PAUSADA (sesion concurrente activa)
+- Plan aprobado por usuario: 6 iteraciones 46->51 (46 consolidar arbol, 47 movil E2E + EAS build, 48 repomix 815, 49 LinkedIn, 50 Desktop WebView2, 51 codevfx->OMAG). Usuario: sesion #25 'ya termino' + cuenta Expo para EAS.

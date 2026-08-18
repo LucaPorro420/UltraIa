@@ -18,14 +18,18 @@ Be concrete and specific. Quality over length.`;
 
 export async function generateBlueprintDraft(
   gateway: AiGateway,
-  input: { taskDescription: string; name?: string },
+  input: { taskDescription: string; name?: string; capabilities?: Capability[] },
 ): Promise<BlueprintDraft> {
   if (!input.taskDescription.trim()) throw new Error('Task description is required');
   if (input.taskDescription.length > 4000) throw new Error('Task description is too long (max 4000 chars)');
 
+  const caps = input.capabilities?.length
+    ? `\nUser-suggested capabilities (hint, not binding): ${input.capabilities.join(', ')}`
+    : '';
+
   const prompt = [
     input.name ? `Suggested name: ${input.name}` : null,
-    `Task description:\n${input.taskDescription.trim()}`,
+    `Task description:\n${input.taskDescription.trim()}${caps}`,
   ]
     .filter(Boolean)
     .join('\n\n');

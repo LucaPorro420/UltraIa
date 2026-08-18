@@ -96,6 +96,32 @@ export interface ReachVideoInfoResult {
 const READ_TIMEOUT_MS = 20_000;
 const SEARCH_TIMEOUT_MS = 12_000;
 
+/** In-memory cache for readWeb results (key: url + maxLength). TTL default 5 min. */
+const READ_CACHE = new Map<string, { value: ReachReadResult; expires: number }>();
+const DEFAULT_CACHE_TTL_MS = 5 * 60 * 1000;
+
+function cacheKey(url: string, maxLength: number): string {
+  return `${url}::${maxLength}`;
+}
+
+function cacheGet(key: string): ReachReadResult | null {
+  const entry = READ_CACHE.get(key);
+  if (!entry) return null;
+  if (Date.now() > entry.expires) {
+    READ_CACHE.delete(key);
+    return null;
+  }
+  return entry.value;
+}
+
+function cacheSet(key: string, value: ReachReadResult, ttlMs = DEFAULT_CACHE_TTL_MS): void {
+  READ_CACHE.set(key, { value, expires: Date.now() + ttlMs });
+}
+
+export function clearReadCache(): void {
+  READ_CACHE.clear();
+}
+
 function withTimeout<T>(p: Promise<T>, ms: number, label: string): Promise<T> {
   return new Promise((resolve, reject) => {
     const t = setTimeout(() => reject(new Error(`${label} timed out after ${ms / 1000}s`)), ms);
@@ -119,6 +145,11 @@ export async function readWeb(input: ReachReadInput): Promise<ReachReadResult> {
   if (!/^https?:\/\//i.test(url)) throw new Error('Invalid URL — must start with http(s)://');
   const maxLength = input.maxLength ?? 12_000;
 
+  // Check cache first
+  const key = cacheKey(url, maxLength);
+  const cached = cacheGet(key);
+  if (cached) return { ...cached, provider: `${cached.provider} (cached)` };
+
   try {
     const res = await withTimeout(
       fetch(`https://r.jina.ai/${url}`, {
@@ -138,7 +169,9 @@ export async function readWeb(input: ReachReadInput): Promise<ReachReadResult> {
           .filter((l) => !l.startsWith('Title: ') && !l.startsWith('Description: '))
           .join('\n')
           .trim();
-        return { url, title, description, text: truncate(body, maxLength), provider: 'jina-reader' };
+        const result = { url, title, description, text: truncate(body, maxLength), provider: 'jina-reader' };
+        cacheSet(key, result);
+        return result;
       }
     }
   } catch {
@@ -159,13 +192,15 @@ export async function readWeb(input: ReachReadInput): Promise<ReachReadResult> {
     .replace(/\s+/g, ' ')
     .trim();
   const titleMatch = html.match(/<title[^>]*>([^<]*)<\/title>/i);
-  return {
+  const result = {
     url,
     title: titleMatch ? titleMatch[1].trim() : null,
     description: null,
     text: truncate(text, maxLength),
     provider: 'direct',
   };
+  cacheSet(key, result);
+  return result;
 }
 
 /** Real-time web search. DuckDuckGo Instant Answer (keyless); Exa when EXA_API_KEY is set. */

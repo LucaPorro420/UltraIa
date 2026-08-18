@@ -216,6 +216,27 @@ Implementacion: capability vfx (tools/vfx.ts: planReframe / planUpscale / planLu
 - Numeracion de iteraciones: la sesion concurrente reuso el 39 (telegram cola) -> verificar
   `git log` y el run-log ANTES de numerar una iteracion; renombrar plan con `git mv`
   (nunca amend).
+- IMPORTS `.js` VS RESOLVERS (17/08, iteracion 47): vitest/tsc mapean './x.js'->x.ts
+  automaticamente (moduleResolution bundler/NodeNext), pero el webpack de Next (dev server
+  y build) NO -> `Module not found: Can't resolve './x.js'` con el archivo existiendo en
+  disco. El repo importa SIN extension; los imports .js del wiring rompieron TODO el dev
+  server (y lo habrian roto en build). Regla: imports relativos internos SIEMPRE sin
+  extension (los .js solo en configs tipo package.json exports).
+- UnhandledSchemeError 'node:fs/promises' en bundle de Next: el resolve.fallback del
+  client (next.config.ts) NO cubre subpaths ('fs/promises' con 'fs' en la lista no aplica
+  al import literal 'node:fs/promises'); y si el import trace termina en index.ts, el
+  bundle arrastra el index completo (quien lo importe desde client/edge arrastra TODO el
+  core). Verificado 2 veces: el fallback 'node:fs/promises': false NO resuelve
+  (el bundle que falla no es el del client). Diagnostico real: el grafo que compila
+  arrastra memory-fs -> hay que cortar el arrastre (imports puntuales en vez de index) o
+  mover memory-fs a server-only con dynamic import.
+- Raza de staging con la sesion concurrente: entre `git add` y `git commit`, la sesion
+  puede stagear los MISMOS archivos (su version sobrescribe el index) o editar archivos
+  que entran a mi commit. Verificado: mi commit b601ec5 absorvio su fix Uint8Array de
+  telegram.ts (correcto, aceptado) y su staging de present/reach quedo en el index (mi
+  commit 8ae11bf uso `git commit <paths>` con pathspec para NO llevarme lo suyo). Regla:
+  `git commit <paths>` (pathspec) SIEMPRE que el index tenga staging ajeno; verificar
+  `git diff --cached` antes de commitear.
 - Raza de bitacora REAL (17/08, iteracion 41): la sesion concurrente commiteo
   "adapters Discord + Slack (iteracion 41)" (bef1fc0) mientras yo editaba el run-log y
   absorbio MI seccion "Iteracion 41 - Endpoint metrics" en SU commit -> mi chore 0412fe4

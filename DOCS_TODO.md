@@ -248,3 +248,190 @@ Cada commit agrega una sección con fecha y la lista de archivos `.ts/.tsx` toca
 - [ ] packages/core/src/tools/diagram.test.ts
 - [ ] packages/core/src/tools/diagram.ts
 - [ ] packages/core/src/tools/index.ts
+
+## 2026-08-17T04:08:38.026Z
+- [ ] apps/web/next.config.ts
+
+## 2026-08-17T04:09:09.207Z
+- [ ] Task/video-edit-demo.ts
+- [ ] packages/core/src/ai/llm.ts
+- [ ] packages/core/src/tools/index.ts
+- [ ] packages/core/src/tools/video-edit.test.ts
+- [ ] packages/core/src/tools/video-edit.ts
+
+## 2026-08-17T04:45:25.197Z
+- [ ] Task/run_screenflow.ts
+- [ ] packages/core/src/ai/llm.ts
+- [ ] packages/core/src/tools/index.ts
+- [ ] packages/core/src/tools/screenflow.test.ts
+- [ ] packages/core/src/tools/screenflow.ts
+
+## 2026-08-17T07:10:30.253Z
+- [ ] apps/web/src/app/(app)/cloud/page.tsx
+- [ ] apps/web/src/app/api/cloud/files/route.ts
+- [ ] apps/web/src/app/api/cloud/providers.ts
+- [ ] apps/web/src/app/api/cloud/status/route.ts
+- [ ] apps/web/src/app/api/cloud/upload/route.ts
+- [ ] apps/web/src/components/app-shell/nav.tsx
+- [ ] apps/web/src/components/cloud-client.tsx
+- [ ] cloudflare/worker.ts
+- [ ] packages/core/src/tools/cloud.test.ts
+- [ ] packages/core/src/tools/cloud.ts
+
+## 2026-08-17T08:16:14.438Z
+- [ ] packages/core/src/tools/cloud.ts
+
+## 2026-08-17T08:22:51.821Z
+- [ ] packages/core/src/tools/game.test.ts
+- [ ] packages/core/src/tools/game.ts
+
+## 2026-08-17T15:41:20.849Z
+- [ ] packages/core/src/ai/llm.ts
+- [ ] packages/core/src/tools/index.ts
+
+## 2026-08-17T15:59:51.623Z
+- [ ] packages/core/src/ai/llm.ts
+- [ ] packages/core/src/tools/screenflow.test.ts
+- [ ] packages/core/src/tools/screenflow.ts
+
+## 2026-08-17T16:35:18.712Z
+- [ ] packages/core/src/tools/screenflow.test.ts
+- [ ] packages/core/src/tools/screenflow.ts
+
+## 2026-08-17T16:43:43.229Z
+- [ ] packages/core/src/domain/publications.test.ts
+- [ ] packages/core/src/domain/publications.ts
+
+## 2026-08-17T17:00:06.353Z
+- [ ] packages/core/src/tools/video-edit.test.ts
+- [ ] packages/core/src/tools/video-edit.ts
+
+## 2026-08-17T17:06:07.974Z
+- [ ] apps/web/src/app/api/publications/route.ts
+
+## 2026-08-17T17:21:17.656Z
+- [ ] packages/core/src/ai/llm.ts
+- [ ] packages/core/src/tools/present.test.ts
+- [ ] packages/core/src/tools/present.ts
+
+## 2026-08-17T17:26:37.276Z
+- [ ] packages/core/src/tools/publish.test.ts
+- [ ] packages/core/src/tools/publish.ts
+
+## 2026-08-17T18:13:33.272Z
+- [ ] packages/core/src/ai/llm.ts
+- [ ] packages/core/src/domain/publications.test.ts
+- [ ] packages/core/src/domain/publications.ts
+- [ ] packages/core/src/tools/publish.test.ts
+- [ ] packages/core/src/tools/publish.ts
+
+## 2026-08-17T22:27:06.689Z
+- [ ] packages/core/src/ai/llm.ts
+- [ ] packages/core/src/tools/harness.test.ts
+- [ ] packages/core/src/tools/harness.ts
+- [ ] packages/core/src/tools/index.ts
+
+## 2026-08-17T22:43:51.047Z
+- [ ] packages/core/src/tools/publish.test.ts
+- [ ] packages/core/src/tools/publish.ts
+
+## 2026-08-17T22:48:57.600Z
+- [ ] packages/core/src/ai/llm.ts
+- [ ] packages/core/src/tools/growth.test.ts
+- [ ] packages/core/src/tools/growth.ts
+- [ ] packages/core/src/tools/index.ts
+
+## 2026-08-17T23:01:16.216Z
+- [ ] packages/core/src/ai/llm.ts
+- [ ] packages/core/src/domain/publications.test.ts
+- [ ] packages/core/src/domain/publications.ts
+- [ ] packages/core/src/tools/publish.test.ts
+- [ ] packages/core/src/tools/publish.ts
+
+## 2026-08-17T23:09:21.635Z
+- [ ] packages/core/src/tools/telegram.test.ts
+- [ ] packages/core/src/tools/telegram.ts
+
+## 2026-08-17T23:15:14.047Z
+- [ ] packages/core/src/ai/llm.ts
+- [ ] packages/core/src/tools/publish.test.ts
+- [ ] packages/core/src/tools/publish.ts
+
+## 2026-08-17T23:24:13.472Z
+- [ ] packages/core/src/ai/llm.ts
+- [ ] packages/core/src/tools/index.ts
+- [ ] packages/core/src/tools/vfx.test.ts
+- [ ] packages/core/src/tools/vfx.ts
+
+## 2026-08-17T23:43:10.491Z
+- [ ] apps/web/src/app/api/publications/route.ts
+- [ ] packages/core/src/domain/publications.test.ts
+- [ ] packages/core/src/domain/publications.ts
+- [ ] packages/core/src/tools/present.ts
+- [ ] packages/core/src/tools/topics.ts
+
+## 2026-08-17T23:54:53.752Z
+- [ ] packages/core/src/ai/llm.ts
+- [ ] packages/core/src/tools/index.ts
+- [ ] packages/core/src/tools/metrics.test.ts
+- [ ] packages/core/src/tools/metrics.ts
+
+## 2026-08-18T00:05:15.984Z
+- [ ] apps/web/src/app/api/publications/metrics/route.ts
+
+## 2026-08-18T00:06:24.509Z
+- [ ] apps/web/src/app/api/publications/route.ts
+- [ ] packages/core/src/domain/publications.test.ts
+- [ ] packages/core/src/domain/publications.ts
+- [ ] packages/core/src/tools/discord.test.ts
+- [ ] packages/core/src/tools/discord.ts
+- [ ] packages/core/src/tools/present.ts
+- [ ] packages/core/src/tools/publish.ts
+- [ ] packages/core/src/tools/slack.test.ts
+- [ ] packages/core/src/tools/slack.ts
+- [ ] packages/core/src/tools/topics.ts
+
+## 2026-08-18T00:16:16.227Z
+- [ ] packages/core/src/ai/llm.ts
+- [ ] packages/core/src/tools/enrutador.ts
+- [ ] packages/core/src/tools/index.ts
+
+## 2026-08-18T00:16:48.724Z
+- [ ] apps/web/src/app/(app)/metrics/page.tsx
+- [ ] apps/web/src/components/app-shell/nav.tsx
+- [ ] apps/web/src/components/metrics-client.tsx
+
+## 2026-08-18T02:44:43.968Z
+- [ ] apps/mobile/src/api/client.ts
+- [ ] apps/mobile/src/api/types.ts
+- [ ] apps/mobile/src/app/(auth)/_layout.tsx
+- [ ] apps/mobile/src/app/(auth)/login.tsx
+- [ ] apps/mobile/src/app/(auth)/register.tsx
+- [ ] apps/mobile/src/app/(tabs)/_layout.tsx
+- [ ] apps/mobile/src/app/(tabs)/blog.tsx
+- [ ] apps/mobile/src/app/(tabs)/cloud.tsx
+- [ ] apps/mobile/src/app/(tabs)/index.tsx
+- [ ] apps/mobile/src/app/(tabs)/publicaciones.tsx
+- [ ] apps/mobile/src/app/_layout.tsx
+- [ ] apps/mobile/src/auth/auth-context.tsx
+- [ ] apps/mobile/src/components/ui.tsx
+- [ ] apps/mobile/src/constants/theme.ts
+- [ ] apps/mobile/src/hooks/use-color-scheme.ts
+- [ ] apps/mobile/src/hooks/use-color-scheme.web.ts
+- [ ] apps/mobile/src/hooks/use-theme.ts
+- [ ] apps/web/src/app/api/auth/login/route.ts
+- [ ] apps/web/src/app/api/auth/me/route.ts
+- [ ] apps/web/src/app/api/auth/register/route.ts
+- [ ] apps/web/src/app/api/cloud/files/route.ts
+- [ ] apps/web/src/app/api/publications/[id]/approve/route.ts
+- [ ] apps/web/src/app/api/publications/[id]/reject/route.ts
+- [ ] apps/web/src/app/api/publications/metrics/route.ts
+- [ ] apps/web/src/app/api/publications/route.ts
+- [ ] apps/web/src/lib/server/context.ts
+
+## 2026-08-18T03:13:43.709Z
+- [ ] Task/codevfx-demo.ts
+- [ ] packages/core/src/ai/llm.ts
+- [ ] packages/core/src/tools/codevfx.test.ts
+- [ ] packages/core/src/tools/codevfx.ts
+- [ ] packages/core/src/tools/index.ts

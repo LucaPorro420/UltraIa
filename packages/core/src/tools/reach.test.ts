@@ -1,10 +1,11 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { parseRss, readWeb, searchGitHub, searchWeb, videoInfo } from './reach';
+import { clearReadCache, parseRss, readWeb, searchGitHub, searchWeb, videoInfo } from './reach';
 
 afterEach(() => {
   vi.unstubAllGlobals();
   vi.restoreAllMocks();
   vi.unstubAllEnvs();
+  clearReadCache();
   delete process.env.EXA_API_KEY;
   delete process.env.GITHUB_TOKEN;
 });
@@ -72,6 +73,25 @@ describe('readWeb', () => {
     const out = await readWeb({ url: 'https://example.com', maxLength: 100 });
     expect(out.text.length).toBeLessThanOrEqual(101);
     expect(out.text.endsWith('…')).toBe(true);
+  });
+
+  it('caches results and returns cached value on subsequent calls', async () => {
+    let fetchCount = 0;
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockImplementation(async () => {
+        fetchCount++;
+        return res(true, 200, `Title: Cached\nDescription: Test\nBody content ${fetchCount}`);
+      }),
+    );
+    const url = 'https://example.com/cached';
+    const out1 = await readWeb({ url, maxLength: 100 });
+    expect(fetchCount).toBe(1);
+    expect(out1.provider).toBe('jina-reader');
+    const out2 = await readWeb({ url, maxLength: 100 });
+    expect(fetchCount).toBe(1); // cache hit - no additional fetch
+    expect(out2.provider).toBe('jina-reader (cached)');
+    expect(out2.text).toBe(out1.text);
   });
 });
 

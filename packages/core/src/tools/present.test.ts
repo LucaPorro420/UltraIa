@@ -153,6 +153,29 @@ describe('present', () => {
     expect(pkg.branding.marca).toBe('Neo Violet');
   });
 
+  it('soporta el canal telegram: caption ≤1000, sin srt, 9:16 (iteración 39)', () => {
+    const pkg = present({ tema: 'IA para todos', contenido: 'Resumen corto de la semana.', canales: ['telegram'] });
+    expect(pkg.canales).toEqual(['telegram']);
+    expect(pkg.captionsByChannel.telegram.caption.length).toBeLessThanOrEqual(1000);
+    expect(pkg.captionsByChannel.telegram.srt).toBeNull();
+    expect(pkg.visualByChannel.telegram.formato).toBe('9:16 video');
+    expect(pkg.visualByChannel.telegram.dimensiones).toBe('1080x1920 (9:16)');
+    expect(pkg.horarioSugerido.telegram).toBe(HORARIO_SUGERIDO.telegram);
+    expect(pkg.captionsByChannel.telegram.hashtags.length).toBeGreaterThan(0);
+  });
+
+  it('soporta los canales discord y slack: 9:16, sin srt, horario propio (iteración 40)', () => {
+    const pkg = present({ tema: 'IA en equipo', contenido: 'Resumen para el canal.', canales: ['discord', 'slack'] });
+    expect(pkg.canales).toEqual(['discord', 'slack']);
+    for (const canal of ['discord', 'slack'] as const) {
+      expect(pkg.captionsByChannel[canal].caption.length).toBeLessThanOrEqual(1000);
+      expect(pkg.captionsByChannel[canal].srt).toBeNull();
+      expect(pkg.visualByChannel[canal].formato).toBe('9:16 video');
+      expect(pkg.horarioSugerido[canal]).toBe(HORARIO_SUGERIDO[canal]);
+      expect(pkg.captionsByChannel[canal].hashtags.length).toBeGreaterThan(0);
+    }
+  });
+
   it('aplica el branding editable al paquete (F3)', () => {
     const pkg = present({
       tema: 'Tema X',

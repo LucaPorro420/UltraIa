@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { AiGateway } from '../ai/gateway';
+import type { Capability } from '../shared/domain';
 import { generateBlueprintDraft } from './blueprint';
 
 const validDraft = {
@@ -32,6 +33,25 @@ describe('generateBlueprintDraft', () => {
     expect(draft.rubric).toHaveLength(3);
     expect(draft.guardrails.length).toBeGreaterThan(0);
     expect(draft.suggestedEvalInputs.length).toBeGreaterThanOrEqual(3);
+  });
+
+  it('includes user-suggested capabilities in the prompt sent to the LLM', async () => {
+    let capturedPrompt = '';
+    const capturingGateway: AiGateway = {
+      ...fakeGateway,
+      async generateStructured<T>({ prompt }): Promise<T> {
+        capturedPrompt = prompt;
+        return validDraft as unknown as T;
+      },
+    };
+    const caps: Capability[] = ['web', 'image'];
+    await generateBlueprintDraft(capturingGateway, { taskDescription: 'Write sales emails', capabilities: caps });
+    expect(capturedPrompt).toContain('User-suggested capabilities (hint, not binding): web, image');
+  });
+
+  it('works without capabilities (backward compatible)', async () => {
+    const draft = await generateBlueprintDraft(fakeGateway, { taskDescription: 'Write sales emails' });
+    expect(draft.name).toBe('Sales Email Writer');
   });
 
   it('rejects empty task descriptions', async () => {

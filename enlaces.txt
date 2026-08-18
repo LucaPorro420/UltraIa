@@ -663,3 +663,164 @@ Si falla:
 [7]: https://github.com/mcpware/pagecast?utm_source=chatgpt.com "GitHub - mcpware/pagecast: Record any browser page as GIF or video via MCP — powered by Playwright + ffmpeg · GitHub"
 [8]: https://github.com/haasonsaas/obs-agent?utm_source=chatgpt.com "GitHub - haasonsaas/obs-agent: AI-powered multi-agent system for controlling OBS Studio programmatically · GitHub"
 [9]: https://github.com/ZabLaboratory/Pulsar?utm_source=chatgpt.com "GitHub - ZabLaboratory/Pulsar: Headless broadcast engine forked from OBS Studio. obs-websocket v5 + multi-destination + adaptive bitrate. Bundled in Prism. · GitHub"
+
+## BLOQUE MEDIA AUTOMATION (lineas 7-665) ## PROCESADO 17/08/2026 -> capability `recording` (recorder.ts, OBS WebSocket v5 JSON-RPC + fallback ffmpeg gdigrab) + capability `automation` (automation.ts, ciclo 10 fases PLAN..ARCHIVE con RETRY/RECOVER/RESUME max 3) + scripts/web-automation.py (3 vias: playwright npm / python keyless / automation_run TS) + docs/AUTOMATION-WEB.md. Analisis en docs/RAZONAMIENTO-MEDIA-AUTOMATION.md. Fuente cruda en learning/sources/media-automation.md. 28 tests nuevos.
+
+
+
+
+
+
+
+////////////////////////////////////////////////////////////
+https://www.instagram.com/tomassporro?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==
+
+https://www.tiktok.com/@melisaescobart_/video/7665799501134892308?is_from_webapp=1&sender_device=pc
+
+https://vidrush.ai/
+https://abacus.ai/?token=rr&gad_source=1&gad_campaignid=23858856880&gbraid=0AAAAACeGdS1t6UfCdxtSF2YWhG3E7-vIv&gclid=Cj0KCQjwv4XUBhDBARIsAE6bQUR4sPT8xGb8FsSlV7fSj9a13UULiFTR4EMZSlnpxaR18ZL-PjoR1AoaAs4BEALw_wcB
+
+https://www.instagram.com/p/DcEFERhDDMg/?utm_source=ig_web_copy_link&igsh=NTc4MTIwNjQ2YQ==
+
+
+https://www.instagram.com/reel/DcD96B5Nd-m/?utm_source=ig_web_copy_link&igsh=NTc4MTIwNjQ2YQ==
+
+
+https://www.instagram.com/p/DcGtEjOjRmp/?utm_source=ig_web_copy_link&igsh=NTc4MTIwNjQ2YQ==
+
+
+
+
+
+
+El desarrollo de videojuegos utilizando Inteligencia Artificial ha avanzado hasta el punto de permitir que creadores independientes, diseñadores y programadores construyan juegos completos con herramientas gratuitas. El panorama se divide entre motores nativos con IA, repositorios de código abierto y plataformas de recursos que eliminan las barreras técnicas tradicionales. [1, 2, 3] 
+A continuación, se detalla el ecosistema de recursos 100% gratuitos (u opciones con planes gratuitos altamente funcionales) estructurado por áreas de desarrollo:
+------------------------------
+## ➡️ 1. Repositorios de GitHub (Código, Agentes y Curación)
+GitHub aloja la infraestructura lógica, las plantillas de pensamiento de IA y los scripts necesarios para automatizar la programación de tus videojuegos. [4] 
+
+* [simoninithomas/awesome-ai-tools-for-game-dev](https://github.com/simoninithomas/awesome-ai-tools-for-game-dev): Un directorio especializado que recopila exclusivamente herramientas de IA destinadas al desarrollo de videojuegos, cubriendo desde generación de texturas en 2D hasta mallas complejas en 3D. [5] 
+* [gamedev-skills/awesome-gamedev-agent-skills](https://github.com/gamedev-skills/awesome-gamedev-agent-skills): Este repositorio proporciona 67 habilidades de desarrollo de videojuegos para agentes de IA de código (como Cursor o Copilot). Detecta automáticamente si estás usando Godot, Unity, Unreal o Pygame y carga la lógica exacta para programar la tarea requerida. [4] 
+* [lappemic/awesome-ai-built-games](https://github.com/lappemic/awesome-ai-built-games): Repositorio que reúne juegos comerciales y experimentales (desde Tetris 3D hasta shooters en primera persona) creados enteramente con IA. Es excelente para estudiar sus códigos fuente y comprender "formas de pensamiento" aplicadas al prompting de videojuegos. [6] 
+
+------------------------------
+## ➡️ 2. Motores y Plataformas de Creación Directa (No-Code & Prompt-to-Game)
+Si buscas crear videojuegos directamente mediante descripciones de texto o interfaces asistidas por IA, estas herramientas ofrecen accesibilidad total:
+
+* [Rosebud AI Game Creator](https://rosebud.ai/ai-game-creator): Una plataforma basada en navegador donde puedes describir el juego que deseas y la IA generará el código (HTML/JavaScript), los sprites en 2D, el audio e incluso mundos en 3D. Su plan gratuito te permite publicar y compartir prototipos jugables al instante. [5, 7, 8] 
+* [GDevelop AI Assistant](https://gdevelop.io/): GDevelop es un motor de videojuegos en 2D y 3D de código abierto y completamente gratuito. Su sistema de eventos visuales ahora integra un asistente de IA incorporado que genera mecánicas, comportamientos y lógicas complejas sin que tengas que escribir una sola línea de código manual. [9] 
+* [Summer Engine](https://www.summerengine.com/): Un motor de juego IA-nativo totalmente compatible con Godot 4. Es ideal para iniciar un proyecto 3D o multijugador a partir de descripciones de lenguaje natural y mantener el control del código de manera gratuita. [2, 8] 
+
+------------------------------
+## ➡️ 3. Programación Inteligente (Modelos Locales y Editores)
+Para automatizar la programación pura de mecánicas de juego de cualquier tipo, la combinación de editores modernos con modelos de lenguaje específicos es el estándar de la industria: [2, 4] 
+
+* [Cursor AI Editor](https://www.cursor.com/): Aunque tiene una versión premium, su capa gratuita permite escribir, refinar y depurar scripts de C# (Unity), C++ (Unreal) o GDScript (Godot) usando prompts naturales. Su entendimiento del contexto de todo tu proyecto agiliza la programación exponencialmente. [2] 
+* Modelos de Código Local (Ollama + Gemma / Qwen): Herramientas como [Ollama](https://ollama.com/) te permiten ejecutar modelos de programación especializados de forma local en tu computadora (como Gemma o Qwen) de manera 100% gratuita, privada e ilimitada. Al conectarlos a extensiones de juego o editores, obtienes un asistente de desarrollo sin pagar suscripciones. [3, 10] 
+
+------------------------------
+## ➡️ 4. Diseño de Arte, Entornos y Audio Gratis con IA
+El apartado visual y sonoro suele ser el más costoso, pero estas inteligencias artificiales optimizan el pipeline de assets sin presupuesto: [3, 11] 
+
+* [Scenario.com](https://www.scenario.com/): Plataforma experta en generación de arte 2D consistente. Te permite entrenar micro-modelos con tus propios dibujos para generar texturas, personajes e ítems que respeten estrictamente la misma dirección de arte de tu juego.
+* [Meshy 3D](https://www.meshy.ai/) & [Tripo AI](https://www.tripo3d.ai/): Generadores de texto a modelos 3D. Su plan gratuito te otorga créditos mensuales para crear mallas tridimensionales texturizadas listas para arrastrar y soltar en tu motor de videojuegos.
+* [Suno AI](https://suno.com/) & [ElevenLabs](https://elevenlabs.io/): Las mejores herramientas para el apartado sonoro. Suno genera bandas sonoras dinámicas de cualquier género mediante texto, mientras que ElevenLabs te permite crear efectos de sonido atmosféricos y voces hiperrealistas para tus personajes. [1, 2, 5] 
+
+------------------------------
+## ➡️ 5. Marketing, Diseño Conceptual y Expansión Comercial
+El éxito de un videojuego no solo depende de su código, sino también de su validación en el mercado. [12] 
+
+* [Ludo.ai](https://ludo.ai/): Una plataforma especializada en las fases de ideación, diseño y análisis de mercado mediante IA. Te ayuda a analizar las tendencias de juegos actuales, buscar mecánicas populares, estructurar tu documento de diseño de juego (GDD) y descubrir qué conceptos tienen mayor potencial de viabilidad comercial antes de programar. [2, 12] 
+* [Figma AI Game Design](https://www.figma.com/es-la/soluciones/generador-de-juegos-ia/): Utilizando las herramientas de IA dentro de Figma, puedes prototipar rápidamente interfaces de usuario (UI), flujos de menús y layouts lógicos de tus niveles de manera colaborativa y gratuita. [13] 
+
+Si lo deseas, indícame:
+
+* ¿Qué tipo de videojuego tienes en mente (2D, 3D, móvil, web)?
+* ¿Qué motor de juego prefieres utilizar (Godot, Unity, o prefieres crear desde el navegador)?
+
+Con esto puedo guiarte con una estrategia de prompts exacta para iniciar la lógica de tu proyecto.
+
+[1] [https://github.com](https://github.com/steven2358/awesome-generative-ai/issues/848)
+[2] [https://www.summerengine.com](https://www.summerengine.com/blog/best-ai-tools-game-development)
+[3] [https://www.youtube.com](https://www.youtube.com/watch?v=MTBlN4AHDfk&t=562)
+[4] [https://github.com](https://github.com/gamedev-skills/awesome-gamedev-agent-skills)
+[5] [https://github.com](https://github.com/simoninithomas/awesome-ai-tools-for-game-dev)
+[6] [https://github.com](https://github.com/lappemic/awesome-ai-built-games)
+[7] [https://rosebud.ai](https://rosebud.ai/ai-game-creator)
+[8] [https://www.summerengine.com](https://www.summerengine.com/blog/best-free-ai-game-makers-2026)
+[9] https://gdevelop.io
+[10] [https://www.youtube.com](https://www.youtube.com/watch?v=yEnMiUDYaTc&t=1)
+[11] [https://github.blog](https://github.blog/open-source/gaming/beyond-the-engine-10-open-source-projects-shaping-how-games-actually-get-made/)
+[12] [https://github.com](https://github.com/orgs/community/discussions/193398)
+[13] [https://www.figma.com](https://www.figma.com/es-la/soluciones/generador-de-juegos-ia/)
+
+
+
+
+
+Para lograr un videojuego profesional multiplataforma (2D, 3D, móvil y web) donde la IA tome el control total de la creación de lógica y recursos a partir de una idea, existen ecosistemas que integran agentes especializados y motores de alto rendimiento.
+Aquí tienes los recursos clave para este flujo de trabajo profesional "Zero-Asset":
+## 🏗️ Motores y Agentes para Creación Total "End-to-End"
+Estos sistemas permiten que la IA genere el proyecto desde cero, incluyendo la lógica de juego y los entornos, sin necesidad de que tú aportes medios iniciales.
+
+* Summer Engine: Diseñado específicamente para exportar proyectos reales y propios de Godot 4. Permite comprimir tu idea en una sola frase y la IA genera el bucle principal, mecánicas y arte dentro del mismo flujo.
+* Claude Code Game Studios (GitHub): Este repositorio no es solo un generador de código, sino una infraestructura de 49 agentes especializados (directores, líderes y especialistas) que actúan como un estudio completo para gestionar arquitecturas complejas de videojuegos de forma persistente.
+* Rosebud AI: Es una de las formas más rápidas de construir y refinar juegos reales. Su interfaz basada en navegador democratiza el código, permitiendo que la creación sea tan accesible como escribir un prompt, ideal tanto para principiantes como para estudios profesionales.
+* GDevelop AI: Un motor de código abierto (2D y 3D) que utiliza un sistema de eventos único asistido por IA para construir juegos potentes sin programar. Facilita enormemente la publicación en Android, iOS y web.
+
+## 📱 Desarrollo Multiplataforma Profesional
+Para asegurar que el juego sea usable en todos los ámbitos (móvil y web) con un solo esfuerzo de creación:
+
+* Figma AI Game Generator: Permite diseñar experiencias jugables, desde mecánicas hasta interacciones, y verlas cobrar vida sin escribir código. Es ideal para prototipar aplicaciones web y móviles de nivel MVP con modelos avanzados como GPT-5.6.
+* Unity Muse: La opción estándar de la industria. Incluye un Asistente Agéntico integrado en el editor que entiende el contexto de tu proyecto, permitiendo ejecutar tareas complejas y generar escenas jugables a partir de referencias visuales o de texto.
+* Replit AI Game Builder: Transforma ideas en lenguaje natural en experiencias jugables al instante dentro del navegador. Se encarga de mecánicas complejas como física, detección de colisiones y movimiento de personajes.
+
+## 🧠 Recursos de Pensamiento y Lógica (GitHub)
+Para que la IA "piense" el juego de forma profesional, puedes alimentar a tus agentes con estas bases de conocimiento:
+
+* gamedev-skills (GitHub): Proporciona habilidades de agente para detectar automáticamente si usas Godot, Unity o Unreal y cargar la lógica exacta para programar la tarea requerida.
+* awesome-game-ai: Recopila marcos de trabajo de aprendizaje por refuerzo y herramientas como Unity ML-Agents para dotar a tu juego de sistemas de inteligencia avanzados.
+* Yuan-ManX/ai-game-devtools: El repositorio definitivo que centraliza herramientas de IA para cada capa: modelos de mundo, agentes, código, texturas, shaders y modelos 3D.
+
+## 🎨 Generación de Recursos sobre la Marcha
+Aunque no tengas imágenes iniciales, estos servicios integrados por API permiten que tu flujo de IA cree los assets necesarios:
+
+* Scenario & Leonardo AI: Especializados en generar consistencia visual. Puedes usarlos para crear assets 2D, texturas y entornos completos que sigan una dirección artística profesional.
+* Meshy & Tripo AI: Generadores de texto a 3D que simplifican la creación y optimización de mallas tridimensionales para tus niveles.
+
+¿Te gustaría que te ayude a estructurar el prompt de arquitectura inicial para uno de estos motores, o prefieres que busquemos cómo conectar tus modelos locales de razonamiento con uno de estos repositorios de GitHub?
+
+https://www.tiktok.com/@wearebrand.io/video/7674876431779777825?is_from_webapp=1&sender_device=pc
+
+https://www.tiktok.com/@wearebrand.io/video/7674875780328885536?is_from_webapp=1&sender_device=pc
+
+https://www.instagram.com/p/DcEONSaku2o/?utm_source=ig_web_copy_link&igsh=NTc4MTIwNjQ2YQ==
+
+
+https://www.instagram.com/p/DcIa8O3Dvpw/?utm_source=ig_web_copy_link&igsh=NTc4MTIwNjQ2YQ==
+
+
+
+https://github.com/deepseek-ai/deepseek-harness ##Adicionalo al modo agente y al proyecto:No copies crea de forma totalmente aislada al modelo de forma nueva y que aparente ser creado por un ser humano no vibecoding.
+
+
+https://www.facebook.com/share/p/1977BDTy3J/ ::Analisa el enlace, las imagenes, busca los repositoios y adicionalos.
+
+https://github.com/openclaw/openclaw :: Adiciona la list api que verifiques son grtuitas y sirven al proyecto para avanzar
+
+https://www.tiktok.com/@studioeditionoficial/video/7650505845884685590?is_from_webapp=1&sender_device=pc :: Verifica la informacion y adicionalo para hacerlo propio con analisis de funcionamiento
+
+
+https://www.facebook.com/share/p/1P5RHRzk6b/ ::Adiciona las mejoras que te parezcan
+ ##PARA TODO LO ANTERIOR USA EL PENSAMIENTO LOGICO Y CRITICO PARA MEJORAR ADEMAS DE UN PIV PARA REALIZAR TODO DE FORMA ESPECTACULAR.
+ 
+
+ https://www.instagram.com/p/DcJDsghiJne/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA== ::##Replica esos efectos 100% con programacion visual y crea otros ejemplos de ellos solo con codigo sin necesidad de utilizar videos o objetos 3D [Utilizaras la informacion sobre colorimetria e escaneos de objetos 3D para analizar sus cambios de colores en los lugares especiicos donde se distinge el cambio de color, perspectiva e curbaturas de los objetos para mejorar sus disenos e "replicar" realismo] {$Enlace solicitado en la linea === https://github.com/achrefelouafi/LinearAbiltyCastingThreeJS}
+
+
+ https://www.instagram.com/reel/Db_CpPGJxpE/?utm_source=ig_web_copy_link&igsh=NTc4MTIwNjQ2YQ== ##Detectar el enlace, replicar(Con las capacidades del proyecto), replicar el diseno totalmente con codigo y darmelo en una carpeta llamada TestTaskSkills que crearas para dejar las pruebas reales de codigo. [La idea es que toda la animacion sea totalmente programada al 100% sin usar imagenes, objetos 3D pero llevando el pensamiento y mejorar al maximo la creacion llevandola a ser identica]
+
+
+
+ https://github.com/yamadashy/repomix ##Instalalo en la terminal y en el proyecto total para utilizar su operabilidad.
+# Estado verificado 17/08/2026 (loop-45): 807 y 814 devuelven 404 (video/url inexistentes o privados en Facebook; r.jina.ai confirma 'Not Found'). Contenido no recuperable - requieren reenvio manual del enlace/publicacion por el usuario.
