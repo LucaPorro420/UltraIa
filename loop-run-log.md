@@ -2057,3 +2057,12 @@ de código, sin commit.
 - **[V] COLISION DETECTADA (Ajuste)**: sdf.ts y sdf.test.ts SOBRESCRITOS por sesion concurrente (mtime 19:53:23/19:54:15, escritos hace segundos; diseno ajeno: SDF_PRIMITIVES/SDF_OPS, primitivas con indice/targets, planSdfScene/sdfSceneGlsl/rayMarchPlan/renderSdfHtml + 8 describes propios). Estado ajeno 20/31 PASS (11 fallos en progreso). Mi archivo desaparecio del disco (solo sobrevive en conversacion).
 - **[R] CEDIDO (precedente r54->r55 iter-55)**: la capability sdf queda a cargo de la sesion concurrente; mi diseno queda DESCARTADO (evitar doble capability). No se tocan sus archivos. Pendiente consolidacion: verificar tests ajenos al liberar + UN solo wiring en llm.ts (diferido por r55) + dedupe.
 
+
+### Iteracion 59 - Capability videoqa (18/08/2026, sesion principal, 3 pasadas)
+
+- **[P] Sensado**: videoqa.ts NO existe (libre); lock sigue en task 58 (sdf, sesion 57b). Estrategia: rafaga (escribir+test+commit rapido antes de colision). Plan: loop-59-videoqa.md.
+- **[I] C1**: videoqa.ts (schemas zod + MAE/MSE/PSNR/SSIM puros + flowMagnitude/eFlow + ePixelFromPsnr/eTotal con pesos a=0.6/b=0.3/g=0.1 + verdictVideo umbrales + buildVmafArgv determinista sin ejecutar) + 31 tests.
+- **[I] C2 (ajuste)**: 29/31 -> 2 fallos por eTotalMax=0.05 incoherente (PSNR 48dB -> ePixel 0.45 -> eTotal 0.27 > 0.05) -> umbral 0.4 (E_total captura errores flujo/semanticos, pixel los ve PSNR); tsc core: VideoqaInputLike (z.infer con .default() hace semanticError requerido) -> 0 errores. 31/31 PASS.
+- **[V] scoped GREEN**: vitest 31/31 + tsc core EXIT 0. Commit 8d14835 (3 archivos, 601+). Fila 62 marcada DONE por sesion 57b (verificado en diff STATE.md).
+- **[R] DONE** - 8d14835. Wiring llm.ts DIFERIDO (r57b puede tomarlo). Siguiente: 60 capability motion.
+
