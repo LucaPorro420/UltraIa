@@ -86,12 +86,17 @@ principios del repo: LOCAL-FIRST, SECURE (token + loopback), sin deps nuevas en 
 > `{"ok":true,"state":"running","healthStatus":"healthy","core":{"configured":true,"healthy":true,
 > "adapters":["tools","omag"],"tools":10}}`, exit 0, sin crash. Detalles en
 > `desktopFase/launcher/README.md`.
+> **Ventana WebView2 validada 18/08/2026 (iteración 50)**: `--host-check` → exit 0,
+> `{"ok":true,"webview2":"151.0.4129.86"}`; launcher normal → ventana WebView2 nativa visible,
+> dashboard carga (Dark Obsidian, health checks OK).
+> **Medidas reales MVP WebView2**: bundle ≈ 13.7 MB (dist 12.2 MB + vendor 1.5 MB + host.exe 7.5 KB);
+> RAM ≈ 111 MB (host 33 MB + proxy Node 78 MB) — muy por debajo de Electron/Tauri.
 > **Lecciones del spike**: (1) `@ai-sdk/google` queda aislado en `packages/core/node_modules`
 > (npm) → junction `dist/node_modules/@ai-sdk` en el build; (2) el dist emite
 > `require("@ultraia/core")` sin reescribir → junction `dist/node_modules/@ultraia/core` con
 > `package.json` propio (`main: src/index.js`); (3) usar `node:http` (no `fetch`/undici) para el
 > auto-check: salir con sockets de undici en cierre dispara un assert de libuv en Windows
-> (`src\win\async.c`). Pendiente real del MVP: la ventana WebView2 (paso 3 del plan).
+> (`src\win\async.c`).
 
 > Nota de rigor: las cifras de RAM/bundle de Tauri/Electron citadas en ARCHITECTURE.md §8 son
 > aproximaciones de mercado (2024-2026), no mediciones propias; el spike medirá las reales del
