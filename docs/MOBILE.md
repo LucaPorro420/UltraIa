@@ -66,6 +66,35 @@ sin cambios de lógica.
   react 19.1.0 web vs 19.2.3 mobile es intencional — Metro resuelve el de mobile en el
   build nativo), `npx tsc --noEmit`, `npx expo export --platform web`.
 
+## EAS build (configurado 18/08/2026, iteración 47)
+
+`apps/mobile/eas.json` (ya commiteado) define 3 perfiles:
+
+| Perfil | Uso | Android |
+|---|---|---|
+| `development` | development client (Debug) | APK (buildType apk) |
+| `preview` | distribución interna / testers | APK (buildType apk) |
+| `production` | store (Play) | AAB (app-bundle, autoIncrement) |
+
+`cli.appVersionSource: "local"` → la versión viene de `app.json` (`version: 1.0.0`), sin
+necesitar el servicio de versionado remoto de EAS. `autoIncrement: true` solo en
+production (sube versionCode/versionName automáticamente por build en la nube).
+
+Comandos (requieren `eas login` con la cuenta Expo del usuario — no es automatizable):
+
+```bash
+cd apps/mobile
+npx eas login                                # una vez (cuenta Expo gratuita)
+npx eas build -p android --profile preview   # APK instalable (testers/uso directo)
+npx eas build -p android --profile production # AAB para Play Console
+npx eas submit -p android --profile production # sube a Play (requiere cuenta Google Play)
+```
+
+E2E verificado (18/08/2026, iteración 47): register 201 / login token / me 200 /
+publications 200 / blog 200 contra el dev server real; `cloud/status` y `cloud/upload`
+arreglados para aceptar el header `x-ultraia-session` (bug: solo leían la cookie →
+401 en la app móvil).
+
 ## Estructura
 
 ```

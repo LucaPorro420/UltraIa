@@ -6,7 +6,7 @@ const service = () => new CloudService({ adapter: localCloudAdapter() });
 
 /** POST /api/cloud/upload — multipart: file + opcional dir. Valida extensión y tamaño. */
 export async function POST(req: Request) {
-  const user = await getCurrentUser();
+  const user = await getCurrentUser(req);
   if (!user) return new Response('Unauthorized', { status: 401 });
 
   const form = await req.formData().catch(() => null);
