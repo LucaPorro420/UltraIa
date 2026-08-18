@@ -23,8 +23,8 @@ import type { CloudService } from '../tools/cloud'; // QUÉ ES: solo el TIPO del
 
 export type PublicationEstado = 'DRAFT' | 'APPROVED' | 'REJECTED' | 'PUBLISHED' | 'FAILED';
 
-/** Canales con media que requieren aprobación humana (video/imagen). Telegram envía video → aprobación. */
-export const CANALES_CON_APROBACION: PresentChannel[] = ['youtube_shorts', 'tiktok', 'instagram', 'telegram'];
+/** Canales con media que requieren aprobación humana (video/imagen). Telegram/Discord/Slack envían video → aprobación. */
+export const CANALES_CON_APROBACION: PresentChannel[] = ['youtube_shorts', 'tiktok', 'instagram', 'telegram', 'discord', 'slack'];
 
 /** Un canal requiere aprobación si produce video/imagen (no blog/texto). */
 export function canalRequiereAprobacion(canal: PresentChannel): boolean {
@@ -289,7 +289,7 @@ export async function publishDue(db: Db, opts: PublishDueOptions = {}): Promise<
       if (opts.publishFn) {
         resultado = await opts.publishFn({ metadata });
       } else {
-        resultado = await publishToAll(createDefaultPublishers({ includeX: true, includeMeta: true, includeTelegram: true }), { metadata });
+        resultado = await publishToAll(createDefaultPublishers({ includeX: true, includeMeta: true, includeTelegram: true, includeDiscord: true, includeSlack: true }), { metadata });
       }
       if (resultado.some((r) => r.ok)) {
         await markPublished(db, pub.id, resultado);

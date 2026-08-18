@@ -11,6 +11,8 @@
  */
 
 import { createTelegramAdapter } from './telegram.js';
+import { createDiscordAdapter } from './discord.js';
+import { createSlackAdapter } from './slack.js';
 
 export interface PublishMetadata {
   title: string;
@@ -19,7 +21,7 @@ export interface PublishMetadata {
   privacyStatus: 'public' | 'private' | 'unlisted';
 }
 
-export type PublishPlatform = 'youtube' | 'tiktok' | 'x' | 'instagram' | 'threads' | 'telegram';
+export type PublishPlatform = 'youtube' | 'tiktok' | 'x' | 'instagram' | 'threads' | 'telegram' | 'discord' | 'slack';
 
 export interface PublishInput {
   /** Ruta del MP4 final (9:16, <60s). */
@@ -538,14 +540,16 @@ export async function publishToAll(adapters: PublisherAdapter[], input: PublishI
   return results;
 }
 
-/** Crea los adaptadores por defecto (YT + TikTok; opcionalmente X — canal F4 paso 4 — y Meta IG/Threads — paso 5 — y Telegram — paso 6).
-// includeX/includeMeta/includeTelegram=false por defecto para no cambiar el comportamiento de las colas existentes. */
-export function createDefaultPublishers(opts: { includeX?: boolean; includeMeta?: boolean; includeTelegram?: boolean } = {}): PublisherAdapter[] {
+/** Crea los adaptadores por defecto (YT + TikTok; opcionalmente X — canal F4 paso 4 — y Meta IG/Threads — paso 5 — y Telegram — paso 6 — y Discord/Slack — paso 7).
+// includeX/includeMeta/includeTelegram/includeDiscord/includeSlack=false por defecto para no cambiar el comportamiento de las colas existentes. */
+export function createDefaultPublishers(opts: { includeX?: boolean; includeMeta?: boolean; includeTelegram?: boolean; includeDiscord?: boolean; includeSlack?: boolean } = {}): PublisherAdapter[] {
   const base = [createYouTubeAdapter(), createTikTokAdapter()];
   if (opts.includeX) base.push(createXAdapter());
   if (opts.includeMeta) base.push(createInstagramAdapter(), createThreadsAdapter());
   if (opts.includeTelegram) base.push(createTelegramAdapter());
+  if (opts.includeDiscord) base.push(createDiscordAdapter());
+  if (opts.includeSlack) base.push(createSlackAdapter());
   return base;
 }
 
-export const publish = { createYouTubeAdapter, createTikTokAdapter, createXAdapter, createInstagramAdapter, createThreadsAdapter, createTelegramAdapter, createDefaultPublishers, publishToAll, buildBilingualMetadata, buildXPostText, xAppendMultipartBody, formBody, IG_MEDIA_URL, THREADS_MEDIA_URL };
+export const publish = { createYouTubeAdapter, createTikTokAdapter, createXAdapter, createInstagramAdapter, createThreadsAdapter, createTelegramAdapter, createDiscordAdapter, createSlackAdapter, createDefaultPublishers, publishToAll, buildBilingualMetadata, buildXPostText, xAppendMultipartBody, formBody, IG_MEDIA_URL, THREADS_MEDIA_URL };

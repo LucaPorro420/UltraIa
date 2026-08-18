@@ -1639,3 +1639,52 @@ ormalizeTitle() (lower + strip non-alnum), dedupe() (bigram overlap > 0.6),
   Bloqueo nuevo: enlaces.txt linea 807 (Facebook share) = video registered-users-only
   (escalado a High Priority, requiere accion humana: pegar contenido o cookies).
   Sin push (aprobacion humana).
+
+### Iteracion 41 - Endpoint metrics con analytics reales (17/08/2026) - DONE
+
+- **P**: cerrar F5 punta a punta: el endpoint GET /api/publications/metrics (iteracion 13)
+  solo agregaba la cola; faltaba exponer los analytics reales (iteracion 40).
+- **I**: apps/web/src/app/api/publications/metrics/route.ts -> query opcional
+  ?platform=&channelId= -> fetchChannelAnalytics + mergeAnalyticsIntoKpis ->
+  { ok, ...kpis, analytics }. Sin query: comportamiento previo (retrocompatible).
+  Funciones disponibles via export * del paquete (sin tocar index.ts).
+- **V**: tsc web --noEmit: 0 errores propios (solo ajenos: blueprint.ts #25, reach.ts #25,
+  enrutador.ts + discord.ts/slack.ts de la sesion concurrente - YA esta creando los
+  adapters discord/slack en paralelo, NO pisar) + eslint EXIT 0.
+- **R**: F5 analytics completo (dominio + tool + endpoint). Commit a8bf697.
+  Siguiente candidato: UI de metricas en /dashboard o pagina propia - o esperar a que la
+  sesion concurrente termine discord/slack antes de tocar llm.ts/publish.ts.
+  Sin push (aprobacion humana).
+
+### Iteracion 41 - Adapters Discord + Slack (17/08/2026) - DONE
+
+- La sesion concurrente uso el 40 (F5 analytics 5afe2f7: metrics.ts/test + llm.ts + index.ts
+  + plan loop-40, sin tocar mis archivos; llm.ts/index.ts quedaron LIMPIOS).
+- **P**: Discord/Slack gratis (APIS-GRATIS-2026.md) -> adapters PublisherAdapter + canal en
+  la cola (aprobacion DRAFT). Wiring de la tool en llm.ts NO en esta iteracion (diferido,
+  ahora posible: llm.ts limpio).
+- **I**:
+  - `tools/discord.ts` (NUEVO): `createDiscordAdapter` - webhook (env DISCORD_WEBHOOK_URL,
+    formato /api/webhooks/{id}/{token} validado), multipart `file` + `payload_json`
+    (buildMultipartBody compartido de telegram.js), limite 10 MiB gratis (25 con boost),
+    caption cap 2000, respuesta 204 -> ok. `isValidDiscordWebhook`, `buildDiscordCaption`.
+  - `tools/slack.ts` (NUEVO): `createSlackAdapter` - bot token (env SLACK_BOT_TOKEN xoxb-,
+    validado) + channel (env SLACK_CHANNEL), POST files.upload con Bearer + multipart
+    file+channels+title+initial_comment, limite 1 GiB, caption cap 4000, JSON {ok,error,file}
+    fail-soft. `isValidSlackBotToken`, `buildSlackCaption`.
+  - `publish.ts`: union PublishPlatform + 'discord' | 'slack' + createDefaultPublishers
+    ({includeDiscord, includeSlack}) + namespace publish ampliado (export * cubre index.ts).
+  - `publications.ts`: CANALES_CON_APROBACION + discord/slack (video -> DRAFT humano);
+    publishDue con includeDiscord/includeSlack.
+  - `topics.ts`/`present.ts`: TopicChannel + discord/slack (keywords, formato 9:16, horario
+    discord 'lun/mie/vie 19:00' / slack 'mar/jue 09:00', hashtags, caption, visual).
+  - `route.ts` API: z.enum + discord/slack. schema.prisma comentarios (String, sin migracion).
+  - Tests: discord.test.ts 17 + slack.test.ts 17 + publications +2 + present +1.
+- **V**: vitest 211/211 (discord 17 + slack 17 + publish 47 + telegram 21 + publications 30
+  + present 20 + topics 14 + enrutador 28 + metrics 17 regresion) + tsc scoped 0 propios
+  (solo ruido reach.ts #25) + eslint EXIT 0. Fixes: mock 429 sin json (test), records
+  exhaustivos TopicChannel exigian discord/slack (completados). LECCION REAPLICADA: PS 5.1
+  Set-Content corrompio schema.prisma (BOM + mojibake 'espaÃ±ol') -> git checkout + tool Edit.
+- **R**: Discord y Slack publicables desde la cola con aprobacion humana. Diferido: tool
+  publish_submit toDiscord/toSlack en llm.ts (ahora sin bloqueo - llm.ts limpio). Sin push
+  (aprobacion humana).

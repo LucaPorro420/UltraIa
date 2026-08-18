@@ -570,6 +570,16 @@ El usuario deja URLs en `enlaces.txt` (raíz) para que se analicen y se apliquen
   'mar/jue/sab 18:00', captionFor cap 1000, visualFor 9:16 sin srt); `CANALES_CON_APROBACION`
   + telegram (video → DRAFT humano); `publishDue` con `includeTelegram: true`; z.enum CANALES
   + telegram en `/api/publications`; canal es String en Prisma (sin migración). 158/158 scoped.
+- **Adapters Discord + Slack (iteración 41)**: `tools/discord.ts` (`createDiscordAdapter`:
+  webhook env `DISCORD_WEBHOOK_URL` validado `/api/webhooks/{id}/{token}`, multipart
+  `file`+`payload_json`, límite 10 MiB gratis/25 boost, caption cap 2000, 204→ok) +
+  `tools/slack.ts` (`createSlackAdapter`: bot `xoxb-` env `SLACK_BOT_TOKEN` + `SLACK_CHANNEL`,
+  `files.upload` Bearer multipart file+channels+title+initial_comment, límite 1 GiB, caption
+  cap 4000, JSON `{ok,error}` fail-soft). Union `PublishPlatform` + discord/slack ·
+  `createDefaultPublishers({includeDiscord, includeSlack})` · `CANALES_CON_APROBACION` +
+  discord/slack (video → DRAFT) · TopicChannel/PresentChannel + discord/slack (9:16,
+  horarios 'lun/mie/vie 19:00'/'mar/jue 09:00'). 17+17 tests. DIFERIDO: tool `publish_submit`
+  toDiscord/toSlack en llm.ts (ahora sin bloqueo).
   96/96 scoped (telegram 21 + publish 48 + publications 27).
 - NOTA coordinación: el wiring se hizo cuando la sesión concurrente liberó
   publish.ts/llm.ts/index.ts (su wiring Meta `a223417`); antes, los archivos estaban sucios.
