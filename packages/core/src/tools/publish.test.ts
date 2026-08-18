@@ -4,6 +4,7 @@ import {
   buildXPostText,
   createDefaultPublishers,
   createInstagramAdapter,
+  createLinkedInAdapter,
   createThreadsAdapter,
   createTikTokAdapter,
   createXAdapter,
@@ -640,5 +641,171 @@ describe('createThreadsAdapter (Threads, F4 paso 5)', () => {
     expect(results[0].error).toContain('IG_ACCESS_TOKEN');
     expect(results[1].error).toContain('THREADS_ACCESS_TOKEN');
     expect(results[2].error).toContain('X_ACCESS_TOKEN');
+  });
+});
+
+describe('createLinkedInAdapter (LinkedIn Marketing API, F4 paso 9)', () => {
+  const LI_TOKEN = 'li-token-1';
+  const LI_AUTHOR = 'urn:li:organization:12345678';
+  const MP4 = Buffer.from('fake-mp4-for-linkedin');
+
+  function liFetchMock(calls: string[], failStep?: 'register' | 'upload' | 'ugc') {
+    return stubFetch([
+      {
+        match: (url, init) => url.includes('/rest/assets?action=registerUpload'),
+        respond: () => {
+          calls.push('register');
+          if (failStep === 'register') return jsonResponse(400, { error: { message: 'invalid owner' } });
+          return jsonResponse(200, {
+            value: {
+              asset: 'urn:li:digitalmediaAsset:C123',
+              uploadMechanism: {
+                'com.linkedin.digitalmedia.uploading.MediaUploadHttpRequest': {
+                  uploadUrl: 'https://dms-uploads.linkedin.com/uploadedVideo/0',
+                  headers: { 'media-type-family': 'VIDEO' },
+                },
+              },
+            },
+          });
+        },
+      },
+      {
+        match: (url, init) => url.includes('dms-uploads.linkedin.com') && init.method === 'PUT',
+        respond: () => {
+          calls.push('upload');
+          if (failStep === 'upload') return jsonResponse(500, {});
+          return jsonResponse(201, {});
+        },
+      },
+      {
+        match: (url, init) => url.includes('/v2/ugcPosts'),
+        respond: () => {
+          calls.push('ugc');
+          if (failStep === 'ugc') return jsonResponse(400, { error: { message: 'ugc failed' } });
+          return new Response(null, {
+            status: 201,
+            headers: { 'x-restli-id': 'urn:li:ugcPost:987654321', 'content-type': 'application/json' },
+          });
+        },
+      },
+      { match: () => true, respond: () => jsonResponse(500, {}) },
+    ]);
+  }
+
+  it('validate: sin token → ok:false con razón clara', async () => {
+    const v = await createLinkedInAdapter().validate();
+    expect(v.ok).toBe(false);
+    expect(v.reason).toContain('LINKEDIN_ACCESS_TOKEN');
+  });
+
+  it('validate: con token pero sin author URN → ok:false', async () => {
+    const v = await createLinkedInAdapter({ accessToken: LI_TOKEN }).validate();
+    expect(v.ok).toBe(false);
+    expect(v.reason).toContain('LINKEDIN_AUTHOR_URN');
+  });
+
+  it('validate: con token + author URN → ok:true', async () => {
+    const v = await createLinkedInAdapter({ accessToken: LI_TOKEN, authorUrn: LI_AUTHOR }).validate();
+    expect(v.ok).toBe(true);
+  });
+
+  it('flujo feliz: registerUpload → PUT → ugcPosts → id + url', async () => {
+    const calls: string[] = [];
+    const adapter = createLinkedInAdapter({ accessToken: LI_TOKEN, authorUrn: LI_AUTHOR, fetchFn: liFetchMock(calls) });
+    const res = await adapter.publish({ videoBuffer: MP4, metadata: { title: 'Video LinkedIn', description: 'Desc' } });
+    expect(res.ok).toBe(true);
+    expect(res.id).toBe('urn:li:ugcPost:987654321');
+    expect(res.url).toBe('https://www.linkedin.com/feed/update/urn%3Ali%3AugcPost%3A987654321/');
+    expect(calls).toEqual(['register', 'upload', 'ugc']);
+  });
+
+  it('registerUpload falla → ok:false con HTTP y mensaje', async () => {
+    const adapter = createLinkedInAdapter({ accessToken: LI_TOKEN, authorUrn: LI_AUTHOR, fetchFn: liFetchMock([], 'register') });
+    const res = await adapter.publish({ videoBuffer: MP4 });
+    expect(res.ok).toBe(false);
+    expect(res.error).toContain('HTTP 400');
+    expect(res.error).toContain('invalid owner');
+  });
+
+  it('upload PUT falla → ok:false con HTTP', async () => {
+    const adapter = createLinkedInAdapter({ accessToken: LI_TOKEN, authorUrn: LI_AUTHOR, fetchFn: liFetchMock([], 'upload') });
+    const res = await adapter.publish({ videoBuffer: MP4 });
+    expect(res.ok).toBe(false);
+    expect(res.error).toContain('LinkedIn upload falló: HTTP 500');
+  });
+
+  it('ugcPosts falla → ok:false con HTTP', async () => {
+    const adapter = createLinkedInAdapter({ accessToken: LI_TOKEN, authorUrn: LI_AUTHOR, fetchFn: liFetchMock([], 'ugc') });
+    const res = await adapter.publish({ videoBuffer: MP4 });
+    expect(res.ok).toBe(false);
+    expect(res.error).toContain('LinkedIn ugcPosts falló: HTTP 400');
+  });
+
+  it('sin video → ok:false con razón (fail-soft)', async () => {
+    const adapter = createLinkedInAdapter({ accessToken: LI_TOKEN, authorUrn: LI_AUTHOR });
+    const res = await adapter.publish({});
+    expect(res.ok).toBe(false);
+    expect(res.error).toContain('No se pudo leer el video');
+  });
+
+  it('commentary truncado a 3000 chars', async () => {
+    let capturedUgcBody = '';
+    const adapter = createLinkedInAdapter({
+      accessToken: LI_TOKEN,
+      authorUrn: LI_AUTHOR,
+      fetchFn: stubFetch([
+        {
+          match: (url) => url.includes('/rest/assets?action=registerUpload'),
+          respond: () =>
+            jsonResponse(200, {
+              value: {
+                asset: 'urn:li:digitalmediaAsset:C123',
+                uploadMechanism: {
+                  'com.linkedin.digitalmedia.uploading.MediaUploadHttpRequest': {
+                    uploadUrl: 'https://dms-uploads.linkedin.com/uploadedVideo/0',
+                    headers: { 'media-type-family': 'VIDEO' },
+                  },
+                },
+              },
+            }),
+        },
+        { match: (url) => url.includes('dms-uploads.linkedin.com'), respond: () => jsonResponse(201, {}) },
+        {
+          match: (url, init) => {
+            if (url.includes('/v2/ugcPosts')) {
+              capturedUgcBody = String(init.body);
+              return true;
+            }
+            return false;
+          },
+          respond: () => new Response(null, { status: 201, headers: { 'x-restli-id': 'urn:li:ugcPost:987' } }),
+        },
+        { match: () => true, respond: () => jsonResponse(500, {}) },
+      ]),
+    });
+    const longTitle = 'T'.repeat(200);
+    const longDesc = 'D'.repeat(3000);
+    await adapter.publish({ videoBuffer: MP4, metadata: { title: longTitle, description: longDesc } });
+    const ugcJson = JSON.parse(capturedUgcBody);
+    const commentary = ugcJson.specificContent['com.linkedin.ugc.ShareContent'].shareCommentary.text;
+    expect(commentary.length).toBeLessThanOrEqual(3000);
+  });
+
+  it('publishToAll con LinkedIn sin token → fail-soft razonado', async () => {
+    const results = await publishToAll([createLinkedInAdapter(), createXAdapter()], { videoBuffer: MP4 });
+    expect(results).toHaveLength(2);
+    expect(results.every((r) => r.ok === false)).toBe(true);
+    expect(results[0].error).toContain('LINKEDIN_ACCESS_TOKEN');
+    expect(results[1].error).toContain('X_ACCESS_TOKEN');
+  });
+
+  it('createDefaultPublishers({ includeLinkedIn: true }): 3 adapters', () => {
+    const adapters = createDefaultPublishers({ includeLinkedIn: true });
+    expect(adapters.map((a) => a.platform).sort()).toEqual(['linkedin', 'tiktok', 'youtube']);
+  });
+
+  it('createDefaultPublishers({ includeX: true, includeMeta: true, includeTelegram: true, includeDiscord: true, includeSlack: true, includeLinkedIn: true }): 9 adapters', () => {
+    const adapters = createDefaultPublishers({ includeX: true, includeMeta: true, includeTelegram: true, includeDiscord: true, includeSlack: true, includeLinkedIn: true });
+    expect(adapters.map((a) => a.platform).sort()).toEqual(['discord', 'instagram', 'linkedin', 'slack', 'telegram', 'threads', 'tiktok', 'x', 'youtube']);
   });
 });

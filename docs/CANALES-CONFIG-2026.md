@@ -16,6 +16,7 @@
 | Threads | `THREADS_ACCESS_TOKEN` + `THREADS_USER_ID` | gratis (negocio propio) | Meta Graph API v1.0 |
 | Telegram | `TELEGRAM_BOT_TOKEN` + `TELEGRAM_CHAT_ID` | **GRATIS total** | @BotFather → nuevo bot → token; chat: `getUpdates` o canal |
 | Discord | `DISCORD_WEBHOOK_URL` | gratis | Canal → Ajustes → Integraciones → Webhooks → Nuevo |
+| LinkedIn | `LINKEDIN_ACCESS_TOKEN` + `LINKEDIN_AUTHOR_URN` | gratis (empresa propia) | LinkedIn Developer Portal → App → Marketing API, scopes `rw_organization_admin` o `w_member_social` |
 | Slack | `SLACK_BOT_TOKEN` + `SLACK_CHANNEL` | gratis | api.slack.com/apps → OAuth & Permissions → `xoxb-...` |
 
 ## Paso a paso por canal
@@ -69,16 +70,29 @@
    (docs de Meta updated 2026-06-30) — no hace falta app review para eso.
 5. Límites: IG caption ≤2200 chars (container flow REELS), Threads texto ≤500 chars.
 
+### 9. LinkedIn (Marketing API — Assets API + UGC Posts v2)
+1. linkedin.com/developers → **Create App** → selecciona **Marketing Developer Platform**.
+2. En **Auth** → añade **OAuth 2.0 redirect URL** (p.ej. `http://localhost:3000/callback/linkedin`).
+3. **Products** → **Marketing API** → Request access (puede requerir aprobación de LinkedIn).
+   Scopes necesarios: `rw_organization_admin` (para páginas de empresa) o `w_member_social` (perfil personal).
+4. Completa el flujo OAuth2 → `LINKEDIN_ACCESS_TOKEN`.
+5. `LINKEDIN_AUTHOR_URN`:
+   - Perfil personal: `urn:li:person:{id}` (obtener con `/v2/me`).
+   - Página de empresa: `urn:li:organization:{id}` (obtener con `/v2/organizationalEntityAcls?q=roleAssignee&role=ADMINISTRATOR`).
+6. Límites: video MP4 ≤5GB, ≤10 min. Token expira ~60 días (refresh no implementado).
+7. Verificado 18/08/2026: Marketing API v202607 — Assets API (registerUpload + PUT) + UGC Posts (v2/ugcPosts).
+   El adapter usa `SYNCHRONOUS_UPLOAD` (archivos <200MB en una sola subida; para >200MB requeriría MULTIPART_UPLOAD).
+
 ## Cómo probar un canal sin tocar código
 
 La cola + la tool están disponibles vía:
 - **API**: `POST /api/publications` con `{paquete, canal}` (canales válidos:
-  `youtube_shorts | tiktok | instagram | blog | telegram | discord | slack`) → video = DRAFT
+  `youtube_shorts | tiktok | instagram | blog | telegram | discord | slack | linkedin`) → video = DRAFT
   con aprobación humana; luego `POST /api/publications/[id]/approve` y el calendario
   (`POST /api/publications/publish-due`) lo publica.
 - **Tool de agente**: `publish_submit` con `toYoutube/toTiktok/toX/toInstagram/toThreads/
-  toTelegram/toDiscord/toSlack` — devuelve un resultado por plataforma; si una no está
-  configurada, `ok:false` con la razón exacta (p.ej. `DISCORD_WEBHOOK_URL no configurado`).
+  toTelegram/toDiscord/toSlack/toLinkedIn` — devuelve un resultado por plataforma; si una no está
+  configurada, `ok:false` con la razón exacta (p.ej. `LINKEDIN_ACCESS_TOKEN no configurado`).
 - **Prueba rápida de un adapter aislado** (Node):
 
 ```js
@@ -92,12 +106,11 @@ console.log(res); // { platform: 'discord', ok: true, url: ... }
 ## Regla de aprobación humana (recordatorio)
 
 La cola `Publication` auto-aprueba solo **texto/blog**; los canales de video
-(`youtube_shorts`, `tiktok`, `instagram`, `telegram`, `discord`, `slack`) quedan **DRAFT**
+(`youtube_shorts`, `tiktok`, `instagram`, `telegram`, `discord`, `slack`, `linkedin`) quedan **DRAFT**
 hasta aprobación humana (`POST /api/publications/[id]/approve`, ADMIN o creador) — decisión
 del usuario 15/08/2026 (textos auto; video/imagen por paquete).
 
 ## Pendientes documentados
 
-- LinkedIn: pendiente de verificar API gratis (CLOUD-FREE-2026.md).
 - X Free tier: 17 posts/24h por app — programar con el calendario teniéndolo en cuenta.
 - YouTube OAuth refresh: para producción real implementar refresh flow (hoy token directo).

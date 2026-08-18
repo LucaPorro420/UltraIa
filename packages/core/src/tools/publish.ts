@@ -21,7 +21,7 @@ export interface PublishMetadata {
   privacyStatus: 'public' | 'private' | 'unlisted';
 }
 
-export type PublishPlatform = 'youtube' | 'tiktok' | 'x' | 'instagram' | 'threads' | 'telegram' | 'discord' | 'slack';
+export type PublishPlatform = 'youtube' | 'tiktok' | 'x' | 'instagram' | 'threads' | 'telegram' | 'discord' | 'slack' | 'linkedin';
 
 export interface PublishInput {
   /** Ruta del MP4 final (9:16, <60s). */
@@ -69,6 +69,13 @@ export const IG_MEDIA_URL = 'https://graph.instagram.com/v21.0';
 export const THREADS_MEDIA_URL = 'https://graph.threads.net/v1.0';
 /** Límite de chunk del media upload de X: 5 MiB por APPEND. */
 export const X_CHUNK_BYTES = 5 * 1024 * 1024;
+
+/** LinkedIn API endpoints (Assets API + UGC Posts). */
+export const LINKEDIN_ASSETS_URL = 'https://api.linkedin.com/rest/assets?action=registerUpload';
+export const LINKEDIN_UGCP_URL = 'https://api.linkedin.com/v2/ugcPosts';
+
+/** Receta para video feedshare (LinkedIn). */
+export const LINKEDIN_VIDEO_RECIPE = 'urn:li:digitalmediaRecipe:feedshare-video';
 
 /** Cuerpo form-urlencoded para las llamadas Graph API de Meta (sin deps). */
 export function formBody(params: Record<string, string>): string {
@@ -524,6 +531,129 @@ export function createThreadsAdapter(options: ThreadsAdapterOptions = {}): Publi
   };
 }
 
+// ------------------------------------------------------------------- LinkedIn
+
+export interface LinkedInAdapterOptions {
+  accessToken?: string;
+  /** URN del autor: organization (urn:li:organization:{id}) o person (urn:li:person:{id}). */
+  authorUrn?: string;
+  fetchFn?: typeof fetch;
+  /** Default: env LINKEDIN_ACCESS_TOKEN. */
+  tokenFromEnv?: () => string | undefined;
+  /** Default: env LINKEDIN_AUTHOR_URN (organization o person). */
+  authorUrnFromEnv?: () => string | undefined;
+}
+
+/**
+ * QUÉ ES: adapter LinkedIn vía Assets API (registerUpload) + UGC Posts (v2/ugcPosts).
+ * PARA QUÉ: AutoPub F4 — canal LinkedIn (requiere App Review + scopes w_member_social / rw_organization_admin).
+ * POR QUÉ: mismo patrón fail-soft/fetch inyectable que YouTube/TikTok/X/Meta.
+ * Flujo: registerUpload (asset URN) → PUT uploadUrl → ugcPosts create con asset.
+ * Video: MP4, ≤5GB, ≤10 min. Token expira ~60 días (refresh no implementado).
+ */
+export function createLinkedInAdapter(options: LinkedInAdapterOptions = {}): PublisherAdapter {
+  const token = () => options.accessToken ?? options.tokenFromEnv?.() ?? process.env.LINKEDIN_ACCESS_TOKEN;
+  const authorUrn = () => options.authorUrn ?? options.authorUrnFromEnv?.() ?? process.env.LINKEDIN_AUTHOR_URN;
+  const fetchFn = options.fetchFn ?? globalThis.fetch;
+
+  return {
+    platform: 'linkedin',
+    async validate() {
+      if (!token()) return { ok: false, reason: 'LINKEDIN_ACCESS_TOKEN no configurado' };
+      if (!authorUrn()) return { ok: false, reason: 'LINKEDIN_AUTHOR_URN no configurado (urn:li:organization:... o urn:li:person:...)' };
+      return { ok: true };
+    },
+    async publish(input) {
+      const accessToken = token();
+      const author = authorUrn();
+      if (!accessToken) return { platform: 'linkedin', ok: false, error: 'LINKEDIN_ACCESS_TOKEN no configurado' };
+      if (!author) return { platform: 'linkedin', ok: false, error: 'LINKEDIN_AUTHOR_URN no configurado' };
+      const bytes = await videoBytes(input);
+      if (!bytes) return { platform: 'linkedin', ok: false, error: 'No se pudo leer el video (videoPath o videoBuffer requerido)' };
+      const meta = mergedMetadata(input);
+      const commentary = `${meta.title}\n\n${meta.description}`.slice(0, 3000);
+      try {
+        // Paso 1: registerUpload -> asset URN + uploadUrl
+        const reg = await fetchFn(LINKEDIN_ASSETS_URL, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+            'X-Restli-Protocol-Version': '2.0.0',
+            'Linkedin-Version': '202607',
+          },
+          body: JSON.stringify({
+            registerUploadRequest: {
+              owner: author,
+              recipes: [LINKEDIN_VIDEO_RECIPE],
+              serviceRelationships: [{ identifier: 'urn:li:userGeneratedContent', relationshipType: 'OWNER' }],
+              supportedUploadMechanism: ['SYNCHRONOUS_UPLOAD'],
+            },
+          }),
+        });
+        const regData = (await reg.json().catch(() => ({}))) as {
+          value?: {
+            asset?: string;
+            uploadMechanism?: {
+              'com.linkedin.digitalmedia.uploading.MediaUploadHttpRequest'?: { uploadUrl?: string; headers?: Record<string, string> };
+            };
+          };
+          error?: { message?: string };
+        };
+        if (!reg.ok || !regData.value?.asset || !regData.value?.uploadMechanism?.['com.linkedin.digitalmedia.uploading.MediaUploadHttpRequest']?.uploadUrl) {
+          return { platform: 'linkedin', ok: false, error: `LinkedIn registerUpload falló: HTTP ${reg.status} (${regData.error?.message || 'sin asset/uploadUrl'})` };
+        }
+        const assetUrn = regData.value.asset;
+        const uploadUrl = regData.value.uploadMechanism['com.linkedin.digitalmedia.uploading.MediaUploadHttpRequest'].uploadUrl;
+        const uploadHeaders = regData.value.uploadMechanism['com.linkedin.digitalmedia.uploading.MediaUploadHttpRequest'].headers || {};
+
+        // Paso 2: subir video al uploadUrl (PUT binario, SIN Authorization header)
+        const up = await fetchFn(uploadUrl, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'video/mp4',
+            'Content-Length': String(bytes.length),
+            ...uploadHeaders,
+          },
+          body: new Uint8Array(bytes),
+        });
+        if (!up.ok && up.status !== 201) {
+          return { platform: 'linkedin', ok: false, error: `LinkedIn upload falló: HTTP ${up.status}` };
+        }
+
+        // Paso 3: crear UGC Post con el asset
+        const ugc = await fetchFn(LINKEDIN_UGCP_URL, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+            'X-Restli-Protocol-Version': '2.0.0',
+          },
+          body: JSON.stringify({
+            author,
+            lifecycleState: 'PUBLISHED',
+            specificContent: {
+              'com.linkedin.ugc.ShareContent': {
+                shareCommentary: { text: commentary },
+                shareMediaCategory: 'VIDEO',
+                media: [{ status: 'READY', media: assetUrn, title: { text: meta.title.slice(0, 200) } }],
+              },
+            },
+            visibility: { 'com.linkedin.ugc.MemberNetworkVisibility': 'PUBLIC' },
+          }),
+        });
+        const ugcId = ugc.headers.get('x-restli-id');
+        if (!ugc.ok || !ugcId) {
+          return { platform: 'linkedin', ok: false, error: `LinkedIn ugcPosts falló: HTTP ${ugc.status}` };
+        }
+        return { platform: 'linkedin', ok: true, id: ugcId, url: `https://www.linkedin.com/feed/update/${encodeURIComponent(ugcId)}/` };
+      } catch (err) {
+        return { platform: 'linkedin', ok: false, error: `LinkedIn error: ${(err as Error).message}` };
+      }
+    },
+  };
+}
+
 // ------------------------------------------------------------------- helpers
 
 /** Corre todos los adapters sobre el mismo input y agrega resultados. */
@@ -540,16 +670,17 @@ export async function publishToAll(adapters: PublisherAdapter[], input: PublishI
   return results;
 }
 
-/** Crea los adaptadores por defecto (YT + TikTok; opcionalmente X — canal F4 paso 4 — y Meta IG/Threads — paso 5 — y Telegram — paso 6 — y Discord/Slack — paso 7).
-// includeX/includeMeta/includeTelegram/includeDiscord/includeSlack=false por defecto para no cambiar el comportamiento de las colas existentes. */
-export function createDefaultPublishers(opts: { includeX?: boolean; includeMeta?: boolean; includeTelegram?: boolean; includeDiscord?: boolean; includeSlack?: boolean } = {}): PublisherAdapter[] {
+/** Crea los adaptadores por defecto (YT + TikTok; opcionalmente X — canal F4 paso 4 — y Meta IG/Threads — paso 5 — y Telegram — paso 6 — y Discord/Slack — paso 7 — y LinkedIn — paso 8).
+// includeX/includeMeta/includeTelegram/includeDiscord/includeSlack/includeLinkedIn=false por defecto para no cambiar el comportamiento de las colas existentes. */
+export function createDefaultPublishers(opts: { includeX?: boolean; includeMeta?: boolean; includeTelegram?: boolean; includeDiscord?: boolean; includeSlack?: boolean; includeLinkedIn?: boolean } = {}): PublisherAdapter[] {
   const base = [createYouTubeAdapter(), createTikTokAdapter()];
   if (opts.includeX) base.push(createXAdapter());
   if (opts.includeMeta) base.push(createInstagramAdapter(), createThreadsAdapter());
   if (opts.includeTelegram) base.push(createTelegramAdapter());
   if (opts.includeDiscord) base.push(createDiscordAdapter());
   if (opts.includeSlack) base.push(createSlackAdapter());
+  if (opts.includeLinkedIn) base.push(createLinkedInAdapter());
   return base;
 }
 
-export const publish = { createYouTubeAdapter, createTikTokAdapter, createXAdapter, createInstagramAdapter, createThreadsAdapter, createTelegramAdapter, createDiscordAdapter, createSlackAdapter, createDefaultPublishers, publishToAll, buildBilingualMetadata, buildXPostText, xAppendMultipartBody, formBody, IG_MEDIA_URL, THREADS_MEDIA_URL };
+export const publish = { createYouTubeAdapter, createTikTokAdapter, createXAdapter, createInstagramAdapter, createThreadsAdapter, createTelegramAdapter, createDiscordAdapter, createSlackAdapter, createLinkedInAdapter, createDefaultPublishers, publishToAll, buildBilingualMetadata, buildXPostText, xAppendMultipartBody, formBody, IG_MEDIA_URL, THREADS_MEDIA_URL, LINKEDIN_ASSETS_URL, LINKEDIN_UGCP_URL, LINKEDIN_VIDEO_RECIPE };

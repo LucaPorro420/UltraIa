@@ -519,8 +519,9 @@ export function chatStream(opts: {
         toTelegram: z.boolean().optional(),
         toDiscord: z.boolean().optional(),
         toSlack: z.boolean().optional(),
+        toLinkedIn: z.boolean().optional(),
       }),
-      execute: async ({ videoPath, title, plainScript, privacyStatus, toYoutube, toTiktok, toX, toInstagram, toThreads, toTelegram, toDiscord, toSlack }) => {
+      execute: async ({ videoPath, title, plainScript, privacyStatus, toYoutube, toTiktok, toX, toInstagram, toThreads, toTelegram, toDiscord, toSlack, toLinkedIn }) => {
         const metadata = { ...buildBilingualMetadata(title, plainScript), ...(privacyStatus ? { privacyStatus } : {}) };
         const adapters = createDefaultPublishers({ includeX: true, includeMeta: true, includeTelegram: true, includeDiscord: true, includeSlack: true });
         const selected = adapters.filter((a) => {
@@ -541,6 +542,8 @@ export function chatStream(opts: {
               return toDiscord !== false;
             case 'slack':
               return toSlack !== false;
+            case 'linkedin':
+              return toLinkedIn !== false;
             default:
               return true;
           }
