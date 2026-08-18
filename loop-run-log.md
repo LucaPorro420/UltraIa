@@ -1853,3 +1853,18 @@ ormalizeTitle() (lower + strip non-alnum), dedupe() (bigram overlap > 0.6),
   bloqueo preexistente desde memory-fs (15/08) - el ultimo smoke dev con exito fue 14/08.
   PENDIENTE: QA runtime de /metrics (login admin + asserts) requiere un dev server estable
   (ejecutar cuando la sesion #25 no este editando). Sin push hasta confirmar.
+
+### Iteracion 47 - Movil E2E + EAS build (18/08/2026) - DONE
+
+- **P**: plan loop-47-movil-e2e-eas.md — E2E de la API REST móvil + EAS build config.
+- **I**: dev server levantado con start.py (Ready 35s); E2E completo:
+  - Auth REST: register 201 / login token / me 200 (header x-ultraia-session OK)
+  - Publications 200 / Blog 200 / Cloud status 200 (tras fix cloud/status + cloud/upload:
+    ambos ignoraban el header -> 401 en móvil; fix: pasar eq a getCurrentUser)
+  - Metrics 403 = correcto para usuario no-admin (ADMIN-only por diseño).
+- **Mobile validation**: tsc EXIT 0 + expo-doctor 20/21 (duplicacion react intencional)
+  + expo export --platform web EXIT 0 (6 rutas: login/register/tabs/publicaciones/cloud/blog).
+- **EAS**: pps/mobile/eas.json (3 perfiles: development/preview/production; cli.appVersionSource=local; Android APK/AAB). docs/MOBILE.md seccion EAS actualizada con comandos exactos.
+- **V**: gates FULL verdes (typecheck 0, lint 0, test 193/193 runtime, build 43 paginas; 3 test files #25 cuarentenados y restaurados).
+- **Commit**: be59967 + push dec409a..be59967.
+- **R**: Iteracion 48 (repomix) YA HECHA en 46-F2. Siguiente: 49 LinkedIn adapter, 50 Desktop WebView2, 51 codevfx -> OMAG.
