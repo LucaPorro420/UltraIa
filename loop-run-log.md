@@ -1877,3 +1877,19 @@ ormalizeTitle() (lower + strip non-alnum), dedupe() (bigram overlap > 0.6),
 - **V**: gates FULL verdes (typecheck 0, lint 0, test 193/193 runtime, build 43 paginas; 3 test files #25 cuarentenados).
 - **Commit**: c9cc080 + push e769223..c9cc080.
 - **R**: AutoPub F4 canales COMPLETA (YT/TikTok/X/IG/Threads/Telegram/Discord/Slack/LinkedIn = 9/9). Siguiente: 50 Desktop WebView2, 51 codevfx -> OMAG.
+
+### Iteracion 50 - Desktop WebView2 (Fase D paso 3) (18/08/2026) - DONE
+
+- **P**: plan loop-50-desktop-webview2.md — validar ventana WebView2 nativa (paso 3 del spike
+  Fase D), medir RAM/bundle reales, docs.
+- **I**: --host-check (launcher mantiene proxy vivo) ? exit 0, WebView2 151.0.4129.86 OK.
+  Launcher normal ? ventana WebView2 nativa visible (webview2-host.exe C# WinForms), dashboard
+  Dark Obsidian carga, health checks verdes. Bundle: dist 12.2 MB + vendor 1.5 MB + host.exe
+  7.5 KB ˜ 13.7 MB. RAM: host 33 MB + proxy Node 78 MB = 111 MB total (muy por debajo de
+  Electron/Tauri).
+- **Docs**: SHELL_DECISION.md (cifras reales), launcher/README.md (guía completa con medidas,
+  flags --host-check, --web-dir, modo prototipo).
+- **V**: gates FULL verdes (typecheck 0, lint 0, test 193/193 runtime, build 43 paginas; 3 test
+  files #25 cuarentenados).
+- **Commit**: f7df3d0 + push d48544a..f7df3d0.
+- **R**: Fase D MVP WebView2 COMPLETA. Upgrade path Tauri 2 documentado. Siguiente: 51 codevfx -> OMAG.
