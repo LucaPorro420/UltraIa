@@ -2018,3 +2018,13 @@ de código, sin commit.
 - **[V] docs-only**: sin .ts tocados (precedente loop-44); UTF-8 via tool Write/Edit; state-integrity: STATE.md sin filas fuera de tabla ni IDs duplicados (renumeracion 36b/41b documentada).
 - **[R] DONE** - commit docs (fuente + razonamiento + STATE.md + run-log + LEARNINGS + plan file). Siguiente: 57 harness ultraia-request.
 
+
+### Iteracion 57 - Harness skill ultraia-request (18/08/2026, sesion principal, 3 pasadas)
+
+- **[P] Sensado**: gaps Bloque B 13/21/22/25/31 (docs/RAZONAMIENTO-FUNDAMENTOS-PROGRAMACION.md L69): prioridades P0-P5, presupuesto de tiempo, plantilla 13 campos, fases IA explicitas, config declarativa de loop. Estado: loop-piv/loop-budget leidos; espejos raiz skills/ existen (sync iter-54).
+- **[I] C1 (base)**: .opencode/skills/ultraia-request/SKILL.md (plantilla 13 campos ROLE->METRICA/TARGET + config loop JSON OBJETIVO/METRICA/TARGET/RESTRICCIONES/LOOP/STOP/FAILURE + bucle IA 4 fases Sensado/Razonamiento/Accion/Ajuste con reglas max-3-reintentos/target/umbral + tabla prioridades P0-P5 + ejemplo real ciclo 56) + plantilla loop-piv ampliada (RECURSOS/PRESUPUESTO, NO-hacer, TOLERANCIAS, prioridad en titulo, patron/presupuesto en cabecera) + loop-budget con tiempo (Max time/day 6h PIVR / 30min triage, early-exit 80% report-only / 100% parar, campo time_cap_s en JSON).
+- **[I] C2 (ajuste)**: espejos raiz sync por hash (loop-piv + loop-budget: Get-FileHash identicos); grep de refs ultraia-request: skill nuevo + loop-piv (2 copias) + plan + docs — sin colisiones; frontmatter valido (name/description/user_invocable); git diff --check limpio (solo warnings LF/CRLF normales).
+- **[I] C3 (consolidacion)**: fila 57 STATE.md DONE (verificado antes con git diff que r55 NO toco STATE.md desde 7044f3a) + leccion LEARNINGS + bitacora.
+- **[V] docs-only**: sin .ts tocados (precedente loop-44); verificado contenido + UTF-8; espejos hash-identicos; commit con pathspec explicito (leccion ciclo 56: commit sin pathspec arrastra el index de #25).
+- **[R] DONE** - commit 1f7c4c4 (feat harness) + este chore bitacora. Siguiente: 58 capability sdf.
+
