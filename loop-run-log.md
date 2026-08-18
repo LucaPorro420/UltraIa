@@ -1613,3 +1613,29 @@ ormalizeTitle() (lower + strip non-alnum), dedupe() (bigram overlap > 0.6),
   Commit 79e3436. Siguientes: adapters discord/slack, FULL gates (bloqueado por #25).
   Sin push (aprobacion humana). NOTA: hook doc-reminder anoto 5 archivos en DOCS_TODO.md
   (archivo de la sesion concurrente, no tocado).
+
+### Iteracion 40 - F5 analytics reales por API de canal (17/08/2026) - DONE
+
+- El numero 39 lo uso la sesion concurrente (canal telegram en la cola, 79e3436) -> esta
+  iteracion es la 40; plan file RENOMBRADO loop-39 -> loop-40-metrics-analytics.md (git mv).
+- **P**: pendiente F5 "analytics reales por API de canal" (la promocion via signals ya la
+  cerro growth). Keyless-first: YouTube Data API v3 gratis; tiktok/x/ig/threads/telegram
+  fail-soft con razon.
+- **I**: `tools/metrics.ts` -> `fetchChannelAnalytics` (fetch inyectable, apiKeys/env;
+  youtube channels/statistics parsea strings->int, hiddenSubscriberCount defensivo;
+  tiktok Research aprobacion / x OAuth2 / IG-Threads token / telegram bot admin -> fail-soft)
+  + `mergeAnalyticsIntoKpis` (platform->canal de la cola: youtube->youtube_shorts,
+  tiktok->tiktok, instagram->instagram, telegram->telegram; x/threads->null skip; campos
+  opcionales vistasReales/likesReales/comentariosReales/compartidosReales en CanalKpis) +
+  tool `publication_metrics` accion 'analytics' (platform+channelId) en llm.ts (estaba
+  limpio) + descriptor metrics en index.ts.
+- **V**: vitest 17/17 (5 previos + 12 nuevos: 6 youtube + 4 fail-soft + 3 merge) + tsc
+  parcial 0 propios (solo ruido AJENO: publications.ts discord/slack #39 concurrente,
+  enrutador.ts telegram, reach.ts #25) + eslint EXIT 0. Fix propio: CanalKpis sin los
+  campos reales (TS2339 en tests) -> anadidos.
+- **R**: YouTube analitica REAL operativa con YOUTUBE_API_KEY; resto documentado fail-soft.
+  Commit 5afe2f7 (5 archivos: metrics.ts/test, llm.ts, index.ts, plan loop-40).
+  FULL gates pendiente (arbol con #25 + WIP publications.ts concurrente).
+  Bloqueo nuevo: enlaces.txt linea 807 (Facebook share) = video registered-users-only
+  (escalado a High Priority, requiere accion humana: pegar contenido o cookies).
+  Sin push (aprobacion humana).

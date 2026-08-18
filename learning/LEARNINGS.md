@@ -201,3 +201,18 @@ Implementacion: capability vfx (tools/vfx.ts: planReframe / planUpscale / planLu
 - TikTok + yt-dlp (17/08/2026): los subtitulos auto (eng-US) se descargan SIN el video cuando la rehydration falla por impersonation -> transcript-only es viable para analisis de contenido (source cruda sin frames).
 - Codigo muerto detectado por TEST: la rama "aspecto no alcanzable" de planReframe era inalcanzable por construccion (w <= width siempre) — un test con targetRatio 2:1 lo revelo; eliminada.
 - Verificacion: la pagina oficial + AlphaSignal confirman las 7 tools y precios; el dato "Studio requerido" es contradictorio entre fuentes (agentbaltic vs alphasignal) -> marcado como ambiguo, no inventado.
+
+## F5 analytics reales — metrics.ts (17/08/2026, iteracion 40, VERIFICADO 17/17)
+
+- YouTube Data API v3 `channels/statistics` es GRATIS con YOUTUBE_API_KEY (cuota 10k/day);
+  los numeros vienen como STRINGS -> parsear; `hiddenSubscriberCount=true` omite
+  subscriberCount (parse defensivo, no fallar).
+- Keyless-first para analytics: plataformas sin token gratis (TikTok Research = aprobacion
+  humana, X v2 = OAuth2 user, IG/Threads = token Graph, Telegram = bot admin) -> fail-soft
+  con Razon clara en el resultado, nunca inventar numeros (patron publish.ts).
+- Mapeo platform->canal de la cola es una decision de dominio (youtube_shorts/tiktok/
+  instagram/telegram; x/threads no tienen canal en la cola -> null, skip en merge).
+- fetch inyectable + apiKeys inyectables en options: CERO llamadas reales en tests.
+- Numeracion de iteraciones: la sesion concurrente reuso el 39 (telegram cola) -> verificar
+  `git log` y el run-log ANTES de numerar una iteracion; renombrar plan con `git mv`
+  (nunca amend).
