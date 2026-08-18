@@ -237,6 +237,19 @@ Implementacion: capability vfx (tools/vfx.ts: planReframe / planUpscale / planLu
   commit 8ae11bf uso `git commit <paths>` con pathspec para NO llevarme lo suyo). Regla:
   `git commit <paths>` (pathspec) SIEMPRE que el index tenga staging ajeno; verificar
   `git diff --cached` antes de commitear.
+- INSTRUMENTATION = RUNTIME DOBLE (18/08, iteracion 48): Next compila `instrumentation.ts`
+  para nodejs Y edge aunque solo se exporte register(). Los imports ESTATICOS de codigo con
+  node builtins (como @ultraia/core) rompen el dev server: UnhandledSchemeError en edge
+  (Turbopack no maneja node: scheme ahi; el hook webpack() con resolve.fallback se IGNORA
+  en dev - Next 15.3 usa Turbopack). FIX oficial: `await import()` condicionado por
+  `process.env.NEXT_RUNTIME === 'nodejs'` DENTRO de register(). Diagnostico descartado:
+  transpilePackages (turbopack transpila workspace packages automaticamente) y bare
+  specifiers (fs/promises vs node:fs/promises) - el estilo node:* del core es correcto
+  para server.
+- "Attempted import error: X is not exported" de Turbopack con archivos que SI exportan X:
+  casi siempre es una EDICION A MITAD DE COMPILACION (otra sesion escribiendo el archivo);
+  el import trace muestra el archivo raiz y el error desaparece solo. Esperar/reejecutar
+  antes de tocar nada.
 - Raza de bitacora REAL (17/08, iteracion 41): la sesion concurrente commiteo
   "adapters Discord + Slack (iteracion 41)" (bef1fc0) mientras yo editaba el run-log y
   absorbio MI seccion "Iteracion 41 - Endpoint metrics" en SU commit -> mi chore 0412fe4

@@ -1797,7 +1797,7 @@ ormalizeTitle() (lower + strip non-alnum), dedupe() (bigram overlap > 0.6),
 
 ### Iteracion 46 - Ronda de consolidacion + push + travel (18/08/2026) - DONE (parcial: sub-items futuros)
 
-- **P**: plan maestro aprobado (decisión usuario 18/08): push directo a master ahora; PR draft
+- **P**: plan maestro aprobado (decisiï¿½n usuario 18/08): push directo a master ahora; PR draft
   para features grandes en adelante. Ronda F1-F6: fix BodyInit + push historico, repomix (L825),
   verificacion URLs enlaces.txt (IG/TikTok), capability travel (tomas de paisajes -> videos),
   docs, cierre.
@@ -1830,3 +1830,26 @@ ormalizeTitle() (lower + strip non-alnum), dedupe() (bigram overlap > 0.6),
 ### Iteracion 49 - (futura) LinkedIn adapter
 ### Iteracion 50 - (futura) Desktop WebView2
 ### Iteracion 51 - (futura) codevfx -> OMAG
+
+### Iteracion 48 - Fix instrumentation: dev server desbloqueado (18/08/2026) - DONE
+
+- **P**: el bloqueo de la iteracion 47 (dev server: UnhandledSchemeError node:fs/promises
+  via memory-fs) segia vivo tras el push. Peticion usuario: "continua y apruebo el push".
+- **I**: diagnostico en 3 pasos: (1) el webpack resolve.fallback de next.config.ts NO aplica
+  en dev (Next 15.3 usa TURBOPACK por defecto; el hook webpack() se ignora); (2) transpilePackages
+  no es la causa (quitarlo no cambio nada - turbopack transpila workspace packages solo);
+  (3) CAUSA RAIZ (issue vercel/next.js#61728): el instrumentation.ts se compila y ejecuta en
+  AMBOS runtimes (nodejs Y edge); los imports ESTATICOS de @ultraia/core arrastran node
+  builtins al bundle edge -> UnhandledSchemeError/module-not-found. FIX: `await import()`
+  condicionado por NEXT_RUNTIME dentro de register() (patron oficial; edge compile = funcion
+  vacia sin core). El core permanece con imports node:* (estilo del repo).
+- **V**: 3 boots consecutivos del dev server: "Compiled /instrumentation in 13-25s (491-492
+  modules)" + "Ready" + `GET / 200 in 73s` (primer compile frio 1755 modules). El server es
+  INESTABLE bajo la edicion concurrente #25 (muerte del listener tras 1-2 rutas; error
+  intermedio ajeno "travel is not exported" de tools/index.ts mientras la sesion edita
+  travel.ts a mitad de compile - no es bug estable, la pagina / sirvio 200). Gates scoped:
+  tsc web 0, eslint 0, vitest 85/85 (memory-fs+cloud+enrutador+llm con node:* restaurados).
+- **R**: commits b601ec5+8ae11bf (47) + esta iteracion 48 (instrumentation.ts). Cierra el
+  bloqueo preexistente desde memory-fs (15/08) - el ultimo smoke dev con exito fue 14/08.
+  PENDIENTE: QA runtime de /metrics (login admin + asserts) requiere un dev server estable
+  (ejecutar cuando la sesion #25 no este editando). Sin push hasta confirmar.
