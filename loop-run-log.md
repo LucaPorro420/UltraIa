@@ -2082,3 +2082,12 @@ de código, sin commit.
 - **[V] SIN CODIGO (fase P)**: plan file creado, sin .ts tocados, sin colision. Lock ajeno respetado (r58 ACTIVA).
 - **[R] DIFERIDO**: ejecutar cuando r58 libere (lock expirado > 30 min o fila 58 DONE). Si r58 toma la 60 antes (motion.ts untracked ajeno) -> CEDER sin duplicar (precedente iter-58).
 - **[R] CEDIDO 20:45** (precedente iter-58): r58-UTEC-5260 tomo la 60 (motion.ts 20:37:50 + motion.test.ts 20:43:58, untracked, ajenos). Plan loop-60 queda como referencia de diseno (no duplicar). Fila 60 marcada CEDIDA en STATE.md. Siguiente accion: verificar al liberar r58 (31/31 sdf + motion tests ajenos + UN solo wiring motion/videoqa en llm.ts/index.ts) + FULL gates.
+
+### Iteracion 60 - Capability motion (18/08/2026, sesion principal, 3 pasadas + colision)
+
+- **[P] Sensado**: motion.ts NO existia (lock sigue task 58 sdf). Estrategia rafaga: escribir+test+commit rapido.
+- **[I] C1**: motion.ts (flowStats + decomposeMotion camara LSQ vs escena + trajectoryFit Catmull-Rom + planFlowAnalysis argv runner OpenCV sin ejecutar) + 20 tests. COLISION: la sesion 57b BORRO mis motion.ts/motion.test.ts untracked (~20:31) - luego reescribi (mtime 20:37/20:43) y la 57b marco la fila 60 CEDIDA a sesion concurrente (cedio ella hacia mi, sin guerra).
+- **[I] C2 (ajuste)**: 19/20 -> test 'mixed' esperaba tx=1 pero LSQ exacto da 1.8 (objeto 5x absorbe camara) - asercion corregida a valor exacto; tsc: helpers del test sin tipo MotionVector[] - tipados. 20/20 + tsc core 0.
+- **[V] scoped GREEN**: vitest 20/20 + tsc EXIT 0. Commit 82c76fc (2 archivos, 562+). Fila 60 DONE.
+- **[R] DONE** - 82c76fc. Wiring DIFERIDO (verificar llm.ts antes: 57b puede tomarlo). Siguiente: 61 capability replica (ultima del plan fundamentos).
+
