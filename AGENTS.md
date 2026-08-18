@@ -592,3 +592,42 @@ El usuario deja URLs en `enlaces.txt` (raÃ­z) para que se analicen y se apliquen
   publish.ts/llm.ts/index.ts (su wiring Meta `a223417`); antes, los archivos estaban sucios.
 - Pendiente: canal enum Prisma para programar Telegram por cola; adapters discord/slack;
   TikTok @studioeditionoficial (enlaces.txt 811) â€” pÃ¡gina anti-bot (solo referencia).
+
+## App mÃ³vil + capability codevfx (17/08/2026, loop-45 `f106546` + `b4d7695`)
+
+- **App mÃ³vil Android/iOS (pedido usuario)**: `apps/mobile` â€” Expo SDK 57 (RN 0.86,
+  expo-router, TypeScript), workspace `@ultraia/mobile`, tema Dark Obsidian, token en
+  SecureStore. Cliente de la API REST de apps/web (NO importa `@ultraia/core` â€” Metro no
+  resuelve `node:*`). Pantallas: login/registro, dashboard KPIs, cola publicaciones
+  (aprobar/rechazar), cloud, blog. Correr: `npm run dev` (web) + `npm run mobile` (expo
+  start; QR con Expo Go; base URL auto: `EXPO_PUBLIC_API_URL` o hostUri+3000). GuÃ­a:
+  `docs/MOBILE.md`. Build: EAS free tier (iOS IPA diferido â€” requiere Apple Developer
+  $99/aÃ±o, decisiÃ³n usuario).
+- **Auth REST nuevo en web**: `POST /api/auth/login|register` â†’ `{token, expiresAt, user}`
+  (token opaco `createSession`, TTL 30 dÃ­as) + `GET /api/auth/me`. `getCurrentUser(req?)`
+  en `apps/web/src/lib/server/context.ts` acepta header `x-ultraia-session` (o
+  `Authorization: Bearer`) con fallback cookie `ultraia_session` â†’ TODAS las APIs existentes
+  sirven al mÃ³vil.
+- **npm overrides ELIMINADOS del root** (npm no soporta overrides por workspace; rompÃ­a
+  mobile): apps/web declara `react@19.1.0` exacto, mobile `react@19.2.3` (RN 0.86). react
+  duplicado en el monorepo es INTENCIONAL (expo-doctor lo marca 20/21, ignorar).
+- **Capability codevfx** (patrón Elemental Sandbox VFX — fuente: enlaces.txt Instagram
+  DcJDsghiJne ? repo achrefelouafi/LinearAbiltyCastingThreeJS MIT; análisis
+  docs/RAZONAMIENTO-CODEVFX.md): packages/core/src/tools/codevfx.ts — port ORIGINAL de los
+  PRINCIPIOS (nada de código copiado, attribution header): efectos 100% código sin
+  texturas/sprites/meshes. planEffect(kind, {intensity, speed}) ? 9 kinds (fire/ice/
+  lightning/meteor/beam/ground + void/plasma/frost) con paleta base/acento/energía, física
+  (gravedad/viento/fricción — fuego sube, beam no cae), partículas escaladas por intensidad,
+  GLSL hand-written por kind y hotkeys Q/W/E/R/F/X/V/C/B; colorimetryAnalyze (HSL + calor +
+  coherencia: spread sat =35 y calor =1.2 + dominante por luminancia); curvatureShade (0-1,
+  luz/lightDir); perspectivePlan (fov desde distancia + offsets parallax por capa);
+  renderEffectHtml ? HTML5 canvas autocontenido (sin URLs, GLSL como comentario, reacciona a
+  pointermove + hotkey). Registro: capability codevfx ? tool vfx_code (acciones plan/
+  colorimetria/curvatura/perspectiva/render) en ai/llm.ts. Export en tools/index.ts (codevfx).
+  Demo: node_modules\.bin\vite-node.cmd Task/codevfx-demo.ts ? resultTask/codevfx/ (plans,
+  colorimetria, curvatura, perspectiva + effects/*.html ×9). Tests: codevfx.test.ts 29 PASS.
+- LECCIÓN 45: npm overrides de react en root rompen el workspace mobile (npm no soporta
+  overrides por ruta); cada app declara su react exacto. Metro no resuelve node:* ? el móvil
+  replica los tipos de la API en src/api/types.ts. expo-doctor marca la duplicación react
+  (web 19.1.0 / mobile 19.2.3) — intencional en monorepo. Red puro HSL: el hue del rojo
+  puro es 0, no 340 (test corregido).

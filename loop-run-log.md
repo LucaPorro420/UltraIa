@@ -1741,3 +1741,26 @@ ormalizeTitle() (lower + strip non-alnum), dedupe() (bigram overlap > 0.6),
 - **V**: sin .ts tocados -> sin gates de codigo; git diff verificado UTF-8 intacto (tool
   Edit, leccion 41/26).
 - **R**: configurar canales = seguir CANALES-CONFIG-2026.md. Sin push (aprobacion humana).
+
+### Iteracion 45 - App movil Expo + capability codevfx (17/08/2026) - DONE
+
+- Pedido usuario: verificar enlaces + crear app movil Android/iOS en TypeScript. Decisiones: Expo SDK 57 +
+  TS, EAS free tier (sin Apple Developer, iOS solo Expo Go, IPA diferido), MVP gestion completa,
+  Facebook 807/814 anti-bot 400 (r.jina.ai fallback intentado), Instagram DcJDsghiJne verificado
+  (Elemental Sandbox VFX, repo achrefelouafi/LinearAbiltyCastingThreeJS MIT).
+- **P**: plan .opencode/plans/loop-45-mobile-app.md aprobado - Fase 1 app movil + Fase 2 codevfx.
+- **I Fase 1**: apps/mobile (expo-router, tema Dark Obsidian, SecureStore) + auth REST en apps/web
+  (POST /api/auth/login|register + GET /me, header x-ultraia-session en getCurrentUser(req?)) + req en
+  publications/metrics/cloud/approve/reject + tabs dashboard KPIs/publicaciones/cloud/blog +
+  docs/MOBILE.md. npm overrides react eliminados del root (mobile usa 19.2.3, web 19.1.0).
+- **V Fase 1**: tsc mobile EXIT 0, expo export web OK (6 rutas), expo-doctor 20/21 (duplicacion
+  react web/mobile intencional), tsc web 0 errores propios. Commit f106546 (65 archivos).
+- **I Fase 2**: packages/core/src/tools/codevfx.ts (port ORIGINAL Elemental Sandbox: 9 kinds con
+  GLSL hand-written, planEffect con fisica/particulas, colorimetryAnalyze HSL, curvatureShade,
+  perspectivePlan parallax, renderEffectHtml canvas autocontenido) + tool vfx_code (capability
+  codevfx) en llm.ts + export index.ts + demo Task/codevfx-demo.ts -> resultTask/codevfx/ +
+  docs/RAZONAMIENTO-CODEVFX.md.
+- **V Fase 2**: 29/29 tests codevfx PASS, tsc core 0 propios (ruido blueprint/reach #25), suite
+  core 734 passed/5 failed (los 5 de #25: automation/reach/recorder - no mios), eslint sin cambios.
+  Commit b4d7695.
+- **R**: app movil + VFX por codigo listos. FULL bloqueado por arbol #25 (sin push, aprobacion humana).
