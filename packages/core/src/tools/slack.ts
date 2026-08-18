@@ -106,7 +106,7 @@ export function createSlackAdapter(options: SlackAdapterOptions = {}): Publisher
         const res = await fetchImpl(SLACK_FILES_UPLOAD_URL, {
           method: 'POST',
           headers: { Authorization: `Bearer ${botToken}`, 'Content-Type': contentType },
-          body,
+          body: body as unknown as NonNullable<RequestInit['body']>,
         });
         const json = (await res.json().catch(() => null)) as SlackFilesUploadResponse | null;
         if (!res.ok || !json?.ok) {

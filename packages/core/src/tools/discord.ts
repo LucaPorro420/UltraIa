@@ -96,7 +96,7 @@ export function createDiscordAdapter(options: DiscordAdapterOptions = {}): Publi
         const res = await fetchImpl(webhookUrl, {
           method: 'POST',
           headers: { 'Content-Type': contentType },
-          body,
+          body: body as unknown as NonNullable<RequestInit['body']>,
         });
         // Discord responde 204 No Content en éxito (sin cuerpo JSON).
         if (!res.ok) return { platform, ok: false, error: `Discord HTTP ${res.status}: ${res.statusText}` };

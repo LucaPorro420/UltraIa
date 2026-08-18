@@ -140,7 +140,7 @@ export function createTelegramAdapter(options: TelegramAdapterOptions = {}): Pub
         const res = await fetchImpl(`${TELEGRAM_API_BASE}/bot${botToken}/sendVideo`, {
           method: 'POST',
           headers: { 'Content-Type': contentType },
-          body,
+          body: body as unknown as NonNullable<RequestInit['body']>,
         });
         const json = (await res.json().catch(() => null)) as TelegramSendResponse | null;
         if (!res.ok || !json?.ok) {
