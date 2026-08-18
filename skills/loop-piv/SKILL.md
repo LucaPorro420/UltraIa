@@ -71,10 +71,14 @@ Harness: `npx @cobusgreyling/loop` (CLI npm v0.1.2) + archivos del bucle + drive
 
 ## Plantilla de plan (`.opencode/plans/loop-<taskid>-<slug>.md`)
 
-```markdown
-# PLAN: <título de la tarea> (tarea #<id> de STATE.md)
+> Plantilla ampliada en el ciclo 57 (fuente FundamentosDeLaProgramacion Bloque B): prioridades
+> P0-P5, RECURSOS/PRESUPUESTO, NO-hacer y TOLERANCIAS. Para requests individuales ver el skill
+> `ultraia-request` (plantilla 13 campos + config declarativa de loop + bucle IA 4 fases).
 
-Fecha: <YYYY-MM-DD> · Modo: <plan|build>
+```markdown
+# PLAN: <título de la tarea> (tarea #<id> de STATE.md, prioridad <P0-P5>)
+
+Fecha: <YYYY-MM-DD> · Modo: <plan|build> · Patrón: <bucle IA 4 fases si aplica> · Presupuesto: <tiempo est. / tokens>
 
 ## Contexto
 - <por qué existe la tarea, enlace a spec/docs si aplica>
@@ -90,10 +94,19 @@ Fecha: <YYYY-MM-DD> · Modo: <plan|build>
 - `path/al/archivo.ts` — <qué cambio>
 - `path/al/archivo.test.ts` — <qué tests>
 
+## RECURSOS / PRESUPUESTO
+- <tools/scripts/skills/fuentes disponibles; estimación de tiempo; límite de tokens>
+
+## NO-hacer (guardas explícitas)
+- <paths ajenos, denylisted, sesiones concurrentes, qué NO modificar>
+
 ## Criterios de verificación
 - Scoped: `npm run typecheck` + tests del paquete afectado (<paquete>)
 - FULL antes de commit: typecheck → lint → test → build
 - Tests esperados: <n> nuevos en <paquete> (total repo <n>)
+
+## TOLERANCIAS
+- <qué desviaciones se aceptan y cuándo parar/escalar (máx 3 intentos)>
 
 ## Riesgos / guardas
 - <riesgos, paths denylisted, qué NO tocar>
@@ -101,6 +114,15 @@ Fecha: <YYYY-MM-DD> · Modo: <plan|build>
 ## Esfuerzo estimado
 - <bajo|medio|alto> — <justificación breve>
 ```
+
+## Prioridades P0-P5 (criterio de orden del backlog)
+
+- **P0** bloqueante/seguridad (gates RED, secrets, corrupción) → arreglar YA, escalar si aplica.
+- **P1** alta (feature del backlog activo, bloquea a otras tareas).
+- **P2** media (mejora verificable).
+- **P3** baja (nice-to-have).
+- **P4** deuda postergable.
+- **P5** descartable/sin validar — NO planificar hasta validar.
 
 ## Auto-conmutación Plan→Build
 

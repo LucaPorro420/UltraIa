@@ -4,10 +4,13 @@
 
 ## Daily limits
 
-| Loop | Max runs/day | Max tokens/day | Max sub-agent spawns/run |
-|------|--------------|----------------|--------------------------|
-| PIVR | 10 ciclos | 100k | 2 (verifier) |
-| Daily Triage | 1 | 20k | 0 |
+| Loop | Max runs/day | Max tokens/day | Max sub-agent spawns/run | Max time/day |
+|------|--------------|----------------|--------------------------|--------------|
+| PIVR | 10 ciclos | 100k | 2 (verifier) | 6h (36k s) |
+| Daily Triage | 1 | 20k | 0 | 30 min (1.8k s) |
+
+> Max time/day añadido en el ciclo 57 (fuente FundamentosDeLaProgramacion Bloque B, práctica 22):
+> el presupuesto también es tiempo. `loop-budget` skill: ≥80% → report-only, ≥100% → parar.
 
 ## On budget exceed
 
