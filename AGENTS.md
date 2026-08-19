@@ -689,3 +689,16 @@ LEY: `git add` explicito (nunca `.`), NO tocar DOCS_TODO/blueprint/reach/automat
 - Reglas: skills del harness son OBLIGATORIOS (no mover a cuarentena); un skill evitado
   NO vuelve a cargarse sin decisión explícita; al instalar skills nuevos de terceros,
   evaluar y actualizar inventario + manifest si aplica.
+
+## Plan fundamentos-de-la-programacion COMPLETO (18/08/2026, ciclos 56-62)
+
+- **Fuente**: learning/sources/fundamentos-programacion.md + docs/RAZONAMIENTO-FUNDAMENTOS-PROGRAMACION.md (ciclo 56, 7044f3a).
+- **Harness ultraia-request (57)**: skill de peticion con plantilla 13 campos + config loop JSON (OBJETIVO/METRICA/TARGET/STOP/FAILURE) + bucle IA 4 fases (Sensado->Razonamiento->Accion->Ajuste) + prioridades P0-P5; plantilla plan loop-piv ampliada (RECURSOS/PRESUPUESTO/NO-hacer/TOLERANCIAS); loop-budget con tiempo (early-exit 80/100%). 1f7c4c4 + 8519bb6.
+- **Capabilities (dominio puro determinista, keyless, sin ejecucion real; wiring en llm.ts bajo opts.tools?.includes(...))**:
+  - **sdf** (58, sesion 57b, 7477187): SDF + ray marching (planSdfScene/sdfSceneGlsl/rayMarchPlan/renderSdfHtml) + tool sdf_render + 31 tests.
+  - **videoqa** (59, 8d14835): MAE/MSE/PSNR/SSIM + E_flow + E_total ponderado (a=0.6/b=0.3/g=0.1) + veredicto (PSNR>40dB SSIM>0.95 E_total<0.4) + buildVmafArgv (nunca ejecuta) + tool videoqa_metrics + 31 tests. LECCION: eTotalMax 0.05 incoherente con PSNR>40 (ePixel 48dB = 0.45) -> 0.4.
+  - **motion** (60, 82c76fc): flowStats F(x,y,t) + decomposeMotion camara LSQ vs escena (dominant static/camera/scene/mixed por energia explicada) + trajectoryFit Catmull-Rom + planFlowAnalysis argv OpenCV (Farneback/LucasKanade, parse zod aplica defaults) + tool motion_analyze + 20 tests. La sesion 57b cedio la tarea hacia mi (borro mis untracked, luego vio los reescritos y cedio).
+  - **replica** (61, 9f996db): orquestador analisis-por-sintesis con ReplicaIO inyectable (dominio puro), coordinateStep determinista, stop conditions (target/maxIterations/patience/timeout reloj inyectable), checkpoints, resumeFrom, fail-soft + tool replica_run (analizar/plan; ejecucion delegada a runner con IO real) + 17 tests. LECCIONES: iterationsUsed = min(iteration+1, max) en loop completo; checkpoint.lastIteration; resume 0-indexado; variable efore capturada por edit -> ReferenceError cascada.
+- **Wiring (f8b5e7d)**: tools videoqa_metrics/motion_analyze/replica_run en llm.ts (imports namespace). index.ts (exports/imports/tools/TOOL_DESCRIPTIONS/Capability union videoqa|motion|replica) lo completo la sesion 57b (sin commitear en su worktree).
+- **Skills audit (62, sesion 57b, a43ce98)**: .opencode/skills-avoid/ cuarentena 15 SKILL.md + docs/SKILLS-INVENTARIO.md.
+- **Concurrencia**: 3 tasks del plan las completo yo en rafaga (escribir+test+commit antes de colision); sdf y 62 las completo la 57b; las filas 60/61 las marco DONE tras que ella ceda. Regla confirmada: quien commitea primero gana; nunca duplicar; el lock (task 58) es el arbitro.
