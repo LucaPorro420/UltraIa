@@ -2142,3 +2142,9 @@ de código, sin commit.
 - **[V] independiente**: con wiring completo en HEAD (f8b5e7d llm.ts + 63ad94b index.ts + seeds b619be5): tsc core EXIT 0 + vitest scoped 6 archivos 145/145 PASS (videoqa 31 + motion 20 + replica 17 + sdf 31 + cloud + growth). Coincide con los gates FULL de la sesion principal (typecheck/lint/test/build verdes).
 - **[I] intento de commit del index.ts (worktree que 0309931 atribuyo a 'sesion 57b')**: git add + commit fallo con 'no changes added' porque la sesion principal commiteo 63ad94b en el interin (coordinacion natural: quien commitea primero gana). Sin duplicar, sin colision; trabajo de la 57b ya cubierto por 63ad94b.
 - **[R] DONE**: plan fundamentos-de-la-programacion (56-62) CERRADO en su totalidad - harness + 4 capabilities + wiring llm.ts/index.ts + seeds + skills audit. Lock r63 CERRADA-ITER63. Backlog npm sin tareas libres (fila 6 requiere GPU/decision humana; fila 25 EN CURSO de sesion concurrente). Sin push.
+
+### Iteracion Cierre global fundamentos + PUSH (18/08/2026, sesion principal)
+
+- **[I]**: seeds activados (b619be5) + nota AGENTS.md (1ebc7e7) + STATE.md worktree vacio restaurado desde c22dee8 (la 57b lo vacio a las 22:53:27 tras su commit 63ad94b; restauracion reversible - si ella reescribe, su version gana). La 57b cerro el wiring index.ts (63ad94b, gates FULL verdes) - plan 56-62 CERRADO por ambos lados.
+- **[V]**: push directo a master aprobado por el usuario (regla documentada iter-46): b4b3bf9..c729041, 29 commits, 0 restantes. origin/master = c729041 (verificacion cruzada de la 57b: tsc core 0 + vitest 145/145 con wiring completo).
+- **[R]**: plan fundamentos 100% cerrado y en remoto. Pendiente humano: fila 63 del lock (57b en curso), estado de STATE.md vacio si la 57b no lo reescribe.
