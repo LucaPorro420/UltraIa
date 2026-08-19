@@ -2123,3 +2123,9 @@ de código, sin commit.
 - **[I] index.ts**: la 57b lo completo en SU worktree (exports/imports/tools/TOOL_DESCRIPTIONS/Capability union) - NO commitear su worktree (regla concurrencia).
 - **[V]**: commit f8b5e7d (llm.ts, 139+). AGENTS.md seccion 'Plan fundamentos-de-la-programacion COMPLETO' + filas 58-61 DONE en STATE.md + lecciones LEARNINGS.
 - **[R] DONE**: plan fundamentos COMPLETO. Pendiente (fuera de scope del plan): activar capabilities en seeds (seed-admin/seed-agents.mjs no se tocaron, consistencia con 57b) y commit del worktree index.ts de la sesion 57b cuando ella lo cierre.
+
+### Iteracion Seeds caps fundamentos (18/08/2026, sesion principal)
+
+- **[I]**: seed-data.mjs +caps por rol: bp-guionista +motion (planifica movimiento camara), bp-analista +videoqa (metricas calidad), bp-publicador +videoqa (verifica antes de publicar), bp-orquestador +sdf/videoqa/motion/replica (conductor global). seed-admin hereda automaticamente ([...a.caps, 'skills','content','memory']) - una sola fuente.
+- **[V]**: seeds corridos OK (8 privados + 8 admin); DB verificada: 16 versions, videoqa en 6 (analista/publicador/orquestador x2), sdf en 2, orquestador 11 caps.
+- **[R]**: wiring completo del plan fundamentos (llm.ts + index.ts de la 57b + seeds). commit xxx.

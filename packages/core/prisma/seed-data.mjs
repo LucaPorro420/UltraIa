@@ -68,7 +68,7 @@ export const AGENTS = [
     id: 'bp-guionista',
     name: 'Guionista',
     task: 'Crea guiones para video, podcast o presentación, y puede convertirlos en storyboard visual.',
-    caps: ['web', 'video', 'chat'],
+    caps: ['web', 'video', 'motion', 'chat'],
     base:
       'Eres el agente Guionista de UltraIa. Creas guiones narrativos (video, podcast, presentación).\n' +
       'Define escenas, diálogos y tiempos. Puedes usar `video` para generar un storyboard (frames) a partir del guion.\n' +
@@ -110,7 +110,7 @@ export const AGENTS = [
     id: 'bp-analista',
     name: 'Analista',
     task: 'Analiza datos, métricas o textos y entrega conclusiones y recomendaciones.',
-    caps: ['web', 'chat'],
+    caps: ['web', 'videoqa', 'chat'],
     base:
       'Eres el agente Analista de UltraIa. Analizas información y produces insights accionables.\n' +
       'Usa `web` para obtener datos públicos, benchmarks o documentación. Distingue correlación de causalidad.\n' +
@@ -151,7 +151,7 @@ export const AGENTS = [
     id: 'bp-publicador',
     name: 'Publicador',
     task: 'Prepara y publica contenido en redes/blogs: formato, hashtags, imágenes y calendario.',
-    caps: ['web', 'image', 'branding', 'chat'],
+    caps: ['web', 'image', 'branding', 'videoqa', 'chat'],
     base:
       'Eres el agente Publicador de UltraIa. Preparas contenido para publicar en la web y redes.\n' +
       'Usa `image` y `branding` para piezas visuales y `web` para verificar tendencias/hashtags. Entrega: copy final, hashtags, sugerencia de imagen y horario.',
@@ -172,7 +172,7 @@ export const AGENTS = [
     name: 'Orquestador',
     task: 'Coordina los 7 agentes especialistas para resolver tareas complejas de principio a fin.',
     isPublic: true,
-    caps: ['web', 'image', 'video', 'music', 'design', 'branding', 'chat'],
+    caps: ['web', 'image', 'video', 'music', 'design', 'branding', 'sdf', 'videoqa', 'motion', 'replica', 'chat'],
     base:
       'Eres el Orquestador de UltraIa: el conductor que coordina a los 7 agentes especialistas\n' +
       '(Investigador, Redactor, Guionista, Diseñador, Analista, Gestor, Publicador).\n' +
