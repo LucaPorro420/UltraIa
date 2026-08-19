@@ -79,6 +79,7 @@ Last run: 18/08/2026 - Iteracion 62 (skills audit: docs/SKILLS-INVENTARIO.md rec
 
 ## High Priority
 
+- **CERRADO 18/08 ~22:50 - iteracion 63 (wiring videoqa/motion/replica) COMPLETO**: llm.ts 8b5e7d + index.ts 63ad94b (exports/tools/TOOL_DESCRIPTIONS/Capability union + fix 41->42 extensiones cloud; gates FULL verdes). Wirings 59-61 TERMINADOS - no rehacer.
 - **CERRADO 18/08 ~22:05 — iteración 58 (capability sdf) commiteada `7477187`** (5 archivos, 31/31 + tsc core 0 + gates FULL verdes; wiring `sdf_render` incluido). llm.ts/index.ts LIBRES → wirings pendientes: videoqa (59), motion (60), replica (61) — UN solo capability por tool.
 - **PLAN 61 (replica) PREPARADO (18/08 21:55)**: `.opencode/plans/loop-61-replica.md` listo (ReplicaOrchestrator análisis-por-síntesis: analyze→generate→compare→optimize + stop conditions target/100 iter/mejora<0.001×5 + checkpoints + presupuestos + fail→diagnóstico + integra generative/videoqa/motion/sdf). NO ejecutar mientras llm.ts/index.ts estén sucios de r58 (verificar git status antes).
 - **WIRINGS PENDIENTES (58-60)**: sdf en curso por r58 (llm.ts M línea 1044 `tools.sdf_render` + index.ts M `export sdf`); videoqa (59) y motion (60) SIN wiring en index.ts/llm.ts. El primero que libere llm.ts/index.ts hace los wirings faltantes con UN solo capability por tool.
