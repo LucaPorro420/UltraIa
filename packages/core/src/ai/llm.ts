@@ -50,6 +50,7 @@ import { sdf } from '../tools/sdf';
 import * as videoqa from '../tools/videoqa';
 import * as motion from '../tools/motion';
 import * as replica from '../tools/replica';
+import * as imaging from '../tools/imaging';
 import { createPublication, listPublications, approvePublication, rejectPublication, publishDue } from '../domain/publications';
 import { generarContenido, type ContentPackage } from '../tools/enrutador';
 import { computeChannelKpis, fetchChannelAnalytics } from '../tools/metrics';
@@ -1199,6 +1200,121 @@ export function chatStream(opts: {
               },
               presupuesto: `max ${parsed.maxIterations} iteraciones, ${parsed.timeoutMs} ms`,
               nota: 'ejecucion real con IO inyectado: runner externo (dominio puro keyless)',
+            };
+          }
+          default:
+            return { accion, ok: false, error: 'accion desconocida' };
+        }
+      },
+    });
+  }
+  if (opts.tools?.includes('imaging')) {
+    tools.imaging_process = tool({
+      description:
+        'Pure-TypeScript image processing (fundamentos-programacion.md A8/A9-A11/A22-A24): filter a grayscale frame (gaussian/box blur, median, unsharp, laplacian, sharpen, emboss), grayscale morphology (erode/dilate/open/close/gradient), tone (normalize/gamma/equalize/threshold), analyze it (stats + histogram + Otsu + entropy), detect Canny edges, compare two frames in 2D (error maps, windowed SSIM with MSSIM, PSNR, worst window and worst quadrant) or compute REAL optical flow between two frames (Lucas-Kanade, pyramidal for large displacements) returning a field that motion_analyze consumes. No deps, no network, deterministic. Use to measure and verify actual pixels instead of only planning external runners.',
+      parameters: z.object({
+        accion: z.enum(['filtrar', 'morfologia', 'tono', 'analizar', 'bordes', 'comparar', 'flujo']),
+        imagenJson: z.string().min(2).max(24000), // {width, height, data:[luminancia 0-255]}
+        imagenBJson: z.string().max(24000).optional(), // segunda imagen (comparar/flujo)
+        operacion: z.string().optional(), // filtrar: blur|box|median|unsharp|laplacian|sharpen|emboss
+                                          // morfologia: erode|dilate|open|close|gradient
+                                          // tono: normalize|gamma|equalize|threshold
+                                          // flujo: lk|piramidal
+        parametro: z.number().optional(), // sigma / radio / gamma / umbral segun operacion
+        incluirDatos: z.boolean().optional(), // devolver el buffer resultante (max 4096 valores)
+      }),
+      execute: async ({ accion, imagenJson, imagenBJson, operacion, parametro, incluirDatos }) => {
+        const parse = (raw: string) => {
+          const o = JSON.parse(raw);
+          return imaging.imageFrom(o.width, o.height, o.data);
+        };
+        const img = parse(imagenJson);
+        const salida = (out: imaging.GrayImage) => ({
+          width: out.width,
+          height: out.height,
+          stats: imaging.imageStats(out),
+          datos: incluirDatos && out.data.length <= 4096 ? imaging.toArray(out) : undefined,
+        });
+        switch (accion) {
+          case 'filtrar': {
+            const op = operacion ?? 'blur';
+            const p = parametro;
+            const out =
+              op === 'box' ? imaging.boxBlur(img, Math.max(1, Math.round(p ?? 1)))
+              : op === 'median' ? imaging.medianFilter(img, Math.max(1, Math.round(p ?? 1)))
+              : op === 'unsharp' ? imaging.unsharpMask(img, { sigma: p ?? 1, amount: 1.5 })
+              : op === 'laplacian' ? imaging.laplacianFilter(img)
+              : op === 'sharpen' ? imaging.correlate2d(img, imaging.SHARPEN)
+              : op === 'emboss' ? imaging.correlate2d(img, imaging.EMBOSS)
+              : imaging.gaussianBlur(img, p ?? 1.5);
+            return { accion, operacion: op, ...salida(out) };
+          }
+          case 'morfologia': {
+            const op = operacion ?? 'gradient';
+            const r = Math.max(1, Math.round(parametro ?? 1));
+            const out =
+              op === 'erode' ? imaging.erodeImage(img, r)
+              : op === 'dilate' ? imaging.dilateImage(img, r)
+              : op === 'open' ? imaging.openImage(img, r)
+              : op === 'close' ? imaging.closeImage(img, r)
+              : imaging.morphGradient(img, r);
+            return { accion, operacion: op, radio: r, ...salida(out) };
+          }
+          case 'tono': {
+            const op = operacion ?? 'normalize';
+            const out =
+              op === 'gamma' ? imaging.gammaCorrect(img, parametro ?? 2.2)
+              : op === 'equalize' ? imaging.equalizeImage(img, { clipLimit: parametro })
+              : op === 'threshold' ? imaging.thresholdImage(img, parametro ?? imaging.otsuThreshold(img))
+              : imaging.normalizeImage(img);
+            return { accion, operacion: op, ...salida(out) };
+          }
+          case 'analizar': {
+            const hist = imaging.imageHistogram(img, 32);
+            return {
+              accion,
+              width: img.width,
+              height: img.height,
+              stats: imaging.imageStats(img),
+              otsu: imaging.otsuThreshold(img),
+              histograma: { bins: hist.bins, min: hist.min, max: hist.max, counts: hist.counts },
+            };
+          }
+          case 'bordes': {
+            const res = imaging.cannyEdges(img, { sigma: parametro ?? 1.4 });
+            return {
+              accion,
+              densidad: res.density,
+              umbrales: res.thresholds,
+              datos: incluirDatos && res.edges.data.length <= 4096 ? imaging.toArray(res.edges) : undefined,
+            };
+          }
+          case 'comparar': {
+            if (!imagenBJson) throw new Error('comparar requiere imagenBJson');
+            return { accion, reporte: imaging.compareImages(img, parse(imagenBJson)) };
+          }
+          case 'flujo': {
+            if (!imagenBJson) throw new Error('flujo requiere imagenBJson');
+            const next = parse(imagenBJson);
+            if ((operacion ?? 'lk') === 'piramidal') {
+              const res = imaging.pyramidalFlow(img, next, { levels: Math.max(2, Math.round(parametro ?? 3)) });
+              return {
+                accion,
+                metodo: 'piramidal',
+                desplazamientoGlobal: res.globalShift,
+                porNivel: res.perLevel,
+                vectores: res.field.vectors.length,
+                campo: incluirDatos ? res.field : undefined,
+              };
+            }
+            const field = imaging.lucasKanadeFlow(img, next, { windowRadius: Math.max(1, Math.round(parametro ?? 3)) });
+            return {
+              accion,
+              metodo: 'lucas-kanade',
+              desplazamientoMediano: imaging.medianFlow(field),
+              vectores: field.vectors.length,
+              campo: incluirDatos ? field : undefined,
+              nota: 'campo compatible con motion_analyze (stats/descomponer)',
             };
           }
           default:
