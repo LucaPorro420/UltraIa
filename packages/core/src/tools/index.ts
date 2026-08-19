@@ -24,6 +24,16 @@ export * from './travel';
 export * from './generative';
 export * from './libros';
 export * from './sdf';
+export * from './videoqa';
+// motion: export explicito (catmullRom colisiona con generative; queda vía './motion' directo)
+export {
+  motionVectorSchema, flowFieldSchema, flowAnalysisSchema,
+  flowStats, decomposeMotion, trajectoryFit, planFlowAnalysis, motionSurface,
+} from './motion';
+export type {
+  MotionVector, FlowField, FlowAnalysis, DecomposedMotion, FlowStats, Point2D, Trajectory,
+} from './motion';
+export * from './replica';
 
 import * as web from './web';
 import * as image from './image';
@@ -53,8 +63,11 @@ import { travel } from './travel';
 import { generative } from './generative';
 import { libros } from './libros';
 import { sdf } from './sdf';
+import * as videoqa from './videoqa';
+import * as motion from './motion';
+import * as replica from './replica';
 
-export const tools = { web, image, video, music, stitch, reach, skills: { runSkill }, content, g0dm0d3, topics, present: presentTools, publish, enrutador, mediaScore, metrics, memoryFs: { createMemoryFs }, diagram, videoEdit, screenflow, cloud: cloudTools, harness, growth, vfx, codevfx, travel, generative, libros, sdf };
+export const tools = { web, image, video, music, stitch, reach, skills: { runSkill }, content, g0dm0d3, topics, present: presentTools, publish, enrutador, mediaScore, metrics, memoryFs: { createMemoryFs }, diagram, videoEdit, screenflow, cloud: cloudTools, harness, growth, vfx, codevfx, travel, generative, libros, sdf, videoqa, motion, replica };
 
 export const TOOL_DESCRIPTIONS: Record<string, string> = {
   calculator: 'Safely evaluate a mathematical expression (math only).',
@@ -91,7 +104,7 @@ export const TOOL_DESCRIPTIONS: Record<string, string> = {
   screenflow:
     'ScreenFlow pipeline (screen-recording automation): validate a declarative ActionScript (click/type/key/scroll/open_url/exec/screenshot/wait_selector/end), plan capture runs, generate the ffmpeg gdigrab capture argv (segmented, CRF 18, silent track fallback), build the local publishing package (.ultraia/recordings/<run-id>/: final.mp4 + master + webm + poster + manifest + report), schedule runs (schtasks/cron), and resolve continuation state (resume idempotente, retry max 3, fail-soft). Deterministic, keyless. Use to automate screen recording + actions + edit + local publish pipelines.',
   cloud:
-    'UltraIA Cloud storage (free 2026 stack): list/upload/read/remove/stat files in the project cloud — local .ultraia/cloud by default, or Cloudflare R2 via Worker when CLOUDFLARE_R2_WORKER_URL + CLOUDFLARE_R2_TOKEN are set. Uploads validated (safe canonical paths, 41 allowed extensions, 100 MiB cap). Use to persist media, drafts, briefs, exports and backups across sessions.',
+    'UltraIA Cloud storage (free 2026 stack): list/upload/read/remove/stat files in the project cloud — local .ultraia/cloud by default, or Cloudflare R2 via Worker when CLOUDFLARE_R2_WORKER_URL + CLOUDFLARE_R2_TOKEN are set. Uploads validated (safe canonical paths, 42 allowed extensions, 100 MiB cap). Use to persist media, drafts, briefs, exports and backups across sessions.',
   harness:
     'Agent harness runtime (DeepSeek Harness pattern, everything-is-a-plugin): boot a plugin tree (tools/observers/schedulers with topological dependency order), run tasks through the tools of active plugins, advance the tick clock to fire scheduled jobs, inspect the runtime (dump) and shut it down (unwinds effects in reverse order, fail-soft). No privileged core — every capability is a plugin. Deterministic, keyless. Use to compose agent runtimes declaratively and orchestrate plugin-driven execution.',
   growth:
@@ -112,6 +125,12 @@ export const TOOL_DESCRIPTIONS: Record<string, string> = {
     'Free programming books catalog in Spanish (librosgratis.dev / midudev pattern): 115 free books and tutorials in 32 sections across 8 categories — search with multi-term scoring (title 3 > author 2 > section 1, accents-insensitive), list by section, aggregate categories, and validate new resource proposals against the README rules. Deterministic, keyless. Use to recommend free Spanish learning resources for any programming topic.',
   sdf:
     'Signed Distance Fields + ray marching (Inigo Quilez pattern, 100% code): plan a 3D SDF scene (sphere/box/torus/capsule/plane primitives; union/intersection/subtract/smooth ops with evaluable tree and human-readable formula), generate GLSL reference code, estimate a ray-march render plan (steps, 16:9 resolution, ops per frame) or render a self-contained HTML5 canvas 2D scene (drag rotate, wheel zoom, R reset, Dark Obsidian, a11y). Deterministic, keyless, offline. Use to visualize procedural 3D shapes as code.',
+  videoqa:
+    'Video quality metrics (fundamentos-programacion.md A20-A24 pattern): compute MAE/MSE/PSNR/SSIM between reference and distorted luminance buffers, optical-flow error E_flow, weighted total error E_total (pixel 0.6 / flow 0.3 / semantic 0.1), a PASS/FAIL verdict against thresholds (PSNR>40dB, SSIM>0.95, E_total<0.4), and the deterministic ffmpeg/libvmaf argv (never executes). Deterministic, keyless. Use to verify a rendered/edited video against a reference before publishing.',
+  motion:
+    'Video motion analysis (fundamentos-programacion.md A9-A11/A14 pattern): stats of an optical-flow field (mean magnitude, dominant angle, coherence), camera-vs-scene decomposition (least-squares translation+zoom, residual scene motion, verdict static/camera/scene/mixed), Catmull-Rom trajectory fitting through control points, and the deterministic Python/OpenCV flow-analysis argv (Farneback/Lucas-Kanade; never executes). Deterministic, keyless. Use to analyze camera movement vs object motion before planning cuts or renders.',
+  replica:
+    'Analysis-by-synthesis orchestrator (fundamentos-programacion.md A21/A26-A37 pattern): analyze a target signature (mean/variance/span) and plan a replication run (config parsed with stop conditions: target score, max iterations, patience, timeout; compute budget). The full loop (analyze -> generate -> compare -> optimize with checkpoints, resume and fail-soft) lives in the pure domain and is executed by a runner injecting the real IO (generative/videoqa/motion/sdf). Deterministic, keyless. Use to plan and drive replication of a target by synthesis.',
 };
 
 export type Capability =
@@ -145,4 +164,7 @@ export type Capability =
   | 'research'
   | 'enlaces'
   | 'libros'
-  | 'sdf';
+  | 'sdf'
+  | 'videoqa'
+  | 'motion'
+  | 'replica';
