@@ -105,3 +105,8 @@ Capability `replica` en `packages/core/src/tools/replica.ts`:
 ## Estado del plan
 
 - [ ] PENDIENTE DE EJECUCIÓN (escrito 18/08 21:55; r58 ACTIVA en wiring sdf)
+- [x] **CEDIDO 18/08 21:58**: la sesión r58-UTEC-5260 tomó la tarea 61 (replica.ts mtime
+  21:56:38 + replica.test.ts 21:53:47, untracked, implementación AJENA EN CURSO — mtime
+  fresco al momento de verificar). Este plan queda como referencia de diseño (NO ejecutar
+  para no duplicar — precedente iter-58/60). Al liberar: verificar tests ajenos + UN solo
+  wiring de replica en llm.ts/index.ts.
