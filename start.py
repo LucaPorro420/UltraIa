@@ -11,18 +11,26 @@ Usage:
     python start.py --deploy   # production build + instructions for free hosting
     python start.py --check-connections  # env keys, tools and ports report
     python start.py --gen-engine  # only the local Gen-Engine (http://localhost:8100)
+    python start.py --host 0.0.0.0     # listen on all interfaces (LAN/mobile)
+    python start.py --browser brave    # open Brave (or chrome) when web is UP
+    python start.py --no-open          # do NOT auto-open the browser
 
 Checks prerequisites (node >= 20, npm, python >= 3.10, ffmpeg), installs deps if
 missing or outdated, creates .env files from .env.example, runs the DB migration
 if needed, then starts the services. Aborts early if a target port is already in
-use, and polls each service until it responds (or fails with exit 1). Ctrl+C
-stops everything — on Windows the whole process tree is killed (taskkill /T), so
-no orphan `next dev`/node processes survive.
+use, and polls each service until it responds (or fails with exit 1). Health
+checks always use 127.0.0.1 (IPv4 explicit) so localhost/::1 resolution never
+causes false negatives. When the web is up, the browser opens automatically
+(Chrome/Brave detected or the OS default; --no-open disables it). Services that
+die are restarted up to 2 times with backoff. Ctrl+C stops everything — on
+Windows the whole process tree is killed (taskkill /T), so no orphan `next
+dev`/node processes survive.
 """
 
 from __future__ import annotations
 
 import argparse
+import functools
 import os
 import re
 import shutil
@@ -33,7 +41,9 @@ import threading
 import time
 import urllib.error
 import urllib.request
+import webbrowser
 from pathlib import Path
+from urllib.parse import urlsplit, urlunsplit
 
 ROOT = Path(__file__).resolve().parent
 PIPE_DIR = ROOT / "ULTRAIA" / "integracionesImplementacion"
@@ -96,6 +106,7 @@ def npm_exec() -> str:
     return "npm"
 
 
+@functools.lru_cache(maxsize=1)
 def python_exec() -> list[str]:
     """Resolve a Python interpreter that can run the Python services.
 
@@ -104,7 +115,8 @@ def python_exec() -> list[str]:
     and the gen-engine). Prefers the interpreter running this script, then
     `python`, then the Windows launcher with common 3.11/3.12 minors, then
     the launcher default. Falls back to the first candidate so setup and
-    validate still run even without the web deps.
+    validate still run even without the web deps. Cached: probing costs
+    ~seconds per candidate, and several callers use it per run.
     """
     candidates: list[list[str]] = [[sys.executable]] if sys.executable else []
     if os.name == "nt":
@@ -116,7 +128,7 @@ def python_exec() -> list[str]:
             probe = subprocess.run(
                 [*cmd, "-c", "import fastapi, uvicorn"],
                 capture_output=True,
-                timeout=15,
+                timeout=8,
                 check=False,
             )
         except (OSError, subprocess.SubprocessError):
@@ -226,12 +238,38 @@ def setup() -> None:
         run([npm_exec(), "run", "db:migrate"])
 
 
+def _ipv4_url(url: str) -> str:
+    """Rewrite localhost/::1 hosts to 127.0.0.1 (IPv4 explicit).
+
+    On Windows, Python's urllib may resolve `localhost` to ::1 (IPv6) while
+    the local servers (next dev / uvicorn) listen on IPv4 only. That makes
+    health checks fail with a false negative even when the server is UP.
+    Brackets from IPv6 literals ([::1]) are dropped: the result is a plain
+    IPv4 host[:port] netloc.
+    """
+    parts = urlsplit(url)
+    host = parts.hostname or ""
+    if host.lower() not in ("localhost", "::1"):
+        return url
+    port = ""
+    try:
+        if parts.port is not None:
+            port = f":{parts.port}"
+    except ValueError:
+        pass
+    return urlunsplit(
+        (parts.scheme, f"127.0.0.1{port}", parts.path, parts.query, parts.fragment)
+    )
+
+
 def http_ok(url: str, timeout: float = 2.0) -> bool:
     """Return True when the server responds, even with a 404.
 
     The webhook server has no `/` route, so a 404 still means the process is
-    alive and accepting connections.
+    alive and accepting connections. localhost is rewritten to 127.0.0.1 so
+    the probe never depends on IPv6 resolution.
     """
+    url = _ipv4_url(url)
     try:
         with urllib.request.urlopen(url, timeout=timeout) as resp:
             return resp.status < 500
@@ -337,6 +375,7 @@ def report_tools() -> None:
         print("  [NET]   registry npm: OK")
     else:
         print("  [NET]   registry npm: NO alcanzable (sin red/proxy)")
+    report_browser()
 
 
 def report_gen_engine() -> None:
@@ -382,13 +421,29 @@ def validate_pipeline() -> None:
     run(python_exec() + ["main.py", "--validate"], cwd=PIPE_DIR)
 
 
-def start_web() -> subprocess.Popen:
-    """Start the Next.js dev server on port 3000."""
-    log("Next.js web app -> http://localhost:3000")
-    return subprocess.Popen([npm_exec(), "run", "dev"], cwd=ROOT)
+def start_web(host: str = "127.0.0.1") -> subprocess.Popen:
+    """Start the Next.js dev server on port 3000, bound to `host`.
+
+    Runs the hoisted `next` binary directly (node_modules/.bin/next.cmd on
+    Windows) with cwd=apps/web instead of `npm run dev`: the root script is
+    itself a nested `npm run -w` and npm would eat `-H` as its own flag
+    (prints npm help and dies). Falls back to npm when the binary is not
+    hoisted.
+    """
+    log(f"Next.js web app -> http://localhost:{WEB_PORT} (host {host})")
+    next_bin = ROOT / "node_modules" / ".bin" / ("next.cmd" if os.name == "nt" else "next")
+    if next_bin.exists():
+        return subprocess.Popen(
+            [str(next_bin), "dev", "-H", host],
+            cwd=ROOT / "apps" / "web",
+        )
+    return subprocess.Popen(
+        [npm_exec(), "run", "dev", "-w", "@ultraia/web", "--", "-H", host],
+        cwd=ROOT,
+    )
 
 
-def start_hooks() -> subprocess.Popen | None:
+def start_hooks(host: str = "127.0.0.1") -> subprocess.Popen | None:
     """Start the FastAPI webhook server on port 8000 (None if missing)."""
     if not WEBHOOK_SERVER.exists():
         print(
@@ -396,8 +451,11 @@ def start_hooks() -> subprocess.Popen | None:
             file=sys.stderr,
         )
         return None
-    log("Webhook server (Runway/Fal) -> http://localhost:8000")
-    return subprocess.Popen(python_exec() + ["webhook_server.py"], cwd=PIPE_DIR)
+    log(f"Webhook server (Runway/Fal) -> http://localhost:{HOOKS_PORT} (host {host})")
+    return subprocess.Popen(
+        python_exec() + ["webhook_server.py", "--host", host, "--port", str(HOOKS_PORT)],
+        cwd=PIPE_DIR,
+    )
 
 
 def gen_engine_url() -> str:
@@ -451,7 +509,7 @@ def write_gen_engine_env(url: str) -> None:
     log(f"GEN_ENGINE_URL={url} añadido a {target.relative_to(ROOT)}")
 
 
-def start_gen_engine() -> subprocess.Popen | None:
+def start_gen_engine(host: str = "127.0.0.1") -> subprocess.Popen | None:
     """Start the local Gen-Engine (FastAPI) on the configured port (None if missing).
 
     Uses :8100 by default so it never collides with the webhook server (:8000).
@@ -467,9 +525,10 @@ def start_gen_engine() -> subprocess.Popen | None:
     url = gen_engine_url()
     port = gen_engine_port(url)
     write_gen_engine_env(url)
-    log(f"Gen-Engine (FastAPI) -> {url}")
+    log(f"Gen-Engine (FastAPI) -> {url} (host {host})")
     return subprocess.Popen(
-        python_exec() + ["-m", "uvicorn", "app.main:app", "--port", str(port)],
+        python_exec()
+        + ["-m", "uvicorn", "app.main:app", "--host", host, "--port", str(port)],
         cwd=GEN_ENGINE_DIR,
     )
 
@@ -505,7 +564,16 @@ def shutdown(procs: list[tuple[subprocess.Popen, str]]) -> None:
 
 
 def service_url(name: str) -> str:
-    """Return the health URL for a service name."""
+    """Return the health URL for a service name (127.0.0.1 — IPv4 explicit)."""
+    if name == "web":
+        return f"http://127.0.0.1:{WEB_PORT}"
+    if name == "gen-engine":
+        return f"{_ipv4_url(gen_engine_url())}/health"
+    return f"http://127.0.0.1:{HOOKS_PORT}"
+
+
+def public_url(name: str) -> str:
+    """Return the human-facing URL for a service (localhost, readable)."""
     if name == "web":
         return f"http://localhost:{WEB_PORT}"
     if name == "gen-engine":
@@ -513,15 +581,133 @@ def service_url(name: str) -> str:
     return f"http://localhost:{HOOKS_PORT}"
 
 
-def monitor_loop(procs: list[tuple[subprocess.Popen, str]]) -> None:
-    """Wait for Ctrl+C; exit 1 if any service dies unexpectedly."""
+def print_urls() -> None:
+    """Tell the user both URL forms — Chrome/Brave usually resolves localhost,
+    but 127.0.0.1 always works even when IPv6 resolution misbehaves."""
+    log(
+        f"Web lista: {public_url('web')}  "
+        f"(alternativa si falla: http://127.0.0.1:{WEB_PORT})"
+    )
+    if WEBHOOK_SERVER.exists():
+        log(
+            f"Webhooks: {public_url('hooks')}  "
+            f"(alternativa: http://127.0.0.1:{HOOKS_PORT})"
+        )
+    if GEN_ENGINE_DIR.exists():
+        log(f"Gen-Engine: {public_url('gen-engine')}")
+
+
+# ----------------------------------------------------------------- browser
+
+BROWSER_CANDIDATES: dict[str, list[str]] = {
+    "chrome": [
+        r"%ProgramFiles%\Google\Chrome\Application\chrome.exe",
+        r"%LOCALAPPDATA%\Google\Chrome\Application\chrome.exe",
+        r"%ProgramFiles(x86)%\Google\Chrome\Application\chrome.exe",
+    ],
+    "brave": [
+        r"%ProgramFiles%\BraveSoftware\Brave-Browser\Application\brave.exe",
+        r"%LOCALAPPDATA%\BraveSoftware\Brave-Browser\Application\brave.exe",
+        r"%ProgramFiles(x86)%\BraveSoftware\Brave-Browser\Application\brave.exe",
+    ],
+}
+
+
+def find_browser(browser: str | None) -> str | None:
+    """Return the path of the requested browser (chrome|brave), or None.
+
+    The BROWSER env var (a real executable path) always wins; otherwise the
+    well-known Windows install paths are checked.
+    """
+    env_browser = os.environ.get("BROWSER", "").strip()
+    if env_browser and os.path.isfile(env_browser):
+        return env_browser
+    if browser in BROWSER_CANDIDATES:
+        for pattern in BROWSER_CANDIDATES[browser]:
+            path = os.path.expandvars(pattern)
+            if os.path.isfile(path):
+                return path
+    return None
+
+
+def open_browser(url: str, browser: str | None) -> None:
+    """Open the URL in the requested browser (chrome/brave/default)."""
+    exe = find_browser(browser)
+    if exe:
+        log(f"Abriendo navegador: {exe}")
+        subprocess.Popen([exe, "--new-window", url])
+    else:
+        log(f"Abriendo navegador por defecto con {url}")
+        webbrowser.open(url)
+
+
+def open_browser_when_ready(
+    name: str, url: str, browser: str | None, timeout: float = 240.0
+) -> None:
+    """Poll the service health (soft, no exit) and open the browser once UP."""
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        if http_ok(service_url(name)):
+            open_browser(url, browser)
+            return
+        time.sleep(2)
+
+
+def report_browser() -> None:
+    """Print the browser row for --check-connections."""
+    for name in ("chrome", "brave"):
+        exe = find_browser(name)
+        if exe:
+            print(f"  [BROWSER] {name}: OK ({exe})")
+            return
+    print("  [BROWSER] Chrome/Brave no detectado — se usará el navegador por defecto")
+
+
+def monitor_loop(
+    procs: list[tuple[subprocess.Popen, str]],
+    start_fns: list[object],
+    restart_limit: int = 2,
+) -> None:
+    """Wait for Ctrl+C; restart a dead service up to `restart_limit` times.
+
+    A service that keeps dying after the limit (or that cannot be restarted)
+    fails the run: everything is shut down and exit 1 is returned, so the
+    user never keeps a half-dead stack.
+    """
     log("Todo arriba. Ctrl+C para detener todo.")
+    attempts = {name: 0 for _, name in procs}
     try:
         while True:
-            for p, name in procs:
-                if p.poll() is not None:
+            for i, (p, name) in enumerate(procs):
+                if p.poll() is None:
+                    continue
+                if attempts[name] < restart_limit:
+                    attempts[name] += 1
+                    log(
+                        f"{name} terminó (exit {p.returncode}); reiniciando "
+                        f"(intento {attempts[name]}/{restart_limit})..."
+                    )
+                    time.sleep(2 * attempts[name])
+                    new_proc = start_fns[i]()  # type: ignore[operator]
+                    if new_proc is None:
+                        print(
+                            f"[ultraia] ERROR: {name} no se pudo reiniciar",
+                            file=sys.stderr,
+                        )
+                        shutdown(procs)
+                        sys.exit(1)
+                    procs[i] = (new_proc, name)
+                    t = threading.Thread(
+                        target=wait_healthy,
+                        args=(service_url(name), name, new_proc),
+                        kwargs={"timeout": 90.0},
+                        daemon=True,
+                    )
+                    t.start()
+                else:
                     print(
-                        f"[ultraia] ERROR: {name} terminó con exit {p.returncode}. ",
+                        f"[ultraia] ERROR: {name} terminó con exit {p.returncode} "
+                        f"tras {restart_limit} reinicios.",
                         file=sys.stderr,
                     )
                     shutdown(procs)
@@ -534,13 +720,25 @@ def monitor_loop(procs: list[tuple[subprocess.Popen, str]]) -> None:
 
 
 def spawn_and_watch(
-    start_fn, name: str, watch: bool = True, timeout: float = 90.0
+    start_fn,
+    name: str,
+    watch: bool = True,
+    timeout: float = 90.0,
+    restart_limit: int = 2,
 ) -> subprocess.Popen | None:
-    """Start one service and (optionally) watch its health + lifetime."""
-    proc = start_fn()
-    if proc is None:
-        return None
-    if watch:
+    """Start one service, watch its health + lifetime, and auto-restart it.
+
+    Returns the (last) process handle. When the service keeps dying, exits 1
+    after `restart_limit` attempts instead of leaving the terminal hanging.
+    """
+    last_proc: subprocess.Popen | None = None
+    for attempt in range(restart_limit + 1):
+        proc = start_fn()
+        if proc is None:
+            return None
+        last_proc = proc
+        if not watch:
+            return proc
         t = threading.Thread(
             target=wait_healthy,
             args=(service_url(name), name, proc),
@@ -548,8 +746,16 @@ def spawn_and_watch(
             daemon=True,
         )
         t.start()
-        proc.wait()
-    return proc
+        code = proc.wait()
+        if attempt < restart_limit:
+            log(
+                f"{name} terminó (exit {code}); reiniciando "
+                f"(intento {attempt + 1}/{restart_limit})..."
+            )
+            time.sleep(2 * (attempt + 1))
+            continue
+        sys.exit(1)
+    return last_proc
 
 
 def cmd_validate() -> None:
@@ -573,15 +779,42 @@ def cmd_deploy() -> None:
     print(f"\n{DEPLOY_DOC}\n")
 
 
-def cmd_single(flag: str) -> None:
-    """Handle --web / --hooks / --gen-engine: one service, watched."""
+def cmd_single(flag: str, host: str, browser: str | None, open_web: bool) -> None:
+    """Handle --web / --hooks / --gen-engine: one service, watched + restarted."""
     if flag == "--web":
         preflight_ports([(WEB_PORT, "web (Next.js)")])
-        spawn_and_watch(start_web, "web", timeout=240.0)
+        proc = None
+        try:
+            if open_web:
+                t = threading.Thread(
+                    target=open_browser_when_ready,
+                    args=("web", public_url("web"), browser),
+                    daemon=True,
+                )
+                t.start()
+            proc = spawn_and_watch(
+                functools.partial(start_web, host), "web", timeout=240.0
+            )
+            print_urls()
+        except KeyboardInterrupt:
+            log("Ctrl+C recibido.")
+        finally:
+            if proc is not None:
+                terminate(proc, "web")
         return
     if flag == "--hooks":
         preflight_ports([(HOOKS_PORT, "webhooks (FastAPI)")])
-        spawn_and_watch(start_hooks, "hooks", timeout=90.0)
+        proc = None
+        try:
+            proc = spawn_and_watch(
+                functools.partial(start_hooks, host), "hooks", timeout=90.0
+            )
+            print_urls()
+        except KeyboardInterrupt:
+            log("Ctrl+C recibido.")
+        finally:
+            if proc is not None:
+                terminate(proc, "hooks")
         return
     if flag == "--gen-engine":
         if not GEN_ENGINE_DIR.exists():
@@ -589,22 +822,35 @@ def cmd_single(flag: str) -> None:
             sys.exit(1)
         port = gen_engine_port(gen_engine_url())
         preflight_ports([(port, "gen-engine (FastAPI)")])
-        spawn_and_watch(start_gen_engine, "gen-engine", timeout=90.0)
+        proc = None
+        try:
+            proc = spawn_and_watch(
+                functools.partial(start_gen_engine, host), "gen-engine", timeout=90.0
+            )
+        except KeyboardInterrupt:
+            log("Ctrl+C recibido.")
+        finally:
+            if proc is not None:
+                terminate(proc, "gen-engine")
         return
     raise ValueError(f"flag desconocido: {flag}")
 
 
-def cmd_full() -> None:
+def cmd_full(host: str, browser: str | None, open_web: bool) -> None:
     """Handle the default run: web + webhooks + (local) gen-engine in parallel."""
     services: list[tuple[int, str, str, object]] = [
-        (WEB_PORT, "web (Next.js)", "web", start_web),
+        (WEB_PORT, "web (Next.js)", "web", functools.partial(start_web, host)),
     ]
     if WEBHOOK_SERVER.exists():
-        services.append((HOOKS_PORT, "webhooks (FastAPI)", "hooks", start_hooks))
+        services.append(
+            (HOOKS_PORT, "webhooks (FastAPI)", "hooks",
+             functools.partial(start_hooks, host))
+        )
     if GEN_ENGINE_DIR.exists():
         services.append(
             (gen_engine_port(gen_engine_url()),
-             "gen-engine (FastAPI)", "gen-engine", start_gen_engine)
+             "gen-engine (FastAPI)", "gen-engine",
+             functools.partial(start_gen_engine, host))
         )
     preflight_ports([(port, label) for port, label, _, _ in services])
     procs: list[tuple[subprocess.Popen, str]] = []
@@ -622,7 +868,15 @@ def cmd_full() -> None:
             daemon=True,
         )
         t.start()
-    monitor_loop(procs)
+    if open_web:
+        t = threading.Thread(
+            target=open_browser_when_ready,
+            args=("web", public_url("web"), browser),
+            daemon=True,
+        )
+        t.start()
+    print_urls()
+    monitor_loop(procs, [fn for _, _, _, fn in services])
 
 
 def main() -> None:
@@ -650,7 +904,27 @@ def main() -> None:
     parser.add_argument(
         "--skip-setup", action="store_true", help="no instalar/migrar; solo arrancar"
     )
+    parser.add_argument(
+        "--host",
+        default="127.0.0.1",
+        help="host de escucha de los servicios: 127.0.0.1 (local, default), "
+        "0.0.0.0 (LAN/móvil) o :: (IPv6 dual-stack)",
+    )
+    parser.add_argument(
+        "--browser",
+        default="default",
+        choices=["chrome", "brave", "default"],
+        help="navegador para abrir la web al estar UP (default: Chrome/Brave "
+        "detectados o el navegador del sistema)",
+    )
+    parser.add_argument(
+        "--no-open",
+        action="store_true",
+        help="no abrir el navegador automáticamente al arrancar la web",
+    )
     args = parser.parse_args()
+    browser: str | None = None if args.browser == "default" else args.browser
+    open_web = not args.no_open
 
     if args.check_connections:
         check_connections()
@@ -668,9 +942,9 @@ def main() -> None:
         setup()
     if args.web or args.hooks or args.gen_engine:
         flag = "--web" if args.web else ("--hooks" if args.hooks else "--gen-engine")
-        cmd_single(flag)
+        cmd_single(flag, args.host, browser, open_web)
         return
-    cmd_full()
+    cmd_full(args.host, browser, open_web)
 
 
 if __name__ == "__main__":

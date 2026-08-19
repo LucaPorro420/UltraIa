@@ -5,7 +5,8 @@ al servidor cuando la tarea termina; el servidor descarga el video y dispara el
 ensamblado (audio + subtítulos) en segundo plano.
 
 Uso:
-    python webhook_server.py            # http://0.0.0.0:8000
+    python webhook_server.py                # http://0.0.0.0:8000
+    python webhook_server.py --host 127.0.0.1 --port 8001  # host/puerto custom
     ngrok http 8000                     # URL pública para el webhook del proveedor
 
 Base verificada: `gemini-code-1786584811320.py` (misma arquitectura, ahora con
@@ -15,7 +16,6 @@ from __future__ import annotations
 
 import os
 import secrets
-import subprocess
 import sys
 from pathlib import Path
 
@@ -106,6 +106,19 @@ async def fal_callback(
 
 
 if __name__ == "__main__":
+    import argparse
+
     import uvicorn
 
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    parser = argparse.ArgumentParser(description="UltraIa webhook server")
+    parser.add_argument(
+        "--host",
+        default="0.0.0.0",
+        help="host de escucha (default 0.0.0.0; start.py pasa 127.0.0.1)",
+    )
+    parser.add_argument(
+        "--port", type=int, default=8000, help="puerto de escucha (default 8000)"
+    )
+    args = parser.parse_args()
+
+    uvicorn.run(app, host=args.host, port=args.port)
