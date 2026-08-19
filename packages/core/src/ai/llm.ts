@@ -47,6 +47,9 @@ import { researchSearch, searchArxiv, researchWeb, researchGitHub, fetchAndExtra
 import { classifyEnlaces, contentChecksum } from '../tools/enlaces';
 import { buscarLibros, librosPorSeccion, categoriasLibros, validarPropuestaLibro } from '../tools/libros';
 import { sdf } from '../tools/sdf';
+import * as videoqa from '../tools/videoqa';
+import * as motion from '../tools/motion';
+import * as replica from '../tools/replica';
 import { createPublication, listPublications, approvePublication, rejectPublication, publishDue } from '../domain/publications';
 import { generarContenido, type ContentPackage } from '../tools/enrutador';
 import { computeChannelKpis, fetchChannelAnalytics } from '../tools/metrics';
@@ -1062,6 +1065,142 @@ export function chatStream(opts: {
             return { accion, formula: plan.formula, ray: sdf.rayMarchPlan(plan) };
           case 'html':
             return { accion, formula: plan.formula, html: sdf.renderSdfHtml(plan, { width, height }) };
+          default:
+            return { accion, ok: false, error: 'accion desconocida' };
+        }
+      },
+    });
+  }
+  if (opts.tools?.includes('videoqa')) {
+    tools.videoqa_metrics = tool({
+      description:
+        'Video quality metrics (fundamentos-programacion.md A20-A24): MAE/MSE/PSNR/SSIM between reference and distorted luminance buffers, optical-flow error E_flow, weighted total error E_total (alpha=0.6 pixel / beta=0.3 flow / gamma=0.1 semantic), and a pass verdict against thresholds (PSNR>40dB, SSIM>0.95, E_total<0.4). Also builds the deterministic ffmpeg/libvmaf argv (never executes). Deterministic, keyless. Use to verify a rendered/edited video against a reference before publishing.',
+      parameters: z.object({
+        accion: z.enum(['metricas', 'veredicto', 'vmaf']),
+        referenceJson: z.string().min(2).max(12000).optional(), // number[] luminancia 0-255
+        distortedJson: z.string().min(2).max(12000).optional(), // number[] luminancia
+        flowJson: z.string().optional(), // {flowReference: [[x,y]...], flowDistorted: [[x,y]...]}
+        semanticError: z.number().min(0).max(1).optional(),
+        umbralesJson: z.string().optional(), // {psnrMin?, ssimMin?, eTotalMax?}
+        runnerJson: z.string().optional(), // para vmaf: {reference?, distorted?, size?, model?, features?, ffmpegPath?}
+      }),
+      execute: async ({ accion, referenceJson, distortedJson, flowJson, semanticError, umbralesJson, runnerJson }) => {
+        switch (accion) {
+          case 'metricas': {
+            const reference = JSON.parse(referenceJson ?? '[]');
+            const distorted = JSON.parse(distortedJson ?? '[]');
+            const flow = flowJson ? JSON.parse(flowJson) : {};
+            const mseValue = videoqa.mse(reference, distorted);
+            return {
+              accion,
+              metrics: {
+                mae: videoqa.mae(reference, distorted),
+                mse: mseValue,
+                psnr: videoqa.psnr(mseValue),
+                ssim: videoqa.ssim(reference, distorted),
+                e_flow: videoqa.eFlow(flow.flowReference ?? [], flow.flowDistorted ?? []),
+                e_total: videoqa.eTotal({ reference, distorted, flowReference: flow.flowReference, flowDistorted: flow.flowDistorted, semanticError }),
+              },
+            };
+          }
+          case 'veredicto': {
+            const reference = JSON.parse(referenceJson ?? '[]');
+            const distorted = JSON.parse(distortedJson ?? '[]');
+            const flow = flowJson ? JSON.parse(flowJson) : {};
+            const umbrales = umbralesJson ? JSON.parse(umbralesJson) : {};
+            return { accion, ...videoqa.verdictVideo({ reference, distorted, flowReference: flow.flowReference, flowDistorted: flow.flowDistorted, semanticError }, umbrales) };
+          }
+          case 'vmaf': {
+            const runner = runnerJson ? JSON.parse(runnerJson) : {};
+            return { accion, argv: videoqa.buildVmafArgv(runner), nota: 'argv listo; no ejecutado' };
+          }
+          default:
+            return { accion, ok: false, error: 'accion desconocida' };
+        }
+      },
+    });
+  }
+  if (opts.tools?.includes('motion')) {
+    tools.motion_analyze = tool({
+      description:
+        'Video motion analysis (fundamentos-programacion.md A9-A11/A14): stats of an optical-flow field F(x,y,t) (mean magnitude, dominant angle, coherence), camera-vs-scene decomposition (least-squares global translation+zoom model, residual scene motion, dominant verdict static/camera/scene/mixed), Catmull-Rom trajectory fitting through control points, and the deterministic Python/OpenCV flow-analysis argv (Farneback/Lucas-Kanade; never executes). Deterministic, keyless. Use to analyze camera movement vs object motion before planning cuts or renders.',
+      parameters: z.object({
+        accion: z.enum(['stats', 'descomponer', 'trayectoria', 'runner']),
+        campoJson: z.string().min(2).max(12000).optional(), // {width, height, vectors: [[x,y,u,v]...]}
+        puntosJson: z.string().optional(), // [[x,y]...] para trayectoria
+        t: z.number().optional(), // para trayectoria: evaluar en t
+        cfgJson: z.string().optional(), // para runner: {method?, scale?, grid?, roi?, window?, minMagnitude?, pythonPath?}
+      }),
+      execute: async ({ accion, campoJson, puntosJson, t, cfgJson }) => {
+        switch (accion) {
+          case 'stats': {
+            const campo = campoJson ? JSON.parse(campoJson) : { width: 1, height: 1, vectors: [] };
+            return { accion, stats: motion.flowStats(campo) };
+          }
+          case 'descomponer': {
+            const campo = campoJson ? JSON.parse(campoJson) : { width: 1, height: 1, vectors: [] };
+            const d = motion.decomposeMotion(campo);
+            return {
+              accion,
+              camera: d.cameraTranslation,
+              zoom: d.cameraZoom,
+              explicado: d.explainedRatio,
+              dominante: d.dominant,
+              residual: {
+                width: d.sceneResidual.width,
+                height: d.sceneResidual.height,
+                meanMagnitude: motion.flowStats(d.sceneResidual).meanMagnitude,
+              },
+            };
+          }
+          case 'trayectoria': {
+            const puntos = puntosJson ? JSON.parse(puntosJson) : [];
+            const tr = motion.trajectoryFit(puntos);
+            return { accion, puntos: tr.controlPoints, longitud: tr.length, evaluacion: t !== undefined ? tr.evaluate(t) : null };
+          }
+          case 'runner': {
+            const cfg = cfgJson ? JSON.parse(cfgJson) : {};
+            const p = motion.planFlowAnalysis(cfg);
+            return { accion, argv: p.argv, summary: p.summary };
+          }
+          default:
+            return { accion, ok: false, error: 'accion desconocida' };
+        }
+      },
+    });
+  }
+  if (opts.tools?.includes('replica')) {
+    tools.replica_run = tool({
+      description:
+        'Analysis-by-synthesis orchestrator (fundamentos-programacion.md A21/A26-A37): analyze a target signature (mean/variance/span), plan a replica run (parse config with stop conditions target score, max iterations, patience, timeout; presupuestos de cómputo) and expose deterministic optimization steps. The full loop (analyze -> generate -> compare -> optimize with checkpoints, resume and fail-soft) lives in the pure domain packages/core/src/tools/replica.ts and is executed by a runner that injects the real IO (generative/videoqa/motion/sdf). Deterministic, keyless. Use to plan and drive replication of a target by synthesis.',
+      parameters: z.object({
+        accion: z.enum(['analizar', 'plan']),
+        targetJson: z.string().min(2).max(12000).optional(), // number[] firma numérica del objetivo
+        cfgJson: z.string().optional(), // {maxIterations?, targetScore?, improvementThreshold?, patience?, theta[], stepSize?, timeoutMs?}
+      }),
+      execute: async ({ accion, targetJson, cfgJson }) => {
+        switch (accion) {
+          case 'analizar': {
+            const target = JSON.parse(targetJson ?? '[]');
+            return { accion, stats: replica.analyzeTarget(target) };
+          }
+          case 'plan': {
+            const cfg = cfgJson ? JSON.parse(cfgJson) : { theta: [1] };
+            const parsed = replica.replicaConfigSchema.parse(cfg);
+            return {
+              accion,
+              cfg: parsed,
+              stopConditions: {
+                targetScore: parsed.targetScore,
+                maxIterations: parsed.maxIterations,
+                patience: parsed.patience,
+                timeoutMs: parsed.timeoutMs,
+                improvementThreshold: parsed.improvementThreshold,
+              },
+              presupuesto: `max ${parsed.maxIterations} iteraciones, ${parsed.timeoutMs} ms`,
+              nota: 'ejecucion real con IO inyectado: runner externo (dominio puro keyless)',
+            };
+          }
           default:
             return { accion, ok: false, error: 'accion desconocida' };
         }
