@@ -66,6 +66,9 @@ screenshots/
 # UltraIA Cloud (capability cloud): archivos subidos localmente
 .ultraia/cloud/
 
+# Travel (capability travel): tomas descargadas + renders — regenerables con Task
+.ultraia/travel/
+
 # Expo mobile (Fase mobile)
 apps/mobile/.expo/
 apps/mobile/dist/
@@ -76,3 +79,6 @@ apps/mobile/.claude/
 repomix-output.*
 repomix-output/
 repomix.config.json
+
+# Datos del usuario (videos descargados para la capability travel)
+VideoTask&Memory/
