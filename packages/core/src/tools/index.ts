@@ -23,6 +23,7 @@ export * from './cloud';
 export * from './travel';
 export * from './generative';
 export * from './libros';
+export * from './sdf';
 
 import * as web from './web';
 import * as image from './image';
@@ -51,8 +52,9 @@ import { codevfx } from './codevfx';
 import { travel } from './travel';
 import { generative } from './generative';
 import { libros } from './libros';
+import { sdf } from './sdf';
 
-export const tools = { web, image, video, music, stitch, reach, skills: { runSkill }, content, g0dm0d3, topics, present: presentTools, publish, enrutador, mediaScore, metrics, memoryFs: { createMemoryFs }, diagram, videoEdit, screenflow, cloud: cloudTools, harness, growth, vfx, codevfx, travel, generative, libros };
+export const tools = { web, image, video, music, stitch, reach, skills: { runSkill }, content, g0dm0d3, topics, present: presentTools, publish, enrutador, mediaScore, metrics, memoryFs: { createMemoryFs }, diagram, videoEdit, screenflow, cloud: cloudTools, harness, growth, vfx, codevfx, travel, generative, libros, sdf };
 
 export const TOOL_DESCRIPTIONS: Record<string, string> = {
   calculator: 'Safely evaluate a mathematical expression (math only).',
@@ -108,6 +110,8 @@ export const TOOL_DESCRIPTIONS: Record<string, string> = {
     'Link curation & knowledge integration: parse the project enlaces.txt URL list, classify entries (pending vs already processed), and download/commit raw sources into learning/sources/<slug>.md — the protocol for turning user-shared links into capabilities/docs/tests. Deterministic, idempotent. Use to process new links and integrate external knowledge into the project.',
   libros:
     'Free programming books catalog in Spanish (librosgratis.dev / midudev pattern): 115 free books and tutorials in 32 sections across 8 categories — search with multi-term scoring (title 3 > author 2 > section 1, accents-insensitive), list by section, aggregate categories, and validate new resource proposals against the README rules. Deterministic, keyless. Use to recommend free Spanish learning resources for any programming topic.',
+  sdf:
+    'Signed Distance Fields + ray marching (Inigo Quilez pattern, 100% code): plan a 3D SDF scene (sphere/box/torus/capsule/plane primitives; union/intersection/subtract/smooth ops with evaluable tree and human-readable formula), generate GLSL reference code, estimate a ray-march render plan (steps, 16:9 resolution, ops per frame) or render a self-contained HTML5 canvas 2D scene (drag rotate, wheel zoom, R reset, Dark Obsidian, a11y). Deterministic, keyless, offline. Use to visualize procedural 3D shapes as code.',
 };
 
 export type Capability =
@@ -140,4 +144,5 @@ export type Capability =
   | 'generative'
   | 'research'
   | 'enlaces'
-  | 'libros';
+  | 'libros'
+  | 'sdf';

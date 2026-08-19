@@ -46,6 +46,7 @@ import {
 import { researchSearch, searchArxiv, researchWeb, researchGitHub, fetchAndExtract } from '../tools/research';
 import { classifyEnlaces, contentChecksum } from '../tools/enlaces';
 import { buscarLibros, librosPorSeccion, categoriasLibros, validarPropuestaLibro } from '../tools/libros';
+import { sdf } from '../tools/sdf';
 import { createPublication, listPublications, approvePublication, rejectPublication, publishDue } from '../domain/publications';
 import { generarContenido, type ContentPackage } from '../tools/enrutador';
 import { computeChannelKpis, fetchChannelAnalytics } from '../tools/metrics';
@@ -1033,6 +1034,34 @@ export function chatStream(opts: {
             const r = validarPropuestaLibro(JSON.parse(propuestaJson));
             return { accion, ...r };
           }
+          default:
+            return { accion, ok: false, error: 'accion desconocida' };
+        }
+      },
+    });
+  }
+  if (opts.tools?.includes('sdf')) {
+    tools.sdf_render = tool({
+      description:
+        'Signed Distance Fields + ray marching (fundamentos-programacion.md A12-A13, Inigo Quilez pattern): plan a 3D SDF scene (primitives sphere/box/torus/capsule/plane, ops union/intersection/subtract/smooth), get GLSL reference code, a ray-march render plan (steps, 16:9 resolution, estimated ops per frame) or a self-contained HTML5 canvas render (2D software ray marching, drag to rotate, wheel to zoom, R reset, Dark Obsidian). Deterministic, keyless, offline. Use to visualize procedural 3D shapes as code or teach ray marching.',
+      parameters: z.object({
+        accion: z.enum(['plan', 'glsl', 'ray', 'html']),
+        escenaJson: z.string().min(2).max(12000).optional(), // {primitives, ops?, root?, camera?, steps?}
+        width: z.number().int().min(160).max(1920).optional(), // para html
+        height: z.number().int().min(90).max(1080).optional(), // para html
+      }),
+      execute: async ({ accion, escenaJson, width, height }) => {
+        const escena = escenaJson ? JSON.parse(escenaJson) : { primitives: [{ kind: 'sphere', pos: [0, 0, 0], color: '#8b5cf6', params: { radius: 1 } }] };
+        const plan = sdf.planSdfScene(escena);
+        switch (accion) {
+          case 'plan':
+            return { accion, plan: { primitives: plan.primitives, ops: plan.ops, root: plan.root, camera: plan.camera, steps: plan.steps, palette: plan.palette, formula: plan.formula } };
+          case 'glsl':
+            return { accion, formula: plan.formula, glsl: sdf.sdfSceneGlsl(plan) };
+          case 'ray':
+            return { accion, formula: plan.formula, ray: sdf.rayMarchPlan(plan) };
+          case 'html':
+            return { accion, formula: plan.formula, html: sdf.renderSdfHtml(plan, { width, height }) };
           default:
             return { accion, ok: false, error: 'accion desconocida' };
         }
