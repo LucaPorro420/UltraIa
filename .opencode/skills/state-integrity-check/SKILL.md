@@ -41,6 +41,9 @@ es una pasada de **lectura**: nunca escribe STATE.md por sí sola, solo reporta.
 5. **Banner desactualizado**: si el banner tiene fecha/hora y existen filas DONE en la tabla
    con fecha posterior a esa, el banner es candidato a obsoleto — reportarlo, no borrarlo.
 
+6. **Archivos criticos de la raiz a 0 bytes** (incidente 19/08/2026: 36+ archivos versionados vaciados por una sesion): comprobar que los archivos criticos del repo tienen tamano > 0: `package.json`, `package-lock.json`, `tsconfig.base.json`, `AGENTS.md`, `AGENT.md`, `LOOP.md`, `loop-constraints.md`, `loop-budget.md`, `loop-verifier.md`, `opencode.json`, `README.md`, `start.py`, `run-all.ps1`, `STATE.md`, `loop-run-log.md`. Cualquiera a 0 bytes = ALERTA ROJA (un commit sin pathspec lo arrastraria al repo). Reparacion: `git restore --source=HEAD -- <path>` si el archivo esta en git; si solo esta staged (no en HEAD), `git cat-file blob <hash-de-git-ls-files> > <path>`; si no esta en git, restaurar de copia/backup o reportar perdida. Existe `scripts/restore-empty-tracked.ps1` con el escaneo + restauracion automatizados.
+7. **Firma temporal del vaciado masivo**: si varios archivos comparten un mismo `LastWriteTime` reciente y tamano 0, es una herramienta/escriba que vacio archivos en masa (se senal del incidente 22:53:27 18/08/2026). Reportar el mtime compartido como firma.
+
 ## Salida
 
 Bloque corto, pensado para insertarse en el reporte de `loop-triage` (o standalone si se invoca
@@ -53,6 +56,8 @@ STATE.md integrity: <N> issues
 - banner-desync: banner dice "PAUSADA", pero loop-pause-all está AUSENTE de STATE.md y loop-run-log.md
 - encoding: N líneas con el carácter de reemplazo
 - stale-banner: banner fechado <fecha>, hay filas DONE posteriores
+- root-empty: N archivos criticos de la raiz a 0 bytes (<lista>) — ALERTA ROJA
+- mass-wipe: N archivos con el mismo mtime reciente y 0 bytes (firma <mtime>) — posible vaciado en masa
 ```
 
 ## Regla

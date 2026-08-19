@@ -2148,3 +2148,16 @@ de código, sin commit.
 - **[I]**: seeds activados (b619be5) + nota AGENTS.md (1ebc7e7) + STATE.md worktree vacio restaurado desde c22dee8 (la 57b lo vacio a las 22:53:27 tras su commit 63ad94b; restauracion reversible - si ella reescribe, su version gana). La 57b cerro el wiring index.ts (63ad94b, gates FULL verdes) - plan 56-62 CERRADO por ambos lados.
 - **[V]**: push directo a master aprobado por el usuario (regla documentada iter-46): b4b3bf9..c729041, 29 commits, 0 restantes. origin/master = c729041 (verificacion cruzada de la 57b: tsc core 0 + vitest 145/145 con wiring completo).
 - **[R]**: plan fundamentos 100% cerrado y en remoto. Pendiente humano: fila 63 del lock (57b en curso), estado de STATE.md vacio si la 57b no lo reescribe.
+
+### Iteracion 64 - Cierre L826 + correccion High Priority (18/08/2026, sesion r54)
+
+- **[P]** Plan regenerado tras evaluacion: (a) plan fundamentos 56-62 CERRADO por ambos lados (43121b1, push aprobado b4b3bf9..c729041); (b) EVALUACION: High Priority L826 (midudev/libros-programacion-gratis) ya procesada de hecho (fuente learning/sources/libros-programacion-gratis.md declara L826 + capability libros 6b7e13d 31 tests) -> tarea = cerrar con evidencia; (c) CORRECCION: 6 entradas High Priority obsoletas (PLAN 61/60, WIRINGS PENDIENTES, ITER 58 CEDIDA, r55, r58 ACTIVA) a condensar; (d) peticion NUEVA: enlaces.txt reemplazado (MM, 3 lineas) con post Instagram DcL0G4MDiKV - pendiente acceso, NO inventar (precedente L807). EVADIR en edicion: enlaces.txt, .gitignore (22:54), .env* (22:53), batch #25 staged, WIP #25. Plan: .opencode/plans/loop-64-cierre-l826-hp.md. Tolerancia: si STATE.md inestable -> no editarlo (evadir), cerrar igual con evidencia en run-log.
+### Iteracion 66: Incidente raiz reparado + imaging commiteado + prevencion harness (18/08/2026, sesion principal)
+
+- **[Sensado]**: al iniciar, STATE.md y loop-constraints.md a 0 bytes (mtime 22:53:27 = incidente 57b documentado en fila 65); lock LIBRE (iter-63 CERRADA); High Priority: P1 verificar push b4b3bf9..c729041 + P1 prevencion harness.
+- **[I1]**: restaurar raiz: 38 archivos versionados via git restore --source=HEAD (incl. package-lock.json 19.5k lineas y LOOPENGINEER.TXT), 2 staged-no-HEAD via git cat-file blob (cuentas.txt 47B + mp4 coders.learning 3.1MB). Perdida real NO restaurable: .env (gitignored, secrets a rellenar por el humano) + FundamentosDeLaProgramcon.txt/proyectoNuevo.txt/session-ses_009b.md (untracked).
+- **[I2]**: verificar P1 push: b4b3bf9..c729041 toca solo AGENTS.md/LOOP.md/opencode.json con inserciones (sin truncamientos) - P1 PUSH VERIFICADO OK.
+- **[I3]**: iteracion 64 (capability imaging, documentada CERRADA por 57b pero sin commitear: untracked + llm.ts/index.ts M) - typecheck 0 + vitest 58/58 -> commit 176c5dd (4 archivos, 1938+).
+- **[I4]**: P1 prevencion: state-integrity-check ampliada (check-6 archivos criticos raiz a 0 bytes + check-7 firma mtime masivo) + espejo raiz sync hash 2FDF8CA0 + self-test 15/15 PASS + P1 marcado CERRADO en STATE.md.
+- **[V]**: gates: typecheck FULL 0; vitest imaging 58/58; check-6 PASS.
+- **[R]**: raiz 100% restaurada y verificada; 2 commits (176c5dd + skill). Push pendiente de aprobacion humana (constraint).
