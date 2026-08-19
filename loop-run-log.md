@@ -2091,3 +2091,9 @@ de código, sin commit.
 - **[V] scoped GREEN**: vitest 20/20 + tsc EXIT 0. Commit 82c76fc (2 archivos, 562+). Fila 60 DONE.
 - **[R] DONE** - 82c76fc. Wiring DIFERIDO (verificar llm.ts antes: 57b puede tomarlo). Siguiente: 61 capability replica (ultima del plan fundamentos).
 
+
+### Iteracion 61 - Capability replica (18/08/2026, fase P - plan preparado, ejecucion diferida)
+- **[P] Sensado**: r58 ACTIVA en wiring sdf (llm.ts M con tools.sdf_render 1044 + index.ts M con export sdf; sdf.ts/sdf.test.ts untracked). 59 videoqa DONE sin wiring; 60 motion DONE sin wiring (82c76fc). replica.ts NO existe. Touch llm.ts/index.ts ahora = colision.
+- **[P] Razonamiento + prediccion**: plan file .opencode/plans/loop-61-replica.md escrito (ReplicaOrchestrator analyze->generate->compare->optimize, stop conditions target/100iter/mejora<0.001x5, checkpoints serializables, presupuestos, fail->diagnostico, integra generative+videoqa+motion+sdf via imports opcionales, tool replica_run + wiring diferido). PREDICCION: C1 22-27/25-30 -> C2 100% scoped + tsc 0 -> C3 FULL verdes ~328+ tests core.
+- **[V] SIN CODIGO (fase P)**: plan file creado, sin .ts tocados. Lock ajeno respetado.
+- **[R] DIFERIDO**: ejecutar cuando llm.ts/index.ts esten limpios de r58. Si replica.ts aparece untracked ajeno -> CEDER (precedente 58/60). Mientras, verificar wiring videoqa/motion pendiente: 3 wirings (sdf en curso por r58 + videoqa + motion) quedan para el primero que libere.
