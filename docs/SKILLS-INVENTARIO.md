@@ -21,6 +21,8 @@ Skills del harness PIVR (raíz `skills/` + espejos `.opencode/skills/`, sync por
 | `state-integrity-check` | Antes de confiar en STATE.md | IDs duplicados, filas fuera de tabla, banner desync, encoding |
 | `learning-memory` | Reutilizar esquemas verificados | Restaura memoria comprimida + lecciones |
 | `ultraia-design-system` | Cualquier UI de UltraIa | Tokens Dark Obsidian + motion + anti-AI-slop |
+| `creative-code-architect` | Cualquier creación 2D/3D/audio/video por código puro (19/08/2026) | Skill del usuario (verbatim): razonamiento matemático → código puro → ejecución recursiva; sin assets externos, 60 FPS |
+| `creative-coding` | Todo trabajo de animación/imagen/video programado | Flujo: matemática/física primero → código puro autocontenido → verificación visual (screenshot+videoqa) → lección (19/08/2026, C73) |
 
 Skills de capability (en `.opencode/skills/` de terceros/derivados usados por el proyecto):
 

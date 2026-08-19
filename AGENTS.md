@@ -703,3 +703,12 @@ LEY: `git add` explicito (nunca `.`), NO tocar DOCS_TODO/blueprint/reach/automat
 - **Skills audit (62, sesion 57b, a43ce98)**: .opencode/skills-avoid/ cuarentena 15 SKILL.md + docs/SKILLS-INVENTARIO.md.
 - **Seeds activados (b619be5)**: bp-guionista +motion, bp-analista +videoqa, bp-publicador +videoqa, bp-orquestador +sdf/videoqa/motion/replica (seed-admin hereda automaticamente con +skills/content/memory; una sola fuente en seed-data.mjs). Verificado en DB: 16 versions, videoqa en 6, sdf en 2, orquestador 11 caps.
 - **Concurrencia**: 3 tasks del plan las completo yo en rafaga (escribir+test+commit antes de colision); sdf y 62 las completo la 57b; las filas 60/61 las marco DONE tras que ella ceda. Regla confirmada: quien commitea primero gana; nunca duplicar; el lock (task 58) es el arbitro.
+
+## Auto-switch plan->build (19/08/2026, aprobado por el usuario)
+
+- Autorizacion PERMANENTE del usuario (19/08/2026): cuando el usuario diga "cambia a build", "apruebo",
+  "approved", "ejecuta" o apruebe el plan presentado, el agente cambia a build INMEDIATAMENTE y ejecuta
+  sin pedir confirmacion adicional. Regla en el prompt del agente 'plan' de opencode.json.
+- Regla complementaria: si el usuario pide ejecutar sin haber aprobado explicitamente pero el trabajo
+  ya fue aprobado en un turno anterior, ejecutar (precedente 19/08: plan creative-coding aprobado
+  con "Apruebo todo").
