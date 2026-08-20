@@ -182,6 +182,74 @@ const RECOMENDACION_POR_VARIABLE: Record<ExperimentVariable, string> = {
   formato: 'formato alternativo que abrio audiencia nueva',
 };
 
+// ------------------------------------------------------------------- puente publicationSignals (cierre F5 AutoPub)
+
+/** Keywords por variable (es/en) para clasificar una critique. */
+const KEYWORDS_POR_VARIABLE: Record<ExperimentVariable, string[]> = {
+  titulo: ['titulo', 'title', 'titular', 'clickbait', 'ctr'],
+  hook: ['hook', 'gancho', 'intro', 'apertura', 'primeros segundos'],
+  thumbnail: ['thumbnail', 'miniatura', 'thumb', 'portada'],
+  duracion: ['duracion', 'largo', 'length', 'avd', 'retencion', 'retention', 'se alarga'],
+  formato: ['formato', 'listicle', 'estructura', 'format', 'estilo del video'],
+};
+
+/** QUÉ ES: clasifica una critique (string) en la ExperimentVariable que señala.
+// PARA QUÉ: cierre F5 AutoPub — publicationSignals() ya devuelve critiques de
+// ratings BAD; este puente las traduce a variables accionables del growth loop.
+// POR QUÉ: determinista — normaliza a minusculas y matchea keywords por variable
+// en orden fijo (primera coincidencia gana); sin match devuelve null. */
+export function clasifyCritique(critique: string): ExperimentVariable | null {
+  const texto = critique.toLowerCase();
+  for (const variable of Object.keys(KEYWORDS_POR_VARIABLE) as ExperimentVariable[]) {
+    if (KEYWORDS_POR_VARIABLE[variable].some((k) => texto.includes(k))) return variable;
+  }
+  return null;
+}
+
+/** QUÉ ES: convierte un lote de critiques en ChannelKpis (0-100 por variable).
+// PARA QUÉ: alimenta planExperiments — la variable mas quejada queda con el peor
+// KPI y se convierte en el primer experimento (peor KPI primero, regla Abacus).
+// POR QUÉ: determinista — kpi = 100 - 20 x frecuencia (floor 0); solo aparecen
+// variables criticadas; critiques vacias devuelven {} (degradacion elegante). */
+export function critiquesToKpis(critiques: string[]): ChannelKpis {
+  const frecuencias = new Map<ExperimentVariable, number>();
+  for (const critique of critiques) {
+    const variable = clasifyCritique(critique);
+    if (variable) frecuencias.set(variable, (frecuencias.get(variable) ?? 0) + 1);
+  }
+  const kpis: ChannelKpis = {};
+  for (const [variable, frecuencia] of frecuencias) {
+    kpis[variable] = Math.max(0, 100 - 20 * frecuencia);
+  }
+  return kpis;
+}
+
+/** Recomendaciones de EVITAR por variable (espejo negativo del playbook). */
+const EVITAR_POR_VARIABLE: Record<ExperimentVariable, string> = {
+  titulo: 'evitar titulos vagos sin numero ni promesa especifica',
+  hook: 'evitar hooks largos: abrir con la promesa en los primeros 12s',
+  thumbnail: 'evitar thumbnails sin texto (el feed castiga el CTR bajo)',
+  duracion: 'evitar duraciones que exceden el punto de retencion',
+  formato: 'evitar repetir el formato criticado por la audiencia',
+};
+
+/** QUÉ ES: construye entradas de playbook de tipo EVITAR desde critiques.
+// PARA QUÉ: cierre F5 AutoPub — el loop se cierra: critiques -> kpis ->
+// planExperiments (que mejorar) + avoidances (que no repetir).
+// POR QUÉ: determinista — peso = frecuencia de la variable; orden desc; critiques
+// vacias devuelven [] (degradacion elegante, a diferencia de buildPlaybook que
+// requiere senales). */
+export function buildAvoidanceFromCritiques(canal: string, critiques: string[]): PlaybookEntry[] {
+  const frecuencias = new Map<ExperimentVariable, number>();
+  for (const critique of critiques) {
+    const variable = clasifyCritique(critique);
+    if (variable) frecuencias.set(variable, (frecuencias.get(variable) ?? 0) + 1);
+  }
+  return [...frecuencias.entries()]
+    .map(([variable, peso]) => ({ canal, recomendacion: EVITAR_POR_VARIABLE[variable], fuente: variable, peso }))
+    .sort((a, b) => b.peso - a.peso);
+}
+
 // ------------------------------------------------------------------- helpers
 
 function round1(x: number): number {
@@ -192,4 +260,4 @@ function round2(x: number): number {
   return Math.round(x * 100) / 100;
 }
 
-export const growth = { analyzeChannel, planExperiments, buildPlaybook, HIPOTESIS };
+export const growth = { analyzeChannel, planExperiments, buildPlaybook, clasifyCritique, critiquesToKpis, buildAvoidanceFromCritiques, HIPOTESIS };

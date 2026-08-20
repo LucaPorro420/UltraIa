@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { analyzeChannel, planExperiments, buildPlaybook, type ChannelSample, type EngagementSignal } from './growth';
+import { analyzeChannel, planExperiments, buildPlaybook, clasifyCritique, critiquesToKpis, buildAvoidanceFromCritiques, type ChannelSample, type EngagementSignal } from './growth';
 
 describe('growth: analyzeChannel', () => {
   it('construye un perfil promedio desde muestras', () => {
@@ -146,5 +146,74 @@ describe('growth: buildPlaybook', () => {
     ]);
     expect(book[0].fuente).toBe('hook');
     expect(book[0].peso).toBe(2);
+  });
+});
+
+describe('growth: puente publicationSignals (cierre F5 AutoPub)', () => {
+  it('clasifica critiques en es (una por variable)', () => {
+    expect(clasifyCritique('el titulo no engancha')).toBe('titulo');
+    expect(clasifyCritique('el hook es muy largo')).toBe('hook');
+    expect(clasifyCritique('la miniatura no se ve')).toBe('thumbnail');
+    expect(clasifyCritique('el video se hace largo')).toBe('duracion');
+    expect(clasifyCritique('el formato no funciona')).toBe('formato');
+  });
+
+  it('clasifica critiques en en', () => {
+    expect(clasifyCritique('title is boring')).toBe('titulo');
+    expect(clasifyCritique('thumbnail has no text')).toBe('thumbnail');
+    expect(clasifyCritique('bad retention')).toBe('duracion');
+  });
+
+  it('devuelve null sin keyword conocida', () => {
+    expect(clasifyCritique('el sonido esta mal')).toBeNull();
+  });
+
+  it('es case-insensitive y no depende del contexto', () => {
+    expect(clasifyCritique('El TITULO no engancha')).toBe('titulo');
+    expect(clasifyCritique('mejora el CTR con promesa')).toBe('titulo');
+  });
+
+  it('kpi = 100 - 20 x frecuencia con floor 0', () => {
+    const kpis = critiquesToKpis([
+      'el titulo no engancha', 'otro titulo malo', 'titulo clickbait',
+      'titulo sin promesa', 'titulo confuso', 'titulo repetido',
+      'el hook es largo', 'hook aburrido',
+    ]);
+    expect(kpis.titulo).toBe(0); // 6 quejas -> 100 - 120 -> floor 0
+    expect(kpis.hook).toBe(60); // 2 quejas -> 100 - 40
+  });
+
+  it('solo incluye variables criticadas; vacio -> {}', () => {
+    expect(critiquesToKpis([])).toEqual({});
+    const kpis = critiquesToKpis(['el hook es largo']);
+    expect(Object.keys(kpis)).toEqual(['hook']);
+  });
+
+  it('buildAvoidanceFromCritiques: peso = frecuencia, orden desc, canal incluido', () => {
+    const avoid = buildAvoidanceFromCritiques('canal-demo', [
+      'el titulo no engancha', 'titulo clickbait', 'titulo confuso',
+      'el hook es largo',
+    ]);
+    expect(avoid).toHaveLength(2);
+    expect(avoid[0].fuente).toBe('titulo');
+    expect(avoid[0].peso).toBe(3);
+    expect(avoid[0].canal).toBe('canal-demo');
+    expect(avoid[0].recomendacion).toContain('evitar');
+    expect(avoid[1].fuente).toBe('hook');
+  });
+
+  it('buildAvoidanceFromCritiques: vacio -> [] (degradacion elegante)', () => {
+    expect(buildAvoidanceFromCritiques('canal-demo', [])).toEqual([]);
+  });
+
+  it('cierra el loop: critiques -> kpis -> planExperiments (peor KPI primero)', () => {
+    const kpis = critiquesToKpis([
+      'el titulo no engancha',
+      'el hook es largo', 'hook aburrido', 'hook sin promesa',
+    ]);
+    const perfil = { pacingAvgSeg: 600, cutCadence: 4, onScreenTextDensity: 0.8, hookLengthAvg: 30, thumbnailStyle: 'texto-grande' as const };
+    const exps = planExperiments(perfil, kpis);
+    expect(exps[0].variable).toBe('hook'); // 3 quejas -> kpi 40 (peor)
+    expect(exps[1].variable).toBe('titulo'); // 1 queja -> kpi 80
   });
 });
