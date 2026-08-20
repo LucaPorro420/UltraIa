@@ -53,6 +53,7 @@ import * as replica from '../tools/replica';
 import * as imaging from '../tools/imaging';
 import * as semanticMemory from '../tools/semantic-memory';
 import * as autolearn from '../tools/autolearn';
+import * as creativo from '../tools/creativo';
 import { createPublication, listPublications, approvePublication, rejectPublication, publishDue } from '../domain/publications';
 import { generarContenido, type ContentPackage } from '../tools/enrutador';
 import { computeChannelKpis, fetchChannelAnalytics } from '../tools/metrics';

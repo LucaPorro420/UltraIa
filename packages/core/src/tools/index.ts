@@ -72,8 +72,9 @@ import * as replica from './replica';
 import * as imaging from './imaging';
 import * as semanticMemory from './semantic-memory';
 import * as autolearn from './autolearn';
+import * as creativo from './creativo';
 
-export const tools = { web, image, video, music, stitch, reach, skills: { runSkill }, content, g0dm0d3, topics, present: presentTools, publish, enrutador, mediaScore, metrics, memoryFs: { createMemoryFs }, diagram, videoEdit, screenflow, cloud: cloudTools, harness, growth, vfx, codevfx, travel, generative, libros, sdf, videoqa, motion, replica, imaging, semanticMemory, autolearn };
+export const tools = { web, image, video, music, stitch, reach, skills: { runSkill }, content, g0dm0d3, topics, present: presentTools, publish, enrutador, mediaScore, metrics, memoryFs: { createMemoryFs }, diagram, videoEdit, screenflow, cloud: cloudTools, harness, growth, vfx, codevfx, travel, generative, libros, sdf, videoqa, motion, replica, imaging, semanticMemory, autolearn, creativo };
 
 export const TOOL_DESCRIPTIONS: Record<string, string> = {
   calculator: 'Safely evaluate a mathematical expression (math only).',
@@ -137,8 +138,10 @@ export const TOOL_DESCRIPTIONS: Record<string, string> = {
     'Video motion analysis (fundamentos-programacion.md A9-A11/A14 pattern): stats of an optical-flow field (mean magnitude, dominant angle, coherence), camera-vs-scene decomposition (least-squares translation+zoom, residual scene motion, verdict static/camera/scene/mixed), Catmull-Rom trajectory fitting through control points, and the deterministic Python/OpenCV flow-analysis argv (Farneback/Lucas-Kanade; never executes). Deterministic, keyless. Use to analyze camera movement vs object motion before planning cuts or renders.',
   replica:
     'Analysis-by-synthesis orchestrator (fundamentos-programacion.md A21/A26-A37 pattern): analyze a target signature (mean/variance/span) and plan a replication run (config parsed with stop conditions: target score, max iterations, patience, timeout; compute budget). The full loop (analyze -> generate -> compare -> optimize with checkpoints, resume and fail-soft) lives in the pure domain and is executed by a runner injecting the real IO (generative/videoqa/motion/sdf). Deterministic, keyless. Use to plan and drive replication of a target by synthesis.',
-imaging:
+  imaging:
     'Pure-TypeScript image processing kernels (fundamentos-programacion.md A8/A9-A11/A22-A24): 2D convolution and correlation (separable fast path), kernels (gaussian/box/Sobel/Prewitt/Laplacian/sharpen/emboss), filters (gaussian & box blur, median, unsharp mask), grayscale morphology (erode/dilate/open/close/gradient), tone (histogram, Otsu, threshold, normalize, gamma, contrast-limited equalization), geometry (crop, bilinear resize, gaussian pyramid), Canny edges (non-max suppression + hysteresis), 2D comparison (absolute/squared error maps, windowed SSIM map with MSSIM and worst-window locator, full compare report with PSNR and worst quadrant) and REAL optical flow (Lucas-Kanade single-scale and pyramidal coarse-to-fine, producing a FlowField that motion.flowStats/decomposeMotion consume directly). No deps, no network, fully deterministic. Use to measure, verify and analyze frames instead of only planning external runners.',
+  creativo:
+    'Creative coding physics engine (Creative Code Architect pattern, 100% code — no assets): 2D particle physics (Euler/Verlet integration, gravity, air friction, elastic bounce with restitution, floor friction) over deterministic trajectories; physics scene planner (N bodies, seeded PRNG, hue-rotated palette); Web Audio impact sound spec (oscillator + exponential gain decay, intensity-driven frequency/gain/duration); and self-contained HTML5 Canvas renderer (requestAnimationFrame, physics+audio inline). Deterministic, keyless, offline. Use to generate 2D physics simulations, interactive demos and impact sounds entirely from math.',
   semantic_memory:
     'Semantic memory retrieval (SACD/NASA design -> UltraIa port): sparse n-gram hashing + cosine similarity over verified learnings (learning/truth corpus) with top-k ranked hits (id, texto, respuesta, score); corpus stats (total, sources, types). Deterministic, keyless, offline. Use to recall verified knowledge before proposing solutions (meta-learning loop).',
   autolearn:
@@ -179,7 +182,8 @@ export type Capability =
   | 'sdf'
   | 'videoqa'
   | 'motion'
-  | 'replica'
+   | 'replica'
   | 'imaging'
+  | 'creativo'
   | 'semantic_memory'
   | 'autolearn';
