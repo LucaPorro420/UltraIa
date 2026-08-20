@@ -3,41 +3,72 @@
 Lee el estado real del proyecto (STATE.md, LEARNINGS.md, learning/sources/,
 docs/RAZONAMIENTO-*.md, enlaces.txt), detecta gaps de aprendizaje (misma lógica
 que la tool TS `autolearn` en packages/core/src/tools/autolearn.ts), prioriza
-(RICE simplificado) y ESCRIBE el plan de mejora en
-`.opencode/plans/autolearn-<fecha>.md` — listo para que un ciclo piv-build lo
+con el MOTOR META-IA (score RICE + matriz de niveles A/B/C/D) y ESCRIBE el plan
+de mejora en `<out>/autolearn-<fecha>.md` — listo para que un ciclo piv-build lo
 ejecute. El agente se autoprograma.
 
 Solo stdlib (sin deps). Keyless, determinista, degradación elegante.
 
 Uso:
-    python scripts/autolearn.py --dry-run          # plan a stdout (default)
-    python scripts/autolearn.py --write            # escribe el plan file (.opencode/plans/)
-    python scripts/autolearn.py --json             # gaps + KPIs en JSON (stdout)
+    python scripts/autolearn.py --dry-run            # plan a stdout (default)
+    python scripts/autolearn.py --dry-run --verbose  # + fuentes/razonamientos vistos
+    python scripts/autolearn.py --out <dir> --length 5   # escribe el plan file
+    python scripts/autolearn.py --validate           # integridad del repo (exit 1 si faltan piezas)
+
+El ROOT es apuntable por env `AUTOLEARN_ROOT` (los tests e2e crean mini-repos
+en tempdir); por defecto es la raíz del repo (padre de scripts/).
 """
 from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import sys
 from datetime import date, datetime, timezone
 from pathlib import Path
 from typing import Any
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(os.environ.get("AUTOLEARN_ROOT") or Path(__file__).resolve().parent.parent)
 STATE_MD = ROOT / "STATE.md"
 LEARNINGS_MD = ROOT / "learning" / "LEARNINGS.md"
 SOURCES_DIR = ROOT / "learning" / "sources"
+TRUTH_DIR = ROOT / "learning" / "truth"
 RAZONAMIENTOS_DIR = ROOT / "docs"
 ENLACES_TXT = ROOT / "enlaces.txt"
 PLANS_DIR = ROOT / ".opencode" / "plans"
+TOOLS_DIR = ROOT / "packages" / "core" / "src" / "tools"
 
 # Topics conocidos para cruzar lecciones con capabilities (misma lista que TS).
 KNOWN_TOPICS = ["api", "web", "search", "memory", "sql", "video", "audio", "image", "code", "docker"]
 
-CICLO_RE = re.compile(r"ciclo\s*(\d+)", re.IGNORECASE)
-FECHA_ISO_RE = re.compile(r"(\d{4})-(\d{2})-(\d{2})")
-FECHA_DMY_RE = re.compile(r"(\d{2})/(\d{2})/(\d{4})")
+# Motor META-IA (fiel a autolearn.ts): pasos del ciclo diario, regla estratégica,
+# matriz de niveles y pesos por defecto.
+DAILY_LOOP_STEPS = [
+    "Analizar reglas nuevas.",
+    "Detectar reglas débiles.",
+    "Detectar cuellos de botella.",
+    "Calcular ROI esperado.",
+    "Calcular conocimiento esperado.",
+    "Ordenar experimentos.",
+    "Ejecutar los mejores.",
+    "Actualizar biblioteca.",
+]
+ESTRATEGIC_RULE = (
+    "¿Qué experimento tiene la mayor probabilidad de mejorar el ecosistema completo "
+    "o generar nuevo conocimiento valioso al menor costo? (no \"¿qué puedo hacer?\")"
+)
+LEVEL_ACTION = {
+    "A": "Ejecutar inmediatamente",
+    "B": "Programar a corto plazo",
+    "C": "Mantener en cola",
+    "D": "Exploración ocasional",
+}
+DEFAULT_EXPERIMENT_WEIGHTS = {"impacto": 1, "confianza": 1, "aprendizaje": 1, "estrategico": 1, "costo": 1}
+
+# Umbrales de nivel META-IA calibrados sobre el score RICE real (fila 74):
+# A >= 1.2, B >= 1.0, C >= 0.8, D resto.
+LEVEL_THRESHOLDS = (("A", 1.2), ("B", 1.0), ("C", 0.8))
 
 
 def leer(path: Path) -> str:
@@ -52,10 +83,10 @@ def leer(path: Path) -> str:
 # ── 1. Sensar ────────────────────────────────────────────────────────────────
 
 def parse_fecha(body: str) -> str:
-    iso = FECHA_ISO_RE.search(body)
+    iso = re.search(r"(\d{4})-(\d{2})-(\d{2})", body)
     if iso:
         return f"{iso.group(1)}-{iso.group(2)}-{iso.group(3)}"
-    dmy = FECHA_DMY_RE.search(body)
+    dmy = re.search(r"(\d{2})/(\d{2})/(\d{4})", body)
     if dmy:
         return f"{dmy.group(3)}-{dmy.group(2)}-{dmy.group(1)}"
     return ""
@@ -72,16 +103,13 @@ def parse_learnings(texto: str) -> list[dict[str, str]]:
         if not body:
             continue
         fecha = parse_fecha(body)
-        ciclo = CICLO_RE.search(body)
-        texto = (
-            body.replace("**", "")
-            .replace(FECHA_ISO_RE.pattern, "")
-            .replace(FECHA_DMY_RE.pattern, "")
-        )
-        texto = re.sub(CICLO_RE.pattern, "", texto, flags=re.IGNORECASE)
+        ciclo_m = re.search(r"ciclo\s*(\d+)", body, re.IGNORECASE)
+        texto = body.replace("**", "")
+        texto = re.sub(r"\(?\s*\d{2}[/-]\d{2}[/-]\d{4}\s*\)?", "", texto)
+        texto = re.sub(r"ciclo\s*\d+", "", texto, flags=re.IGNORECASE)
         texto = re.sub(r"[()]", "", texto)
         texto = re.sub(r"\s+", " ", texto).strip()
-        entradas.append({"fecha": fecha, "ciclo": ciclo.group(1) if ciclo else "", "texto": texto or body})
+        entradas.append({"fecha": fecha, "ciclo": ciclo_m.group(1) if ciclo_m else "", "texto": texto or body})
     return entradas
 
 
@@ -130,7 +158,6 @@ def _cobertura(fuente_slug: str, razon_slug: str) -> bool:
     tokens_razon = _tokens(razon_slug)
     if tokens_fuente & tokens_razon:
         return True
-    # Substring: "fable5" contiene "fable".
     for tf in tokens_fuente:
         for tr in tokens_razon:
             if tf in tr or tr in tf:
@@ -159,14 +186,14 @@ def detect_gaps(
     'api'/'web' se consideran siempre cubiertos (el repo es API+web).
     """
     gaps: list[dict[str, str]] = []
-    razon_tokens = [
+    razon_slugs = [
         re.sub(r"^RAZONAMIENTO[-_]", "", r).replace(".md", "").lower()
         for r in razonamientos
     ]
 
     for src in sources:
         fuente_slug = src.replace(".md", "").lower()
-        matched = any(_cobertura(fuente_slug, rs) for rs in razon_tokens)
+        matched = any(_cobertura(fuente_slug, rs) for rs in razon_slugs)
         if not matched:
             gaps.append({
                 "kind": "source_sin_analizar",
@@ -215,18 +242,38 @@ def detect_gaps(
     return unicos
 
 
+def _nivel_metaia(score: float) -> str:
+    """Nivel META-IA calibrado sobre el score RICE real (fila 74)."""
+    for nivel, umbral in LEVEL_THRESHOLDS:
+        if score >= umbral:
+            return nivel
+    return "D"
+
+
 def prioritize(gaps: list[dict[str, str]]) -> list[dict[str, Any]]:
-    """RICE simplificado: (impact * confidence) / effort. Empates por descripcion asc."""
+    """RICE simplificado + nivel META-IA: (impact * confidence) / effort.
+
+    Backlog pendiente -> impacto 4 (nivel alto [A] con effort 2); fuentes sin
+    analizar -> impacto 3; lecciones/temas -> impacto 3 effort 3. Empates por
+    descripcion asc.
+    """
     items = []
     for i, g in enumerate(gaps):
-        impact = 4 if g["kind"] == "backlog_pendiente" else 3
-        effort = 2 if g["kind"] == "source_sin_analizar" else 3
+        if g["kind"] == "backlog_pendiente":
+            impact, effort = 4, 2
+        elif g["kind"] == "source_sin_analizar":
+            impact, effort = 3, 2
+        else:
+            impact, effort = 3, 3
         confidence = 0.8
         score = round((impact * confidence) / max(1, effort), 3)
+        nivel = _nivel_metaia(score)
         items.append({
             "id": f"gap_{i}",
             "descripcion": g["descripcion"],
             "score": score,
+            "nivel": nivel,
+            "accion": LEVEL_ACTION[nivel],
             "impact": impact,
             "effort": effort,
             "confidence": confidence,
@@ -235,11 +282,12 @@ def prioritize(gaps: list[dict[str, str]]) -> list[dict[str, Any]]:
     return items
 
 
-def build_plan(gaps: list[dict[str, str]], priorities: list[dict[str, Any]], fecha: str) -> dict[str, Any]:
-    top = priorities[:5]
-    pasos = [f"{i+1}. {p['descripcion']} (score {p['score']})" for i, p in enumerate(top)] or [
-        "1. Sin gaps priorizados: ejecutar el siguiente ciclo del backlog."
-    ]
+def build_plan(gaps: list[dict[str, str]], priorities: list[dict[str, Any]], fecha: str, length: int = 5) -> dict[str, Any]:
+    """Plan de mejora: gaps priorizados (top `length`) + ciclo diario META-IA."""
+    top = priorities[:max(1, length)]
+    pasos = [f"{i+1}. [{p['nivel']}] {p['descripcion']} (score {p['score']}, {p['accion']})" for i, p in enumerate(top)]
+    if not priorities:
+        pasos = ["1. Sin gaps priorizados: ejecutar el siguiente ciclo del backlog."]
     archivos: list[str] = []
     for g in gaps:
         f = g["evidencia"].split("/")[-1]
@@ -254,9 +302,13 @@ def build_plan(gaps: list[dict[str, str]], priorities: list[dict[str, Any]], fec
             "Scoped: tests de la capability tocada PASS.",
             "FULL: typecheck -> lint -> test -> build, todos verdes.",
             "Commit unico con pathspec (nunca `git add .`).",
+            "Evidencia en STATE.md + loop-run-log.md + LEARNINGS.md.",
         ],
         "prioridad": f"P{max(0, 5 - (top[0]['impact'] if top else 0))}",
         "gaps": gaps[:10],
+        "pasos_motor": DAILY_LOOP_STEPS,
+        "regla": ESTRATEGIC_RULE,
+        "presupuesto": {"explotacion": 0.7, "optimizacion": 0.2, "exploracion": 0.1},
     }
 
 
@@ -294,11 +346,25 @@ def metrics(
     }
 
 
-# ── 3. Acción: escribir el plan ──────────────────────────────────────────────
+# ── 3. Acción: validar / escribir el plan ────────────────────────────────────
+
+def validate_repo() -> tuple[int, list[str]]:
+    """Integridad del repo de aprendizaje. Devuelve (exit_code, faltas)."""
+    faltas: list[str] = []
+    if not (ROOT / "learning").exists():
+        faltas.append("learning/")
+    if not TRUTH_DIR.exists():
+        faltas.append("learning/truth")
+    if not STATE_MD.exists():
+        faltas.append("STATE.md")
+    if not LEARNINGS_MD.exists():
+        faltas.append("learning/LEARNINGS.md")
+    return (1 if faltas else 0), faltas
+
 
 def formato_plan(plan: dict[str, Any]) -> str:
     lines = [
-        "# Plan autolearn (auto-generado por scripts/autolearn.py)",
+        "# PLAN AUTOGENERADO (scripts/autolearn.py)",
         "",
         f"**Fecha**: {plan['fecha']} · **Prioridad**: {plan['prioridad']}",
         "",
@@ -313,8 +379,15 @@ def formato_plan(plan: dict[str, Any]) -> str:
         lines.extend(f"- {f}" for f in plan["archivos"])
     else:
         lines.append("- (ninguno inferido: revisar gaps)")
-    lines += ["", "## Criterios (scoped/FULL)"]
+    lines += ["", "## Criterios de verificacion"]
     lines.extend(f"- {c}" for c in plan["criterios"])
+    lines += ["", "## Motor META-IA"]
+    lines.append(f"Presupuesto: explotacion {plan['presupuesto']['explotacion']} / "
+                 f"optimizacion {plan['presupuesto']['optimizacion']} / "
+                 f"exploracion {plan['presupuesto']['exploracion']}")
+    lines.append("Ciclo diario:")
+    lines.extend(f"{i+1}. {s}" for i, s in enumerate(plan["pasos_motor"]))
+    lines += ["", "## Regla estrategica", plan["regla"]]
     lines += ["", "## Gaps detectados (top 10)"]
     for g in plan["gaps"]:
         lines.append(f"- `{g['kind']}` — {g['descripcion']} ({g['evidencia']})")
@@ -329,15 +402,26 @@ def main() -> int:
 
     parser = argparse.ArgumentParser(description="Agente de autoaprendizaje (autoprogramado)")
     parser.add_argument("--dry-run", action="store_true", help="Plan a stdout (default)")
-    parser.add_argument("--write", action="store_true", help="Escribe el plan en .opencode/plans/autolearn-<fecha>.md")
-    parser.add_argument("--json", action="store_true", help="Gaps + KPIs en JSON a stdout")
+    parser.add_argument("--verbose", action="store_true", help="Muestra fuentes/razonamientos vistos")
+    parser.add_argument("--out", type=str, default="", help="Directorio donde escribir el plan file")
+    parser.add_argument("--length", type=int, default=5, help="Numero de gaps priorizados en el plan")
+    parser.add_argument("--validate", action="store_true", help="Integridad del repo (exit 1 si faltan piezas)")
     args = parser.parse_args()
+
+    if args.validate:
+        code, faltas = validate_repo()
+        if faltas:
+            for f in faltas:
+                print(f"Falta: {f}")
+        else:
+            print("Repo de aprendizaje completo: learning/ + truth + STATE.md + LEARNINGS.md")
+        return code
 
     fecha_hoy = datetime.now(timezone.utc).date().isoformat()
 
     # Sensar.
     learnings = parse_learnings(leer(LEARNINGS_MD))
-    truth_paths = sorted((ROOT / "learning" / "truth").glob("*.json")) if (ROOT / "learning" / "truth").exists() else []
+    truth_paths = sorted(TRUTH_DIR.glob("*.json")) if TRUTH_DIR.exists() else []
     truth = scan_truth(truth_paths)
     sources = sorted(p.name for p in SOURCES_DIR.glob("*.md")) if SOURCES_DIR.exists() else []
     razonamientos = sorted(p.name for p in RAZONAMIENTOS_DIR.glob("RAZONAMIENTO-*.md")) if RAZONAMIENTOS_DIR.exists() else []
@@ -345,8 +429,7 @@ def main() -> int:
     enlaces = [l.strip() for l in leer(ENLACES_TXT).splitlines() if l.strip().startswith("http")]
 
     # Razonamiento.
-    tools_dir = ROOT / "packages" / "core" / "src" / "tools"
-    implemented = [p.stem for p in tools_dir.glob("*.ts")] if tools_dir.exists() else []
+    implemented = [p.stem for p in TOOLS_DIR.glob("*.ts")] if TOOLS_DIR.exists() else []
     llm_text = leer(ROOT / "packages" / "core" / "src" / "ai" / "llm.ts")
     implemented += re.findall(r"tools\.(\w+_run)\s*=\s*tool", llm_text)
     implemented += re.findall(r"includes\('(\w+)'\)", llm_text)
@@ -354,24 +437,26 @@ def main() -> int:
 
     gaps = detect_gaps(learnings, truth, backlog_text, sources, razonamientos, implemented)
     priorities = prioritize(gaps)
-    plan = build_plan(gaps, priorities, fecha_hoy)
+    plan = build_plan(gaps, priorities, fecha_hoy, length=args.length)
     kpis = metrics(learnings, truth["total"], gaps, len(sources), fecha_hoy)
 
-    if args.json:
-        print(json.dumps({"gaps": gaps, "priorities": priorities, "plan": plan, "kpis": kpis, "enlaces": enlaces}, ensure_ascii=False, indent=2))
-        return 0
+    if args.verbose:
+        print(f"Fuentes: {len(sources)} · Razonamientos: {len(razonamientos)} · "
+              f"Truth: {truth['total']} · Implemented: {len(implemented)}")
 
     print(formato_plan(plan))
     print("---")
     print(f"KPIs: lecciones={kpis['leccionesTotales']} (recientes {kpis['leccionesUltimoPeriodo']}) "
           f"truth={kpis['truthVerificada']} gaps={kpis['gapsAbiertos']} fuentes={kpis['fuentesAnalizadas']} "
           f"tasaMejora={kpis['tasaMejora']}")
-    print(f"enlaces.txt: {len(enlaces)} URLs pendientes de procesar")
+    if enlaces:
+        print(f"enlaces.txt: {len(enlaces)} URLs pendientes de procesar")
 
-    if args.write:
-        PLANS_DIR.mkdir(parents=True, exist_ok=True)
-        out = PLANS_DIR / f"autolearn-{fecha_hoy}.md"
-        out.write_text(formato_plan(plan) + "\n", encoding="utf-8")
+    if args.out:
+        out_dir = Path(args.out)
+        out_dir.mkdir(parents=True, exist_ok=True)
+        out = out_dir / f"autolearn-{fecha_hoy}.md"
+        out.write_text(formato_plan(plan) + "\n", encoding="utf-8")  # sin BOM
         print(f"Plan escrito: {out}")
     return 0
 
