@@ -1,9 +1,10 @@
 # RAZONAMIENTO-AUTOLEARN — Agente de autoaprendizaje de UltraIa
 
-**Fecha**: 20/08/2026 · **Iteración**: 72 · **Capability**: `autolearn` (tool `autolearn_run`)
+**Fecha**: 20/08/2026 · **Iteración**: 73 · **Capability**: `autolearn` (tool `autolearn_run`)
 **Pedido**: "agente de autoaprendizaje que automatice el autoprogramado, buscar nueva
-información y mejorar" (+ usar clouds/Docker si aporta). **Estado**: FASE 1 implementada
-(dominio puro + wiring); FASE 2-4 pendientes (ver sección Pendiente).
+información y mejorar" (+ usar clouds/Docker si aporta). **Estado**: FASE 1 (dominio puro
++ wiring) y **FASE 3 (runner real + motor META-IA)** implementadas; FASE 2 (merge wiring
+WIP) y FASE 4 (memoria externa) pendientes (ver sección Pendiente).
 
 ## Contexto
 
@@ -69,19 +70,66 @@ id asc. El tool genera candidatos por defecto desde los gaps (impact 4 para back
 - Scoped: `autolearn.test.ts` 21/21 + `semantic-memory.test.ts` 24/24 PASS.
 - Core tsc: exit 0. Gates FULL pendientes (se corren antes del commit).
 
-## Pendiente (FASES 2-4 del plan aprobado)
+## Pendiente (FASES 2 y 4 del plan aprobado)
 
-- **FASE 2 (iter-73)**: merge aditivo de `llm.ts`/`index.ts` — desbloquear el runtime
+- **FASE 2**: merge aditivo de `llm.ts`/`index.ts` — desbloquear el runtime
   para que el dev server exponga `memory_search` + `autolearn_run` + `creativo`
   (WIP ajeno) de una vez; cuarentena byte-exact previa.
-- **FASE 3 (iter-74)**: runner `scripts/autolearn.py` — lee STATE.md + LEARNINGS.md +
-  enlaces.txt, detecta gaps y **escribe el plan de mejora** en
-  `.opencode/plans/autolearn-<fecha>.md` (cierra el ciclo: autoprogramado real).
-- **FASE 4 (iter-75)**: memoria externa persistente — adaptador TS a Qdrant (Docker
+- **FASE 4**: memoria externa persistente — adaptador TS a Qdrant (Docker
   `sacd_system` ya levantado) o backup en cloud (R2/LocalCloudAdapter) para las
   lecciones verificadas.
 
-## Reglas reafirmadas
+## FASE 3 — Runner real + motor META-IA (iter-73)
+
+### Motor META-IA (port de la fuente `learning/sources/meta-ia-experimentos.md`,
+post IG pegado por el usuario en `enlaces.txt`)
+
+Añadido al dominio puro `packages/core/src/tools/autolearn.ts`:
+
+- `classifyMatrix(impacto, confianza)` — clasifica por la **matriz META-IA**
+  (A = ambos ≥0.85, B = ambos ≥0.6, C = ambos ≥0.4, D = resto). Fiel a la fuente
+  (el score ordena; la matriz nivela).
+- `classifyExperiment(score)` — niveles por score 0-1 (A≥0.75, B≥0.5, C≥0.3, D),
+  usado por el runner Python.
+- `prioritizeExperiments(candidates, weights?)` → `PrioritizedExperiment[]`:
+  score = `(impacto×confianza×valorAprendizaje×urgenciaEstrategica con pesos) /
+  (costo×pesoCosto + ε)`, normalizado por sigmoide `raw/(1+raw)`; orden score desc,
+  empates por id asc; expone `nivel` + `accion` (`LEVEL_ACTION`).
+- `planDailyLoop(candidates, presupuesto?)` → `DailyExperimentPlan`: agrupa por
+  nivel (explotación = A+B, optimización = C, exploración = D), presupuesto
+  **70/20/10**, selección `round(len × fracción)`, 8 pasos del ciclo diario
+  (`DAILY_LOOP_STEPS`) y regla estratégica (`ESTRATEGIC_RULE` — "¿qué experimento
+  tiene la mayor probabilidad de mejorar el ecosistema completo...?").
+- `DEFAULT_EXPERIMENT_WEIGHTS`, `LEVEL_ACTION`, `DAILY_LOOP_STEPS`,
+  `ESTRATEGIC_RULE` exportados en `AL`.
+
+**Tests**: 21 + 8 = **29 PASS** (classify thresholds, orden/fórmula/pesos/empates,
+planDailyLoop niveles/presupuesto/personalizado/vacío).
+
+### Runner `scripts/autolearn.py` (cierra el ciclo: autoprogramado real)
+
+Stdlib puro, sin deps, espejo del dominio TS (patrón `scripts/cloud-cli.py`):
+
+- Lectura: `LEARNINGS.md` + `STATE.md` + `learning/truth/*.json` y
+  `learning/sources/*.md` (root por env `AUTOLEARN_ROOT`).
+- `detect_gaps` (4 kinds, same as TS) + `rice_score` (RICE simplificado).
+- `metaia_level(score)` — umbrales calibrados sobre RICE del repo real:
+  A≥1.2 (fuentes sin analizar 1.2 → A), B≥1.0 (backlog 1.067 → B), C≥0.8
+  (temas 0.8 → C), D resto.
+- `build_plan` + `format_plan` → `.opencode/plans/autolearn-<fecha>.md` con
+  objetivo, gaps priorizados por nivel y los 8 pasos del motor META-IA.
+- CLI: `--dry-run`, `--validate`, `--out <ruta>`, `--length N`, `--verbose`;
+  determinista (mismo input → mismo plan).
+
+**Tests**: `scripts/autolearn.test.py` **6/6 e2e PASS** (detección/prioridad,
+plan en out, validate ok/fallos, determinismo, repo vacío, pasos del motor).
+
+**Docs**: `docs/RAZONAMIENTO-META-IA.md` (análisis + mapping fuente→implementación);
+fuentes nuevas descargadas: `learning/sources/meta-ia-experimentos.md`,
+`learning/sources/brain-md.md`, `learning/sources/graphify.md` (análisis de las dos
+últimas diferido a iteración siguiente).
+
+### Reglas reafirmadas
 
 - Los gates FULL se corren sobre el worktree REAL; si el WIP ajeno se restauró
   byte-exact, los archivos tocados vuelven a su versión ajena y el runtime NO expone

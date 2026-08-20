@@ -2,8 +2,9 @@
 // *
 // * Dominio puro determinista (0 deps, keyless, sin red): sensa el estado de
 // * aprendizaje del proyecto (lecciones + verdad verificada + backlog + fuentes),
-// * detecta gaps, prioriza mejoras (RICE simplificado) y genera el plan de
-// * mejora (autoprogramado: el agente escribe su propio plan con patrón loop-piv).
+// * detecta gaps, prioriza mejoras (RICE simplificado + motor META-IA de
+// * priorización de experimentos) y genera el plan de mejora (autoprogramado:
+// * el agente escribe su propio plan con patrón loop-piv).
 // *
 // * Núcleo del pedido del usuario (20/08/2026): "agente de autoaprendizaje que
 // * automatice el autoprogramado, buscar nueva información y mejorar".
@@ -11,6 +12,8 @@
 // * Attribution: patrón inspirado en el ciclo de meta-aprendizaje del diseño
 // * externo SACD/NASA (learning/sources/sacd-nasa.md) — implementación ORIGINAL.
 // * Fuente del diseño del agente: learning/sources/autolearn.md.
+// * Motor de priorización META-IA (iter-73): learning/sources/meta-ia-experimentos.md
+// * (post IG DcL0G4MDiKV pegado por el usuario) — implementación ORIGINAL.
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Tipos públicos
@@ -77,6 +80,89 @@ export interface LearningMetrics {
   gapsAbiertos: number;
   fuentesAnalizadas: number;
   tasaMejora: number;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Motor META-IA de priorización de experimentos (iter-73)
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** Nivel de prioridad de un experimento (matriz META-IA A/B/C/D). */
+export type ExperimentLevel = 'A' | 'B' | 'C' | 'D';
+
+/** Candidato a experimento con el shape de la plantilla JSON META-IA. */
+export interface ExperimentCandidate {
+  id: string;
+  descripcion: string;
+  /** impacto esperado 0-1 (impact) */
+  impacto: number;
+  /** confianza de las reglas 0-1 (confidence_score) */
+  confianza: number;
+  /** valor de aprendizaje esperado 0-1 (expected_gain) */
+  valorAprendizaje: number;
+  /** urgencia estratégica 0-1 (strategic_importance) */
+  urgenciaEstrategica: number;
+  /** costo computacional 0-1 (compute_cost; mayor = más caro) */
+  costoComputacional: number;
+  /** reglas relacionadas (related_rules) */
+  reglasRelacionadas?: string[];
+}
+
+/** Experimentos priorizados: score 0-1 + nivel META-IA + acción sugerida. */
+export interface PrioritizedExperiment extends ExperimentCandidate {
+  score: number; // (impacto×confianza×aprendizaje×estrategia)/(costo+ε) normalizado
+  nivel: ExperimentLevel;
+  accion: string;
+}
+
+/** Pesos por defecto de la fórmula META-IA (configurables por test/llamada). */
+export interface ExperimentWeights {
+  impacto: number;
+  confianza: number;
+  aprendizaje: number;
+  estrategico: number;
+  costo: number;
+}
+
+export const DEFAULT_EXPERIMENT_WEIGHTS: ExperimentWeights = {
+  impacto: 1,
+  confianza: 1,
+  aprendizaje: 1,
+  estrategico: 1,
+  costo: 1,
+};
+
+/** Acciones por nivel (matriz META-IA). */
+export const LEVEL_ACTION: Record<ExperimentLevel, string> = {
+  A: 'Ejecutar inmediatamente',
+  B: 'Programar a corto plazo',
+  C: 'Mantener en cola',
+  D: 'Exploración ocasional',
+};
+
+/** Ciclo diario del motor automático de priorización (8 pasos META-IA). */
+export const DAILY_LOOP_STEPS: readonly string[] = [
+  'Analizar reglas nuevas.',
+  'Detectar reglas débiles.',
+  'Detectar cuellos de botella.',
+  'Calcular ROI esperado.',
+  'Calcular conocimiento esperado.',
+  'Ordenar experimentos.',
+  'Ejecutar los mejores.',
+  'Actualizar biblioteca.',
+];
+
+/** Regla estratégica más importante de la Meta-IA. */
+export const ESTRATEGIC_RULE =
+  '¿Qué experimento tiene la mayor probabilidad de mejorar el ecosistema completo o generar nuevo conocimiento valioso al menor costo? (no "¿qué puedo hacer?")';
+
+/** Plan diario de experimentación con presupuesto por categoría (70/20/10). */
+export interface DailyExperimentPlan {
+  fecha: string;
+  presupuesto: { explotacion: number; optimizacion: number; exploracion: number };
+  porNivel: Record<ExperimentLevel, PrioritizedExperiment[]>;
+  seleccionados: PrioritizedExperiment[];
+  pasos: string[]; // DAILY_LOOP_STEPS
+  reglaEstrategica: string;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -372,6 +458,117 @@ export function learningMetrics(input: MetricsInput): LearningMetrics {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Motor META-IA (priorización de experimentos + plan diario)
+// ─────────────────────────────────────────────────────────────────────────────
+
+const EPS = 1e-9;
+
+/** Clasifica un score 0-1 en nivel META-IA (A≥0.75, B≥0.5, C≥0.3, D). */
+export function classifyExperiment(score: number): ExperimentLevel {
+  if (score >= 0.75) return 'A';
+  if (score >= 0.5) return 'B';
+  if (score >= 0.3) return 'C';
+  return 'D';
+}
+
+/**
+ * Clasifica un experimento por la MATRIZ META-IA (impacto × confianza),
+ * fiel a la fuente: A = ambos ≥0.85, B = ambos ≥0.6, C = ambos ≥0.4, D = resto.
+ * Determinista; no usa el score (el score ordena, la matriz nivela).
+ */
+export function classifyMatrix(impacto: number, confianza: number): ExperimentLevel {
+  const m = Math.min(impacto, confianza);
+  if (m >= 0.85) return 'A';
+  if (m >= 0.6) return 'B';
+  if (m >= 0.4) return 'C';
+  return 'D';
+}
+
+/**
+ * Prioriza experimentos con la fórmula META-IA:
+ *   score = (impacto × confianza × valorAprendizaje × urgenciaEstrategica) / (costo + ε)
+ * normalizado a 0-1 con los pesos (por defecto 1). Orden determinista: score desc,
+ * empates por id asc. El resultado expone el nivel A/B/C/D y la acción sugerida.
+ */
+export function prioritizeExperiments(
+  items: ExperimentCandidate[],
+  weights: ExperimentWeights = DEFAULT_EXPERIMENT_WEIGHTS,
+): PrioritizedExperiment[] {
+  return items
+    .map((i) => {
+      const num =
+        (i.impacto * weights.impacto) *
+        (i.confianza * weights.confianza) *
+        (i.valorAprendizaje * weights.aprendizaje) *
+        (i.urgenciaEstrategica * weights.estrategico);
+      const den = Math.max(EPS, i.costoComputacional * weights.costo);
+      const raw = num / den;
+      // Normaliza a 0-1 con una sigmoide suave (raw típico 0-2+ → score 0-.88).
+      const score = round3(raw / (1 + raw));
+      const nivel = classifyMatrix(i.impacto, i.confianza);
+      return { ...i, score, nivel, accion: LEVEL_ACTION[nivel] };
+    })
+    .sort((a, b) => b.score - a.score || (a.id < b.id ? -1 : 1));
+}
+
+/** Presupuesto por categoría (por defecto 70/20/10 explotación/optimización/exploración). */
+export interface DailyBudget {
+  explotacion?: number; // 0-1
+  optimizacion?: number; // 0-1
+  exploracion?: number; // 0-1 (el resto implícito si no suma 1)
+}
+
+/**
+ * Plan diario de experimentación (motor META-IA): agrupa los experimentos por nivel,
+ * aplica el presupuesto 70/20/10 por categoría (explotación = nivel A+B, optimización =
+ * nivel C, exploración = nivel D) y devuelve seleccionados + los 8 pasos del motor.
+ * Determinista: dentro de cada categoría se eligen por score desc (empates id asc).
+ */
+export function planDailyLoop(
+  items: ExperimentCandidate[],
+  budget: DailyBudget = {},
+  fecha?: string,
+): DailyExperimentPlan {
+  const explotacion = budget.explotacion ?? 0.7;
+  const optimizacion = budget.optimizacion ?? 0.2;
+  const exploracion = Math.max(0, Math.min(1, budget.exploracion ?? 1 - explotacion - optimizacion));
+  const prioritized = prioritizeExperiments(items);
+
+  const porNivel: Record<ExperimentLevel, PrioritizedExperiment[]> = { A: [], B: [], C: [], D: [] };
+  for (const p of prioritized) porNivel[p.nivel].push(p);
+
+  const take = (arr: PrioritizedExperiment[], frac: number): PrioritizedExperiment[] =>
+    arr.slice(0, Math.max(0, Math.round(arr.length * frac)));
+  const explotacionPool = [...porNivel.A, ...porNivel.B];
+  const optimizacionPool = porNivel.C;
+  const exploracionPool = porNivel.D;
+
+  const seleccionados = [
+    ...take(explotacionPool, explotacion),
+    ...take(optimizacionPool, optimizacion),
+    ...take(exploracionPool, exploracion),
+  ];
+
+  return {
+    fecha: fecha ?? new Date().toISOString().slice(0, 10),
+    presupuesto: {
+      explotacion: round3(explotacion),
+      optimizacion: round3(optimizacion),
+      exploracion: round3(exploracion),
+    },
+    porNivel: {
+      A: porNivel.A,
+      B: porNivel.B,
+      C: porNivel.C,
+      D: porNivel.D,
+    },
+    seleccionados,
+    pasos: [...DAILY_LOOP_STEPS],
+    reglaEstrategica: ESTRATEGIC_RULE,
+  };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Namespace de la capability
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -383,6 +580,17 @@ export const autolearn = {
   prioritizeWork,
   buildImprovementPlan,
   learningMetrics,
+  classifyExperiment,
+  classifyMatrix,
+  prioritizeExperiments,
+  planDailyLoop,
+};
+
+export const AL = {
+  LEVEL_ACTION,
+  DAILY_LOOP_STEPS,
+  ESTRATEGIC_RULE,
+  DEFAULT_EXPERIMENT_WEIGHTS,
 };
 
 // Tipos reexportados para el wiring.

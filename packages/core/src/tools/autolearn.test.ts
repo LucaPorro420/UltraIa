@@ -3,12 +3,53 @@ import { describe, expect, it } from 'vitest';
 import {
   autolearn,
   buildImprovementPlan,
+  classifyExperiment,
   detectGaps,
   learningMetrics,
   parseLearnings,
+  planDailyLoop,
+  prioritizeExperiments,
   prioritizeWork,
   scanTruthStats,
 } from './autolearn';
+
+const expA = {
+  id: 'EXP-1',
+  descripcion: 'Agente especializado en animacion facial',
+  impacto: 0.9,
+  confianza: 0.9,
+  valorAprendizaje: 0.5,
+  urgenciaEstrategica: 0.95,
+  costoComputacional: 0.3,
+  reglasRelacionadas: ['RULE-104', 'RULE-551'],
+};
+const expB = {
+  id: 'EXP-2',
+  descripcion: 'Validar iluminacion procedural',
+  impacto: 0.7,
+  confianza: 0.73,
+  valorAprendizaje: 0.4,
+  urgenciaEstrategica: 0.6,
+  costoComputacional: 0.5,
+};
+const expC = {
+  id: 'EXP-3',
+  descripcion: 'Dataset especializado de texturas 3D',
+  impacto: 0.4,
+  confianza: 0.5,
+  valorAprendizaje: 0.3,
+  urgenciaEstrategica: 0.4,
+  costoComputacional: 0.6,
+};
+const expD = {
+  id: 'EXP-4',
+  descripcion: 'Explorar arquitectura radical',
+  impacto: 0.2,
+  confianza: 0.2,
+  valorAprendizaje: 0.1,
+  urgenciaEstrategica: 0.2,
+  costoComputacional: 0.9,
+};
 
 describe('autolearn / parseLearnings', () => {
   it('parsea bullets con metadatos (titulo, fecha, ciclo)', () => {
@@ -265,5 +306,97 @@ describe('autolearn / namespace', () => {
     expect(typeof autolearn.prioritizeWork).toBe('function');
     expect(typeof autolearn.buildImprovementPlan).toBe('function');
     expect(typeof autolearn.learningMetrics).toBe('function');
+    expect(typeof autolearn.classifyExperiment).toBe('function');
+    expect(typeof autolearn.prioritizeExperiments).toBe('function');
+    expect(typeof autolearn.planDailyLoop).toBe('function');
+  });
+});
+
+describe('autolearn / classifyExperiment (matriz META-IA)', () => {
+  it('umbrales A>=0.75, B>=0.5, C>=0.3, D<0.3', () => {
+    expect(classifyExperiment(0.9)).toBe('A');
+    expect(classifyExperiment(0.75)).toBe('A');
+    expect(classifyExperiment(0.6)).toBe('B');
+    expect(classifyExperiment(0.5)).toBe('B');
+    expect(classifyExperiment(0.4)).toBe('C');
+    expect(classifyExperiment(0.3)).toBe('C');
+    expect(classifyExperiment(0.2)).toBe('D');
+    expect(classifyExperiment(0)).toBe('D');
+  });
+});
+
+describe('autolearn / prioritizeExperiments (fórmula META-IA)', () => {
+  it('ordena por score desc y expone nivel + accion', () => {
+    const [top] = prioritizeExperiments([expC, expA, expB, expD]);
+    expect(top.id).toBe('EXP-1');
+    expect(top.nivel).toBe('A');
+    expect(top.accion).toBe('Ejecutar inmediatamente');
+    const levels = prioritizeExperiments([expA, expB, expC, expD]).map((e) => e.nivel);
+    expect(levels[0]).toBe('A');
+    expect(levels[1]).toBe('B');
+    expect(levels[2]).toBe('C');
+    expect(levels[3]).toBe('D');
+  });
+
+  it('score = (impacto x confianza x aprendizaje x estrategia)/(costo+e) normalizado', () => {
+    const [r] = prioritizeExperiments([expA]);
+    const raw = (0.9 * 0.9 * 0.5 * 0.95) / (0.3 + 1e-9); // 1.2825
+    const esperado = Math.round((raw / (1 + raw)) * 1000) / 1000; // ~0.562
+    expect(r.score).toBe(esperado);
+    expect(r.score).toBeGreaterThan(0.5);
+    expect(r.score).toBeLessThan(0.6);
+  });
+
+  it('pesos configurables cambian el orden (anular un factor elimina su aporte)', () => {
+    const fuerte = { ...expA, id: 'FUERTE', valorAprendizaje: 0.9 }; // mismo perfil, mas aprendizaje
+    const flaco = { ...expA, id: 'FLACO', valorAprendizaje: 0.1 };
+    const ordenDefault = prioritizeExperiments([fuerte, flaco]).map((e) => e.id);
+    expect(ordenDefault).toEqual(['FUERTE', 'FLACO']); // mas aprendizaje -> primero
+    const sinAprendizaje = prioritizeExperiments([fuerte, flaco], {
+      impacto: 1, confianza: 1, aprendizaje: 0, estrategico: 1, costo: 1,
+    });
+    // Anulado el factor: ambos quedan iguales -> empate -> id asc.
+    expect(sinAprendizaje[0].id).toBe('FLACO');
+    expect(sinAprendizaje.map((e) => e.score)).toEqual([sinAprendizaje[1].score, sinAprendizaje[1].score]);
+  });
+
+  it('empates -> id asc; [] -> []', () => {
+    const a = { ...expA, id: 'B-1' };
+    const b = { ...expA, id: 'A-1' };
+    expect(prioritizeExperiments([a, b])[0].id).toBe('A-1');
+    expect(prioritizeExperiments([])).toEqual([]);
+  });
+});
+
+describe('autolearn / planDailyLoop (presupuesto 70/20/10)', () => {
+  it('agrupa por nivel y selecciona por presupuesto con los 8 pasos', () => {
+    const plan = planDailyLoop([expA, expB, expC, expD], {}, '2026-08-20');
+    expect(plan.fecha).toBe('2026-08-20');
+    expect(plan.presupuesto.explotacion).toBe(0.7);
+    expect(plan.presupuesto.optimizacion).toBe(0.2);
+    expect(plan.presupuesto.exploracion).toBe(0.1);
+    expect(plan.pasos).toHaveLength(8);
+    expect(plan.pasos[6]).toContain('Ejecutar los mejores');
+    expect(plan.reglaEstrategica).toContain('menor costo');
+    expect(plan.porNivel.A.map((e) => e.id)).toEqual(['EXP-1']);
+    expect(plan.porNivel.B.map((e) => e.id)).toEqual(['EXP-2']);
+    expect(plan.porNivel.C.map((e) => e.id)).toEqual(['EXP-3']);
+    expect(plan.porNivel.D.map((e) => e.id)).toEqual(['EXP-4']);
+    // Presupuesto por pool: round(2*0.7)=1 de A+B, round(1*0.2)=0, round(1*0.1)=0.
+    expect(plan.seleccionados.map((e) => e.id)).toEqual(['EXP-1']);
+  });
+
+  it('presupuesto personalizado y corte por presupuesto', () => {
+    const explotacion = planDailyLoop([expA, expB, expC, expD], { explotacion: 1, optimizacion: 0, exploracion: 0 }, '2026-08-20');
+    expect(explotacion.seleccionados.map((e) => e.id)).toEqual(['EXP-1', 'EXP-2']);
+    const todo = planDailyLoop([expA, expB, expC, expD], { explotacion: 1, optimizacion: 1, exploracion: 1 }, '2026-08-20');
+    expect(todo.seleccionados).toHaveLength(4);
+  });
+
+  it('[]) -> plan vacio sin NaN; fechas default', () => {
+    const plan = planDailyLoop([]);
+    expect(plan.seleccionados).toEqual([]);
+    expect(plan.presupuesto.explotacion).toBe(0.7);
+    expect(plan.fecha).toMatch(/^\d{4}-\d{2}-\d{2}$/);
   });
 });

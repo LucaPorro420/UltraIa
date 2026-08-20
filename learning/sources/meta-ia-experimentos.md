@@ -1,0 +1,212 @@
+# Fuente: Motor Automático de Priorización para Meta-IA (experimentos)
+
+**Fuente**: contenido pegado por el usuario en `enlaces.txt` (líneas 5-243) — post de
+Instagram `https://www.instagram.com/p/DcL0G4MDiKV/` (share ig_web_copy_link), que la
+verificación del 19/08 no podía leer por anti-bot (banner STATE.md "Instagram BLOQUEADO").
+El usuario pegó el contenido del post → AHORA SÍ es analizable. Transcript fiel.
+
+**Fecha captura**: 20/08/2026 · **Estado**: fuente cruda, análisis en docs/RAZONAMIENTO-META-IA.md
+
+---
+
+Para una Meta-IA, el error más común es priorizar experimentos por curiosidad. Deben
+priorizarse por **valor esperado de aprendizaje**.
+
+## Sistema de Priorización
+
+Cada experimento recibe una puntuación:
+
+```
+Prioridad =
+Impacto Esperado
+× Confianza de las Reglas
+× Valor de Aprendizaje
+× Urgencia Estratégica
+÷ Costo Computacional
+```
+
+## Categoría 1: Máxima Prioridad
+Reglas con alta confianza y alto impacto
+
+Ejemplo:
+```json
+{
+  "regla": "Los agentes especializados mejoran más que los generalistas",
+  "confianza": 0.95,
+  "impacto": 0.22
+}
+```
+
+Experimento:
+
+Crear un agente especializado en animación facial.
+
+Prioridad: MUY ALTA
+
+## Cuellos de botella detectados
+
+Consulta:
+```json
+{ "query_type": "bottleneck_detection" }
+```
+
+Resultado:
+```json
+{
+  "modulo": "texturas 3D",
+  "impacto_global": 0.31
+}
+```
+
+Experimentos derivados:
+
+- Nuevos datasets
+- Nuevo TextureAgent
+- Nuevos pipelines de materiales
+
+## Categoría 2: Prioridad Alta
+Reglas con evidencia moderada
+
+Ejemplo:
+```json
+{
+  "regla": "La iluminación procedural mejora realismo",
+  "confianza": 0.73
+}
+```
+
+La Meta-IA debería programar:
+
+Experimentos de validación.
+
+Objetivo:
+
+confirmar o descartar
+
+Reglas cercanas a consolidarse
+
+Ejemplo:
+```json
+{
+  "confianza": 0.84,
+  "evidencias": 78
+}
+```
+
+Si alcanza:
+
+100 evidencias
+
+puede convertirse en conocimiento estable.
+
+## Categoría 3: Prioridad de Metaaprendizaje
+
+Estas generan más inteligencia futura.
+
+Consulta:
+```json
+{ "query_type": "meta_learning_patterns" }
+```
+
+Ejemplo de hallazgo:
+
+Los datasets especializados generan más mejora que aumentar parámetros.
+
+Nuevos experimentos:
+
+- Dataset A
+- Dataset B
+- Dataset C
+
+En lugar de:
+
+- Modelo grande A
+- Modelo grande B
+
+## Categoría 4: Exploración
+
+Reserva un porcentaje fijo.
+
+Por ejemplo:
+
+- 70% explotación
+- 20% optimización
+- 10% exploración
+
+Experimentos:
+
+- Arquitecturas nuevas
+- Métodos nuevos
+- Agentes nuevos
+
+Aunque contradigan reglas actuales.
+
+## Matriz de Priorización
+
+### Nivel A
+```json
+{ "impacto": 0.90, "confianza": 0.90, "costo": "medio" }
+```
+Ejecutar inmediatamente.
+
+### Nivel B
+```json
+{ "impacto": 0.70, "confianza": 0.70 }
+```
+Programar a corto plazo.
+
+### Nivel C
+```json
+{ "impacto": 0.40, "confianza": 0.50 }
+```
+Mantener en cola.
+
+### Nivel D
+```json
+{ "impacto": 0.20, "confianza": 0.20 }
+```
+Solo exploración ocasional.
+
+## Plantilla JSON de Priorización
+
+```json
+{
+  "experiment_id": "EXP-882",
+  "objective": "Improve facial animation",
+  "related_rules": ["RULE-104", "RULE-551"],
+  "confidence_score": 0.88,
+  "expected_gain": 0.17,
+  "knowledge_gain": 0.12,
+  "compute_cost": 0.30,
+  "strategic_importance": 0.95,
+  "priority_score": 0.84,
+  "priority_level": "A"
+}
+```
+
+## Motor Automático de Priorización
+
+Cada día la Meta-IA debería ejecutar:
+
+1. Analizar reglas nuevas.
+2. Detectar reglas débiles.
+3. Detectar cuellos de botella.
+4. Calcular ROI esperado.
+5. Calcular conocimiento esperado.
+6. Ordenar experimentos.
+7. Ejecutar los mejores.
+8. Actualizar biblioteca.
+
+## Regla Estratégica Más Importante
+
+La Meta-IA no debe preguntarse:
+
+¿Qué experimento puedo hacer?
+
+Debe preguntarse:
+
+¿Qué experimento tiene la mayor probabilidad de mejorar el ecosistema completo o generar
+nuevo conocimiento valioso al menor costo?
+
+Esa única regla suele producir una evolución mucho más rápida de los sistemas de generación
+de imágenes, vídeo, audio y modelos 2D/3D.
