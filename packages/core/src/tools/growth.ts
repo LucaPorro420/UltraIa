@@ -184,6 +184,12 @@ const RECOMENDACION_POR_VARIABLE: Record<ExperimentVariable, string> = {
 
 // ------------------------------------------------------------------- puente publicationSignals (cierre F5 AutoPub)
 
+//! CLOSES THE AUTOPUB LOOP: publicationSignals() in domain/publications.ts
+//! already returns BAD-rating critiques; these three functions translate them
+//! into growth-loop inputs (kpis -> planExperiments, avoidances -> playbook).
+//? Wiring into ai/llm.ts is DEFERRED while session #25 holds llm.ts dirty —
+//? when it lands, expose a `growth_plan` action `kpis_from_critiques`.
+
 /** Keywords por variable (es/en) para clasificar una critique. */
 const KEYWORDS_POR_VARIABLE: Record<ExperimentVariable, string[]> = {
   titulo: ['titulo', 'title', 'titular', 'clickbait', 'ctr'],

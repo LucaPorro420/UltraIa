@@ -15,7 +15,7 @@ Cada commit agrega una sección con fecha y la lista de archivos `.ts/.tsx` toca
 ## 2026-08-14T18:06:26.475Z
 - [ ] apps/web/e2e/smoke.spec.ts
 - [ ] apps/web/next.config.ts
-- [ ] apps/web/playwright.config.ts
+- [x] apps/web/playwright.config.ts
 - [ ] apps/web/src/app/(app)/dashboard/page.tsx
 - [ ] apps/web/src/app/api/chat/general/route.ts
 - [ ] apps/web/src/components/assistant-chat.tsx
@@ -34,7 +34,7 @@ Cada commit agrega una sección con fecha y la lista de archivos `.ts/.tsx` toca
 
 ## 2026-08-14T18:07:10.813Z
 - [ ] apps/web/e2e/smoke.spec.ts
-- [ ] apps/web/playwright.config.ts
+- [x] apps/web/playwright.config.ts
 - [ ] apps/web/src/app/api/omag/route.ts
 - [ ] apps/web/src/instrumentation.ts
 - [ ] packages/core/src/ai/llm.ts
@@ -337,8 +337,8 @@ Cada commit agrega una sección con fecha y la lista de archivos `.ts/.tsx` toca
 
 ## 2026-08-17T22:48:57.600Z
 - [ ] packages/core/src/ai/llm.ts
-- [ ] packages/core/src/tools/growth.test.ts
-- [ ] packages/core/src/tools/growth.ts
+- [x] packages/core/src/tools/growth.test.ts
+- [x] packages/core/src/tools/growth.ts
 - [ ] packages/core/src/tools/index.ts
 
 ## 2026-08-17T23:01:16.216Z
@@ -469,3 +469,35 @@ Cada commit agrega una sección con fecha y la lista de archivos `.ts/.tsx` toca
 - [x] packages/core/src/tools/travel.ts + travel.test.ts (capability travel 9fed227 — JSDoc es/ar completo)
 - [x] docs/REPOMIX.md (guía repomix 85c1d26)
 - [x] AGENTS.md (sección loop-46: push histórico, fix BodyInit, repomix, travel, verificaciones enlaces.txt, reglas concurrencia #25)
+
+## 2026-08-20T02:24:16.421Z
+- [ ] Task/batch-tomasporro.ts
+- [ ] Task/build-real-tomasporro.ts
+- [ ] Task/run-remaining.ts
+- [ ] Task/run-tomasporro.ts
+- [x] apps/web/playwright.config.ts
+- [ ] packages/core/src/domain/blueprint.test.ts
+- [ ] packages/core/src/domain/blueprint.ts
+- [ ] packages/core/src/domain/connections.test.ts
+- [ ] packages/core/src/domain/connections.ts
+- [ ] packages/core/src/domain/publications.ts
+- [ ] packages/core/src/index.ts
+- [ ] packages/core/src/omag/vfx-generator.test.ts
+- [ ] packages/core/src/tools/automation.ts
+- [ ] packages/core/src/tools/enrutador.ts
+- [ ] packages/core/src/tools/media-synthesis/math/prng.ts
+- [ ] packages/core/src/tools/present.ts
+- [ ] packages/core/src/tools/publish.test.ts
+- [ ] packages/core/src/tools/reach.test.ts
+- [ ] packages/core/src/tools/reach.ts
+- [ ] packages/core/src/tools/recorder.ts
+- [ ] packages/core/src/tools/topics.ts
+
+## 2026-08-20T02:24:53.760Z
+- [x] apps/web/playwright.config.ts
+- [x] apps/web/src/app/(app)/lab/page.tsx
+- [x] apps/web/src/components/lab-client.tsx
+
+## 2026-08-20T04:05:25.549Z
+- [x] packages/core/src/tools/growth.test.ts
+- [x] packages/core/src/tools/growth.ts
