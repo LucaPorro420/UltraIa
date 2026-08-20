@@ -51,6 +51,7 @@ import * as videoqa from '../tools/videoqa';
 import * as motion from '../tools/motion';
 import * as replica from '../tools/replica';
 import * as imaging from '../tools/imaging';
+import * as semanticMemory from '../tools/semantic-memory';
 import { createPublication, listPublications, approvePublication, rejectPublication, publishDue } from '../domain/publications';
 import { generarContenido, type ContentPackage } from '../tools/enrutador';
 import { computeChannelKpis, fetchChannelAnalytics } from '../tools/metrics';
@@ -719,6 +720,32 @@ export function chatStream(opts: {
           if (!canal || !signalsJson) throw new Error('playbook requiere canal + signalsJson');
           const signals = JSON.parse(signalsJson) as Array<{ canal: string; variable: 'titulo' | 'hook' | 'thumbnail' | 'duracion' | 'formato'; variante: 'control' | 'test'; kpi: number }>;
           return { accion, playbook: buildPlaybook(canal, signals) };
+        }
+        return { accion, ok: false, error: 'accion desconocida' };
+      },
+    });
+  }
+  if (opts.tools?.includes('semantic_memory')) {
+    tools.memory_search = tool({
+      description:
+        'Semantic memory retrieval (SACD/NASA design -> UltraIa port): search verified learnings (learning/truth corpus) by MEANING, not keywords - sparse n-gram hashing + cosine similarity, top-k ranked hits with scores; or get corpus stats (total docs, sources, types). Deterministic, keyless, offline. Use to recall what UltraIa already verified before proposing solutions (meta-learning loop).',
+      parameters: z.object({
+        accion: z.enum(['search', 'stats']),
+        query: z.string().optional(), // search: texto a recuperar semanticamente
+        corpusJson: z.string().optional(), // casos de verdad alternativos: [{source?, cases:[{id, prompt, answer, type?, unit?}]}]
+        k: z.number().int().min(1).max(20).optional(), // top-k resultados (default 5)
+      }),
+      execute: async ({ accion, query, corpusJson, k }) => {
+        const docs = corpusJson
+          ? semanticMemory.loadTruthCorpus(JSON.parse(corpusJson) as semanticMemory.TruthFileLike[])
+          : (await semanticMemory.loadTruthAuto()).docs;
+        if (accion === 'search') {
+          if (!query) throw new Error('search requiere query');
+          if (docs.length === 0) return { accion, hits: [], nota: 'corpus vacio: pasa corpusJson con los casos de verdad (learning/truth no encontrado)' };
+          return { accion, query, hits: semanticMemory.searchTruth(docs, query, k ?? 5) };
+        }
+        if (accion === 'stats') {
+          return { accion, stats: semanticMemory.corpusStats(docs), total: docs.length };
         }
         return { accion, ok: false, error: 'accion desconocida' };
       },

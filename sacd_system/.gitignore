@@ -1,0 +1,6 @@
+# Datos locales de memoria (nunca commitear)
+qdrant_storage/
+neo4j_data/
+venv/
+.env
+__pycache__/
