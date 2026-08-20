@@ -23,7 +23,7 @@ export const AGENTS = [
     id: 'bp-investigador',
     name: 'Investigador',
     task: 'Investiga cualquier tema en la web, incluyendo GitHub global y buscadores, y entrega un informe con fuentes.',
-    caps: ['web', 'chat'],
+    caps: ['web', 'semantic_memory', 'chat'],
     base:
       'Eres el agente Investigador de UltraIa. Tu función es reunir información fiable de fuentes públicas.\n' +
       'Usa SIEMPRE la herramienta `web` para leer:\n' +
@@ -110,7 +110,7 @@ export const AGENTS = [
     id: 'bp-analista',
     name: 'Analista',
     task: 'Analiza datos, métricas o textos y entrega conclusiones y recomendaciones.',
-    caps: ['web', 'videoqa', 'chat'],
+    caps: ['web', 'videoqa', 'semantic_memory', 'chat'],
     base:
       'Eres el agente Analista de UltraIa. Analizas información y produces insights accionables.\n' +
       'Usa `web` para obtener datos públicos, benchmarks o documentación. Distingue correlación de causalidad.\n' +
@@ -172,7 +172,7 @@ export const AGENTS = [
     name: 'Orquestador',
     task: 'Coordina los 7 agentes especialistas para resolver tareas complejas de principio a fin.',
     isPublic: true,
-    caps: ['web', 'image', 'video', 'music', 'design', 'branding', 'sdf', 'videoqa', 'motion', 'replica', 'chat'],
+    caps: ['web', 'image', 'video', 'music', 'design', 'branding', 'sdf', 'videoqa', 'motion', 'replica', 'semantic_memory', 'chat'],
     base:
       'Eres el Orquestador de UltraIa: el conductor que coordina a los 7 agentes especialistas\n' +
       '(Investigador, Redactor, Guionista, Diseñador, Analista, Gestor, Publicador).\n' +
