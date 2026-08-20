@@ -130,7 +130,7 @@ export function loadTruthCorpus(files: TruthFileLike[]): TruthDoc[] {
 }
 
 /** Resultado de una busqueda semantica. */
-export type MemoryHit = {
+export type SemanticMemoryHit = {
   id: string;
   texto: string;
   respuesta: string;
@@ -147,7 +147,7 @@ function round3(x: number): number {
  * embeds la query y puntua cada doc contra texto+respuesta.
  * Empates por id asc (determinista). Docs sin terminos compartidos -> score 0.
  */
-export function searchTruth(docs: TruthDoc[], query: string, k = 5): MemoryHit[] {
+export function searchTruth(docs: TruthDoc[], query: string, k = 5): SemanticMemoryHit[] {
   const bag = embedText(query);
   const scored = docs.map((doc) => ({
     doc,
@@ -185,7 +185,7 @@ export class SemanticMemoryIndex {
     return this.docs.delete(id);
   }
 
-  query(query: string, k = 5): MemoryHit[] {
+  query(query: string, k = 5): SemanticMemoryHit[] {
     const bag = embedText(query);
     const scored: Array<{ doc: TruthDoc; score: number }> = [];
     for (const { doc, bag: db } of this.docs.values()) {

@@ -52,6 +52,7 @@ import * as motion from '../tools/motion';
 import * as replica from '../tools/replica';
 import * as imaging from '../tools/imaging';
 import * as semanticMemory from '../tools/semantic-memory';
+import * as autolearn from '../tools/autolearn';
 import { createPublication, listPublications, approvePublication, rejectPublication, publishDue } from '../domain/publications';
 import { generarContenido, type ContentPackage } from '../tools/enrutador';
 import { computeChannelKpis, fetchChannelAnalytics } from '../tools/metrics';
@@ -746,6 +747,79 @@ export function chatStream(opts: {
         }
         if (accion === 'stats') {
           return { accion, stats: semanticMemory.corpusStats(docs), total: docs.length };
+        }
+        return { accion, ok: false, error: 'accion desconocida' };
+      },
+    });
+  }
+  if (opts.tools?.includes('autolearn')) {
+    tools.autolearn_run = tool({
+      description:
+        'Auto-learning agent (self-programming loop): sense the project learning state (parse LEARNINGS.md lessons, scan verified truth stats), detect learning gaps (topics without verified truth, lessons not implemented, downloaded sources without RAZONAMIENTO analysis, pending backlog), prioritize improvement work with a simplified RICE score (impact x confidence / effort), generate the improvement plan (self-programmed: the agent writes its own plan with loop-piv pattern: goal, steps, files, scoped/FULL criteria, priority), and compute cycle KPIs (lessons, verified truth, open gaps, improvement rate). Deterministic, keyless, offline. Use to automate autoprogramming, find new information needs, and improve the project.',
+      parameters: z.object({
+        accion: z.enum(['scan', 'gaps', 'plan', 'metrics']),
+        learningsText: z.string().optional(), // texto de LEARNINGS.md para scan/gaps/metrics
+        truthDocsJson: z.string().optional(), // [{fuente?, tipo?, texto?}] para scan/gaps
+        backlogText: z.string().optional(), // texto del backlog (STATE.md) para gaps
+        sourcesJson: z.string().optional(), // ["sacd-nasa.md", ...] para gaps
+        razonamientosJson: z.string().optional(), // ["RAZONAMIENTO-SACD.md", ...] para gaps
+        implementedJson: z.string().optional(), // capabilities/tools registradas para gaps
+        gapsJson: z.string().optional(), // gaps para plan (si no se pasan, se detectan)
+        candidatesJson: z.string().optional(), // [{id, descripcion, impact, effort, confidence}] para plan
+        objetivo: z.string().optional(), // para plan
+      }),
+      execute: async ({ accion, learningsText, truthDocsJson, backlogText, sourcesJson, razonamientosJson, implementedJson, gapsJson, candidatesJson, objetivo }) => {
+        const entries = learningsText ? autolearn.parseLearnings(learningsText) : [];
+        const truthDocs = truthDocsJson ? (JSON.parse(truthDocsJson) as Array<{ fuente?: string; tipo?: string; texto?: string }>) : [];
+        if (accion === 'scan') {
+          const stats = autolearn.scanTruthStats(truthDocs);
+          return {
+            accion,
+            lecciones: entries.length,
+            leccionesRecientes: autolearn.countRecentLearnings(entries, 7),
+            truth: stats,
+          };
+        }
+        if (accion === 'metrics') {
+          const gaps = gapsJson ? (JSON.parse(gapsJson) as unknown as autolearn.Gap[]) : [];
+          return {
+            accion,
+            metrics: autolearn.learningMetrics({
+              entries,
+              truthCount: truthDocs.length,
+              gaps,
+              sourcesCount: sourcesJson ? (JSON.parse(sourcesJson) as string[]).length : 0,
+            }),
+          };
+        }
+        const gaps = gapsJson
+          ? (JSON.parse(gapsJson) as unknown as autolearn.Gap[])
+          : autolearn.detectGaps({
+              learnings: entries,
+              truth: truthDocs,
+              backlog: backlogText ?? [],
+              sources: sourcesJson ? (JSON.parse(sourcesJson) as string[]) : [],
+              razonamientos: razonamientosJson ? (JSON.parse(razonamientosJson) as string[]) : [],
+              implemented: implementedJson ? (JSON.parse(implementedJson) as string[]) : [],
+            });
+        if (accion === 'gaps') {
+          return { accion, gaps };
+        }
+        if (accion === 'plan') {
+          const candidates = candidatesJson
+            ? (JSON.parse(candidatesJson) as autolearn.WorkCandidate[])
+            : gaps.map((g, i) => ({
+                id: `gap_${i}`,
+                descripcion: g.descripcion,
+                impact: g.kind === 'backlog_pendiente' ? 4 : 3,
+                effort: g.kind === 'source_sin_analizar' ? 2 : 3,
+                confidence: 0.8,
+              }));
+          const priorities = autolearn.prioritizeWork(candidates);
+          return {
+            accion,
+            plan: autolearn.buildImprovementPlan({ gaps, priorities, objetivo }),
+          };
         }
         return { accion, ok: false, error: 'accion desconocida' };
       },

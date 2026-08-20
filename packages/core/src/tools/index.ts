@@ -36,6 +36,7 @@ export type {
 export * from './replica';
 export * from './imaging';
 export * from './semantic-memory';
+export * from './autolearn';
 
 import * as web from './web';
 import * as image from './image';
@@ -70,8 +71,9 @@ import * as motion from './motion';
 import * as replica from './replica';
 import * as imaging from './imaging';
 import * as semanticMemory from './semantic-memory';
+import * as autolearn from './autolearn';
 
-export const tools = { web, image, video, music, stitch, reach, skills: { runSkill }, content, g0dm0d3, topics, present: presentTools, publish, enrutador, mediaScore, metrics, memoryFs: { createMemoryFs }, diagram, videoEdit, screenflow, cloud: cloudTools, harness, growth, vfx, codevfx, travel, generative, libros, sdf, videoqa, motion, replica, imaging, semanticMemory };
+export const tools = { web, image, video, music, stitch, reach, skills: { runSkill }, content, g0dm0d3, topics, present: presentTools, publish, enrutador, mediaScore, metrics, memoryFs: { createMemoryFs }, diagram, videoEdit, screenflow, cloud: cloudTools, harness, growth, vfx, codevfx, travel, generative, libros, sdf, videoqa, motion, replica, imaging, semanticMemory, autolearn };
 
 export const TOOL_DESCRIPTIONS: Record<string, string> = {
   calculator: 'Safely evaluate a mathematical expression (math only).',
@@ -139,6 +141,8 @@ imaging:
     'Pure-TypeScript image processing kernels (fundamentos-programacion.md A8/A9-A11/A22-A24): 2D convolution and correlation (separable fast path), kernels (gaussian/box/Sobel/Prewitt/Laplacian/sharpen/emboss), filters (gaussian & box blur, median, unsharp mask), grayscale morphology (erode/dilate/open/close/gradient), tone (histogram, Otsu, threshold, normalize, gamma, contrast-limited equalization), geometry (crop, bilinear resize, gaussian pyramid), Canny edges (non-max suppression + hysteresis), 2D comparison (absolute/squared error maps, windowed SSIM map with MSSIM and worst-window locator, full compare report with PSNR and worst quadrant) and REAL optical flow (Lucas-Kanade single-scale and pyramidal coarse-to-fine, producing a FlowField that motion.flowStats/decomposeMotion consume directly). No deps, no network, fully deterministic. Use to measure, verify and analyze frames instead of only planning external runners.',
   semantic_memory:
     'Semantic memory retrieval (SACD/NASA design -> UltraIa port): sparse n-gram hashing + cosine similarity over verified learnings (learning/truth corpus) with top-k ranked hits (id, texto, respuesta, score); corpus stats (total, sources, types). Deterministic, keyless, offline. Use to recall verified knowledge before proposing solutions (meta-learning loop).',
+  autolearn:
+    'Auto-learning agent (self-programming loop): sense learning state (parse LEARNINGS.md, scan verified truth), detect gaps (topics without verified truth, lessons not implemented, sources without analysis, pending backlog), prioritize with simplified RICE (impact x confidence / effort), generate the improvement plan (loop-piv pattern: goal, steps, files, scoped/FULL criteria, priority), compute cycle KPIs (lessons, truth, gaps, improvement rate). Deterministic, keyless, offline. Use to automate autoprogramming, find new information needs, and improve the project.',
 };
 
 export type Capability =
@@ -177,4 +181,5 @@ export type Capability =
   | 'motion'
   | 'replica'
   | 'imaging'
-  | 'semantic_memory';
+  | 'semantic_memory'
+  | 'autolearn';
