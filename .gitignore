@@ -69,6 +69,9 @@ screenshots/
 # Travel (capability travel): tomas descargadas + renders — regenerables con Task
 .ultraia/travel/
 
+# Loop PIVR: lock de sesion (loop-concurrency-guard) — nunca commitear
+.ultraia/loop/
+
 # Expo mobile (Fase mobile)
 apps/mobile/.expo/
 apps/mobile/dist/
