@@ -11,6 +11,10 @@
 |---------|---------|--------|---------|
 | PIVR backlog | continua (auto P→B) | L2 habilitado por humano (15/08/2026) | `python scripts/loop_piv.py` o en-sesión |
 | Daily Triage | 1/día | report-only | `python scripts/loop_piv.py --triage` |
+| State Doctor (pre-flight) | antes de cada triage/ciclo | report-only | `python scripts/loop_piv.py --doctor` (o `--doctor --triage`) |
+
+Flags del driver: `--cycles N` · `--gate-only` · `--plan-only` · `--triage` · `--doctor`
+(pre-flight state-integrity-check ANTES de triage/gates/ciclos) · `--no-commit` · `--dry-run` · `--timeout S`.
 
 ## Fases (protocolo en AGENTS.md §Loop PIVR)
 
@@ -30,7 +34,9 @@ Ciclo completo: `Sensado → Razonamiento → Acción → Ajuste` por cada tarea
 ## Human Gates
 
 - Push/merge: SIEMPRE requieren aprobación humana (nunca push automático).
-- Kill switch: `loop-pause-all` en STATE.md o loop-run-log.md detiene el bucle.
+- Kill switch: `loop-pause-all` en STATE.md o loop-run-log.md detiene el bucle. Detección
+  por TOKEN ACTIVO (19/08/2026): menciones en prosa negadas ("sin `loop-pause-all`",
+  "ausente") NO activan el kill switch (falso positivo real en loop-run-log.md L1959).
 - Denylist de paths: `.env*`, `auth/`, `payments/`, `secrets/`, `credentials/` — nunca editar.
 
 ## Worktrees
@@ -53,4 +59,5 @@ Ciclo completo: `Sensado → Razonamiento → Acción → Ajuste` por cada tarea
 - Planes por tarea: `.opencode/plans/loop-<taskid>-<slug>.md` (plantilla en skill loop-piv)
 - Skill en-sesión: `.opencode/skills/loop-piv/SKILL.md` · Verifier: `.opencode/skills/loop-verifier/SKILL.md`
 - Triage: `.opencode/skills/loop-triage/SKILL.md` · Driver: `scripts/loop_piv.py`
+- Integridad: `.opencode/skills/state-integrity-check/SKILL.md` (13 checks) · agente `state-doctor`
 - Brief del usuario: LOOPENGINEER.TXT

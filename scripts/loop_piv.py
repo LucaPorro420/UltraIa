@@ -13,13 +13,17 @@ La "petición" de build la emite este driver automáticamente al terminar P
 
 Uso:
     python scripts/loop_piv.py [--cycles N] [--gate-only] [--plan-only] [--triage]
-                               [--no-commit] [--dry-run] [--timeout S]
+                               [--doctor] [--no-commit] [--dry-run] [--timeout S]
 
 Flags:
     --cycles N     ciclos máximos a ejecutar (default 1)
     --gate-only    solo verificación (P/I saltados); exit 1 si algún gate falla
     --plan-only    solo fase P (escribe el plan file); no implementa
     --triage       ejecuta el agente loop-triage (report-only) y termina
+    --doctor       pre-flight de integridad: ejecuta el agente state-doctor
+                   (state-integrity-check, 13 checks) ANTES de --triage, --gate-only,
+                   --plan-only o de tomar next_task() en ciclos; solo con --doctor
+                   (sin otro flag) corre el chequeo y termina
     --no-commit    I+V sin commit (verificación sin tocar el repo)
     --dry-run      imprime los comandos sin ejecutarlos
     --timeout S    timeout por invocación de opencode (default 3600s)
@@ -49,6 +53,7 @@ PLANS_DIR = ROOT / ".opencode" / "plans"
 LEARNINGS = ROOT / "learning" / "LEARNINGS.md"
 
 KILL_SWITCH = "loop-pause-all"
+KILL_SWITCH_NEGATIONS = ("sin ", "sin`", "sin '", "sin \"", "ausente", "no activo")
 TASK_RE = re.compile(
     r"^\|\s*(\d+)\s*\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|\s*"
     r"pendiente(?:\s*—\s*SIGUIENTE)?\s*\|",
@@ -122,9 +127,22 @@ def gates(dry: bool, timeout: int = 3600) -> bool:
 
 
 def kill_switch_active() -> bool:
-    """True si STATE.md o loop-run-log.md contienen el kill switch."""
+    """True si STATE.md o loop-run-log.md contienen el kill switch ACTIVO.
+
+    FIX 2026-08-19: la busqueda de substring bruta devolvia True con menciones en
+    prosa tipo "sin `loop-pause-all`" (loop-run-log.md L1959, bitacora 18/08) —
+    un falso positivo que detendria el bucle para siempre. Ahora cada ocurrencia
+    se valida contra negaciones en los ~24 caracteres previos: si TODAS las
+    ocurrencias estan negadas (sin/ausente/no activo), el kill switch NO esta activo.
+    """
     for path in (STATE, RUN_LOG):
-        if path.exists() and KILL_SWITCH in path.read_text(encoding="utf-8", errors="replace"):
+        if not path.exists():
+            continue
+        text = path.read_text(encoding="utf-8", errors="replace")
+        for m in re.finditer(re.escape(KILL_SWITCH), text):
+            prefix = text[max(0, m.start() - 24):m.start()].lower()
+            if any(neg in prefix for neg in KILL_SWITCH_NEGATIONS):
+                continue  # mencion en prosa negada (documentacion, no kill switch)
             return True
     return False
 
@@ -227,14 +245,45 @@ def find_plan_file(task_id: int) -> Path | None:
     return max(candidates, key=lambda p: p.stat().st_mtime)
 
 
+def run_doctor(dry: bool, timeout: int) -> int:
+    """Ejecuta el agente state-doctor (state-integrity-check, report-only) vía opencode run.
+
+    Pre-flight del driver: la skill state-integrity-check exige usarse antes de que
+    next_task() tome una tarea (la tabla de STATE.md puede tener IDs duplicados, filas
+    huerfanas o la raiz vaciada — incidente 19/08/2026).
+    """
+    oc = opencode_exec()
+    prompt = (
+        "Ejecuta la skill .opencode/skills/state-integrity-check (los 13 checks): "
+        "verifica la integridad de STATE.md (IDs duplicados, filas huerfanas, banner vs "
+        "kill switch, encoding, banner stale), la raiz del repo (archivos criticos a 0 "
+        "bytes o truncados <50% de HEAD), firma mass-wipe, espejos de skills desync, "
+        "estado del lock de concurrencia, deletions staged y batch del indice, drift de "
+        "bitacora y colision de plan files. Reporta el bloque de issues en el formato de "
+        "la skill. NO edites ningun archivo (read-only)."
+    )
+    code, out = run(
+        oc + ["run", "--agent", "state-doctor", prompt], dry, timeout=timeout
+    )
+    if code != 0:
+        log(f"- State-doctor: **FAIL** (exit {code})\n- Salida:\n{out[-1500:]}")
+        print("[doctor] FAIL")
+        return 1
+    print("[doctor] OK")
+    return 0
+
+
 def run_triage(dry: bool, timeout: int) -> int:
     """Ejecuta el agente loop-triage (report-only) vía opencode run."""
     oc = opencode_exec()
     prompt = (
         "Ejecuta la skill .opencode/skills/loop-triage (triage report-only del loop PIVR): "
-        "analiza git log/status, STATE.md y loop-run-log.md; actualiza High Priority / "
-        "Watch List / Recent Noise en STATE.md y registra el JSON de presupuesto en "
-        "loop-run-log.md. NO edites código fuente."
+        "PRIMERO corre la skill state-integrity-check (13 checks) e incrusta su bloque de "
+        "issues en el reporte; luego analiza git log/status, el lock de concurrencia, el "
+        "presupuesto 24h, STATE.md y loop-run-log.md; actualiza High Priority / Watch "
+        "List / Recent Noise en STATE.md y registra el JSON de presupuesto + linea de "
+        "proxima accion recomendada en loop-run-log.md. Edita SOLO STATE.md y "
+        "loop-run-log.md. NO edites codigo fuente."
     )
     code, out = run(
         oc + ["run", "--agent", "loop-triage", prompt], dry, timeout=timeout
@@ -325,10 +374,19 @@ def finish_cycle(task: Task, plan_ref: str, started: float, args: argparse.Names
 
 
 def run_singletons(args: argparse.Namespace) -> int | None:
-    """Maneja kill switch / triage / gate-only; None si toca correr ciclos."""
+    """Maneja kill switch / doctor / triage / gate-only; None si toca correr ciclos."""
     if kill_switch_active():
         print(f"[stop] kill switch '{KILL_SWITCH}' activo — bucle detenido")
         return 0
+    doctor_only = args.doctor and not (args.triage or args.gate_only or args.plan_only)
+    if doctor_only:
+        # Modo doctor-only: pre-flight de integridad y termina.
+        return run_doctor(args.dry_run, args.timeout)
+    if args.doctor:
+        # Pre-flight ANTES de triage/gate-only/plan-only/ciclos.
+        rc = run_doctor(args.dry_run, args.timeout)
+        if rc != 0:
+            return rc
     if args.triage:
         return run_triage(args.dry_run, args.timeout)
     if args.gate_only:
@@ -346,6 +404,12 @@ def parse_args() -> argparse.Namespace:
     ap.add_argument("--plan-only", action="store_true", help="solo fase P (escribe el plan file)")
     ap.add_argument(
         "--triage", action="store_true", help="ejecuta loop-triage (report-only) y termina"
+    )
+    ap.add_argument(
+        "--doctor",
+        action="store_true",
+        help="pre-flight: ejecuta state-doctor (state-integrity-check) antes de "
+        "triage/gates/ciclos; solo con este flag corre el chequeo y termina",
     )
     ap.add_argument("--no-commit", action="store_true", help="I+V sin commit (verificación)")
     ap.add_argument("--dry-run", action="store_true", help="imprime comandos sin ejecutar")

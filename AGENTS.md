@@ -353,10 +353,42 @@ El bucle PIVR implementa el **bucle IA de 4 fases** (skill `ultraia-request`): c
 - El driver `scripts/loop_piv.py` emite automáticamente la "petición" de build al terminar P
   (`opencode run --agent piv-build "<plan>"` pasando la RUTA del plan file), simulando la
   instrucción del humano. Flags: `--cycles N`, `--gate-only`, `--plan-only`, `--triage`,
-  `--no-commit`, `--dry-run`.
+  `--doctor` (pre-flight state-integrity-check antes de triage/gates/ciclos), `--no-commit`,
+  `--dry-run`.
 - En-sesión: el agente sigue el protocolo sin esperar confirmación (autorización permanente del
   usuario, 15/08/2026), respetando SIEMPRE los gates humanos de push/merge (nunca push automático).
-- Kill switch: si `STATE.md` o `loop-run-log.md` contienen `loop-pause-all`, el bucle se detiene.
+- Kill switch: si `STATE.md` o `loop-run-log.md` contienen `loop-pause-all` (TOKEN ACTIVO,
+  no menciones negadas tipo "sin `loop-pause-all`" — fix 19/08/2026), el bucle se detiene.
+
+### Ronda harness 19/08/2026 (state-doctor 13 checks + triage paso 0 + guardas piv-plan/piv-build)
+
+- **state-integrity-check ampliada a 13 checks**: (1) IDs duplicados, (2) filas fuera de tabla,
+  (3) banner vs kill switch por TOKEN ACTIVO (ignora "sin `loop-pause-all`" en prosa — falso
+  positivo real L1959), (4) encoding `�`, (5) banner stale, (6) raíz crítica a 0 bytes (lista
+  16 archivos + `.gitignore`) → ALERTA ROJA, (7) firma mass-wipe por mtime compartido,
+  (8) truncados <50% del blob HEAD (precedente `.gitignore` 78→1), (9) espejos de skills
+  desync (SHA-1 de los 8 espejos `.opencode/skills/` vs `skills/`), (10) estado del lock
+  (activo/stale/ausente — lectura), (11) deletions staged de `.ts`/`.test.ts` + batch > 50,
+  (12) drift de bitácora (última entrada sin `[R]`/hash/JSON), (13) colisión de plan files
+  (2+ `loop-<id>-*.md`). Espejo raíz `skills/state-integrity-check/SKILL.md` sync por hash.
+- **loop-triage paso 0**: corre state-integrity-check PRIMERO e incrusta su bloque en el
+  reporte; lee lock, presupuesto 24h, enlaces.txt (<48h sin fuente), divergencia push
+  (`origin/master..HEAD`), deletions staged; emite línea "Próxima acción recomendada"
+  (estilo PREDICCIÓN) + JSON con items_found/escalations reales. Permisos del agente:
+  `bash: allow, edit: allow` — SOLO STATE.md y loop-run-log.md (headless driver OK).
+- **piv-plan pre-flight**: corre state-integrity-check (checks 1/2/6/8/13 mínimo) antes de
+  confiar en STATE.md; verifica que la tarea es la primera `pendiente` en orden de archivo
+  (igual que `next_task()`); lee plan files existentes de la misma tarea (colisión → CEDE);
+  lock ajeno → `[P] SKIP` y salida (precedentes 58/60/61).
+- **piv-build guardas**: heartbeat del lock; cuarentena de WIP ajeno antes de gates FULL
+  (`%TEMP%\opencode\wip-quarantine-<fecha>\` incl. untracked `.ts`/`.test.ts`, restauración
+  byte-exacta con `Get-FileHash`); **commit SIEMPRE con pathspec** (`git commit -m ... -- <files>`
+  — lección iter-58 b37fcfb arrastró 121 archivos); verificación raíz > 0 + sin `D ` ajenos
+  antes de commitear; cierre del lock propio al terminar el ciclo (solo si `session_id` coincide).
+- **Driver `--doctor`**: `run_doctor()` ejecuta `opencode run --agent state-doctor`; solo con
+  el flag corre el chequeo y termina; con `--triage`/`--gate-only`/`--plan-only`/ciclos corre
+  ANTES. Tests: `scripts/loop_piv_doctor.test.py` 9/9 (incl. regresión kill switch negado →
+  False, real → True).
 ## Fuente de enlaces (enlaces.txt) — 15/08/2026
 
 El usuario deja URLs en `enlaces.txt` (raíz) para que se analicen y se apliquen al proyecto

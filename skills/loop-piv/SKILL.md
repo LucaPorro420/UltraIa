@@ -29,22 +29,34 @@ Harness: `npx @cobusgreyling/loop` (CLI npm v0.1.2) + archivos del bucle + drive
 ### P — Planificar
 
 1. Leer `STATE.md`, `learning/LEARNINGS.md`, `loop-run-log.md`, `loop-constraints.md`.
+   **Pre-flight de integridad**: correr `state-integrity-check` (skill) ANTES de confiar en
+   STATE.md — si hay ALERTAS (root-empty/root-truncated, banner-desync, IDs duplicados), el
+   estado NO es fiable: reportarlo y no tomar tarea hasta aclararlo (precedente incidente raíz 19/08).
 2. Si existe `loop-pause-all` en STATE.md o run-log → **detener el bucle** e informar.
-3. Verificar que la PRIMERA tarea del backlog sigue `pendiente` en STATE.md (guard contra trabajo duplicado).
+3. Verificar que la PRIMERA tarea del backlog sigue `pendiente` en STATE.md (guard contra trabajo duplicado):
+   - Es la primera fila `pendiente` en ORDEN DE ARCHIVO (lo que tomaría `next_task()`), no por número de ID.
+   - **Colisión de plan files**: si `.opencode/plans/loop-<taskid>-*.md` ya existe, LEERLO primero —
+     otra sesión pudo planificar la misma tarea (precedente loop-36-wiring vs loop-36-growth).
+   - **Lock ajeno**: si el lock (`loop-concurrency-guard`) está ACTIVO para esa tarea → NO tomarla:
+     registrar `[P] SKIP — lock activo de <session_id>` y salir (precedentes 58/60/61: CEDE sin duplicar).
 4. Escribir el plan en `.opencode/plans/loop-<taskid>-<slug>.md` usando la plantilla de abajo.
-   - Pre-flight: presupuesto (`loop-budget` skill) + kill switch + lecciones.
+   - Pre-flight: presupuesto (`loop-budget` skill) + kill switch + lecciones + lock propio tomado.
    - El plan debe listar EXPLÍCITAMENTE los archivos que se tocarán (clave para el staging del build).
-5. Registrar en `loop-run-log.md` un resumen corto `[P]` (objetivo + ruta del plan file).
+5. Registrar en `loop-run-log.md` un resumen corto `[P]` (objetivo + ruta del plan file + PREDICCIÓN).
    NO editar código fuente en esta fase.
 
 ### I — Implementar
 
 6. Leer el plan desde su archivo (`.opencode/plans/loop-<taskid>-<slug>.md`), no desde el prompt.
 7. Pre-flight de working tree: `git status --porcelain` → inventario de ruido NO relacionado al plan.
+   Refrescar el heartbeat del lock (`loop-concurrency-guard`) antes de gates y commit.
 8. Ejecutar el plan con las tools del proyecto (workspaces, worktree si aplica).
 9. Staging EXPLÍCITO: `git add <archivos listados en el plan>` — NUNCA `git add .` ni `git add -A`.
    El ruido externo (fetches de datos, docs ajenas) queda fuera del commit.
 10. Un commit por iteración: `feat|fix|chore(scope): <descripción>`.
+    **Commit SIEMPRE con pathspec**: `git commit -m "<msg>" -- <archivos del plan>` — NUNCA
+    `git commit` sin paths (LECCIÓN CRÍTICA iter-58: b37fcfb arrastró 121 archivos staged ajenos
+    del índice #25; el staging explícito sin pathspec no protege el commit).
 11. NUNCA push ni merge (aprobación humana). NUNCA tocar paths denylisted
     (`.env`, `.env.*`, `auth/`, `payments/`, `secrets/`, `credentials/`).
 
@@ -54,20 +66,30 @@ Harness: `npx @cobusgreyling/loop` (CLI npm v0.1.2) + archivos del bucle + drive
     - Scoped (typecheck + tests del paquete afectado) en iteraciones intermedias.
     - FULL en cada commit: `npm run typecheck` → `npm run lint` → `npm run test` → `npm run build`.
 13. Antes de `npm run build`: matar dev servers (`taskkill /T /F` sobre procesos `next dev`/uvicorn) —
-    un dev server corriendo rompe el build (chunks `_next/static` 404).
-14. Si vitest da fallos raros tras editar → limpiar caché stale `node_modules/.vite` antes de diagnosticar.
-15. Si gates RED → arreglar (máx 3 intentos por ítem). Si sigue RED → escalar a High Priority en
+    un dev server corriendo rompe el build (chunks `_next/static` 404). Limpiar `.next` si da errores raros.
+14. **Cuarentena de WIP ajeno antes de gates FULL** (`loop-concurrency-guard`): cualquier archivo sucio
+    que NO esté en `touching` ni en los archivos del plan es de otra sesión → copiar (nunca mover) a
+    `%TEMP%\opencode\wip-quarantine-<fecha>\` conservando la ruta relativa, INCLUYENDO untracked
+    `.ts`/`.test.ts` (no aparecen en el manifest de git); correr los gates; restaurar byte a byte con
+    `Get-FileHash` antes/después (nunca dejar el árbol ajeno peor).
+15. Si vitest da fallos raros tras editar → limpiar caché stale `node_modules/.vite` antes de diagnosticar.
+16. Si gates RED → arreglar (máx 3 intentos por ítem). Si sigue RED → escalar a High Priority en
     STATE.md y parar el ciclo (no commitear con gates rojos).
-16. Opcional: verifier sub-agent (`loop-verifier` skill) → APPROVE/REJECT con evidencia.
-17. Commit SOLO si gates GREEN. Registrar evidencia en `loop-run-log.md` ([I]/[V]/[R]) y actualizar
+17. Opcional: verifier sub-agent (`loop-verifier` skill) → APPROVE/REJECT con evidencia.
+18. **Antes de commitear** (además de gates GREEN): verificar (a) raíz crítica > 0 bytes y sin
+    truncados (check-6/8 de `state-integrity-check` — incidente 19/08), (b) NO hay `D ` staged de
+    `.ts`/`.test.ts` ajenos al plan (deletions de #25), (c) el diff staged es SOLO del plan.
+    Commit SOLO si gates GREEN. Registrar evidencia en `loop-run-log.md` ([I]/[V]/[R]) y actualizar
     `STATE.md` (marcar tarea DONE con commit hash + tests).
 
 ### R — Reiniciar
 
-18. V=GREEN → siguiente ciclo inmediato (auto plan→build, sin esperar al humano).
-19. V=REJECT → reinyectar el error al plan (máx 3 intentos por ítem; luego escalar a High Priority).
-20. Backlog vacío o límites agotados (loop-budget.md) → reportar resumen en STATE.md y parar.
-21. Al final de cada ciclo, registrar el JSON de presupuesto (formato `loop-budget` skill).
+19. V=GREEN → siguiente ciclo inmediato (auto plan→build, sin esperar al humano).
+20. V=REJECT → reinyectar el error al plan (máx 3 intentos por ítem; luego escalar a High Priority).
+21. Backlog vacío o límites agotados (loop-budget.md) → reportar resumen en STATE.md y parar.
+22. **Cerrar el lock propio** al terminar el ciclo (`loop-concurrency-guard`): borrar
+    `.ultraia/loop/session.lock` SOLO si `session_id` coincide con el propio; nunca el de otra sesión.
+23. Al final de cada ciclo, registrar el JSON de presupuesto (formato `loop-budget` skill).
 
 ## Plantilla de plan (`.opencode/plans/loop-<taskid>-<slug>.md`)
 
