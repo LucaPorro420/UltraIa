@@ -4,6 +4,7 @@ import {
   adaptToMediaPlan,
   buildLocalPlan,
   detectLanguage,
+  DIRECTOR_SYSTEM_PROMPT,
   normalizeLanguage,
   parseDirectorPlan,
 } from './director';
@@ -122,5 +123,26 @@ describe('adaptToMediaPlan', () => {
     };
     const plan = await adaptToMediaPlan('un robot en el espacio', { gateway });
     expect(plan.language).toBe('es');
+  });
+
+  it('injects the verified memory context into the system prompt when provided', async () => {
+    let capturedSystem = '';
+    const gateway: AiGateway = {
+      generateStructured: async () => ({}) as never,
+      chatText: async (opts) => {
+        capturedSystem = opts.system ?? '';
+        return '{"language":"en","script":"A rainy street","images":["rainy street, cinematic"],"shots":1,"motion":"zoom-in","bgm":"rain","style":"cinematic"}';
+      },
+    };
+    await adaptToMediaPlan('a rainy street with a motorcycle', {
+      gateway,
+      memoryContext: '- lluvia => usar lluvia lateral y reflejos (score 0.9)',
+    });
+    expect(capturedSystem).toContain('Verified memory (use as context, do not contradict)');
+    expect(capturedSystem).toContain('usar lluvia lateral y reflejos');
+  });
+
+  it('omits the memory section when no memoryContext is provided', () => {
+    expect(DIRECTOR_SYSTEM_PROMPT()).not.toContain('Verified memory');
   });
 });

@@ -1,9 +1,10 @@
 import type { AiGateway } from '../ai/gateway';
 import { adaptToMediaPlan, type DirectorPlan } from '../prompt/director';
+import { loadTruthCorpus, searchTruth, type TruthFileLike } from '../tools/semantic-memory';
 import { fuseCritiques, defaultCritics, type Critic } from './critics';
 import { createMediaField, type MediaField, type Modality } from './mediafield';
 import { defaultGenerators, type Generator, type GenerationResult } from './generators';
-import { ErrorMemory, SceneMemory, CharacterMemory, StyleMemory, WorkingMemory } from './memory';
+import { ErrorMemory, SceneMemory, CharacterMemory, StyleMemory, WorkingMemory, type MemoryHit } from './memory';
 import { alignEffectsToCause } from './timeline';
 
 export interface OmagRequest {
@@ -12,6 +13,11 @@ export interface OmagRequest {
   modalities?: Modality[];
   maxIterations?: number;
   gateway?: AiGateway;
+  /** Memoria experiencial: corpus de verdad verificada para consultar antes de planear. */
+  memory?: {
+    corpus: TruthFileLike[];
+    hits?: number;
+  };
 }
 
 export interface OmagResult {
@@ -22,6 +28,8 @@ export interface OmagResult {
   overall: number;
   accepted: boolean;
   recommendations: string[];
+  /** Hits de memoria experiencial recuperados (ausente si request.memory no se dio). */
+  memoryHits?: MemoryHit[];
 }
 
 const THRESHOLDS: Record<NonNullable<OmagRequest['quality']>, number> = {
@@ -72,9 +80,23 @@ export class OmagOrchestrator {
     const quality = request.quality ?? 'balanced';
     const threshold = THRESHOLDS[quality];
 
-    const plan: DirectorPlan = await adaptToMediaPlan(request.idea, { gateway: request.gateway });
+    // Memoria experiencial (SACD): consultar la verdad verificada antes de planear.
+    let memoryHits: MemoryHit[] | undefined;
+    let memoryContext = '';
+    if (request.memory && request.memory.corpus.length > 0) {
+      const docs = loadTruthCorpus(request.memory.corpus);
+      memoryHits = searchTruth(docs, request.idea, request.memory.hits ?? 3);
+      memoryContext = memoryHits.map((h) => `- ${h.texto} => ${h.respuesta} (score ${h.score})`).join('\n');
+      this.working.setHits(memoryHits);
+    }
+
+    const plan: DirectorPlan = await adaptToMediaPlan(request.idea, {
+      gateway: request.gateway,
+      memoryContext,
+    });
     let field = planToField(plan);
     field.metadata.modalities = request.modalities ?? (['image', 'video', 'music'] as Modality[]);
+    if (memoryHits) field.metadata.memory = memoryHits;
 
     let results: GenerationResult[] = [];
     let fusion = fuseCritiques([]);
@@ -118,6 +140,7 @@ export class OmagOrchestrator {
           overall: fusion.overall,
           accepted: true,
           recommendations: fusion.recommendations,
+          memoryHits,
         };
       }
 
@@ -138,6 +161,7 @@ export class OmagOrchestrator {
       overall: fusion.overall,
       accepted: false,
       recommendations: fusion.recommendations,
+      memoryHits,
     };
   }
 }

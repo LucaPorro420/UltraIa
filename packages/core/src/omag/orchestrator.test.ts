@@ -77,4 +77,78 @@ describe('OmagOrchestrator', () => {
     expect(result.field.environment.shots).toBeGreaterThanOrEqual(1);
     expect(result.accepted).toBe(true);
   });
+
+  it('recalls verified memory for the idea and exposes it in result/working/metadata', async () => {
+    const finalUrl = 'https://image.pollinations.ai/seed/1/img.png';
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, status: 200, url: finalUrl }));
+    const orchestrator = new OmagOrchestrator();
+    const corpus = [
+      {
+        source: 'truth_lluvia',
+        cases: [
+          {
+            id: 1,
+            prompt: 'Una mujer camina por una calle lluviosa y una motocicleta pasa detrás de ella.',
+            answer: 'usar lluvia lateral + reflejos en el asfalto',
+            type: 'exact',
+          },
+          {
+            id: 2,
+            prompt: 'Un robot baila en un hangar espacial.',
+            answer: 'usar neones fríos y humo de pista',
+            type: 'exact',
+          },
+        ],
+      },
+    ];
+    const result = await orchestrator.run({
+      idea: 'Una mujer camina por una calle lluviosa. Una motocicleta pasa detrás de ella.',
+      quality: 'fast',
+      modalities: ['image'],
+      maxIterations: 2,
+      memory: { corpus, hits: 2 },
+    });
+    expect(result.memoryHits).toBeDefined();
+    expect(result.memoryHits!.length).toBeGreaterThanOrEqual(1);
+    expect(result.memoryHits![0].score).toBeGreaterThan(0);
+    // El hit más relevante primero (orden por score desc).
+    expect(result.memoryHits![0].id).toBe('truth_lluvia_1');
+    // Memoria registrada en working y en el campo.
+    expect(orchestrator.working.getHits().length).toBe(result.memoryHits!.length);
+    expect(result.field.metadata.memory).toBeDefined();
+    expect(Array.isArray(result.field.metadata.memory)).toBe(true);
+  });
+
+  it('runs without memory when request.memory is absent (retrocompatible)', async () => {
+    const finalUrl = 'https://image.pollinations.ai/seed/1/img.png';
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, status: 200, url: finalUrl }));
+    const orchestrator = new OmagOrchestrator();
+    const result = await orchestrator.run({ idea: 'a quiet lake at dawn', quality: 'fast', modalities: ['image'], maxIterations: 1 });
+    expect(result.memoryHits).toBeUndefined();
+    expect(orchestrator.working.getHits()).toEqual([]);
+    expect(result.accepted).toBe(true);
+  });
+
+  it('returns empty hits when the corpus has no matching terms', async () => {
+    const finalUrl = 'https://image.pollinations.ai/seed/1/img.png';
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, status: 200, url: finalUrl }));
+    const orchestrator = new OmagOrchestrator();
+    const corpus = [
+      {
+        source: 'truth_lejano',
+        cases: [{ id: 1, prompt: 'xylophone quantum entanglement meditation', answer: 'nada que ver', type: 'exact' }],
+      },
+    ];
+    const result = await orchestrator.run({
+      idea: 'a lighthouse on a stormy cliff',
+      quality: 'fast',
+      modalities: ['image'],
+      maxIterations: 1,
+      memory: { corpus, hits: 3 },
+    });
+    expect(result.memoryHits).toBeDefined();
+    expect(result.memoryHits!.length).toBeGreaterThanOrEqual(1); // top-k devuelve lo mejor aunque score 0
+    expect(result.memoryHits![0].score).toBe(0);
+    expect(result.accepted).toBe(true);
+  });
 });

@@ -7,8 +7,18 @@ export interface ErrorRecord {
   solution: string;
 }
 
+/** Hit de memoria experiencial (verdad verificada recuperada). */
+export interface MemoryHit {
+  id: string;
+  texto: string;
+  respuesta: string;
+  /** Similitud coseno 0-1 (3 decimales). */
+  score: number;
+}
+
 export class WorkingMemory {
   private current: MediaField | null = null;
+  private hits: MemoryHit[] = [];
 
   set(field: MediaField): void {
     this.current = structuredClone(field);
@@ -18,8 +28,18 @@ export class WorkingMemory {
     return this.current ? structuredClone(this.current) : null;
   }
 
+  /** Registra los hits de memoria experiencial recuperados para la idea actual. */
+  setHits(hits: MemoryHit[]): void {
+    this.hits = structuredClone(hits);
+  }
+
+  getHits(): MemoryHit[] {
+    return structuredClone(this.hits);
+  }
+
   clear(): void {
     this.current = null;
+    this.hits = [];
   }
 }
 

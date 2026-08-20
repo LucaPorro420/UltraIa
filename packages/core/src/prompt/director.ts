@@ -47,7 +47,10 @@ export function normalizeMotion(value: unknown): Motion {
   return match ?? 'zoom-in';
 }
 
-export const DIRECTOR_SYSTEM_PROMPT = (languages = LANGUAGES.map((l) => l.name)): string => `
+export const DIRECTOR_SYSTEM_PROMPT = (
+  languages = LANGUAGES.map((l) => l.name),
+  memoryContext = '',
+): string => `
 You are the Multimodal Director of UltraIa. You translate a natural-language request (in ANY of these languages: ${languages.join(', ')}) into a strict JSON media plan.
 
 Rules:
@@ -59,7 +62,7 @@ Rules:
   {"language": "<BCP-47 code>", "script": "...", "images": ["..."], "shots": <int>,
    "motions": ["<motion per shot>"], "motion": "<first motion (backward compatible)>",
    "bgm": "...", "style": "..."}
-`;
+${memoryContext ? `\nVerified memory (use as context, do not contradict):\n${memoryContext}\n` : ''}`;
 
 /** Parsea el JSON del modelo tolerando markdown fences y ruido. */
 export function parseDirectorPlan(raw: string): DirectorPlan {
@@ -116,12 +119,12 @@ export function buildLocalPlan(prompt: string): DirectorPlan {
  */
 export async function adaptToMediaPlan(
   prompt: string,
-  opts?: { gateway?: AiGateway; model?: string },
+  opts?: { gateway?: AiGateway; model?: string; memoryContext?: string },
 ): Promise<DirectorPlan> {
   if (!opts?.gateway) return buildLocalPlan(prompt);
   try {
     const text = await opts.gateway.chatText({
-      system: DIRECTOR_SYSTEM_PROMPT(),
+      system: DIRECTOR_SYSTEM_PROMPT(undefined, opts.memoryContext),
       input: prompt,
       model: opts.model,
     });
