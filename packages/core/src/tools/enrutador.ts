@@ -82,6 +82,7 @@ const CTA_BY_CANAL: Record<Idioma, Record<TopicBrief['canal'], string>> = {
     telegram: 'Únete al canal para el resumen diario de IA.',
     discord: 'Entra a la comunidad y comenta este tema.',
     slack: 'Comparte este resumen con tu equipo.',
+    facebook: 'Síguenos para más contenido de IA en Reels.',
   },
   ar: {
     youtube_shorts: 'تابعني لمزيد من اختصارات الذكاء الاصطناعي في 60 ثانية.',
@@ -91,6 +92,7 @@ const CTA_BY_CANAL: Record<Idioma, Record<TopicBrief['canal'], string>> = {
     telegram: 'انضم إلى القناة للحصول على ملخص الذكاء الاصطناعي اليومي.',
     discord: 'ادخل إلى المجتمع وعلّق على هذا الموضوع.',
     slack: 'شارك هذا الملخص مع فريقك.',
+    facebook: 'تابعنا لمزيد من محتوى الذكاء الاصطناعي في Reels.',
   },
 };
 

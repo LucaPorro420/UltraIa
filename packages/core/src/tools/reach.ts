@@ -23,7 +23,7 @@ export interface ReachReadResult {
   title: string | null;
   description: string | null;
   text: string;
-  provider: 'jina-reader' | 'direct';
+  provider: 'jina-reader' | 'direct' | 'jina-reader (cached)' | 'direct (cached)';
 }
 
 export interface ReachSearchInput {
@@ -148,7 +148,7 @@ export async function readWeb(input: ReachReadInput): Promise<ReachReadResult> {
   // Check cache first
   const key = cacheKey(url, maxLength);
   const cached = cacheGet(key);
-  if (cached) return { ...cached, provider: `${cached.provider} (cached)` };
+  if (cached) return { ...cached, provider: `${cached.provider} (cached)` as ReachReadResult['provider'] };
 
   try {
     const res = await withTimeout(
@@ -169,7 +169,7 @@ export async function readWeb(input: ReachReadInput): Promise<ReachReadResult> {
           .filter((l) => !l.startsWith('Title: ') && !l.startsWith('Description: '))
           .join('\n')
           .trim();
-        const result = { url, title, description, text: truncate(body, maxLength), provider: 'jina-reader' };
+        const result: ReachReadResult = { url, title, description, text: truncate(body, maxLength), provider: 'jina-reader' };
         cacheSet(key, result);
         return result;
       }
@@ -192,7 +192,7 @@ export async function readWeb(input: ReachReadInput): Promise<ReachReadResult> {
     .replace(/\s+/g, ' ')
     .trim();
   const titleMatch = html.match(/<title[^>]*>([^<]*)<\/title>/i);
-  const result = {
+  const result: ReachReadResult = {
     url,
     title: titleMatch ? titleMatch[1].trim() : null,
     description: null,

@@ -66,7 +66,7 @@ def test_music_keyless_composition() -> None:
     res = client.post("/generate/music", json={"prompt": "calm ambient", "duration_sec": 20})
     assert res.status_code == 200
     body = res.json()
-    assert body["provider"] == "composition"
+    assert body["provider"] == "keyless-synthesis"
     assert "note" in body
 
 

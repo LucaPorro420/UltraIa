@@ -234,6 +234,22 @@ model Publication {
   @@index([estado, scheduledAt])
 }
 
+// Conexiones por canal (AutoPub F6): tokens OAuth/bot encriptados en DB con fallback a .env.
+// Clave de cifrado: CONNECTIONS_SECRET (AES-256-GCM). Sin clave → modo efímero (tokens no sobreviven reinicio).
+model ChannelConnection {
+  id                 String    @id @default(cuid())
+  canal              String    @unique // youtube_shorts | tiktok | x | instagram | threads | facebook | linkedin | telegram | discord | slack
+  tokenCifrado       String    // access token encriptado (AES-256-GCM)
+  refreshTokenCifrado String?   // refresh token encriptado (opcional)
+  expiresAt          DateTime? // expiración del access token
+  metaJson           String?   // JSON: {userId, authorUrn, pageId, channelName, ...}
+  estado             String    @default("CONNECTED") // CONNECTED | ERROR | EXPIRED
+  ultimoTestAt       DateTime?
+  ultimoError        String?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+}
+
 // Cola de briefs persistente (AutoPub F1 tarea 4): el motor de ideas alimenta la fábrica.
 model TopicBrief {
   id          String   @id @default(cuid())

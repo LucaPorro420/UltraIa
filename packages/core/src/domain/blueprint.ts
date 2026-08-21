@@ -2,6 +2,7 @@ import { z } from 'zod';
 import type { AiGateway } from '../ai/gateway';
 import { blueprintSchema, type BlueprintDraft } from '../ai/schemas';
 import type { Db } from '../db/client';
+import type { Capability } from '../shared/domain';
 
 const BLUEPRINT_SYSTEM = `You are UltraIa's Agent Architect: an expert at designing purpose-built AI agents.
 

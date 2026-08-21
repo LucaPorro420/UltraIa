@@ -43,6 +43,7 @@ class ImageRequest(BaseModel):
     width: int = Field(default=1024, ge=128, le=1792)
     height: int = Field(default=1024, ge=128, le=1792)
     provider: str = Field(default="auto", pattern="^(auto|local|pollinations|fal|meigen)$")
+    enhance: bool = Field(default=True, description="Aplica realce matemático (keyless) a la imagen.")
 
 
 class MusicRequest(BaseModel):
@@ -62,6 +63,7 @@ class VideoRequest(BaseModel):
     frames: int = Field(default=3, ge=1, le=8)
     duration_sec: int = Field(default=5, ge=2, le=15)
     provider: str = Field(default="auto", pattern="^(auto|local|storyboard|slideshow)$")
+    coherent: bool = Field(default=True, description="Interpola keyframes con flujo óptico + Ken Burns (keyless).")
 
 
 # ------------------------------------------------------------------- endpoints

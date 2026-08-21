@@ -9,6 +9,11 @@ requests>=2.31.0
 # Audio: TTS keyless multilingüe (100+ voces) y postproceso con ffmpeg.
 edge-tts>=6.1.0
 
+# Matemática de generación keyless (realce de imagen, flujo óptico de video,
+# síntesis de audio procedural, métricas y cimientos de difusión). Sin GPU.
+numpy>=1.26.0
+Pillow>=10.0.0
+
 # GPU (opcional, solo para modelos locales open-weights):
 #   pip install torch torchvision --index-url https://download.pytorch.org/whl/cu124
 #   pip install diffusers accelerate soundfile transformers

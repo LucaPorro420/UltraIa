@@ -276,10 +276,10 @@ Cada commit agrega una sección con fecha y la lista de archivos `.ts/.tsx` toca
 - [ ] apps/web/src/components/cloud-client.tsx
 - [ ] cloudflare/worker.ts
 - [ ] packages/core/src/tools/cloud.test.ts
-- [ ] packages/core/src/tools/cloud.ts
+- [x] packages/core/src/tools/cloud.ts
 
 ## 2026-08-17T08:16:14.438Z
-- [ ] packages/core/src/tools/cloud.ts
+- [x] packages/core/src/tools/cloud.ts
 
 ## 2026-08-17T08:22:51.821Z
 - [ ] packages/core/src/tools/game.test.ts
@@ -327,8 +327,8 @@ Cada commit agrega una sección con fecha y la lista de archivos `.ts/.tsx` toca
 
 ## 2026-08-17T22:27:06.689Z
 - [ ] packages/core/src/ai/llm.ts
-- [ ] packages/core/src/tools/harness.test.ts
-- [ ] packages/core/src/tools/harness.ts
+- [x] packages/core/src/tools/harness.test.ts
+- [x] packages/core/src/tools/harness.ts
 - [ ] packages/core/src/tools/index.ts
 
 ## 2026-08-17T22:43:51.047Z
@@ -432,8 +432,8 @@ Cada commit agrega una sección con fecha y la lista de archivos `.ts/.tsx` toca
 ## 2026-08-18T03:13:43.709Z
 - [ ] Task/codevfx-demo.ts
 - [ ] packages/core/src/ai/llm.ts
-- [ ] packages/core/src/tools/codevfx.test.ts
-- [ ] packages/core/src/tools/codevfx.ts
+- [x] packages/core/src/tools/codevfx.test.ts
+- [x] packages/core/src/tools/codevfx.ts
 - [ ] packages/core/src/tools/index.ts
 
 ## 2026-08-18T03:51:02.164Z
@@ -501,3 +501,42 @@ Cada commit agrega una sección con fecha y la lista de archivos `.ts/.tsx` toca
 ## 2026-08-20T04:05:25.549Z
 - [x] packages/core/src/tools/growth.test.ts
 - [x] packages/core/src/tools/growth.ts
+
+## 2026-08-20T04:22:21.138Z
+- [ ] apps/web/playwright.config.ts
+- [x] packages/core/src/tools/growth.ts
+
+## 2026-08-20T14:03:37.443Z
+- [ ] packages/core/src/ai/llm.ts
+- [ ] packages/core/src/tools/index.ts
+- [ ] packages/core/src/tools/semantic-memory.test.ts
+- [ ] packages/core/src/tools/semantic-memory.ts
+
+## 2026-08-20T14:53:02.829Z
+- [ ] packages/core/src/omag/memory.ts
+- [ ] packages/core/src/omag/orchestrator.test.ts
+- [ ] packages/core/src/omag/orchestrator.ts
+- [ ] packages/core/src/prompt/director.ts
+- [ ] packages/core/src/prompt/prompt.test.ts
+
+## 2026-08-20T16:12:03.147Z
+- [ ] packages/core/src/ai/llm.ts
+- [ ] packages/core/src/tools/autolearn.test.ts
+- [ ] packages/core/src/tools/autolearn.ts
+- [ ] packages/core/src/tools/index.ts
+- [ ] packages/core/src/tools/semantic-memory.ts
+
+## 2026-08-20T16:50:44.636Z
+- [ ] packages/core/src/ai/llm.ts
+- [ ] packages/core/src/tools/creativo.test.ts
+- [ ] packages/core/src/tools/creativo.ts
+- [ ] packages/core/src/tools/index.ts
+
+## 2026-08-20T17:17:14.961Z
+- [ ] packages/core/src/tools/autolearn.test.ts
+- [ ] packages/core/src/tools/autolearn.ts
+
+## 2026-08-20T18:51:44.074Z
+- [ ] Task/sync-qdrant.ts
+- [ ] packages/core/src/tools/qdrant-memory.test.ts
+- [ ] packages/core/src/tools/qdrant-memory.ts

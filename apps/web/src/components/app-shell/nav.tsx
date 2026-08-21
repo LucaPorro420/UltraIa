@@ -13,6 +13,7 @@ import {
   BookOpen,
   Cloud,
   BarChart3,
+  FlaskConical,
   LogOut,
 } from 'lucide-react';
 import { logoutAction } from '@/app/(app)/actions';
@@ -25,6 +26,7 @@ const ITEMS = [
   { href: '/builder', label: 'Builder', icon: SquareDashedMousePointer },
   { href: '/cloud', label: 'Cloud', icon: Cloud },
   { href: '/metrics', label: 'Métricas', icon: BarChart3 },
+  { href: '/lab', label: 'Lab', icon: FlaskConical },
   { href: '/roadmap', label: 'Roadmap', icon: Map },
 ];
 

@@ -1,0 +1,73 @@
+{
+  "fecha": "2026-08-20T20:19:46.470Z",
+  "stats": {
+    "total": 10,
+    "porCategoria": {
+      "lesson": 10
+    },
+    "entradasTimeline": 20,
+    "enlacesRotos": 0
+  },
+  "paginas": [
+    {
+      "id": "leccion-1",
+      "category": "lesson",
+      "title": "Dataset (verdad guardada aparte, en `truth/` — NO se usa la respuesta para verificarla)",
+      "timeline": 2
+    },
+    {
+      "id": "leccion-2",
+      "category": "lesson",
+      "title": "Iteraciones reales del loop (mejora → verificar → lograrlo)",
+      "timeline": 2
+    },
+    {
+      "id": "leccion-3",
+      "category": "lesson",
+      "title": "Lecciones aprendidas (para prompts futuros)",
+      "timeline": 2
+    },
+    {
+      "id": "leccion-4",
+      "category": "lesson",
+      "title": "Armado total de generación de media (14/08/2026) — 6 fases completadas",
+      "timeline": 2
+    },
+    {
+      "id": "leccion-5",
+      "category": "lesson",
+      "title": "Lecciones de media (verificadas)",
+      "timeline": 2
+    },
+    {
+      "id": "leccion-6",
+      "category": "lesson",
+      "title": "Recursos IA generativa desde cero (14/08/2026) — 8 casos verificados",
+      "timeline": 2
+    },
+    {
+      "id": "leccion-7",
+      "category": "lesson",
+      "title": "Recursos tecnológicos verificados (14/08/2026) — 9 casos, 9/9 PASS",
+      "timeline": 2
+    },
+    {
+      "id": "leccion-8",
+      "category": "lesson",
+      "title": "Estado del testing de gstack",
+      "timeline": 2
+    },
+    {
+      "id": "leccion-9",
+      "category": "lesson",
+      "title": "Fable-5 memory filesystem (15/08/2026) — VERIFICADO 28/28",
+      "timeline": 2
+    },
+    {
+      "id": "leccion-10",
+      "category": "lesson",
+      "title": "Diagramas editoriales — diagram-design (17/08/2026) — VERIFICADO 22/22",
+      "timeline": 2
+    }
+  ]
+}

@@ -25,12 +25,12 @@ El transcript contiene 2 bloques independientes:
 | A14 generación procedural | ✅ implementado | `generative.ts` (perlinNoise, simplexNoise2D/Field, mandelbrot, flowField, lSystem, particles, kenburns + audio FM/granular/ADSR/sequencer; 38 tests) |
 | A15 audio como señal | ✅ implementado | `omag/sound.ts` (tone/noise/impact/whoosh/beat/ambience → PCM16+WAV), `omag/tts.ts` (edge-tts keyless), `tools/music.ts` (Tunetank) |
 | A16 FFmpeg programático | ✅ implementado | `video-edit.ts` (buildEdl/renderFfmpeg/selfEvalEdl), `travel.ts` (zoompan+xfade), `screenflow.ts` (gdigrab), `vfx.ts` (argv ffmpeg reframe/upscale/lut) |
-| A8 procesamiento imágenes | ◑ parcial | Filtros/convoluciones disponibles vía generative (noise fields) y planificados en `vfx.ts`; sin implementación de kernels en TS puro |
-| A22-24 comparación/metrí­cas | ◑ parcial | `media-score.ts` (score pre-pub de paquetes 0-100) + OMAG critics (TemporalSync/Identity/Causal/Multimodal + fuseCritiques) — **sin métricas pixel (PSNR/SSIM)** |
-| A9-11 optical flow/tracking | ◑ parcial | Nada en packages (grep: 0 matches) — solo planificación de motion en `diagram.ts` label y runner de análisis pendiente |
-| A12-13 SDF / ray marching | ❌ gap | Nada en packages (grep: 0 matches) — codevfx usa GLSL por kind pero sin SDF primitives ni ray-march |
-| A20-21 métricas PSNR/SSIM/VMAF + E_flow | ❌ gap | Nada (solo media-score de paquetes, no de frames) |
-| A26-37 arquitectura/ruta/proyectos | ◑ parcial | La estructura ReplicaEngine y el bucle análisis-por-síntesis NO existen como orquestador; los bloques sueltos sí (generative+codevfx+video_edit) |
+| A8 procesamiento imágenes | ✅ implementado | **`imaging.ts` (ciclo 64)**: convolución 2D/correlación/separable, kernels gauss/box/Sobel/Prewitt/Laplaciano/sharpen/emboss, blur/mediana/unsharp, morfología, histograma/Otsu/ecualización con clipLimit, resize bilineal, pirámide gaussiana, Canny; 58 tests |
+| A22-24 comparación/métricas | ✅ implementado | `media-score.ts` (paquetes) + OMAG critics (semántico) + **`imaging.ts` (ciclo 64): `absDiffMap`/`squaredDiffMap` (error maps 2D), `ssimMap` (SSIM local con ventana gaussiana, MSSIM + peor ventana localizada) y `compareImages` (PSNR + peor cuadrante), reutilizando `videoqa.mse`/`psnr`** |
+| A9-11 optical flow/tracking | ✅ implementado | `motion.ts` (stats/descomposición/trayectorias + argv del runner OpenCV) + **`imaging.ts` (ciclo 64): `lucasKanadeFlow` (tensor estructural 2×2) y `pyramidalFlow` coarse-to-fine — flujo REAL en TS puro, `FlowField` consumido directamente por `motion.flowStats`/`decomposeMotion`** |
+| A12-13 SDF / ray marching | ✅ implementado | `sdf.ts` (ciclo 58, `7477187`): primitivas sphere/box/torus/capsule/plane, ops union/intersection/subtract/smooth con árbol evaluable, `planSdfScene`, codegen GLSL, `rayMarchPlan` y `renderSdfHtml` (canvas autocontenido); 31 tests + tool `sdf_render` |
+| A20-21 métricas PSNR/SSIM/VMAF + E_flow | ✅ implementado | `videoqa.ts` (ciclo 59, `8d14835`): MAE/MSE/PSNR/SSIM, `eFlow`, `eTotal` ponderado (α/β/γ), veredicto contra umbrales y `buildVmafArgv`; 31 tests + tool `videoqa_metrics`. Extendido en 2-D por `imaging.ts` (ciclo 64) |
+| A26-37 arquitectura/ruta/proyectos | ✅ implementado | `replica.ts` (ciclo 61, `9f996db`): `runReplica` analyze→generate→compare→optimize con `ReplicaIO` inyectable, descenso por coordenadas, stop conditions (target/maxIterations/patience/timeout), checkpoints y `resumeFrom`; 17 tests + tool `replica_run`. Función de coste 2-D real desde el ciclo 64 (`imaging.compareImages`) |
 | A17-19 CUDA/Vulkan/OpenCL | ⏸ fuera de alcance | Requiere GPU/NVIDIA; diferido (como Gen-Engine entrenamiento E0-E5, backlog #6) |
 
 ## Mapeo Bloque B → harness PIVR (verificado contra loop-piv/loop-constraints)
@@ -80,8 +80,12 @@ El transcript contiene 2 bloques independientes:
 6. **#62 Skills audit**: inventario + `.opencode/skills-avoid/` (manifest + copias de globales
    evitadas) + AGENTS.md.
 
-Diferidos (documentados): kernels de imagen TS puro (A8) — cubiertos parcialmente por vfx/generative;
-CUDA/Vulkan (A17-19) — requiere GPU (igual que backlog #6 Gen-Engine E0-E5).
+7. **#64 Capability `imaging`** (19/08/2026): cierra A8 + A9-A11 + A22-A24 con dominio puro
+   (kernels, morfología, tono, pirámides, Canny, mapas de error 2D, SSIM por ventana y
+   Lucas-Kanade mono/piramidal) + tool `imaging_process`. Ver `docs/RAZONAMIENTO-IMAGING.md`.
+
+**Bloque A CERRADO salvo GPU.** Único diferido restante: CUDA/Vulkan/OpenCL (A17-19) —
+requiere GPU (igual que backlog #6 Gen-Engine E0-E5).
 
 ## Lecciones (se alimentan a LEARNINGS.md en C3)
 
@@ -92,3 +96,6 @@ CUDA/Vulkan (A17-19) — requiere GPU (igual que backlog #6 Gen-Engine E0-E5).
   es la mejora de mayor ROI del bucle.
 - L3: Métricas pixel (PSNR/SSIM/E_flow) son el eslabón perdido entre media-score (pre-pub) y
   OMAG critics (semántico) — videoqa cierra el bucle de verificación visual real.
+- L4 (ciclo 64): los tres gaps que quedaban (A8, A9-A11, A22-A24) eran **el mismo** eslabón
+  ausente: aritmética de imagen 2-D. Al implementarla una vez (`imaging.ts`) se cerraron los
+  tres, y `replica` gana una función de coste 2-D real en vez de una firma escalar.

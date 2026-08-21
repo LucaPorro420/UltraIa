@@ -85,6 +85,7 @@ export const FORMAT_BY_CHANNEL: Record<PresentChannel, TopicFormat> = {
   telegram: '9:16 video',
   discord: '9:16 video',
   slack: '9:16 video',
+  facebook: '9:16 video',
 };
 
 /** Horario sugerido por canal (D2: video 2-3/sem; texto 1/día; blog 1/sem). */
@@ -96,6 +97,7 @@ export const HORARIO_SUGERIDO: Record<PresentChannel, string> = {
   telegram: 'mar/jue/sab 18:00',
   discord: 'lun/mie/vie 19:00',
   slack: 'mar/jue 09:00',
+  facebook: 'mar/jue/sab 18:00',
 };
 
 /** Kits de marca por defecto. Dark Obsidian = sistema de diseño de UltraIa. */
@@ -149,6 +151,7 @@ export function hashtagsFor(tema: string, canal: PresentChannel): string[] {
     telegram: ['#IA', '#inteligenciaArtificial', '#canal', '#diario'],
     discord: ['#comunidad', '#anuncio', '#IA', '#canal'],
     slack: ['#equipo', '#actualizacion', '#IA', '#resumen'],
+    facebook: ['#reels', '#facebook', '#viral', '#tendencia'],
   };
   const tags = [...topicTags, ...base[canal]];
   // IG admite hasta 30 hashtags; el resto 5-10.
@@ -175,6 +178,9 @@ export function captionFor(tema: string, contenido: string, canal: PresentChanne
     case 'slack':
       // Discord/Slack: caption directo (Discord 2000, Slack 4000 en initial_comment).
       return `${tema}\n\n${firstLine}\n\n${tags}`.slice(0, 1000);
+    case 'facebook':
+      // Facebook Reels: caption tipo Instagram (cap 2200 en adapter).
+      return `${tema}\n\n${contenido.slice(0, 1800)}\n\n${tags}`.slice(0, 2200);
     case 'blog':
     default:
       return `${tema}\n\n${contenido.slice(0, 300)}\n\n${tags}`;
@@ -249,6 +255,15 @@ export function visualFor(tema: string, canal: PresentChannel): VisualSpec {
         dimensiones: '1080x1920 (9:16)',
         formato: '9:16 video',
         estilo: 'video vertical corto, caption directo al canal de mensajeria',
+        textoOverlay: overlay,
+        thumbnail: `https://pollinations.ai/p/${encodeURIComponent(overlay)}?width=1080&height=1920&nologo=true`,
+      };
+    case 'facebook':
+      // Facebook Reels: video vertical 9:16 como los shorts/Reels.
+      return {
+        dimensiones: '1080x1920 (9:16)',
+        formato: '9:16 video',
+        estilo: 'video vertical Reels, subtitulos grandes, llamada a la accion',
         textoOverlay: overlay,
         thumbnail: `https://pollinations.ai/p/${encodeURIComponent(overlay)}?width=1080&height=1920&nologo=true`,
       };
