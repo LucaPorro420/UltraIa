@@ -1,9 +1,10 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { dedupeItems, generateTopicBriefs, normalizeTitle, noveltyScore, scoreBrief } from './topics';
 
 afterEach(() => {
   vi.unstubAllGlobals();
   vi.restoreAllMocks();
+  vi.useRealTimers();
 });
 
 function res(ok: boolean, status: number, body: string | object) {
@@ -100,6 +101,14 @@ describe('scoreBrief', () => {
 });
 
 describe('generateTopicBriefs', () => {
+  // Pin "now" so novelty scoring is deterministic (fixture pubDates are fixed).
+  // Sin esto el test es flaky: a medida que pasan los dias la novedad del fixture
+  // (14-21 Aug 2026) baja de 1.0 y el score deja de ser exactamente 1.
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-08-15T00:00:00Z'));
+  });
+
   it('collects RSS + search, dedupes, scores and produces briefs per channel', async () => {
     vi.stubGlobal(
       'fetch',

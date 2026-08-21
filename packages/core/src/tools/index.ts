@@ -43,6 +43,7 @@ export * from './pdfsearch';
 // de semantic-memory y un `export *` colisionaria (TS2308, mismo patron del fix MemoryHit de iter-72).
 export {
   qdrantMemory,
+  embedDense,
   embedDense4,
   pointIdFor,
   buildQdrantPoint,
@@ -51,9 +52,12 @@ export {
   buildSearchBody,
   createQdrantClient,
   syncMemoryToQdrant,
+  searchExternalMemory,
   memorySyncSummary,
   QDRANT_COLLECTION,
   QDRANT_VECTOR_SIZE,
+  QDRANT_COLLECTION_V1,
+  QDRANT_VECTOR_SIZE_V1,
   QDRANT_DISTANCE,
   QDRANT_DEFAULT_URL,
 } from './qdrant-memory';

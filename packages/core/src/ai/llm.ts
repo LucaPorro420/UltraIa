@@ -910,7 +910,8 @@ export function chatStream(opts: {
         }
         if (accion === 'search') {
           if (!query) throw new Error('search requiere query');
-          const res = await client.search(qdrantMemory.embedDense4(query), k ?? 5);
+          // dos etapas: candidatos por vector denso + rescoring con el coseno esparcido exacto
+          const res = await qdrantMemory.searchExternalMemory(client, query, k ?? 5);
           return res.ok ? { accion, query, hits: res.data } : { accion, query, hits: [], error: res.razon };
         }
         if (accion === 'stats') {

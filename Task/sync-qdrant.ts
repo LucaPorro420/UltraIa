@@ -23,9 +23,9 @@ import { fileURLToPath } from 'node:url';
 import {
   QDRANT_DEFAULT_URL,
   createQdrantClient,
-  embedDense4,
   memorySyncSummary,
   planMemorySync,
+  searchExternalMemory,
   syncMemoryToQdrant,
 } from '../packages/core/src/tools/qdrant-memory';
 import { loadTruthCorpus, type TruthDoc } from '../packages/core/src/tools/semantic-memory';
@@ -86,7 +86,8 @@ async function main() {
 
   if (searchQuery) {
     console.log(`Busqueda externa (k=5): "${searchQuery}"`);
-    const res = await client.search(embedDense4(searchQuery), 5);
+    // iter-79: candidatos por vector denso (dim 1024) + rescoring esparcido exacto
+    const res = await searchExternalMemory(client, searchQuery, 5);
     if (!res.ok) {
       console.log(`  Qdrant NO disponible: ${res.razon}`);
       process.exit(1);

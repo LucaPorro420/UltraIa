@@ -107,6 +107,32 @@ function stringifyAnswer(a: unknown): string {
 }
 
 /**
+ * Campos de conocimiento que componen el texto buscable cuando NO hay `prompt`.
+ * Orden = prioridad; se concatenan todos los presentes (mas contexto = mejor recall).
+ */
+export const CASE_TEXT_FIELDS = ['note', 'usage', 'source', 'question', 'pregunta', 'title', 'id'] as const;
+
+/**
+ * Texto buscable de un caso de verdad.
+ *
+ * `prompt` cuando existe (formato QA: math/gstack/live). Si NO existe, se compone
+ * con los campos de conocimiento (formato "verdad verificada": note/usage/source),
+ * que es como se escriben las lecciones de capabilities desde el 14/08.
+ *
+ * MOTIVO (medido en iter-79 sobre el corpus real): 38 de 54 casos NO tienen `prompt`
+ * y entraban al indice con el texto literal `""` (JSON.stringify(undefined ?? '')),
+ * que tokeniza a CERO terminos -> vector nulo -> **invisibles** para searchTruth y
+ * para Qdrant. Con la composicion, los 54 casos son recuperables:
+ * recall@1 esparcido 0.315 -> 1.000 (query=texto) y 0.852 -> 0.958 (query=respuesta).
+ */
+export function caseSearchText(c: Record<string, unknown>): string {
+  const prompt = stringifyAnswer(c.prompt).trim();
+  if (prompt) return prompt;
+  const partes = CASE_TEXT_FIELDS.map((k) => stringifyAnswer(c[k]).trim()).filter(Boolean);
+  return partes.join(' — ');
+}
+
+/**
  * Convierte archivos de verdad (lenient) en TruthDoc[].
  * id del doc = `<fuente>_<caseId>` (unicidad por archivo).
  */
@@ -116,10 +142,9 @@ export function loadTruthCorpus(files: TruthFileLike[]): TruthDoc[] {
     const fuente = file.source ?? file.id ?? 'fuente';
     for (const c of file.cases ?? []) {
       const caseId = typeof c.id === 'string' || typeof c.id === 'number' ? String(c.id) : `case_${docs.length}`;
-      const prompt = typeof c.prompt === 'string' ? c.prompt : JSON.stringify(c.prompt ?? '');
       docs.push({
         id: `${fuente}_${caseId}`,
-        texto: prompt,
+        texto: caseSearchText(c),
         respuesta: stringifyAnswer(c.answer),
         tipo: typeof c.type === 'string' ? c.type : '',
         fuente,
@@ -237,7 +262,7 @@ export async function loadTruthFromDir(dir: string): Promise<TruthDoc[]> {
   return loadTruthCorpus(files);
 }
 
-export const semanticMemory = { hashStr, tokenize, embedText, cosineSimilarity, loadTruthCorpus, searchTruth, corpusStats, SemanticMemoryIndex, loadTruthFromDir, loadTruthAuto };
+export const semanticMemory = { hashStr, tokenize, embedText, cosineSimilarity, caseSearchText, loadTruthCorpus, searchTruth, corpusStats, SemanticMemoryIndex, loadTruthFromDir, loadTruthAuto };
 
 /** Candidatos de ruta a learning/truth segun el cwd del runtime (web: apps/web; core: packages/core). */
 const TRUTH_PATH_CANDIDATES = ['learning/truth', '../../learning/truth', '../../../learning/truth'];

@@ -4,6 +4,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
   STOPWORDS,
+  caseSearchText,
   cosineSimilarity,
   corpusStats,
   embedText,
@@ -90,6 +91,42 @@ describe('cosineSimilarity', () => {
     const s = cosineSimilarity(embedText('area circulo radio'), embedText('area rectangulo'));
     expect(s).toBeGreaterThan(0);
     expect(s).toBeLessThan(1);
+  });
+});
+
+describe('caseSearchText (iter-79: casos de conocimiento sin prompt)', () => {
+  const CONOCIMIENTO = {
+    id: 'ultraia_audio_edgetts',
+    answer: 'edge-tts keyless 100+ voces',
+    note: 'TTS edge-tts keyless: VOICES_BY_LANG 14 idiomas, detectLang, loudnorm -16 LUFS',
+    usage: 'narracion TTS: edgeTtsAudio siempre',
+    source: 'packages/core/src/omag/tts.ts',
+    verified: true,
+  };
+
+  it('usa prompt cuando existe (formato QA)', () => {
+    expect(caseSearchText({ id: 'x', prompt: 'Calcula: 17 * 23', answer: 391 })).toBe('Calcula: 17 * 23');
+  });
+
+  it('compone note+usage+source+id cuando NO hay prompt (formato verdad verificada)', () => {
+    const texto = caseSearchText(CONOCIMIENTO);
+    expect(texto).toContain('edge-tts');
+    expect(texto).toContain('narracion TTS');
+    expect(texto).toContain('omag/tts.ts');
+    expect(texto).toContain('ultraia_audio_edgetts');
+  });
+
+  it('caso vacio -> cadena vacia (NO el literal `""` que rompia la busqueda)', () => {
+    expect(caseSearchText({})).toBe('');
+    expect(caseSearchText({ prompt: '   ' })).toBe('');
+  });
+
+  it('REGRESION iter-79: un caso sin prompt es recuperable (antes: vector nulo, score 0)', () => {
+    const docs = loadTruthCorpus([{ source: 'truth_caps', cases: [CONOCIMIENTO, { id: 'otro', prompt: 'algo sin relacion', answer: 'x' }] }]);
+    expect(tokenize(docs[0].texto).length).toBeGreaterThan(5);
+    const hits = searchTruth(docs, 'como hago narracion con voces en varios idiomas');
+    expect(hits[0].id).toBe('truth_caps_ultraia_audio_edgetts');
+    expect(hits[0].score).toBeGreaterThan(0);
   });
 });
 

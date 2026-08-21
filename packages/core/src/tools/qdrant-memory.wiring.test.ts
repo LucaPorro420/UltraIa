@@ -58,6 +58,7 @@ describe('wiring qdrant_memory (iter-78)', () => {
     expect(QDRANT_DEFAULT_URL).toMatch(/^http:\/\//);
     expect(qdrantMemory.pointIdFor('doc-a')).toBe(qdrantMemory.pointIdFor('doc-a'));
     expect(qdrantMemory.pointIdFor('doc-a')).not.toBe(qdrantMemory.pointIdFor('doc-b'));
-    expect(qdrantMemory.embedDense4('area del circulo')).toHaveLength(QDRANT_VECTOR_SIZE);
+    expect(qdrantMemory.embedDense('area del circulo')).toHaveLength(QDRANT_VECTOR_SIZE);
+    expect(qdrantMemory.embedDense4('area del circulo')).toHaveLength(4); // legacy v1, sigue disponible
   });
 });

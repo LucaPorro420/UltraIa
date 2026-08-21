@@ -1,8 +1,8 @@
 # RAZONAMIENTO-QDRANT-MEMORY.md — FASE 4: persistencia externa de la memoria verificada
 
 **Fecha**: 20/08/2026 · **Iteración**: 76 (plan del agente de autoaprendizaje, FASE 4)
-**Estado**: IMPLEMENTADA (dominio + tests + runner real; wiring a llm.ts/index.ts DIFERIDO por
-concurrencia — la sesión paralela tiene el wiring de vault/pdfsearch en curso sobre esos archivos).
+**Estado**: IMPLEMENTADA (dominio + tests + runner real; wiring a llm.ts/index.ts CERRADO en iter-78;
+**embeddings densos reales (signed feature hashing, dim 1024) en iter-79** — cierra el último pendiente).
 
 ## Contexto
 
@@ -58,8 +58,19 @@ esquema que ya usaba `nucleo_nasa.py` (colección `memoria_experiencial`, vector
   wiring: `qdrant-memory.wiring.test.ts` (4).
 - ~~Fila 76 en STATE.md / entrada en loop-run-log.md~~ → **registradas en iter-77** (fila 76 con
   hash `f675e14` + entrada `[R]`).
-- Sigue abierto: embeddings reales (el vector denso dim 4 es suficiente para 50 docs, no para
-  miles) y decidir si `sacd_system/` Qdrant se levanta siempre con el dev server o a demanda.
+- ~~Embeddings reales~~ → **CERRADO en iter-79 (21/08/2026)**: el vector denso dim 4 NO
+  discrimina (coseno medio 0.9055 entre pares distintos del corpus real de 54 docs) y dejaba
+  **38 de 54 casos invisibles** (formato "verdad verificada" sin `prompt` → texto `''` → vector
+  nulo). Dos fixes: (1) `caseSearchText` compone el texto buscable desde `CASE_TEXT_FIELDS`
+  (`note`/`usage`/`source`/...) cuando no hay `prompt`; (2) `embedDense` (signed feature hashing,
+  Weinberger 2009 — `hash % dim` con signo `+1/-1`, normalizado) reemplaza a `embedDense4` en la
+  colección **`memoria_experiencial_v2`** (dim 1024, Cosine). `embedDense4`/`memoria_experiencial`
+  se conservan como **v1 legacy** (consumidor Python `nucleo_nasa.py` + rollback). La recuperación
+  `searchExternalMemory` hace dos etapas: candidatos por vector denso (recall@10 = 1.000) +
+  rescoring con el coseno esparcido EXACTO del payload. `Task/bench-embeddings.ts` mide el corpus
+  real (leave-one-out, sin etiquetas): r@1 texto/respuesta/mutada = 100%/85.2%/98.1%, coseno medio
+  0.032 (criterio <= 0.35) — **ACEPTADO**.
+- Decide si `sacd_system/` Qdrant se levanta siempre con el dev server o a demanda (no bloqueante).
 
 ## Lecciones
 

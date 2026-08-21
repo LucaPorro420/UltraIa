@@ -13,6 +13,7 @@ import {
   buildSearchBody,
   buildUpsertBody,
   createQdrantClient,
+  embedDense,
   embedDense4,
   memorySyncSummary,
   planMemorySync,
@@ -68,6 +69,55 @@ describe('embedDense4 (vector dim 4, determinista)', () => {
     const v = embedDense4('');
     expect(v.every((x) => Number.isFinite(x))).toBe(true);
     expect(v).toHaveLength(4);
+  });
+});
+
+describe('embedDense (signed feature hashing, iter-79: reemplaza a embedDense4 en la coleccion v2)', () => {
+  it('devuelve QDRANT_VECTOR_SIZE componentes con norma 1', () => {
+    const v = embedDense('area circulo formula pi radio');
+    expect(v).toHaveLength(QDRANT_VECTOR_SIZE);
+    expect(Math.sqrt(v.reduce((s, x) => s + x * x, 0))).toBeCloseTo(1, 2);
+  });
+
+  it('acepta dimension explicita y es determinista entre llamadas', () => {
+    expect(embedDense('leccion verificada', 64)).toHaveLength(64);
+    expect(embedDense('leccion verificada')).toEqual(embedDense('leccion verificada'));
+  });
+
+  it('usa signo: hay componentes negativas (las colisiones se cancelan)', () => {
+    const v = embedDense('memoria semantica verificada con qdrant y vectores densos normalizados');
+    expect(v.some((x) => x < 0)).toBe(true);
+    expect(v.some((x) => x > 0)).toBe(true);
+  });
+
+  it('DISCRIMINA: textos no relacionados dan coseno bajo (dim 4 daba ~0.9)', () => {
+    const cos = (a: number[], b: number[]) => {
+      let d = 0;
+      for (let i = 0; i < a.length; i++) d += a[i] * b[i];
+      return d;
+    };
+    const a = embedDense('como calcular el area de un circulo con radio y pi');
+    const b = embedDense('narracion con voces neuronales en catorce idiomas y musica de fondo');
+    expect(Math.abs(cos(a, b))).toBeLessThan(0.35);
+    expect(Math.abs(cos(embedDense4('como calcular el area de un circulo con radio y pi'), embedDense4('narracion con voces neuronales en catorce idiomas')))).toBeGreaterThan(0.35);
+  });
+
+  it('preserva el ranking del coseno esparcido en el caso canonico', () => {
+    const cos = (a: number[], b: number[]) => {
+      let d = 0;
+      for (let i = 0; i < a.length; i++) d += a[i] * b[i];
+      return d;
+    };
+    const q = embedDense('area del circulo');
+    const relevante = embedDense('Calcula el area de un circulo de radio 7 (pi=3.14159) 153.94');
+    const irrelevante = embedDense('Convierte 100 grados Celsius a Fahrenheit 212');
+    expect(cos(q, relevante)).toBeGreaterThan(cos(q, irrelevante));
+  });
+
+  it('texto vacio produce vector finito de la dimension pedida (no NaN)', () => {
+    const v = embedDense('');
+    expect(v).toHaveLength(QDRANT_VECTOR_SIZE);
+    expect(v.every((x) => Number.isFinite(x))).toBe(true);
   });
 });
 
@@ -129,7 +179,7 @@ describe('planMemorySync (diff puro determinista)', () => {
   it('cuerpos JSON: upsert y search (puros)', () => {
     const body = buildUpsertBody([buildQdrantPoint(corpus[0])]);
     expect(body.points[0]).toMatchObject({ id: pointIdFor(corpus[0].id) });
-    expect(body.points[0].vector).toHaveLength(4);
+    expect(body.points[0].vector).toHaveLength(QDRANT_VECTOR_SIZE);
     const sb = buildSearchBody([0.5, 0.5, 0.5, 0.5], 3, QDRANT_COLLECTION);
     expect(sb).toMatchObject({ limit: 3, with_payload: true, collection: QDRANT_COLLECTION });
   });
