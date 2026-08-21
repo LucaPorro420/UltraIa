@@ -92,6 +92,39 @@ function rankDenso(docs: TruthDoc[], embed: (t: string) => number[]): RankFn {
   };
 }
 
+/**
+ * Ranking HIBRIDO = lo que hace `searchExternalMemory` en produccion (iter-79):
+ * candidatos por vector denso (lo que Qdrant puede indexar) + **rescoring con el
+ * coseno esparcido exacto** sobre el payload. Sirve para comprobar que el ranking
+ * persistido es identico al de la memoria en-proceso sin pagar dimension gigante.
+ */
+function rankHibrido(docs: TruthDoc[], candidatos = 10): RankFn {
+  const denso = rankDenso(docs, (t) => embedDense(t));
+  const porId = new Map(docs.map((d) => [d.id, d]));
+  return (query: string) => {
+    const top = denso(query).slice(0, candidatos);
+    const sub = top.map((id) => porId.get(id)!).filter(Boolean);
+    const re = searchTruth(sub, query, sub.length).map((h) => h.id);
+    return [...re, ...denso(query).filter((id) => !re.includes(id))];
+  };
+}
+
+/**
+ * Queries CORTAS (regimen real de uso: 3-5 tokens), muestreadas del propio doc.
+ * Es el regimen donde el ruido de colisiones del hashing pesa mas: con dim 256 la
+ * coincidencia del top-1 con el esparcido cae a 0.648 y con dim 1024 sube a 0.907.
+ */
+function queriesCortas(docs: TruthDoc[], n: number, seed: number): Array<{ gold: string; q: string }> {
+  const rng = mulberry32(seed);
+  const out: Array<{ gold: string; q: string }> = [];
+  for (const d of docs) {
+    const toks = tokenize(`${d.texto} ${d.respuesta}`);
+    if (toks.length < n) continue;
+    out.push({ gold: d.id, q: Array.from({ length: n }, () => toks[Math.floor(rng() * toks.length)]).join(' ') });
+  }
+  return out;
+}
+
 // ----------------------------------------------------------------------- metricas
 interface Metrics {
   r1: number;
@@ -189,6 +222,19 @@ async function main() {
   console.log('\n=== Coseno medio entre pares distintos (debe ser BAJO) ===');
   console.log(`  dim-4 : ${cos4.toFixed(4)}`);
   console.log(`  v2    : ${cosD.toFixed(4)}`);
+
+  // ------------------------------- regimen REAL: queries cortas + hibrido (iter-79)
+  const hibrido = rankHibrido(corpus);
+  const cortas3 = queriesCortas(corpus, 3, 7);
+  const cortas5 = queriesCortas(corpus, 5, 7);
+  console.log(head('QUERIES CORTAS (regimen real) — esparcido vs denso vs hibrido'));
+  console.log(`  n(3 tokens)=${cortas3.length}  n(5 tokens)=${cortas5.length}`);
+  console.log(row('esp-3tok', evaluate(esparcido, cortas3)));
+  console.log(row('v2-3tok', evaluate(denso, cortas3)));
+  console.log(row('hib-3tok', evaluate(hibrido, cortas3)));
+  console.log(row('esp-5tok', evaluate(esparcido, cortas5)));
+  console.log(row('v2-5tok', evaluate(denso, cortas5)));
+  console.log(row('hib-5tok', evaluate(hibrido, cortas5)));
 
   // ------------------------------------------------------------------ veredicto
   const crit = { texto: 0.95, respuesta: 0.8, mutada: 0.91 };

@@ -137,8 +137,13 @@ function mix32(h: number): number {
 export function embedDense(text: string, dim: number = QDRANT_VECTOR_SIZE): number[] {
   const bag = embedText(text);
   const v = new Array<number>(dim).fill(0);
+  // dim potencia de 2 -> indice por AND de bits (identico a `% dim` para enteros
+  // positivos, pero sin la ambiguedad del modulo con negativos al portarlo a otros
+  // lenguajes y sin division). Fallback a `%` si alguien pide una dim arbitraria.
+  const esPot2 = (dim & (dim - 1)) === 0;
+  const mask = dim - 1;
   for (const [h, w] of bag) {
-    v[h % dim] += (mix32(h) & 1 ? 1 : -1) * w;
+    v[esPot2 ? h & mask : h % dim] += (mix32(h) & 1 ? 1 : -1) * w;
   }
   let n = 0;
   for (const x of v) n += x * x;

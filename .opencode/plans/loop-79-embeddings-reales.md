@@ -101,3 +101,60 @@ consigna de REFUTAR, y sintesis final a spec implementable. Resultado y decision
 - Tests: +4 (loader, ya PASS) +N del embedding; suite total 1276 -> ~1285.
 - Riesgo principal: la coleccion Qdrant de dim 4 obliga a versionar (`memoria_experiencial_v2`);
   el consumidor Python sigue apuntando a la v1 hasta que se migre a mano.
+
+---
+
+## DECISION DEL PANEL (S-D) + verificacion empirica
+
+**Modo de trabajo**: panel multiagente (3 lentes de diseno independientes + 3 jueces adversariales
+por propuesta + sintesis). **Resultado real**: 1 de 7 agentes completo (lente IR/matematica); los 6
+restantes abortaron por limite de sesion del proveedor. NO se maquilla: la decision final se tomo
+con ese diseno + la medicion empirica propia sobre el corpus real, que es la que manda.
+
+**Convergencia independiente** (el diseno del panel y la medicion llegaron a lo mismo):
+
+- **Metodo**: feature hashing CON SIGNO (Weinberger et al. 2009 / Count-Sketch de Charikar) sobre
+  el mismo `HashBag` que ya produce `embedText`. El signo hace que las colisiones se cancelen en
+  esperanza -> el producto interno denso es estimador INSESGADO del esparcido.
+- **Dimension 1024**, y por tres caminos distintos:
+  1. *JL*: `d >= 8 ln(n)/eps^2` -> n=54 con eps~0.18; n=10.000 con eps~0.27. (JL es peor caso sobre
+     TODAS las distancias; el ranking solo necesita orden en la cola superior -> eps=0.1 seria
+     sobreingenieria.)
+  2. *Margen*: `d > c^2 (sqrt(2 ln n) + z)^2 / Delta^2` con c=1.35, z=1.28 y margen real medido
+     Delta=0.235 -> n=10.000 exige d>1025. 1024 es justo el punto que cubre 10k docs al 90%.
+  3. *Medicion*: la curva de recall satura entre 512 y 1024; 2048/4096 no compran recall
+     proporcional al coste (4 KB/punto en float32 -> ~48 MB con HNSW y payload a 10.000 docs).
+- **Arquitectura HIBRIDA en dos etapas** (la parte que evita pagar dimension gigante): Qdrant/HNSW
+  como generador de candidatos + **rescoring con el coseno esparcido exacto** sobre el payload.
+- Detalle de implementacion adoptado del panel: con `dim` potencia de 2, indexar por `h & (dim-1)`
+  en vez de `h % dim` — identico para enteros positivos, sin ambiguedad de signo al portarlo a
+  Python y sin division.
+
+### Resultados medidos (`Task/bench-embeddings.ts`, corpus real 54 docs)
+
+Coseno medio entre pares distintos: **0.9055 (dim-4) -> 0.032 (dim-1024)**.
+
+| modo de query | esparcido (ref) | denso dim-4 (v1) | denso dim-1024 (v2) | hibrido (lo que corre) |
+|---|---|---|---|---|
+| texto | 1.000 | 0.685 | 1.000 | **1.000** |
+| respuesta | 0.958 | **0.104** | 0.958 | **0.958** |
+| mutada | 0.963 | 0.185 | 0.963 | **0.963** |
+| corta-3 tokens | 0.889 | 0.093 | 0.889 | **0.889** (MRR 0.941 = ref) |
+| corta-5 tokens | 0.980 | 0.078 | 0.980 | **0.980** |
+
+(recall@1; n = 48-54 queries por celda). El hibrido iguala a la referencia en TODAS las metricas,
+incluido recall@5 en queries de 3 tokens (1.000 vs 0.963 del denso puro).
+
+### Verificacion end-to-end contra el Qdrant real
+
+Coleccion `memoria_experiencial_v2` recreada con `size=1024` y sincronizada (54 puntos).
+
+- `--search "como genero narracion de voz en varios idiomas"` -> top-1 `ultraia_audio_edgetts`
+  (antes del cambio: "Convierte 100 grados Celsius a Fahrenheit" — ruido puro).
+- `--search "area del circulo"` -> top-1 "Calcula el area de un circulo de radio 7 -> 153.94" (0.480).
+
+### Criterio de aceptacion de la SPEC
+
+- recall@1 >= 0.95 / 0.80 / 0.91 -> obtenido **1.000 / 0.958 / 0.963**. CUMPLE.
+- coseno medio entre pares <= 0.35 -> obtenido **0.032**. CUMPLE.
+- 0 dependencias nuevas, determinista, sin romper la suite. CUMPLE.
