@@ -39,6 +39,32 @@ export * from './semantic-memory';
 export * from './autolearn';
 export * from './vault';
 export * from './pdfsearch';
+// qdrant-memory: export EXPLICITO (no `export *`) — el modulo re-exporta `TruthDoc` y `tokenize`
+// de semantic-memory y un `export *` colisionaria (TS2308, mismo patron del fix MemoryHit de iter-72).
+export {
+  qdrantMemory,
+  embedDense4,
+  pointIdFor,
+  buildQdrantPoint,
+  planMemorySync,
+  buildUpsertBody,
+  buildSearchBody,
+  createQdrantClient,
+  syncMemoryToQdrant,
+  memorySyncSummary,
+  QDRANT_COLLECTION,
+  QDRANT_VECTOR_SIZE,
+  QDRANT_DISTANCE,
+  QDRANT_DEFAULT_URL,
+} from './qdrant-memory';
+export type {
+  MemoryPayload,
+  QdrantPoint,
+  ExternalMemoryHit,
+  QdrantResult,
+  MemorySyncPlan,
+  QdrantClient,
+} from './qdrant-memory';
 
 import * as web from './web';
 import * as image from './image';
@@ -77,8 +103,9 @@ import * as autolearn from './autolearn';
 import * as creativo from './creativo';
 import { vaultTools } from './vault';
 import { pdfsearchTools } from './pdfsearch';
+import { qdrantMemory as qdrantMemoryTools } from './qdrant-memory';
 
-export const tools = { web, image, video, music, stitch, reach, skills: { runSkill }, content, g0dm0d3, topics, present: presentTools, publish, enrutador, mediaScore, metrics, memoryFs: { createMemoryFs }, diagram, videoEdit, screenflow, cloud: cloudTools, harness, growth, vfx, codevfx, travel, generative, libros, sdf, videoqa, motion, replica, imaging, semanticMemory, autolearn, creativo, vault: vaultTools, pdfsearch: pdfsearchTools };
+export const tools = { web, image, video, music, stitch, reach, skills: { runSkill }, content, g0dm0d3, topics, present: presentTools, publish, enrutador, mediaScore, metrics, memoryFs: { createMemoryFs }, diagram, videoEdit, screenflow, cloud: cloudTools, harness, growth, vfx, codevfx, travel, generative, libros, sdf, videoqa, motion, replica, imaging, semanticMemory, autolearn, creativo, vault: vaultTools, pdfsearch: pdfsearchTools, qdrantMemory: qdrantMemoryTools };
 
 export const TOOL_DESCRIPTIONS: Record<string, string> = {
   calculator: 'Safely evaluate a mathematical expression (math only).',
@@ -154,6 +181,8 @@ export const TOOL_DESCRIPTIONS: Record<string, string> = {
     'Own repository (UltraIa vault): manage the local+cloud repository that stores data, files, creations, tests and prototypes (.ultraia/vault/<kind>/ with manifest). Actions: plan (classify into data/files/creations/tests/prototypes/pdfs + canonical path + mime), manifest (index with counts), search (score-based), summary (by kind/source), sync (diff vs cloud), export_github (optional, fail-soft without token). Deterministic, keyless. Use to persist what the project learns, creates and proves.',
   pdfsearch:
     'PDF search: OpenAlex (keyless, open-access papers with PDF) + DuckDuckGo filetype:pdf, dedupe by URL, direct .pdf marking; harvest hits into vault/pdfs entries (kind pdfs, meta url/query/source). Fail-soft on network errors. Use to find documents/papers as PDFs and store them in the own repository.',
+  qdrant_memory:
+    'External persistent memory (Qdrant, SACD/NASA FASE 4): persist and query the verified-truth corpus (learning/truth/*.json) in a real Qdrant collection (memoria_experiencial, dense-4 vectors, Cosine) so knowledge survives across sessions and machines. Actions: plan (pure diff local vs remote), sync (ensure collection + upsert + delete retired), search (top-k by meaning with score + payload), stats (corpus + collection config + reachability). Deterministic ids (djb2) = idempotent upsert; keyless; fail-soft (never throws). Complements semantic_memory (in-process recall) with persistence.',
 };
 
 export type Capability =
@@ -196,4 +225,5 @@ export type Capability =
   | 'semantic_memory'
   | 'autolearn'
   | 'vault'
-  | 'pdfsearch';
+  | 'pdfsearch'
+  | 'qdrant_memory';

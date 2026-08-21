@@ -55,6 +55,7 @@ import * as semanticMemory from '../tools/semantic-memory';
 import * as autolearn from '../tools/autolearn';
 import { runVaultTool, planVaultEntry, buildVaultManifest, vaultSearch, summarizeVault, planVaultSync, exportVaultToGitHub, VAULT_LAYOUT, VAULT_ROOT } from '../tools/vault';
 import { runPdfsearchTool, searchOpenAlex, searchPdfWeb, planPdfHarvest, indexPdfEntry } from '../tools/pdfsearch';
+import * as qdrantMemory from '../tools/qdrant-memory';
 import * as creativo from '../tools/creativo';
 import { createPublication, listPublications, approvePublication, rejectPublication, publishDue } from '../domain/publications';
 import { generarContenido, type ContentPackage } from '../tools/enrutador';
@@ -872,6 +873,62 @@ export function chatStream(opts: {
         hitsJson: z.string().optional(), // harvest: [{title,url,source,snippet,directPdf,year?}]
       }),
       execute: async (params) => runPdfsearchTool(params),
+    });
+  }
+  if (opts.tools?.includes('qdrant_memory')) {
+    tools.qdrant_memory_sync = tool({
+      description:
+        'External persistent memory (Qdrant, SACD/NASA FASE 4 — closes the iter-76 pending wiring): persist and query the verified-truth corpus (learning/truth/*.json) in a REAL Qdrant collection so knowledge survives across sessions and machines. Actions: plan (pure diff local corpus vs remote ids -> crear/actualizar/borrar/sinCambio, NO network), sync (ensure collection + upsert + delete retired, fail-soft), search (dense-4 embedding of the query -> top-k hits with score and payload), stats (corpus stats + collection config + reachability). Deterministic point ids (djb2 uint31) = idempotent upsert; keyless; never throws (fail-soft {ok:false, razon}). Use it to remember verified knowledge beyond the process, and memory_search for the in-process semantic recall.',
+      parameters: z.object({
+        accion: z.enum(['plan', 'sync', 'search', 'stats']),
+        query: z.string().optional(), // search: texto a recuperar
+        k: z.number().int().min(1).max(20).optional(), // search: top-k (default 5)
+        url: z.string().optional(), // base URL de Qdrant (default http://127.0.0.1:6333)
+        corpusJson: z.string().optional(), // corpus alternativo: [{source?, cases:[{id, prompt, answer, type?, unit?}]}]
+        remoteIdsJson: z.string().optional(), // plan: ids ya presentes en Qdrant, p.ej. [123,456]
+      }),
+      execute: async ({ accion, query, k, url, corpusJson, remoteIdsJson }) => {
+        const docs = corpusJson
+          ? semanticMemory.loadTruthCorpus(JSON.parse(corpusJson) as semanticMemory.TruthFileLike[])
+          : (await semanticMemory.loadTruthAuto()).docs;
+        const client = qdrantMemory.createQdrantClient(url ?? qdrantMemory.QDRANT_DEFAULT_URL);
+        if (accion === 'plan') {
+          const remoteIds = remoteIdsJson ? (JSON.parse(remoteIdsJson) as number[]) : [];
+          const plan = qdrantMemory.planMemorySync(docs, remoteIds);
+          return {
+            accion,
+            total: docs.length,
+            crear: plan.crear.length,
+            actualizar: plan.actualizar.length,
+            borrar: plan.borrar.length,
+            sinCambio: plan.sinCambio,
+          };
+        }
+        if (accion === 'sync') {
+          const res = await qdrantMemory.syncMemoryToQdrant(client, docs);
+          return { accion, ok: res.ok, total: docs.length, resumen: qdrantMemory.memorySyncSummary(res) };
+        }
+        if (accion === 'search') {
+          if (!query) throw new Error('search requiere query');
+          const res = await client.search(qdrantMemory.embedDense4(query), k ?? 5);
+          return res.ok ? { accion, query, hits: res.data } : { accion, query, hits: [], error: res.razon };
+        }
+        if (accion === 'stats') {
+          const existe = await client.collectionExists();
+          return {
+            accion,
+            total: docs.length,
+            corpus: semanticMemory.corpusStats(docs),
+            coleccion: qdrantMemory.QDRANT_COLLECTION,
+            vectorSize: qdrantMemory.QDRANT_VECTOR_SIZE,
+            distancia: qdrantMemory.QDRANT_DISTANCE,
+            url: client.baseUrl,
+            disponible: existe.ok ? existe.data : false,
+            razon: existe.ok ? undefined : existe.razon,
+          };
+        }
+        return { accion, ok: false, error: 'accion desconocida' };
+      },
     });
   }
   if (opts.tools?.includes('codevfx')) {

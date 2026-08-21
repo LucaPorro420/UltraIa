@@ -48,11 +48,18 @@ esquema que ya usaba `nucleo_nasa.py` (colección `memoria_experiencial`, vector
 
 ## Pendiente
 
-- **Wiring** en `ai/llm.ts` + `tools/index.ts` (capability `qdrant_memory` → tool
-  `qdrant_memory_sync`/`qdrant_memory_search`) — diferido hasta que la sesión concurrente libere
-  esos archivos (mismo patrón que el wiring cloud, iter-28). Exports listos en `qdrantMemory`.
-- Fila 76 en STATE.md / entrada en loop-run-log.md — pendiente de registrar cuando la sesión
-  concurrente libere STATE.md (fila 75 en curso).
+- ~~**Wiring** en `ai/llm.ts` + `tools/index.ts`~~ → **CERRADO en iter-78 (20/08/2026)**:
+  capability `qdrant_memory` → tool **`qdrant_memory_sync`** con 4 acciones (`plan` diff puro sin
+  red, `sync` ensure+upsert+delete, `search` top-k por significado, `stats` corpus + config +
+  alcanzabilidad); el corpus por defecto sale de `semanticMemory.loadTruthAuto()` y se puede
+  sustituir con `corpusJson`. En `tools/index.ts` el re-export es **explícito** (no `export *`):
+  `qdrant-memory.ts` re-exporta `TruthDoc` y `tokenize` de `semantic-memory`, así que un
+  `export *` habría dado TS2308 (mismo patrón que el fix `MemoryHit` de iter-72). Tests de
+  wiring: `qdrant-memory.wiring.test.ts` (4).
+- ~~Fila 76 en STATE.md / entrada en loop-run-log.md~~ → **registradas en iter-77** (fila 76 con
+  hash `f675e14` + entrada `[R]`).
+- Sigue abierto: embeddings reales (el vector denso dim 4 es suficiente para 50 docs, no para
+  miles) y decidir si `sacd_system/` Qdrant se levanta siempre con el dev server o a demanda.
 
 ## Lecciones
 
