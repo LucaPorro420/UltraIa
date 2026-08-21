@@ -1,0 +1,53 @@
+{
+  "id": "ultraia_capabilities",
+  "type": "facts",
+  "source": "UltraIa capabilities verificadas: search (reach DDG/Exa keyless), image (pollinations/meigen), video (video_edit ffmpeg + travel Ken Burns), code (builder codegen + codevfx), audio (edge-tts + Tunetank) — 20/08/2026",
+  "description": "Verdad verificada de las capabilities keyless de UltraIa (search/image/video/code/audio). Cierra 5 gaps tema_sin_truth del runner autolearn (truth: 49 docs; topic=search/image/video/code/audio ausente). Cada caso: source = archivo del repo donde vive la implementacion, note = dato verificado, usage = como consumirlo. Verificada contra codigo + tests del repo (20/08/2026).",
+  "cases": [
+    {
+      "id": "ultraia_search_reach_ddg",
+      "source": "packages/core/src/tools/reach.ts",
+      "verified": true,
+      "type": "text",
+      "answer": "searchWeb DuckDuckGo IA keyless + Exa opcional con EXA_API_KEY; readWeb via r.jina.ai con fallback directo",
+      "note": "AgentReach (14/08/2026): readWeb usa r.jina.ai (keyless, Accept text/plain) con fallback a fetch directo si jina falla; searchWeb usa DuckDuckGo Instant Answer API (keyless) y Exa solo si EXA_API_KEY esta seteada; searchGitHub usa la API publica de GitHub sin auth (rate limit bajo); parseRss con fast-xml-parser; videoInfo via oEmbed (noembed.com + youtube). Registradas como tools reach_* bajo capability reach en ai/llm.ts + endpoint /api/tools/reach.",
+      "usage": "para busquedas web/noticias en agentes: searchWeb primero (keyless), Exa si hay key; para contenido de una URL: readWeb"
+    },
+    {
+      "id": "ultraia_image_pollinations",
+      "source": "packages/core/src/tools/image.ts",
+      "verified": true,
+      "type": "text",
+      "answer": "pollinations keyless URL image.pollinations.ai/prompt/{prompt}?width=&height=&model=flux&nologo=true",
+      "note": "Imagen keyless (14/08/2026, leccion verificada): https://image.pollinations.ai/prompt/{prompt}?width=&height=&model=flux&nologo=true — sin clave, sin limite practico, hotlinkable. tools/image.ts es multi-provider: pollinations keyless por defecto + meigen si MEIGEN_API_TOKEN (POST /api/generate/v2 Bearer meigen_sk_*, polling GET /api/generate/v2/status/:id con pollHintSeconds; GET /api/models publico para no hardcodear IDs).",
+      "usage": "generacion de imagenes en present/travel/omag: pollinations siempre; meigen solo si MEIGEN_API_TOKEN en .env"
+    },
+    {
+      "id": "ultraia_video_videoedit",
+      "source": "packages/core/src/tools/video-edit.ts",
+      "verified": true,
+      "type": "text",
+      "answer": "video_edit EDL ffmpeg fades 30ms -c copy faststart; travel Ken Burns zoompan+xfade",
+      "note": "Capability video_edit (17/08/2026, 29 tests): renderFfmpeg genera argv ffmpeg determinista (grade warm-cinematic/neutral-punch/none por segmento, -movflags +faststart), fades de audio 30ms por frontera (FADE_MS=0.03), silencios >=400ms limpios / 150-400ms verificables / <150ms inseguros. travel (18/08, 18 tests): buildTravelRender argv determinista Ken Burns zoompan por escena + xfade encadenado + narracion edge-tts + BGM 0.25. ffmpeg instalado en la maquina (winget Gyan.FFmpeg).",
+      "usage": "edicion/renders de video por codigo: EDL via video_edit, montajes via travel; el render real corre en runner/scripts, nunca en tests"
+    },
+    {
+      "id": "ultraia_code_builder_codegen",
+      "source": "apps/web/src/components/builder/",
+      "verified": true,
+      "type": "text",
+      "answer": "builder genera HTML/CSS/JS + React+Tailwind; codevfx genera HTML5 canvas autocontenido",
+      "note": "Builder (14/08/2026): pagina /builder con DnD nativo HTML5, localStorage ultraia-builder-v1, genera HTML/CSS/JS + React+Tailwind (codegen). codevfx (17/08, 29 tests): renderEffectHtml genera HTML5 canvas AUTOCONTENIDO (sin URLs externas, GLSL como comentario, reacciona a pointermove + hotkeys Q/W/E/R/F/X/V/C/B); 9 kinds fire/ice/lightning/meteor/beam/ground/void/plasma/frost. sdf (18/08): renderSdfHtml canvas autocontenido GLSL ray marching.",
+      "usage": "generacion de codigo para el usuario: builder codegen en /builder; efectos 100% codigo (sin texturas) via codevfx/sdf para el /lab"
+    },
+    {
+      "id": "ultraia_audio_edgetts",
+      "source": "packages/core/src/omag/tts.ts",
+      "verified": true,
+      "type": "text",
+      "answer": "edge-tts keyless 100+ voces 14 idiomas detectLang; Tunetank MCP una palabra SSE",
+      "note": "TTS edge-tts keyless (14/08/2026): VOICES_BY_LANG 14 idiomas, detectLang, edgeTtsAudio con WebSocket global de Node 22+ (SIN dep ws); postproceso loudnorm -16 LUFS + fade 0.4/0.6s; es-MX-DaliaNeural, ar-SA-ZariyahNeural, ja-JP-NanamiNeural. Musica Tunetank (14/08): POST https://mcp.tunetank.com con header Accept: application/json, text/event-stream (sin el -> 406); respuesta SSE no JSON; LECCION VERIFICADA: Tunetank MCP solo matchea queries de UNA palabra -> searchMusic/searchSfx hacen fallback al primer token.",
+      "usage": "narracion TTS: edgeTtsAudio (siempre); musica/SFX: Tunetank con queries de una sola palabra (fallback primer token)"
+    }
+  ]
+}
