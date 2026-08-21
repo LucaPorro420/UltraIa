@@ -94,16 +94,36 @@ Harness: `npx @cobusgreyling/loop` (CLI npm v0.1.2) + archivos del bucle + drive
 ## Plantilla de plan (`.opencode/plans/loop-<taskid>-<slug>.md`)
 
 > Plantilla ampliada en el ciclo 57 (fuente FundamentosDeLaProgramacion Bloque B): prioridades
-> P0-P5, RECURSOS/PRESUPUESTO, NO-hacer y TOLERANCIAS. Para requests individuales ver el skill
-> `ultraia-request` (plantilla 13 campos + config declarativa de loop + bucle IA 4 fases).
+> P0-P5, RECURSOS/PRESUPUESTO, NO-hacer y TOLERANCIAS. Ampliada en el ciclo 75 con los modos
+> de operación (docs/MODOS-OPERACION.md): P-P integra S-D (Spec-Design) y L-T (Learn-Test)
+> ANTES de escribir el plan; P-B las implementa y verifica el proyecto completo. Para requests
+> individuales ver el skill `ultraia-request` (plantilla 13 campos + config declarativa de loop).
 
 ```markdown
 # PLAN: <título de la tarea> (tarea #<id> de STATE.md, prioridad <P0-P5>)
 
-Fecha: <YYYY-MM-DD> · Modo: <plan|build> · Patrón: <bucle IA 4 fases si aplica> · Presupuesto: <tiempo est. / tokens>
+Fecha: <YYYY-MM-DD> · Modo: <P-P|P-B|L-T|S-D> · Patrón: <bucle IA 4 fases si aplica> · Presupuesto: <tiempo est. / tokens>
 
 ## Contexto
 - <por qué existe la tarea, enlace a spec/docs si aplica>
+
+## SPEC (S-D integrado — fase P-P)
+- <requisitos precisos: entradas, salidas, criterios de aceptación, límites>
+
+## DESIGN (S-D integrado — fase P-P)
+- <diseño: arquitectura/flujo elegido; diagrama opcional vía capability `diagram` (timeline/data-flow/architecture/loop)>
+
+## LEARN (L-T integrado — fase P-P)
+- <qué verdad verificada aplica (learning/truth/* + semantic_memory); lecciones relevantes (LEARNINGS.md); biblioteca de fracasos; gaps de autolearn que esta tarea cierra>
+
+## TEST (L-T integrado — fase P-P)
+- <estrategia de verificación: casos, fixtures, gates scoped; qué medirá el éxito>
+
+## MEJORAS A ADICIONAR
+- <mejoras que esta iteración ADICIONA al sistema (pedido usuario: "adicionar mejoras -> implementar -> verificar proyecto completo")>
+
+## TECNOLOGÍAS EVALUADAS
+- <open-source/MCP/Docker/nubes/otros lenguajes evaluados para esta tarea y decisión con motivo>
 
 ## Objetivo
 - <una frase medible>
@@ -136,6 +156,22 @@ Fecha: <YYYY-MM-DD> · Modo: <plan|build> · Patrón: <bucle IA 4 fases si aplic
 ## Esfuerzo estimado
 - <bajo|medio|alto> — <justificación breve>
 ```
+
+## Modos de operación (P-P / P-B / L-T / S-D)
+
+Ver `docs/MODOS-OPERACION.md` (mapa central) y la skill `modos-operacion`. Resumen:
+
+| Modo | Rol | Sub-fases | Verificación |
+|---|---|---|---|
+| **P-P** (Piv-Plan) | Planificar | Sensado → **S-D** (spec+design+diagrama) → **L-T** (learn+test) → Investigación (web/arXiv/GitHub/PDFs + enlaces.txt + MCP + Docker) → Razonamiento (plan file + [P] + predicción) | Plan completo + criterios scoped/FULL |
+| **P-B** (Piv-Build) | Construir | Leer plan del archivo → Adicionar mejoras → Implementar → **Verificar proyecto completo** (gates FULL + cuarentena + smoke) → Ajuste (LEARNINGS + fracasos + autolearn) | Gates FULL en orden CI |
+| **L-T** | Aprender y testear | Learn (LEARNINGS + truth + memoria) → Test (evidencia) | Evidencia de aprendizaje |
+| **S-D** | Especificar y diseñar | Spec (requisitos/criterios) → Design (diseño + diagrama) | Artefactos spec/design |
+
+- Repositorio propio: guardar datos/creaciones/pruebas/prototipos/PDFs en
+  `.ultraia/vault/<kind>/` (tool `vault_manage`; export GitHub opcional con GH_TOKEN).
+- Búsquedas: `pdfsearch_search` (PDFs: OpenAlex + DDG filetype:pdf) y `research_search`
+  (web/arXiv/GitHub, ahora con fuente `pdf`).
 
 ## Prioridades P0-P5 (criterio de orden del backlog)
 

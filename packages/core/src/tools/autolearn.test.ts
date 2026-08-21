@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import {
   autolearn,
   buildImprovementPlan,
+  buildModePlan,
   classifyExperiment,
   detectGaps,
   learningMetrics,
@@ -398,5 +399,46 @@ describe('autolearn / planDailyLoop (presupuesto 70/20/10)', () => {
     expect(plan.seleccionados).toEqual([]);
     expect(plan.presupuesto.explotacion).toBe(0.7);
     expect(plan.fecha).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+  });
+});
+describe('autolearn: buildModePlan (modos de operacion iter-75)', () => {
+  it('P-P integra S-D y L-T como subfases + mejoras del harness', () => {
+    const plan = buildModePlan('P-P', { fecha: '2026-08-20', prediccion: 'ok' });
+    expect(plan.modo).toBe('P-P');
+    expect(plan.subFases.map((s) => s.nombre)).toEqual(['Sensado', 'S-D (Spec-Design)', 'L-T (Learn-Test)', 'Investigación', 'Razonamiento']);
+    expect(plan.mejoras.length).toBeGreaterThanOrEqual(4);
+    expect(plan.mejoras.join(' ')).toContain('S-D integrado');
+    expect(plan.mejoras.join(' ')).toContain('L-T integrado');
+    expect(plan.mejoras.join(' ')).toContain('vault_manage');
+    expect(plan.estrategiaVerificacion).toContain('Plan file completo');
+    expect(plan.archivosSugeridos).toContain('.opencode/plans/loop-<taskid>-<slug>.md');
+    expect(plan.prediccion).toBe('ok');
+  });
+
+  it('P-B subfases leen plan, adicionan mejoras, implementan, verifican FULL y ajustan', () => {
+    const plan = buildModePlan('P-B');
+    expect(plan.subFases.map((s) => s.nombre)).toEqual(['Leer plan del archivo', 'Adicionar mejoras', 'Implementar', 'Verificar proyecto completo', 'Ajuste']);
+    expect(plan.mejoras.join(' ')).toContain('gates FULL');
+    expect(plan.estrategiaVerificacion).toContain('typecheck');
+    expect(plan.archivosSugeridos).toContain('packages/core/src/');
+  });
+
+  it('L-T y S-D tienen subfases propias (Learn/Test y Spec/Design)', () => {
+    const lt = buildModePlan('L-T');
+    expect(lt.subFases.map((s) => s.nombre)).toEqual(['Learn', 'Test']);
+    expect(lt.archivosSugeridos).toContain('learning/LEARNINGS.md');
+    const sd = buildModePlan('S-D');
+    expect(sd.subFases.map((s) => s.nombre)).toEqual(['Spec', 'Design']);
+    expect(sd.archivosSugeridos).toContain('docs/SPEC.md');
+  });
+
+  it('determinista salvo fecha/prediccion/archivos inyectables', () => {
+    const a = buildModePlan('P-P');
+    const b = buildModePlan('P-P');
+    expect(a.subFases).toEqual(b.subFases);
+    expect(a.mejoras).toEqual(b.mejoras);
+    const c = buildModePlan('P-P', { archivos: ['x.ts'], prediccion: 'p' });
+    expect(c.archivosSugeridos).toEqual(['x.ts']);
+    expect(c.prediccion).toBe('p');
   });
 });

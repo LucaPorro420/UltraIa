@@ -37,6 +37,8 @@ export * from './replica';
 export * from './imaging';
 export * from './semantic-memory';
 export * from './autolearn';
+export * from './vault';
+export * from './pdfsearch';
 
 import * as web from './web';
 import * as image from './image';
@@ -73,8 +75,10 @@ import * as imaging from './imaging';
 import * as semanticMemory from './semantic-memory';
 import * as autolearn from './autolearn';
 import * as creativo from './creativo';
+import { vaultTools } from './vault';
+import { pdfsearchTools } from './pdfsearch';
 
-export const tools = { web, image, video, music, stitch, reach, skills: { runSkill }, content, g0dm0d3, topics, present: presentTools, publish, enrutador, mediaScore, metrics, memoryFs: { createMemoryFs }, diagram, videoEdit, screenflow, cloud: cloudTools, harness, growth, vfx, codevfx, travel, generative, libros, sdf, videoqa, motion, replica, imaging, semanticMemory, autolearn, creativo };
+export const tools = { web, image, video, music, stitch, reach, skills: { runSkill }, content, g0dm0d3, topics, present: presentTools, publish, enrutador, mediaScore, metrics, memoryFs: { createMemoryFs }, diagram, videoEdit, screenflow, cloud: cloudTools, harness, growth, vfx, codevfx, travel, generative, libros, sdf, videoqa, motion, replica, imaging, semanticMemory, autolearn, creativo, vault: vaultTools, pdfsearch: pdfsearchTools };
 
 export const TOOL_DESCRIPTIONS: Record<string, string> = {
   calculator: 'Safely evaluate a mathematical expression (math only).',
@@ -145,7 +149,11 @@ export const TOOL_DESCRIPTIONS: Record<string, string> = {
   semantic_memory:
     'Semantic memory retrieval (SACD/NASA design -> UltraIa port): sparse n-gram hashing + cosine similarity over verified learnings (learning/truth corpus) with top-k ranked hits (id, texto, respuesta, score); corpus stats (total, sources, types). Deterministic, keyless, offline. Use to recall verified knowledge before proposing solutions (meta-learning loop).',
   autolearn:
-    'Auto-learning agent (self-programming loop): sense learning state (parse LEARNINGS.md, scan verified truth), detect gaps (topics without verified truth, lessons not implemented, sources without analysis, pending backlog), prioritize with simplified RICE (impact x confidence / effort), generate the improvement plan (loop-piv pattern: goal, steps, files, scoped/FULL criteria, priority), compute cycle KPIs (lessons, truth, gaps, improvement rate). Deterministic, keyless, offline. Use to automate autoprogramming, find new information needs, and improve the project.',
+    'Auto-learning agent (self-programming loop): sense learning state (parse LEARNINGS.md, scan verified truth), detect gaps (topics without verified truth, lessons not implemented, sources without analysis, pending backlog), prioritize with simplified RICE (impact x confidence / effort), generate the improvement plan (loop-piv pattern: goal, steps, files, scoped/FULL criteria, priority), compute cycle KPIs (lessons, truth, gaps, improvement rate), and build the operational-mode plan (P-P/P-B/L-T/S-D with S-D + L-T integrated into P-P). Deterministic, keyless, offline. Use to automate autoprogramming, find new information needs, and improve the project.',
+  vault:
+    'Own repository (UltraIa vault): manage the local+cloud repository that stores data, files, creations, tests and prototypes (.ultraia/vault/<kind>/ with manifest). Actions: plan (classify into data/files/creations/tests/prototypes/pdfs + canonical path + mime), manifest (index with counts), search (score-based), summary (by kind/source), sync (diff vs cloud), export_github (optional, fail-soft without token). Deterministic, keyless. Use to persist what the project learns, creates and proves.',
+  pdfsearch:
+    'PDF search: OpenAlex (keyless, open-access papers with PDF) + DuckDuckGo filetype:pdf, dedupe by URL, direct .pdf marking; harvest hits into vault/pdfs entries (kind pdfs, meta url/query/source). Fail-soft on network errors. Use to find documents/papers as PDFs and store them in the own repository.',
 };
 
 export type Capability =
@@ -186,4 +194,6 @@ export type Capability =
   | 'imaging'
   | 'creativo'
   | 'semantic_memory'
-  | 'autolearn';
+  | 'autolearn'
+  | 'vault'
+  | 'pdfsearch';

@@ -53,6 +53,8 @@ import * as replica from '../tools/replica';
 import * as imaging from '../tools/imaging';
 import * as semanticMemory from '../tools/semantic-memory';
 import * as autolearn from '../tools/autolearn';
+import { runVaultTool, planVaultEntry, buildVaultManifest, vaultSearch, summarizeVault, planVaultSync, exportVaultToGitHub, VAULT_LAYOUT, VAULT_ROOT } from '../tools/vault';
+import { runPdfsearchTool, searchOpenAlex, searchPdfWeb, planPdfHarvest, indexPdfEntry } from '../tools/pdfsearch';
 import * as creativo from '../tools/creativo';
 import { createPublication, listPublications, approvePublication, rejectPublication, publishDue } from '../domain/publications';
 import { generarContenido, type ContentPackage } from '../tools/enrutador';
@@ -758,7 +760,7 @@ export function chatStream(opts: {
       description:
         'Auto-learning agent (self-programming loop): sense the project learning state (parse LEARNINGS.md lessons, scan verified truth stats), detect learning gaps (topics without verified truth, lessons not implemented, downloaded sources without RAZONAMIENTO analysis, pending backlog), prioritize improvement work with a simplified RICE score (impact x confidence / effort), generate the improvement plan (self-programmed: the agent writes its own plan with loop-piv pattern: goal, steps, files, scoped/FULL criteria, priority), and compute cycle KPIs (lessons, verified truth, open gaps, improvement rate). Deterministic, keyless, offline. Use to automate autoprogramming, find new information needs, and improve the project.',
       parameters: z.object({
-        accion: z.enum(['scan', 'gaps', 'plan', 'metrics']),
+        accion: z.enum(['scan', 'gaps', 'plan', 'metrics', 'mode_plan']),
         learningsText: z.string().optional(), // texto de LEARNINGS.md para scan/gaps/metrics
         truthDocsJson: z.string().optional(), // [{fuente?, tipo?, texto?}] para scan/gaps
         backlogText: z.string().optional(), // texto del backlog (STATE.md) para gaps
@@ -768,8 +770,11 @@ export function chatStream(opts: {
         gapsJson: z.string().optional(), // gaps para plan (si no se pasan, se detectan)
         candidatesJson: z.string().optional(), // [{id, descripcion, impact, effort, confidence}] para plan
         objetivo: z.string().optional(), // para plan
+        modo: z.enum(['P-P', 'P-B', 'L-T', 'S-D']).optional(), // para mode_plan
+        archivosJson: z.string().optional(), // para mode_plan: archivos sugeridos
+        prediccion: z.string().optional(), // para mode_plan
       }),
-      execute: async ({ accion, learningsText, truthDocsJson, backlogText, sourcesJson, razonamientosJson, implementedJson, gapsJson, candidatesJson, objetivo }) => {
+      execute: async ({ accion, learningsText, truthDocsJson, backlogText, sourcesJson, razonamientosJson, implementedJson, gapsJson, candidatesJson, objetivo, modo, archivosJson, prediccion }) => {
         const entries = learningsText ? autolearn.parseLearnings(learningsText) : [];
         const truthDocs = truthDocsJson ? (JSON.parse(truthDocsJson) as Array<{ fuente?: string; tipo?: string; texto?: string }>) : [];
         if (accion === 'scan') {
@@ -822,8 +827,51 @@ export function chatStream(opts: {
             plan: autolearn.buildImprovementPlan({ gaps, priorities, objetivo }),
           };
         }
+        if (accion === 'mode_plan') {
+          if (!modo) throw new Error('mode_plan requiere modo (P-P | P-B | L-T | S-D)');
+          const plan = autolearn.buildModePlan(modo, {
+            archivos: archivosJson ? (JSON.parse(archivosJson) as string[]) : undefined,
+            prediccion,
+          });
+          return { accion, modo, plan };
+        }
         return { accion, ok: false, error: 'accion desconocida' };
       },
+    });
+  }
+  if (opts.tools?.includes('vault')) {
+    tools.vault_manage = tool({
+      description:
+        'Own repository (UltraIa vault, user request): manage the local+cloud repository that stores data, files, creations, tests and prototypes (.ultraia/vault/<kind>/). Actions: plan (classify an entry into data/files/creations/tests/prototypes/pdfs and compute canonical path + mime), manifest (build the vault index with counts), search (score-based retrieval across id/name/kind/source/meta), summary (aggregate counts/bytes by kind and source), sync (diff local entries vs cloud files under vault/ -> toUpload/toRemove), export_github (optional export to a GitHub repo via Contents API, fail-soft without token). Deterministic, keyless. Use to persist what the project learns/creates/proves instead of losing it.',
+      parameters: z.object({
+        accion: z.enum(['plan', 'manifest', 'search', 'summary', 'sync', 'export_github']),
+        name: z.string().optional(), // plan: nombre del archivo
+        sizeBytes: z.number().int().min(0).optional(), // plan
+        source: z.string().optional(), // plan: origen (research/upload/generation/test/prototype/import/pdf)
+        kind: z.enum(['data', 'files', 'creations', 'tests', 'prototypes', 'pdfs']).optional(), // plan: categoría forzada
+        entriesJson: z.string().optional(), // manifest/search/summary/sync/export: [{id,kind,name,path,sizeBytes,mime,createdAt,source?,meta?}]
+        query: z.string().optional(), // search
+        cloudJson: z.string().optional(), // sync: [{path,name,type,sizeBytes,mime,updatedAt}]
+        contentsJson: z.string().optional(), // export_github: {"vault/<path>": "base64 o texto"}
+        repo: z.string().optional(), // export_github: owner/repo
+        token: z.string().optional(), // export_github (o env GH_TOKEN/GITHUB_TOKEN)
+        branch: z.string().optional(), // export_github
+      }),
+      execute: async (params) => runVaultTool(params),
+    });
+  }
+  if (opts.tools?.includes('pdfsearch')) {
+    tools.pdfsearch_search = tool({
+      description:
+        'PDF search (user request: search PDFs on the web and repositories): search OpenAlex (keyless, open-access papers with PDF) + DuckDuckGo filetype:pdf, dedupe by URL, mark direct .pdf hits; or harvest hits into vault/pdfs entries (kind pdfs, meta url/query/source) ready to persist in the own repository (vault_manage). Deterministic mapping; network adapters fail-soft (empty results on error). Use to find documents/papers as PDFs and store them in the vault.',
+      parameters: z.object({
+        accion: z.enum(['search', 'harvest']),
+        query: z.string().min(1),
+        maxResults: z.number().int().min(1).max(20).optional(),
+        includeWeb: z.boolean().optional(), // search: false = solo OpenAlex
+        hitsJson: z.string().optional(), // harvest: [{title,url,source,snippet,directPdf,year?}]
+      }),
+      execute: async (params) => runPdfsearchTool(params),
     });
   }
   if (opts.tools?.includes('codevfx')) {

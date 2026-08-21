@@ -181,3 +181,63 @@ describe('researchSearch', () => {
     await expect(researchSearch('  ')).rejects.toThrow(/query/i);
   });
 });
+describe('research: fuente pdf (iter-75)', () => {
+  const OA_FIXTURE = {
+    results: [
+      {
+        id: 'https://openalex.org/W1',
+        display_name: 'Flow Matching for Generative Modeling',
+        publication_year: 2022,
+        doi: '10.48550/arXiv.2210.02747',
+        best_oa_location: { pdf_url: 'https://arxiv.org/pdf/2210.02747.pdf', landing_page_url: 'https://arxiv.org/abs/2210.02747' },
+      },
+    ],
+  };
+  const okFetchPdf = (body: unknown) =>
+    vi.fn(async () => ({ ok: true, status: 200, text: async () => JSON.stringify(body) }) as never);
+
+it('researchSearch con sources [pdf] mapea hits OpenAlex a ResearchItem pdf', async () => {
+    const fetchImpl = okFetchPdf(OA_FIXTURE);
+    const searchWebImpl = async () => ({ query: 'flow matching filetype:pdf', source: 'none' as const, results: [] });
+    const report = await researchSearch('flow matching', { sources: ['pdf'], fetchImpl: fetchImpl as never, searchWebImpl });
+    expect(report.sources).toEqual(['pdf']);
+    expect(report.items).toHaveLength(1);
+    expect(report.items[0]).toMatchObject({
+      title: 'Flow Matching for Generative Modeling',
+      url: 'https://arxiv.org/pdf/2210.02747.pdf',
+      source: 'pdf',
+    });
+    expect(report.items[0].snippet).toContain('[PDF]');
+    expect(report.items[0].meta).toEqual({ published: '2022' });
+  });
+
+  it('dedupe por URL entre arxiv y pdf', async () => {
+    // Un solo fetchImpl conmuta por URL: arxiv → Atom, OpenAlex → JSON.
+    const fetchImpl = vi.fn(async (url: string) => {
+      if (String(url).includes('api.openalex.org')) {
+        return {
+          ok: true,
+          status: 200,
+          text: async () =>
+            JSON.stringify({
+              results: [{ id: 'W2', display_name: 'DDPM', publication_year: 2020, doi: null, best_oa_location: { pdf_url: 'http://arxiv.org/abs/2206.00364v1', landing_page_url: null } }],
+            }),
+        };
+      }
+      return { ok: true, status: 200, text: async () => ATOM_FIXTURE };
+    }) as never;
+    const searchWebImpl = async () => ({ query: 'diffusion filetype:pdf', source: 'none' as const, results: [] });
+    const report = await researchSearch('diffusion', { sources: ['arxiv', 'pdf'], fetchImpl, searchWebImpl });
+    const urls = report.items.map((i) => i.url);
+    expect(new Set(urls).size).toBe(urls.length);
+    expect(report.deduped).toBeGreaterThanOrEqual(1);
+  });
+
+  it('researchPdf fail-soft: fetch que lanza → items vacíos sin throw', async () => {
+    const fetchImpl = vi.fn(async () => {
+      throw new Error('net down');
+    }) as never;
+    const report = await researchSearch('x', { sources: ['pdf'], fetchImpl });
+    expect(report.items).toEqual([]);
+  });
+});

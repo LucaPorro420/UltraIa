@@ -24,7 +24,7 @@ import { searchWeb, searchGitHub } from './reach';
 /* Types                                                               */
 /* ------------------------------------------------------------------ */
 
-export type ResearchSource = 'arxiv' | 'web' | 'github' | 'none';
+export type ResearchSource = 'arxiv' | 'web' | 'github' | 'pdf' | 'none';
 
 export interface ResearchItem {
   title: string;
@@ -200,6 +200,43 @@ export async function researchWeb(query: string, opts: WebOptions = {}): Promise
   };
 }
 
+export interface PdfOptions {
+  maxResults?: number;
+  fetchImpl?: FetchLike;
+  searchWebImpl?: typeof searchWeb;
+  includeWeb?: boolean;
+}
+
+/**
+ * Búsqueda de PDFs (fuente 'pdf', iter-75): OpenAlex keyless + DuckDuckGo
+ * `filetype:pdf` (ver pdfsearch.ts). Fail-soft: cualquier error → items vacíos.
+ */
+export async function researchPdf(query: string, opts: PdfOptions = {}): Promise<ResearchResult> {
+  try {
+    const { searchPdfs } = await import('./pdfsearch');
+    const r = await searchPdfs(query, {
+      maxResults: opts.maxResults ?? 5,
+      fetchImpl: opts.fetchImpl,
+      searchWebImpl: opts.searchWebImpl,
+      includeWeb: opts.includeWeb,
+    });
+    return {
+      query,
+      source: 'pdf' as const,
+      items: r.hits.map((h) => ({
+        title: h.title,
+        url: h.url,
+        snippet: h.directPdf ? `[PDF] ${h.snippet}` : h.snippet,
+        source: 'pdf' as const,
+        meta: h.year ? { published: String(h.year) } : undefined,
+      })),
+      cached: false,
+    };
+  } catch {
+    return { query, source: 'pdf', items: [], cached: false };
+  }
+}
+
 export interface GithubOptions {
   maxResults?: number;
 }
@@ -248,6 +285,8 @@ export interface ResearchSearchOptions {
   maxResults?: number;
   cache?: ResearchCache;
   fetchImpl?: FetchLike;
+  /** Inyectable para la fuente 'pdf' (default: reach.searchWeb). */
+  searchWebImpl?: typeof searchWeb;
 }
 
 /** Normaliza una URL para dedupe (minúsculas, sin slash final, sin utm). */
@@ -285,6 +324,9 @@ export async function researchSearch(query: string, opts: ResearchSearchOptions 
         case 'github':
           result = await researchGitHub(q, { maxResults });
           break;
+        case 'pdf':
+          result = await researchPdf(q, { maxResults, fetchImpl: opts.fetchImpl, searchWebImpl: opts.searchWebImpl });
+          break;
         default:
           continue;
       }
@@ -308,6 +350,7 @@ export const research = {
   searchArxiv,
   parseArxivAtom,
   researchWeb,
+  researchPdf,
   researchGitHub,
   fetchAndExtract,
   createResearchCache,

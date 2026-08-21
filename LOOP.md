@@ -13,6 +13,19 @@
 | Daily Triage | 1/día | report-only | `python scripts/loop_piv.py --triage` |
 | State Doctor (pre-flight) | antes de cada triage/ciclo | report-only | `python scripts/loop_piv.py --doctor` (o `--doctor --triage`) |
 
+## Modos de operación (P-P / P-B / L-T / S-D) — 20/08/2026, loop-75
+
+| Modo | Rol | Sub-fases | Verificación | Dónde verlo |
+|------|-----|-----------|--------------|-------------|
+| **P-P** | Piv-Plan | Sensado → S-D (spec+design+diagrama) → L-T (learn+test) → Investigación (web/arXiv/GitHub/PDFs) → Razonamiento | Plan file ampliado + [P] + predicción | `docs/MODOS-OPERACION.md` · `.opencode/plans/` |
+| **P-B** | Piv-Build | Leer plan → Adicionar mejoras → Implementar → Verificar proyecto completo → Ajuste | Gates FULL en orden CI + commit pathspec | `docs/MODOS-OPERACION.md` · commits |
+| **L-T** | Aprender y testear | Learn (LEARNINGS + truth + fracasos) → Test (evidencia) | Evidencia de aprendizaje | `learning/` |
+| **S-D** | Especificar y diseñar | Spec (requisitos/criterios) → Design (diseño + diagrama) | Artefactos spec/design | secciones SPEC/DESIGN del plan |
+
+Repositorio propio: `.ultraia/vault/<kind>/` (tool `vault_manage`; export GitHub con
+GH_TOKEN) · Búsquedas PDFs: `pdfsearch_search` (OpenAlex + DDG filetype:pdf) y fuente
+`pdf` en `research_search` · Generador: `autolearn_run` accion `mode_plan`.
+
 Flags del driver: `--cycles N` · `--gate-only` · `--plan-only` · `--triage` · `--doctor`
 (pre-flight state-integrity-check ANTES de triage/gates/ciclos) · `--no-commit` · `--dry-run` · `--timeout S`.
 

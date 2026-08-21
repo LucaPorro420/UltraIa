@@ -744,3 +744,35 @@ LEY: `git add` explicito (nunca `.`), NO tocar DOCS_TODO/blueprint/reach/automat
 - Regla complementaria: si el usuario pide ejecutar sin haber aprobado explicitamente pero el trabajo
   ya fue aprobado en un turno anterior, ejecutar (precedente 19/08: plan creative-coding aprobado
   con "Apruebo todo").
+
+## Modos de operacion P-P/P-B/L-T/S-D (20/08/2026, loop-75)
+
+- **Fuente**: `fundamentosdelaprogramacion.txt` (renombrado desde `FundamentosDeLaProgramcon.txt`,
+  untracked) — mapa central en `docs/MODOS-OPERACION.md` (donde ver cada modo: caracteristicas,
+  exigencias, funcionalidades, invocacion) + analisis `docs/RAZONAMIENTO-MODOS-OPERACION.md` +
+  skill `modos-operacion` (espejo `.opencode/skills/` y `skills/`, hash sync check-9).
+- **Mapeo (decision usuario)**: P-P = Piv-Plan, P-B = Piv-Build; **L-T (Learn-Test) y S-D
+  (Spec-Design) se integran DENTRO de P-P** (sub-fases S-D + L-T antes de escribir el plan) y
+  P-B las implementa. `buildModePlan(modo)` en `autolearn.ts` genera el `ModePlan` determinista
+  (subfases/mejoras/estrategia/archivos/prediccion); tool `autolearn_run` accion `mode_plan`.
+- **P-P contrato**: Sensado → S-D (SPEC + DESIGN + diagrama opcional via `diagram_render`) →
+  L-T (LEARN: LEARNINGS + truth semantic_memory + fracasos + gaps de autolearn; TEST: estrategia
+  de verificacion explicita) → Investigacion obligatoria (research_search con fuente `pdf` +
+  pdfsearch_search + enlaces.txt + MCP + Docker) → Razonamiento (plan file ampliado + [P] +
+  prediccion). Plantilla del plan ampliada: SPEC/DESIGN/LEARN/TEST/MEJORAS A ADICIONAR/
+  TECNOLOGIAS EVALUADAS (loop-piv SKILL.md).
+- **P-B contrato**: leer plan del archivo → ADICIONAR MEJORAS (MEJORAS A ADICIONAR + guardar
+  artefactos en el vault) → implementar → **VERIFICAR PROYECTO COMPLETO** (gates FULL en orden
+  CI + cuarentena WIP ajeno + smoke) → ajuste (LEARNINGS + fracasos + autolearn + commit pathspec).
+- **Repositorio propio (vault, pedido usuario)**: `packages/core/src/tools/vault.ts` — layout
+  `.ultraia/vault/<kind>/` (data/files/creations/tests/prototypes/pdfs, VAULT_LAYOUT), manifest,
+  vaultSearch, summarizeVault, vaultToCloud (CloudStorageAdapter R2/local), planVaultSync,
+  exportVaultToGitHub (Contents API, fail-soft sin GH_TOKEN). Tool `vault_manage` (capability
+  `vault`). Tests 25 PASS.
+- **Busquedas PDFs**: `packages/core/src/tools/pdfsearch.ts` — OpenAlex keyless +
+  DuckDuckGo `filetype:pdf` (via reach.searchWeb), planPdfHarvest → vault/pdfs, tool
+  `pdfsearch_search` (capability `pdfsearch`, 14 tests); fuente `pdf` anadida a
+  `research_search` (research.ts, 18 tests).
+- **Wiring**: llm.ts (vault_manage/pdfsearch_search/autolearn_run mode_plan) + tools/index.ts
+  (exports + TOOL_DESCRIPTIONS + union Capability `vault|pdfsearch`) + opencode.json prompts
+  piv-plan v2/piv-build v2. Tests scoped 90/90; gates FULL 20/08: typecheck/lint/test/build OK.

@@ -569,6 +569,110 @@ export function planDailyLoop(
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Modos de operación (P-P / P-B / L-T / S-D) — iter-75
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** Modos de operación del harness UltraIa (mapa docs/MODOS-OPERACION.md). */
+export type OperationalMode = 'P-P' | 'P-B' | 'L-T' | 'S-D';
+
+/** Fase de un modo de operación (sub-fases integradas). */
+export interface ModeSubfase {
+  nombre: string;
+  descripcion: string;
+}
+
+/** Plan de un modo de operación (lo que Piv-Plan/Piv-Build deben ejecutar). */
+export interface ModePlan {
+  modo: OperationalMode;
+  objetivo: string;
+  subFases: ModeSubfase[];
+  /** Mejoras adicionadas al modo en esta iteración (pedido usuario: "adicionar mejoras"). */
+  mejoras: string[];
+  estrategiaVerificacion: string;
+  archivosSugeridos: string[];
+  prediccion: string;
+}
+
+/** Sub-fases base de cada modo (L-T y S-D integrados dentro de P-P; P-B las implementa). */
+const SUBFASES_BY_MODE: Readonly<Record<OperationalMode, ModeSubfase[]>> = Object.freeze({
+  'P-P': [
+    { nombre: 'Sensado', descripcion: 'Leer STATE.md, LEARNINGS.md, run-log, constraints; lock; git status; tomar primera tarea pendiente (nunca inventar estado)' },
+    { nombre: 'S-D (Spec-Design)', descripcion: 'Especificación precisa + diseño + diagrama (capability diagram) antes de escribir el plan' },
+    { nombre: 'L-T (Learn-Test)', descripcion: 'LEARN: LEARNINGS + truth verificada (semantic_memory) + biblioteca de fracasos + gaps de autolearn; TEST: estrategia de verificación explícita' },
+    { nombre: 'Investigación', descripcion: 'Búsquedas web/arXiv/GitHub/PDFs (research + pdfsearch) + enlaces.txt + MCP + Docker + otros lenguajes cuando aplique' },
+    { nombre: 'Razonamiento', descripcion: 'Elegir acción, predecir resultado, escribir plan file (plantilla ampliada) + entrada [P] en run-log' },
+  ],
+  'P-B': [
+    { nombre: 'Leer plan del archivo', descripcion: 'Leer .opencode/plans/loop-<id>-<slug>.md (NO el prompt); pre-flight git status' },
+    { nombre: 'Adicionar mejoras', descripcion: 'Aplicar las mejoras declaradas en el plan + guardar creaciones/prototipos en el vault' },
+    { nombre: 'Implementar', descripcion: 'Ejecutar con tools del proyecto; staging explícito; commit pathspec por iteración' },
+    { nombre: 'Verificar proyecto completo', descripcion: 'Gates FULL en orden CI (typecheck→lint→test→build) + cuarentena WIP ajeno + smoke si aplica' },
+    { nombre: 'Ajuste', descripcion: 'LEARNINGS + fracasos + autolearn post-ciclo + evidencia en STATE.md/run-log' },
+  ],
+  'L-T': [
+    { nombre: 'Learn', descripcion: 'Leer aprendizaje: LEARNINGS + truth + memoria comprimida + gaps' },
+    { nombre: 'Test', descripcion: 'Verificar el aprendizaje: gates + casos + evidencia' },
+  ],
+  'S-D': [
+    { nombre: 'Spec', descripcion: 'Especificación precisa (requisitos, criterios de aceptación, no-hacer)' },
+    { nombre: 'Design', descripcion: 'Diseño + diagrama (capability diagram: timeline/data-flow/architecture/loop)' },
+  ],
+});
+
+const OBJETIVO_BY_MODE: Readonly<Record<OperationalMode, string>> = Object.freeze({
+  'P-P': 'Planificar: sensar el estado real y producir un plan verificable que integre S-D + L-T',
+  'P-B': 'Construir: leer el plan del archivo, adicionar mejoras, implementar y verificar el proyecto completo',
+  'L-T': 'Aprender y testear: absorber verdad verificada y verificar con evidencia',
+  'S-D': 'Especificar y diseñar: convertir intención vaga en spec + diseño accionables',
+});
+
+const MEJORAS_PP: readonly string[] = Object.freeze([
+  'S-D integrado (spec + diseño + diagrama) antes de escribir el plan',
+  'L-T integrado (LEARN: truth + fracasos + gaps; TEST: estrategia de verificación en el propio plan)',
+  'Investigación obligatoria de nuevas fuentes (web/arXiv/GitHub/PDFs via research + pdfsearch)',
+  'Búsquedas de PDFs/repositorios disponibles como tools (pdfsearch_search, research_search)',
+  'Repositorio propio disponible para guardar datos/creaciones/pruebas/prototipos (vault_manage)',
+]);
+
+const MEJORAS_PB: readonly string[] = Object.freeze([
+  'Ejecuta L-T y S-D producidos por P-P (spec/design/learn/test del plan file)',
+  'Guarda evidencias, creaciones y prototipos en el vault propio al finalizar cada fase',
+  'Verificación = proyecto completo (gates FULL en orden CI + cuarentena de WIP ajeno)',
+  'Export opcional del vault a GitHub (fail-soft sin token)',
+]);
+
+const ESTRATEGIA_PP = 'Plan file completo (plantilla ampliada) + [P] en run-log + predicción; criterios scoped por fase y FULL al final';
+const ESTRATEGIA_PB = 'Gates FULL en orden CI (typecheck→lint→test→build) con gates GREEN antes de cada commit pathspec';
+
+/**
+ * Genera el plan de un modo de operación del harness (P-P/P-B/L-T/S-D).
+ * Determinista: sub-fases, mejoras y estrategia salen de tablas constantes;
+ * solo `fecha`/`prediccion` son dinámicas (inyectables).
+ */
+export function buildModePlan(
+  modo: OperationalMode,
+  opts: { fecha?: string; archivos?: string[]; prediccion?: string } = {},
+): ModePlan {
+  const archivosPorDefecto =
+    modo === 'P-P'
+      ? ['.opencode/plans/loop-<taskid>-<slug>.md', 'STATE.md', 'loop-run-log.md']
+      : modo === 'P-B'
+        ? ['packages/core/src/', 'apps/web/src/', 'docs/', 'AGENTS.md']
+        : modo === 'L-T'
+          ? ['learning/LEARNINGS.md', 'learning/truth/', 'learning/memory/']
+          : ['docs/SPEC.md', 'docs/DESIGN.md', 'docs/diagrams/'];
+  return {
+    modo,
+    objetivo: OBJETIVO_BY_MODE[modo],
+    subFases: SUBFASES_BY_MODE[modo],
+    mejoras: [...(modo === 'P-P' ? MEJORAS_PP : modo === 'P-B' ? MEJORAS_PB : [])],
+    estrategiaVerificacion: modo === 'P-P' ? ESTRATEGIA_PP : ESTRATEGIA_PB,
+    archivosSugeridos: opts.archivos && opts.archivos.length > 0 ? [...opts.archivos] : [...archivosPorDefecto],
+    prediccion: opts.prediccion ?? 'Gates verdes esperados; riesgo: red caída bloquea build (diferir y reportar)',
+  };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Namespace de la capability
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -584,6 +688,7 @@ export const autolearn = {
   classifyMatrix,
   prioritizeExperiments,
   planDailyLoop,
+  buildModePlan,
 };
 
 export const AL = {
