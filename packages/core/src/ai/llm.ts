@@ -56,6 +56,7 @@ import * as autolearn from '../tools/autolearn';
 import { runVaultTool, planVaultEntry, buildVaultManifest, vaultSearch, summarizeVault, planVaultSync, exportVaultToGitHub, VAULT_LAYOUT, VAULT_ROOT } from '../tools/vault';
 import { runPdfsearchTool, searchOpenAlex, searchPdfWeb, planPdfHarvest, indexPdfEntry } from '../tools/pdfsearch';
 import * as qdrantMemory from '../tools/qdrant-memory';
+import * as kgraph from '../tools/kgraph';
 import * as creativo from '../tools/creativo';
 import { createPublication, listPublications, approvePublication, rejectPublication, publishDue } from '../domain/publications';
 import { generarContenido, type ContentPackage } from '../tools/enrutador';
@@ -928,6 +929,51 @@ export function chatStream(opts: {
             razon: existe.ok ? undefined : existe.razon,
           };
         }
+        return { accion, ok: false, error: 'accion desconocida' };
+      },
+    });
+  }
+  if (opts.tools?.includes('kgraph')) {
+    tools.kgraph_build = tool({
+      description:
+        'Knowledge graph builder (graphify port, principios originales): build a cross-corpus knowledge graph from code + docs. Code extracts symbol/file/import/call edges as EXTRACTED; docs infer concept/heading/co-occurrence edges as INFERRED. Actions: build (returns graph.json: nodes+edges+analysis), report (GRAPH_REPORT.md text with god nodes, surprising cross-type connections, suggested questions), svg (Dark Obsidian a11y SVG diagram), analyze (degrees + surprising connections + suggested questions only). Deterministic, keyless, zero deps, never throws. Use to map a repo or notes corpus for retrieval and onboarding.',
+      parameters: z.object({
+        accion: z.enum(['build', 'report', 'svg', 'analyze']),
+        filesJson: z
+          .string()
+          .optional()
+          .describe('JSON array of {path, content, kind?} (kind: code|doc). Alternative to path.'),
+        path: z
+          .string()
+          .optional()
+          .describe('File or directory to scan (read via node:fs/promises). Alternative to filesJson.'),
+      }),
+      execute: async ({ accion, filesJson, path }) => {
+        let files: kgraph.GraphInputFile[] = [];
+        if (filesJson) {
+          files = JSON.parse(filesJson) as kgraph.GraphInputFile[];
+        } else if (path) {
+          const fs = await import('node:fs/promises');
+          const stat = await fs.stat(path);
+          if (stat.isDirectory()) {
+            const ents = await fs.readdir(path, { withFileTypes: true });
+            for (const e of ents) {
+              if (e.isFile()) {
+                const fp = `${path.replace(/\/$/, '')}/${e.name}`;
+                files.push({ path: fp, content: await fs.readFile(fp, 'utf8') });
+              }
+            }
+          } else {
+            files.push({ path, content: await fs.readFile(path, 'utf8') });
+          }
+        } else {
+          throw new Error('kgraph_build requiere filesJson o path');
+        }
+        const graph = kgraph.buildGraph({ files });
+        if (accion === 'build') return { accion, graph, json: kgraph.buildGraphJson(graph) };
+        if (accion === 'report') return { accion, report: kgraph.buildGraphReport(graph) };
+        if (accion === 'svg') return { accion, svg: kgraph.buildGraphSvg(graph) };
+        if (accion === 'analyze') return { accion, analysis: kgraph.analyzeGraph(graph) };
         return { accion, ok: false, error: 'accion desconocida' };
       },
     });

@@ -39,6 +39,8 @@ export * from './semantic-memory';
 export * from './autolearn';
 export * from './vault';
 export * from './pdfsearch';
+// kgraph: `export *` seguro — no re-exporta simbolos de otros modulos (sin colision TS2308).
+export * from './kgraph';
 // qdrant-memory: export EXPLICITO (no `export *`) — el modulo re-exporta `TruthDoc` y `tokenize`
 // de semantic-memory y un `export *` colisionaria (TS2308, mismo patron del fix MemoryHit de iter-72).
 export {
@@ -96,6 +98,7 @@ import { vfx } from './vfx';
 import { codevfx } from './codevfx';
 import { travel } from './travel';
 import { generative } from './generative';
+import * as kgraph from './kgraph';
 import { libros } from './libros';
 import { sdf } from './sdf';
 import * as videoqa from './videoqa';
@@ -109,7 +112,7 @@ import { vaultTools } from './vault';
 import { pdfsearchTools } from './pdfsearch';
 import { qdrantMemory as qdrantMemoryTools } from './qdrant-memory';
 
-export const tools = { web, image, video, music, stitch, reach, skills: { runSkill }, content, g0dm0d3, topics, present: presentTools, publish, enrutador, mediaScore, metrics, memoryFs: { createMemoryFs }, diagram, videoEdit, screenflow, cloud: cloudTools, harness, growth, vfx, codevfx, travel, generative, libros, sdf, videoqa, motion, replica, imaging, semanticMemory, autolearn, creativo, vault: vaultTools, pdfsearch: pdfsearchTools, qdrantMemory: qdrantMemoryTools };
+export const tools = { web, image, video, music, stitch, reach, skills: { runSkill }, content, g0dm0d3, topics, present: presentTools, publish, enrutador, mediaScore, metrics, memoryFs: { createMemoryFs }, diagram, videoEdit, screenflow, cloud: cloudTools, harness, growth, vfx, codevfx, travel, generative, libros, sdf, videoqa, motion, replica, imaging, semanticMemory, autolearn, creativo, vault: vaultTools, pdfsearch: pdfsearchTools, qdrantMemory: qdrantMemoryTools, kgraph };
 
 export const TOOL_DESCRIPTIONS: Record<string, string> = {
   calculator: 'Safely evaluate a mathematical expression (math only).',
@@ -187,6 +190,8 @@ export const TOOL_DESCRIPTIONS: Record<string, string> = {
     'PDF search: OpenAlex (keyless, open-access papers with PDF) + DuckDuckGo filetype:pdf, dedupe by URL, direct .pdf marking; harvest hits into vault/pdfs entries (kind pdfs, meta url/query/source). Fail-soft on network errors. Use to find documents/papers as PDFs and store them in the own repository.',
   qdrant_memory:
     'External persistent memory (Qdrant, SACD/NASA FASE 4): persist and query the verified-truth corpus (learning/truth/*.json) in a real Qdrant collection (memoria_experiencial, dense-4 vectors, Cosine) so knowledge survives across sessions and machines. Actions: plan (pure diff local vs remote), sync (ensure collection + upsert + delete retired), search (top-k by meaning with score + payload), stats (corpus + collection config + reachability). Deterministic ids (djb2) = idempotent upsert; keyless; fail-soft (never throws). Complements semantic_memory (in-process recall) with persistence.',
+  kgraph:
+    'Knowledge graph builder (graphify port, principios originales): build a cross-corpus knowledge graph from code + docs (code extracts symbol/file/import/call edges as EXTRACTED; docs infer concept/heading/co-occurrence edges as INFERRED). Actions: build (graph.json), report (GRAPH_REPORT.md with god nodes, surprising cross-type connections, suggested questions), svg (Dark Obsidian a11y diagram), analyze (degrees + surprising + questions). Deterministic, keyless, zero deps, never throws. Use to map a repo/notes corpus for retrieval and onboarding.',
 };
 
 export type Capability =
@@ -230,4 +235,5 @@ export type Capability =
   | 'autolearn'
   | 'vault'
   | 'pdfsearch'
-  | 'qdrant_memory';
+  | 'qdrant_memory'
+  | 'kgraph';
