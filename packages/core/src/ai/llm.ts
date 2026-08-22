@@ -56,6 +56,7 @@ import * as autolearn from '../tools/autolearn';
 import * as genesis from '../tools/genesis';
 import * as genesisRunner from '../tools/genesis-runner';
 import type { GenesisState, GenesisTask } from '../tools/genesis';
+import * as autopub from '../tools/autopub';
 import { runVaultTool, planVaultEntry, buildVaultManifest, vaultSearch, summarizeVault, planVaultSync, exportVaultToGitHub, VAULT_LAYOUT, VAULT_ROOT } from '../tools/vault';
 import { runPdfsearchTool, searchOpenAlex, searchPdfWeb, planPdfHarvest, indexPdfEntry } from '../tools/pdfsearch';
 import * as qdrantMemory from '../tools/qdrant-memory';
@@ -901,6 +902,28 @@ export function chatStream(opts: {
           return { accion, proposal: proposal.markdown, nextAction: proposal.nextAction, topTaskId: proposal.topTaskId };
         }
         return { accion, ok: false, error: 'accion desconocida' };
+      },
+    });
+  }
+  if (opts.tools?.includes('autopub')) {
+    tools.autopub_run = tool({
+      description:
+        'AutoPub autonomous content factory (iter-90): run the full F1-F4 publishing cycle in ONE step — discover topic briefs (keyless RSS + DuckDuckGo), persist them to the TopicBrief queue with dedupe, take the top-N NUEVO briefs, generate content (deterministic Redactor/Guionista/guion_largo, es/ar, optional keyless edge-tts narration), build the per-channel publication package (captions/hashtags/visual/branding for up to 8 channels: youtube_shorts/tiktok/instagram/blog/telegram/discord/slack/facebook), enqueue Publications under the hybrid approval rule (text/blog auto-APPROVED; video/image channels DRAFT awaiting human approval), and optionally publish due APPROVED items via publishDue (fail-soft without channel tokens). Actions: plan (deterministic cycle preview, no side effects) | run (execute the cycle against Prisma; requires db). Cycle reports land in .ultraia/autopub/. Deterministic core, keyless-first, fail-soft per phase. Use to keep social feeds and the blog fed autonomously.',
+      parameters: z.object({
+        accion: z.enum(['plan', 'run']),
+        configJson: z.string().optional(),
+        disponibles: z.number().int().min(0).optional(),
+      }),
+      execute: async ({ accion, configJson, disponibles }) => {
+        const parsed = autopub.parseAutopubConfig(configJson ? JSON.parse(configJson) : {});
+        if (!parsed.ok) return { accion, ok: false, issues: parsed.issues, config: parsed.config };
+        if (accion === 'plan') {
+          return { accion, ok: true, plan: autopub.planAutopubCycle(parsed.config, disponibles ?? 0) };
+        }
+        if (!opts.db) return { accion, ok: false, error: 'opts.db requerido para la accion run' };
+        const deps = autopub.defaultAutopubDeps(opts.db);
+        const report = await autopub.runAutopubCycle(deps, parsed.config);
+        return { accion, ok: report.ok, report };
       },
     });
   }

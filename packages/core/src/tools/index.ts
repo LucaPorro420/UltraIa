@@ -44,6 +44,8 @@ export * from './pdfsearch';
 export * from './kgraph';
 // brainpage: `export *` seguro — modulo nuevo (port de brain.md); simbolos unicos (normalizeId, initBrain, ...).
 export * from './brainpage';
+// autopub: `export *` seguro — modulo nuevo (orquestador del ciclo F1-F4); simbolos prefijados autopub/Autopub.
+export * from './autopub';
 // qdrant-memory: export EXPLICITO (no `export *`) — el modulo re-exporta `TruthDoc` y `tokenize`
 // de semantic-memory y un `export *` colisionaria (TS2308, mismo patron del fix MemoryHit de iter-72).
 export {
@@ -103,6 +105,7 @@ import { travel } from './travel';
 import { generative } from './generative';
 import * as kgraph from './kgraph';
 import * as brainpage from './brainpage';
+import * as autopub from './autopub';
 import { libros } from './libros';
 import { sdf } from './sdf';
 import * as videoqa from './videoqa';
@@ -117,7 +120,7 @@ import { vaultTools } from './vault';
 import { pdfsearchTools } from './pdfsearch';
 import { qdrantMemory as qdrantMemoryTools } from './qdrant-memory';
 
-export const tools = { web, image, video, music, stitch, reach, skills: { runSkill }, content, g0dm0d3, topics, present: presentTools, publish, enrutador, mediaScore, metrics, memoryFs: { createMemoryFs }, diagram, videoEdit, screenflow, cloud: cloudTools, harness, growth, vfx, codevfx, travel, generative, libros, sdf, videoqa, motion, replica, imaging, semanticMemory, autolearn, genesis, creativo, vault: vaultTools, pdfsearch: pdfsearchTools, qdrantMemory: qdrantMemoryTools, kgraph, brainpage };
+export const tools = { web, image, video, music, stitch, reach, skills: { runSkill }, content, g0dm0d3, topics, present: presentTools, publish, enrutador, mediaScore, metrics, memoryFs: { createMemoryFs }, diagram, videoEdit, screenflow, cloud: cloudTools, harness, growth, vfx, codevfx, travel, generative, libros, sdf, videoqa, motion, replica, imaging, semanticMemory, autolearn, genesis, creativo, vault: vaultTools, pdfsearch: pdfsearchTools, qdrantMemory: qdrantMemoryTools, kgraph, brainpage, autopub };
 
 export const TOOL_DESCRIPTIONS: Record<string, string> = {
   calculator: 'Safely evaluate a mathematical expression (math only).',
@@ -201,6 +204,8 @@ export const TOOL_DESCRIPTIONS: Record<string, string> = {
     'Knowledge graph builder (graphify port, principios originales): build a cross-corpus knowledge graph from code + docs (code extracts symbol/file/import/call edges as EXTRACTED; docs infer concept/heading/co-occurrence edges as INFERRED). Actions: build (graph.json), report (GRAPH_REPORT.md with god nodes, surprising cross-type connections, suggested questions), svg (Dark Obsidian a11y diagram), analyze (degrees + surprising + questions). Deterministic, keyless, zero deps, never throws. Use to map a repo/notes corpus for retrieval and onboarding.',
   brainpage:
     'Persistent Markdown memory (brain.md port, principios originales): a durable, repo-native brain of pages, each with a rewritable compiled_truth plus an append-only timeline (chain of evidence). Actions: init (scaffold .ultraia/brainpage/ + BRAIN.md), create (new page id/category/title/summary), read, update (rewrites truth AND appends its rationale in one atomic write — truth can never change without a trace), append (timeline entry), list, reindex (index.json), lint (broken [[links]]). Deterministic, keyless, zero deps, path-traversal-safe. Use to persist decisions/constraints/learnings that outlive the session.',
+  autopub:
+    'AutoPub autonomous content factory (iter-90): one action runs the whole F1-F4 cycle — discover topic briefs (keyless RSS+DDG) -> TopicBrief queue -> top-N NUEVO -> deterministic content (Redactor/Guionista/guion_largo es/ar, optional edge-tts) -> per-channel package (captions/hashtags/visual/branding, 8 channels) -> Publications queue under the hybrid rule (text/blog auto-APPROVED; video/image DRAFT for human approval) -> optional publishDue. Actions: plan | run. Fail-soft per phase; reports in .ultraia/autopub/. Use to feed social channels and the blog autonomously.',
 };
 
 export type Capability =
@@ -247,4 +252,5 @@ export type Capability =
   | 'pdfsearch'
   | 'qdrant_memory'
   | 'kgraph'
-  | 'brainpage';
+  | 'brainpage'
+  | 'autopub';

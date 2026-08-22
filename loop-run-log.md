@@ -2426,3 +2426,35 @@ de código, sin commit.
 - ```json
   {"pattern":"pivr","iter":90,"items_found":1,"escalations":0,"gates":{"typecheck":0,"lint":0,"test":1444,"build":0},"scoped":{"vitest":55,"tsc":0},"smoke":{"dry_run_ok":true,"briefs_descubiertos":12,"schtasks":3},"wiring_deferred":["llm.ts","index.ts"],"flakes_retried":0}
   ```
+
+### [P][I][V][R] Iteracion 91 - Wiring autopub_run en llm.ts/index.ts (22/08/2026, sesion r91)
+
+- **[P]** pedido usuario "REALIZALO" = ejecutar el pendiente vivo de iter-90 (tool `autopub_run`).
+  Sensado: sesion #89 DORMIDA ~3h (mtimes 17:31 vs 20:24), sin lock ni heartbeat -> maniobra de
+  cuarentena legitima (precedentes 77/80/81). Backups byte-exactos previos: llm.ts `B154E108B476` /
+  index.ts `3F6D66305A1E` en `%TEMP%\opencode\wip-quarantine-20260822-iter91\` + diffs completos
+  capturados (`wip89-llm.diff`: import + bloque security_scan; `wip89-index.diff`: export/import/
+  tools/TOOL_DESCRIPTIONS/Capability 'security'). Plan: `.opencode/plans/loop-91-autopub-wiring.md`.
+  PREDICCION: scoped 24 PASS + tsc 0; FULL verdes (~1447); commit pathspec 6 archivos; restauracion
+  aditiva del WIP ajeno sobre el nuevo HEAD con ambos conjuntos de simbolos conviviendo.
+- **[I]** checkout HEAD de ambos archivos -> wiring MIO sobre limpio: llm.ts gana
+  `import * as autopub from '../tools/autopub'` + bloque `opts.tools?.includes('autopub')` ->
+  tool `autopub_run` (accion `plan` pura con preview determinista; accion `run` exige opts.db,
+  compone defaultAutopubDeps + runAutopubCycle; configJson via parseAutopubConfig fail-soft que
+  devuelve issues+defaults sin lanzar). index.ts: `export * from './autopub'` (simbolos todos
+  prefijados, sin TS2308) + import namespace + `tools.autopub` + TOOL_DESCRIPTIONS.autopub +
+  `Capability | 'autopub'`. NUEVO `autopub.wiring.test.ts` (3 tests, patron qdrant-memory.wiring:
+  descriptor con acciones, contrato namespace completo, Capability valida + tools.autopub registrado).
+- **[V]** scoped: vitest autopub+wiring **24/24** + tsc core EXIT 0. FULL en orden CI (sin dev
+  servers): typecheck **EXIT 0** / lint **EXIT 0** / test **EXIT 0** core 1254/1254 + runtime
+  193/193 = **1447** / build **EXIT 0** (Compiled successfully in 116s). Pre-commit: raiz critica
+  OK, 0 deletions staged ajenos, arbol limpio de WIP #89 durante TODA la ventana de gates.
+- **[R]** iter-91 DONE (prediccion CUMPLIDA: 24/24, FULL verde, 1447 total). Commit unico pathspec
+  (llm.ts + index.ts + wiring test + plan + STATE + run-log). Restauracion ADITIVA del WIP de la
+  sesion #89 aplicada POST-commit sobre el nuevo HEAD (sus 5+2 hunks re-aplicados de los diffs
+  capturados; verificacion grep de convivencia de simbolos en la bitacora post-commit). Sin push
+  (regla). El pendiente de iter-90 queda CERRADO: los agentes ya pueden invocar `autopub_run`
+  (capability `autopub`) para disparar la fabrica por chat/tooling.
+- ```json
+  {"pattern":"pivr","iter":91,"items_found":1,"escalations":0,"gates":{"typecheck":0,"lint":0,"test":1447,"build":0},"scoped":{"vitest":24,"tsc":0},"quarantine":{"files":2,"restored_additively":true},"commit_scope_files":6}
+  ```
