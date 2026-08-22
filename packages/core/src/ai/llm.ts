@@ -54,6 +54,7 @@ import * as imaging from '../tools/imaging';
 import * as semanticMemory from '../tools/semantic-memory';
 import * as autolearn from '../tools/autolearn';
 import * as genesis from '../tools/genesis';
+import * as genesisRunner from '../tools/genesis-runner';
 import type { GenesisState, GenesisTask } from '../tools/genesis';
 import { runVaultTool, planVaultEntry, buildVaultManifest, vaultSearch, summarizeVault, planVaultSync, exportVaultToGitHub, VAULT_LAYOUT, VAULT_ROOT } from '../tools/vault';
 import { runPdfsearchTool, searchOpenAlex, searchPdfWeb, planPdfHarvest, indexPdfEntry } from '../tools/pdfsearch';
@@ -849,7 +850,7 @@ export function chatStream(opts: {
       description:
         'Genesis autonomous-engineering engine (DeepSeek "Genesis" share -> UltraIa port): parse and validate an executable Genesis Project Manifest, evaluate its quality gates (build/test/coverage/lint/typecheck/security/docs), check the autonomous stop conditions (stable release, approval, safety boundary, repair budget, missing info, ambiguous repo, destructive confirmation, quality unsatisfied, autonomy budget), prioritize tasks with the Genesis formula (business_value x technical_impact x risk_reduction x dependency_criticality x confidence), and compute the next highest-value validated engineering action (the FINAL PRINCIPLE). Deterministic, keyless, offline. Use to drive or audit an autonomous software-engineering loop and to make the project self-improving via a declarative manifest contract.',
       parameters: z.object({
-        accion: z.enum(['validate', 'gates', 'prioritize', 'stop', 'next', 'plan']),
+        accion: z.enum(['validate', 'gates', 'prioritize', 'stop', 'next', 'plan', 'run']),
         manifestJson: z.string().optional(),
         tasksJson: z.string().optional(),
         stateJson: z.string().optional(),
@@ -883,6 +884,10 @@ export function chatStream(opts: {
           const plan = genesis.buildGenesisPlan(m, state, tasks);
           if (objetivo) plan.objetivo = objetivo;
           return { accion, plan };
+        }
+        if (accion === 'run') {
+          const cycle = genesisRunner.runGenesisCycle(m, state, { tasks });
+          return { accion, cycle };
         }
         return { accion, ok: false, error: 'accion desconocida' };
       },

@@ -123,6 +123,34 @@ export function qualityGates(manifest: GenesisManifest): QualityGate[] {
   }));
 }
 
+export interface GateResult {
+  name: string;
+  required: boolean;
+  passed: boolean | null;
+  command?: string;
+}
+
+/**
+ * Evaluate the Manifest's declared quality gates against real pass/fail results.
+ * `results` maps gate name -> boolean (true = passed). Gates absent from `results`
+ * are reported as `passed: null` (unknown). The Manifest verdict passes only when
+ * every *required* gate is present and passed.
+ */
+export function evaluateGates(
+  manifest: GenesisManifest,
+  results: Record<string, boolean>,
+): { passed: boolean; gates: GateResult[] } {
+  const gates = qualityGates(manifest);
+  const out: GateResult[] = gates.map((g) => ({
+    name: g.name,
+    required: g.required,
+    passed: g.name in results ? results[g.name] : null,
+    command: g.command,
+  }));
+  const passed = out.every((g) => !g.required || g.passed === true);
+  return { passed, gates: out };
+}
+
 // ---------------------------------------------------------------------------
 // Task prioritization (Genesis formula)
 // ---------------------------------------------------------------------------
@@ -299,4 +327,5 @@ export const genesis = {
   checkStopConditions,
   nextEngineeringAction,
   buildGenesisPlan,
+  evaluateGates,
 };
