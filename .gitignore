@@ -72,6 +72,9 @@ screenshots/
 # Loop PIVR: lock de sesion (loop-concurrency-guard) — nunca commitear
 .ultraia/loop/
 
+# AutoPub (iter-90): reportes de ciclos programados — regenerables
+.ultraia/autopub/
+
 # Expo mobile (Fase mobile)
 apps/mobile/.expo/
 apps/mobile/dist/

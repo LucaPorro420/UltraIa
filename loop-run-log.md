@@ -2352,3 +2352,77 @@ de código, sin commit.
 - ```json
   {"pattern":"pivr","iter":81,"items_found":1,"escalations":0,"gates":{"typecheck":0,"lint":0,"test":1314,"build":0},"commit_code":"6386705","foreign_refs_in_diff":0}
   ```
+
+### [P] Iteracion 90 - AutoPub Autonomo: ciclo F1->F4 programado + conexiones nube gratis (22/08/2026, sesion r90)
+
+- **[P]** pedido usuario "inicia" sobre el plan aprobado en chat (conexiones nube gratis + iniciar
+  autoprogramacion + creacion de contenido automatizado programada). Decisiones usuario: canales TODOS
+  (hibrido vigente), 3 ciclos diarios 09:00/14:00/19:00, registrar schtasks ahora. Concurrencia: la tarea
+  89 la tomo la sesion concurrente (security.ts/.test.ts untracked + plan loop-89-security-scan.md +
+  index.ts M) -> numero cedido, tarea propia = **90** (precedente iter-40). Lock retomado de r81 (stale
+  >30min) como `r90-UTEC-5695-20260822-PIVB`. Kill switch NO activo; raiz integra.
+- **Plan**: `.opencode/plans/loop-90-autopub-autonomo.md`. Alcance: (1) `autopub.ts` dominio puro con deps
+  inyectables que encadena topics→guardarBriefs→listar NUEVO→generarContenido→present→createPublication
+  (regla hibrida) →publishDue opcional; (2) CLI Task/run-autopub.ts + npm script; (3) fix qdrant api-key;
+  (4) wiring llm.ts autopub_run (index.ts DIFERIDO por WIP ajeno); (5) schedule-autopub.ps1 x3 horarios;
+  (6) heartbeat step dry-run; (7) docs x3; (8) bookkeeping filas 87/88 (hashes 3d938f3/d95ca8b ya
+  commiteados sin fila = drift check-12) + fila 90.
+- **PREDICCION**: scoped vitest autopub+qdrant ≈ 40 PASS + tsc core 0; FULL typecheck/lint/test/build
+  verdes (test ≈ 1332+); smoke `npm run autopub -- --dry-run` genera reporte sin mutar cola; 3 tareas
+  schtasks registradas; commit pathspec ~15 archivos. Riesgo alto: index.ts ocupado -> wiring diferido
+  documentado (no bloquea gates porque llm.ts importa directo desde './autopub').
+
+### [I]/[V]/[R] Iteracion 90 - AutoPub Autonomo: ciclo F1->F4 programado + conexiones nube gratis (22/08/2026, sesion r90)
+
+- **[I]** implementado segun plan loop-90-autopub-autonomo.md. (1) `packages/core/src/tools/autopub.ts`
+  NUEVO: dominio puro con deps inyectables — parseAutopubConfig (zod fail-soft -> defaults + issues),
+  planAutopubCycle (pasos deterministas F1/F2/F3/F4[/CAL]), runAutopubCycle (F1 ideas->cola; top-N
+  NUEVO; por brief: generarPaquete -> encolar en el canal DEL brief [o primero configurado] ->
+  marcarProcesado tolerante a fallo; publishDue opcional; reporte AutopubCycleReport con ok=errores
+  vacios), defaultAutopubDeps(db,{dryRun,dir}) compone las piezas REALES (generateTopicBriefs keyless,
+  guardarBriefs dedupe, listarBriefs NUEVO score desc, generarContenido es/ar+tts fail-soft,
+  present() 8 canales, createPublication regla hibrida vigente, publishDue), textoDeContenido
+  (texto|guion|guion_largo via timeline.dialogue|fallback tema) + rowToBrief + resumenAutopub
+  (markdown). 21 tests (config x4, plan x2, conversiones x5, ciclo x8, deps dry-run
+  con Proxy explosivo que prueba que la DB no se toca). FIX de tests propio: asercion del resumen
+  (`- marca` no `- x`) y casts de Records vacios en fakePaquete.
+- **[I]** (2) `Task/run-autoput.ts` NO -> `Task/run-autopub.ts`: CLI con resolverDatabaseUrl en cascada
+  (flag > env > .env raiz > apps/web/.env > fallback absoluto packages/core/prisma/dev.db), DATABASE_URL
+  fijada ANTES del import dinamico de db/client (Prisma la lee al instanciarse), dry-run sin escritura,
+  reportes `.ultraia/autopub/ciclo-<ts>.{json,md}`, exit code por ok. BUG cazado en smoke real:
+  `--max 2` (espacio) se parseaba como max=1 porque Number(true)=1 -> parser ahora acepta valor en el
+  siguiente token para flags de valor (verificado `--max 2` Y `--max=2`). Script npm `autopub`;
+  `.gitignore` gana `.ultraia/autopub/`. (3) `qdrant-memory.ts`: createQdrantClient gana 4º parametro
+  opcional `apiKey = process.env.QDRANT_API_KEY ?? null`; cabecera `api-key` solo si hay clave
+  (retrocompatible: PUT mantiene content-type, GET sin headers como antes); +3 tests (explicito /
+  env con restore / null sin cabecera); fakeFetch del test ampliado aditivamente para capturar headers.
+- **[I]** (4) wiring llm.ts/index.ts DIFERIDO: la sesion concurrente (#89 security) aparecio editando
+  llm.ts/index.ts DURANTE este ciclo (import `security` surgio entre checks) -> commitearlos arrastraria
+  su WIP y romperia HEAD (referencia a security.ts untracked). Precedentes iter-82/76->78. La tool
+  `autopub_run` queda para el proximo ciclo cuando esos archivos liberen. (5)
+  `scripts/schedule-autopub.ps1` ASCII puro: DOS fallos reales cazados — (a) UTF-8 sin BOM corrompe el
+  parser de PS 5.1 (leccion vigente, reescrito ASCII); (b) TaskName "UltraIA AutoPub 09:00" rechazado
+  por CIM 0x80070057 ("El parametro no es correcto"): los DOS PUNTOS son separador de carpeta de tareas
+  -> tag 0900/1400/1900. Aislamiento interactivo de parametros (minimo OK / settings OK / args OK /
+  combo OK) antes de dar con el colon. (6) heartbeat.yml: paso observador AutoPub dry-run (continue-
+  on-error, artifact). (7) docs: AUTO-PUBLICACION §F4 nota iter-90, CANALES-CONFIG nueva seccion
+  "Programacion automatica", DESPLIEGUE-GRATUITO pendiente Qdrant api-key CERRADO.
+- **[V]** scoped: vitest autopub+qdrant **55/55 PASS** + tsc core EXIT 0. FULL en orden CI (sin dev
+  servers): typecheck **EXIT 0** (core+web+runtime, compila tambien el WIP ajeno actual) -> lint
+  **EXIT 0** ("No ESLint warnings or errors") -> test **EXIT 0** core 1251/1251 + runtime 193/193 =
+  **1444** (incluye los tests untracked de la capability ajena security, tambien verdes) -> build
+  **EXIT 0** (Compiled successfully in 105s, 44 paginas estaticas). Smoke REAL: `npm run autopub --
+  --dry-run --max 2` -> descubiertos 12 briefs (red keyless OK), 0 escrituras de cola, reporte MD+JSON
+  generado, exit 0. schtasks: UltraIA AutoPub 0900 / 1400 / 1900 registradas y **Ready**
+  (Get-ScheduledTask verificado). Pre-commit: raiz critica >0 bytes (11/11), 0 deletions staged de
+  .ts/.test.ts, heartbeat del lock refrescado implicitamente (mismo archivo lock).
+- **[R]** iter-90 DONE (prediccion vs resultado: scoped 55 vs ~40 previsto [+tests], FULL GREEN,
+  smoke OK, schtasks x3 OK, wiring diferido segun riesgo previsto). Commit unico con pathspec (~14
+  archivos: plan + autopub.ts/.test + CLI + package.json + .gitignore + qdrant.ts/.test +
+  schedule-autopub.ps1 + heartbeat.yml + 3 docs + STATE.md + run-log). Bookkeeping adicional: filas
+  87/88 recuperadas con hashes reales (`3d938f3`, `d95ca8b` — commits existian sin fila, drift check-12);
+  fila 89 se deja a su sesion (quien-commitea-primero-gana). Sin push (regla). Pendiente vivo: wiring
+  autopub_run en llm.ts/index.ts cuando la sesion #89 los libere.
+- ```json
+  {"pattern":"pivr","iter":90,"items_found":1,"escalations":0,"gates":{"typecheck":0,"lint":0,"test":1444,"build":0},"scoped":{"vitest":55,"tsc":0},"smoke":{"dry_run_ok":true,"briefs_descubiertos":12,"schtasks":3},"wiring_deferred":["llm.ts","index.ts"],"flakes_retried":0}
+  ```

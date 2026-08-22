@@ -277,6 +277,15 @@ alternativas con pros/cons. Orden sugerido de ejecución (ajustable por el usuar
 > + helper `listBlogPosts` en dominio con 3 tests. Pendiente F4: tarea 5-resto — canales
 > siguientes (Meta/X/LinkedIn) y tarea 3-doc — integración del blog con /recursos o galería
 > (STATE.md #12/#13 siguen pendientes: F2 enrutamiento y F5 KPIs).
+>
+> **CICLO AUTÓNOMO COMPLETO implementado 22/08/2026 (iteración 90)**: `tools/autopub.ts`
+> orquesta F1→F4 en UN ciclo (`runAutopubCycle` con deps inyectables + `defaultAutopubDeps(db)`
+> sobre Prisma): topics → guardarBriefs → top-N NUEVO → generarContenido → present →
+> createPublication (regla híbrida) → marcar PROCESADO → publishDue opcional. Reporte JSON+MD
+> por ciclo en `.ultraia/autopub/`. CLI `npm run autopub [-- --dry-run|--max|--idioma|--canales|
+> --publish-due|--tts]` + scheduler Windows `scripts/schedule-autopub.ps1` (3 ciclos diarios,
+> decisión usuario 22/08; canales TODOS) + paso observador dry-run en el latido cloud
+> (`.github/workflows/heartbeat.yml`). La fábrica ya no necesita disparo manual.
 
 ### F5 — Métricas y mejora (nuevo)
 

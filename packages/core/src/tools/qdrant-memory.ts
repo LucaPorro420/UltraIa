@@ -231,12 +231,15 @@ function round3(x: number): number {
  * Crea el cliente Qdrant REST (fail-soft).
  * - fetchImpl: inyectable (tests) - firma como global fetch.
  * - timeoutMs: 5000 por defecto (AbortController).
+ * - apiKey: cabecera `api-key` para Qdrant CLOUD (tier gratis). Default: env QDRANT_API_KEY.
+ *   Pasar null explicitamente para forzar local sin cabecera (retrocompatible).
  * - API directa sobre el REST de Qdrant; sin deps, sin LLM.
  */
 export function createQdrantClient(
   baseUrl: string = QDRANT_DEFAULT_URL,
   fetchImpl: typeof fetch = globalThis.fetch,
   timeoutMs = 5000,
+  apiKey: string | null = process.env.QDRANT_API_KEY ?? null,
 ): QdrantClient {
   const url = baseUrl.replace(/\/+$/, '');
 
@@ -244,9 +247,12 @@ export function createQdrantClient(
     const ctrl = new AbortController();
     const t = setTimeout(() => ctrl.abort(), timeoutMs);
     try {
+      const headers: Record<string, string> = {};
+      if (apiKey) headers['api-key'] = apiKey;
+      if (body !== undefined) headers['content-type'] = 'application/json';
       const res = await fetchImpl(`${url}${path}`, {
         method,
-        headers: body !== undefined ? { 'content-type': 'application/json' } : undefined,
+        headers: Object.keys(headers).length > 0 ? headers : undefined,
         body: body !== undefined ? JSON.stringify(body) : undefined,
         signal: ctrl.signal,
       });

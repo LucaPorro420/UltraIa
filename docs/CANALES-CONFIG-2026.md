@@ -110,6 +110,29 @@ La cola `Publication` auto-aprueba solo **texto/blog**; los canales de video
 hasta aprobación humana (`POST /api/publications/[id]/approve`, ADMIN o creador) — decisión
 del usuario 15/08/2026 (textos auto; video/imagen por paquete).
 
+## Programación automática del ciclo (iter-90)
+
+Un solo comando ejecuta la fábrica completa (temas → briefs → contenido → paquete → cola →
+publicación de vencidos):
+
+```powershell
+npm run autopub                          # ciclo real (escribe cola; blog se publica con --publish-due)
+npm run autopub -- --dry-run             # observador: no escribe cola ni disco
+npm run autopub -- --publish-due --max 3 # ciclo completo + publicar los APPROVED vencidos
+```
+
+Para dejarlo corriendo SOLO en Windows (3 ciclos diarios, sin admin, log en `logs\autopub.log`):
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\schedule-autopub.ps1            # 09:00 / 14:00 / 19:00
+powershell -ExecutionPolicy Bypass -File scripts\schedule-autopub.ps1 -Remove    # quitar las tareas
+Get-ScheduledTask -TaskName "UltraIA AutoPub*"                                   # verificar
+```
+
+Reportes de cada ciclo: `.ultraia/autopub/ciclo-<fecha>.json|.md` (gitignored). Sin tokens
+configurados el ciclo igual genera y encola; los canales sin credenciales fallan soft recién al
+aprobar/publicar, con la razón exacta en `resultadoJson`.
+
 ## Pendientes documentados
 
 - X Free tier: 17 posts/24h por app — programar con el calendario teniéndolo en cuenta.

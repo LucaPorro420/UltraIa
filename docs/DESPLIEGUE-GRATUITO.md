@@ -63,7 +63,8 @@ npm run db:generate && npx prisma migrate deploy --schema packages/core/prisma/s
 ## 4. Memoria vectorial gratis (Qdrant Cloud)
 
 1. Crear cluster free en cloud.qdrant.io → copiar URL y API key.
-2. Sincronizar la verdad verificada:
+2. Exportar `QDRANT_API_KEY=<clave>` (el cliente la lee del env, o pasarla como 4º
+   parámetro de `createQdrantClient`) y sincronizar la verdad verificada:
 
 ```bash
 npx vite-node Task/sync-qdrant.ts -- --url=https://<cluster>.qdrant.io:6333
@@ -73,9 +74,9 @@ npx vite-node Task/sync-qdrant.ts -- --url=https://<cluster>.qdrant.io:6333 --se
 La coleccion `memoria_experiencial_v2` se crea sola (`ensureCollection`, size 1024,
 Cosine). La v1 dim-4 queda intacta para `sacd_system/nucleo_nasa.py`.
 
-> Pendiente conocido: el cliente aun no envia `api-key` en las cabeceras — con
-> Qdrant Cloud hace falta. Es un cambio de 3 lineas en `createQdrantClient`
-> (anadir `headers['api-key']` desde `QDRANT_API_KEY`), anotado en el backlog.
+> CERRADO (iter-90): `createQdrantClient` ya envia la cabecera `api-key`
+> (parametro opcional + fallback a `QDRANT_API_KEY`); sin key el comportamiento
+> es identico al local (retrocompatible, cubierto por tests).
 
 ## 5. Monitor gratis
 

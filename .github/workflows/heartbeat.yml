@@ -72,6 +72,13 @@ jobs:
         continue-on-error: true
         run: python scripts/autolearn.py --dry-run > resultTask/heartbeat/autolearn-dry-run.md
 
+      # Fabrica de contenido en modo observador (iter-90): la cola vive en SQLite
+      # local, asi que el cloud solo ejecuta el ciclo EN DRY-RUN y archiva el
+      # reporte como evidencia de que el pipeline F1-F4 sigue sano.
+      - name: AutoPub dry-run (fabrica de contenido)
+        continue-on-error: true
+        run: npx vite-node Task/run-autopub.ts -- --dry-run --max 2 > resultTask/heartbeat/autopub-dry-run.md 2>&1 || true
+
       - uses: actions/upload-artifact@v4
         with:
           name: pulso-${{ github.run_number }}

@@ -24,9 +24,9 @@ import { loadTruthCorpus, type TruthDoc } from './semantic-memory';
 
 /** Fetch fake: responde segun la cola de respuestas (fail-soft incluido). */
 function fakeFetch(responses: Array<{ status: number; body?: unknown }>) {
-  const calls: Array<{ url: string; method?: string; body?: string }> = [];
+  const calls: Array<{ url: string; method?: string; body?: string; headers?: unknown }> = [];
   const impl = async (url: string, init?: RequestInit) => {
-    calls.push({ url, method: init?.method, body: init?.body ? String(init.body) : undefined });
+    calls.push({ url, method: init?.method, body: init?.body ? String(init.body) : undefined, headers: init?.headers });
     const r = responses.shift() ?? { status: 500 };
     return {
       ok: r.status >= 200 && r.status < 300,
@@ -339,5 +339,44 @@ describe('syncMemoryToQdrant (orquestador fail-soft)', () => {
     const s = memorySyncSummary(res);
     expect(s).toContain('Qdrant NO disponible');
     expect(s).toContain('503');
+  });
+});
+
+describe('createQdrantClient / api-key (Qdrant Cloud, iter-90)', () => {
+  it('apiKey explicito → cabecera api-key en cada request', async () => {
+    const { impl, calls } = fakeFetch([{ status: 200, body: { result: { status: 'green' } } }]);
+    const client = createQdrantClient(QDRANT_DEFAULT_URL, impl as unknown as typeof fetch, 5000, 'secret-key');
+    await client.collectionExists();
+    expect((calls[0].headers as Record<string, string>)['api-key']).toBe('secret-key');
+  });
+
+  it('fallback a env QDRANT_API_KEY (restaurado tras el test)', async () => {
+    const prev = process.env.QDRANT_API_KEY;
+    process.env.QDRANT_API_KEY = 'env-key';
+    try {
+      const { impl, calls } = fakeFetch([{ status: 404 }]);
+      const client = createQdrantClient(QDRANT_DEFAULT_URL, impl as unknown as typeof fetch);
+      await client.collectionExists();
+      expect((calls[0].headers as Record<string, string>)['api-key']).toBe('env-key');
+    } finally {
+      if (prev === undefined) delete process.env.QDRANT_API_KEY;
+      else process.env.QDRANT_API_KEY = prev;
+    }
+  });
+
+  it('sin key → sin cabecera api-key (retrocompatible con local)', async () => {
+    const { impl, calls } = fakeFetch([
+      { status: 200, body: { result: true } },
+      { status: 200, body: { result: { status: 'completed' } } },
+    ]);
+    const client = createQdrantClient(QDRANT_DEFAULT_URL, impl as unknown as typeof fetch, 5000, null);
+    await client.upsertPoints([buildQdrantPoint(corpus[0])]);
+    for (const c of calls) {
+      const h = c.headers as Record<string, string> | undefined;
+      expect(h?.['api-key']).toBeUndefined();
+    }
+    // el PUT sigue llevando content-type
+    const put = calls.find((c) => c.method === 'PUT');
+    expect((put!.headers as Record<string, string>)['content-type']).toBe('application/json');
   });
 });
