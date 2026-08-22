@@ -57,6 +57,7 @@ import { runVaultTool, planVaultEntry, buildVaultManifest, vaultSearch, summariz
 import { runPdfsearchTool, searchOpenAlex, searchPdfWeb, planPdfHarvest, indexPdfEntry } from '../tools/pdfsearch';
 import * as qdrantMemory from '../tools/qdrant-memory';
 import * as kgraph from '../tools/kgraph';
+import * as brainpage from '../tools/brainpage';
 import * as creativo from '../tools/creativo';
 import { createPublication, listPublications, approvePublication, rejectPublication, publishDue } from '../domain/publications';
 import { generarContenido, type ContentPackage } from '../tools/enrutador';
@@ -975,6 +976,52 @@ export function chatStream(opts: {
         if (accion === 'svg') return { accion, svg: kgraph.buildGraphSvg(graph) };
         if (accion === 'analyze') return { accion, analysis: kgraph.analyzeGraph(graph) };
         return { accion, ok: false, error: 'accion desconocida' };
+      },
+    });
+  }
+  if (opts.tools?.includes('brainpage')) {
+    tools.brainpage_manage = tool({
+      description:
+        'Persistent Markdown memory (brain.md port, principios originales): a durable, repo-native brain of pages, each with a rewritable compiled_truth plus an append-only timeline (chain of evidence). updateTruth rewrites the truth AND appends its rationale in one atomic write, so the understanding can never change without a trace. Actions: init (scaffold .ultraia/brainpage/ + BRAIN.md), create (new page id/category/title/summary), read (page by id), update (rewrite truth + append timeline), append (timeline entry), list (page ids), reindex (index.json with metadata), lint (broken [[links]]). Deterministic, keyless, zero deps, path-traversal-safe. Use to persist decisions/constraints/learnings that outlive the session.',
+      parameters: z.object({
+        accion: z.enum(['init', 'create', 'read', 'update', 'append', 'list', 'reindex', 'lint']),
+        root: z
+          .string()
+          .optional()
+          .describe('Brain root dir (default .ultraia/brainpage). Writes to disk via node:fs/promises.'),
+        id: z.string().optional().describe('Page id (create/read/update/append).'),
+        category: z.enum(['decision', 'architecture', 'constraint', 'learning', 'fact']).optional(),
+        title: z.string().optional().describe('Page title (create).'),
+        summary: z.string().optional().describe('Truth/summary text (create/update/append).'),
+        kind: z.string().optional().describe('Timeline entry kind (append) or updateTruth override.'),
+        now: z.string().optional().describe('Fixed ISO timestamp for deterministic writes/tests.'),
+      }),
+      execute: async ({ accion, root, id, category, title, summary, kind, now }) => {
+        const r = brainpage.resolveBrainRoot(root);
+        if (accion === 'init') return { accion, result: await brainpage.initBrain(r) };
+        if (accion === 'list') return { accion, result: await brainpage.listPages(r) };
+        if (accion === 'reindex') return { accion, result: await brainpage.reindex(r) };
+        if (accion === 'lint') return { accion, result: await brainpage.lintLinks(r) };
+        if (!id) throw new Error('accion requiere id');
+        const nid = brainpage.normalizeId(id);
+        if (!nid) throw new Error('id invalido');
+        if (accion === 'create') {
+          if (!category || !title || !summary) throw new Error('create requiere category, title y summary');
+          return {
+            accion,
+            result: await brainpage.createPage(r, { id: nid, category, title, summary, now }),
+          };
+        }
+        if (accion === 'read') return { accion, result: await brainpage.readPage(r, nid) };
+        if (accion === 'update') {
+          if (!summary) throw new Error('update requiere summary');
+          return { accion, result: await brainpage.updateTruth(r, nid, summary, { kind, now }) };
+        }
+        if (accion === 'append') {
+          if (!summary) throw new Error('append requiere summary');
+          return { accion, result: await brainpage.appendTimeline(r, nid, kind ?? 'note', summary, now) };
+        }
+        throw new Error('accion desconocida');
       },
     });
   }
