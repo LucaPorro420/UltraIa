@@ -2,8 +2,11 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    # La rama por defecto de este repo es `master`: sin ella el workflow NUNCA
+    # se disparaba en push (detectado por el latido de iter-82).
+    branches: [master, main]
   pull_request:
+  workflow_dispatch:
 
 jobs:
   verify:

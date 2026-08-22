@@ -1,0 +1,131 @@
+{
+  "fecha": "2026-08-22",
+  "entorno": "local",
+  "vitals": {
+    "puntuacion": 78,
+    "estado": "AMBAR",
+    "signos": [
+      {
+        "nombre": "gates",
+        "valor": 1,
+        "peso": 0.35,
+        "ok": true,
+        "nota": "4/4 verdes"
+      },
+      {
+        "nombre": "tests",
+        "valor": 1,
+        "peso": 0.2,
+        "ok": true,
+        "nota": "1314/1314 tests"
+      },
+      {
+        "nombre": "backlog",
+        "valor": 0.99,
+        "peso": 0.15,
+        "ok": false,
+        "nota": "77/78 accionables cerradas, 1 pendientes, 1 bloqueadas"
+      },
+      {
+        "nombre": "gaps",
+        "valor": 0,
+        "peso": 0.15,
+        "ok": false,
+        "nota": "13 gaps abiertos"
+      },
+      {
+        "nombre": "memoria",
+        "valor": 0.27,
+        "peso": 0.1,
+        "ok": true,
+        "nota": "54 docs verificados de 8 fuentes"
+      },
+      {
+        "nombre": "actividad",
+        "valor": 1,
+        "peso": 0.05,
+        "ok": true,
+        "nota": "187 commits + 34 lecciones"
+      }
+    ],
+    "razones": [
+      "backlog: 77/78 accionables cerradas, 1 pendientes, 1 bloqueadas",
+      "gaps: 13 gaps abiertos"
+    ]
+  },
+  "input": {
+    "tests": {
+      "pasados": 1314,
+      "total": 1314
+    },
+    "gaps": [
+      {
+        "kind": "source_sin_analizar"
+      },
+      {
+        "kind": "source_sin_analizar"
+      },
+      {
+        "kind": "source_sin_analizar"
+      },
+      {
+        "kind": "source_sin_analizar"
+      },
+      {
+        "kind": "source_sin_analizar"
+      },
+      {
+        "kind": "source_sin_analizar"
+      },
+      {
+        "kind": "source_sin_analizar"
+      },
+      {
+        "kind": "source_sin_analizar"
+      },
+      {
+        "kind": "source_sin_analizar"
+      },
+      {
+        "kind": "source_sin_analizar"
+      },
+      {
+        "kind": "leccion_sin_implementar"
+      },
+      {
+        "kind": "leccion_sin_implementar"
+      },
+      {
+        "kind": "backlog_pendiente"
+      }
+    ],
+    "corpus": {
+      "docs": 54,
+      "fuentes": 8
+    },
+    "backlog": {
+      "total": 79,
+      "done": 77,
+      "bloqueadas": 1,
+      "pendientes": 1
+    },
+    "actividad": {
+      "commits": 187,
+      "lecciones": 34
+    },
+    "gates": {
+      "typecheck": true,
+      "lint": true,
+      "test": true,
+      "build": true
+    }
+  },
+  "regresiones": [],
+  "accion": {
+    "modo": "explotar",
+    "objetivo": "cerrar 1 tarea(s) pendientes del backlog",
+    "razon": "hay trabajo comprometido sin cerrar: explotacion antes que exploracion",
+    "prioridad": "P1",
+    "comando": "python scripts/autolearn.py --dry-run"
+  }
+}

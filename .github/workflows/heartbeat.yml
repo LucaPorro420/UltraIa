@@ -1,0 +1,98 @@
+# -----------------------------------------------------------------------------
+# LATIDO AUTONOMO EN LA NUBE (iter-82) — 100% gratis con GitHub Actions.
+#
+# Todos los dias corre los gates reales, se los pasa a `Task/heartbeat.ts`, y el
+# runner mide los signos vitales, detecta regresiones contra el latido anterior y
+# DECIDE la siguiente accion. El parte medico se commitea al repo: el proyecto
+# deja un rastro de su propia salud sin que nadie lo ejecute a mano.
+#
+# Coste: 0. Actions es gratis e ilimitado en repos publicos y trae 2.000 min/mes
+# en privados; este job usa ~6-8 min/dia (~200 min/mes) -> entra en el free tier.
+# -----------------------------------------------------------------------------
+name: Latido (heartbeat)
+
+on:
+  schedule:
+    # 09:00 UTC = 06:00 America/Montevideo (UTC-3). Cron de Actions es UTC.
+    - cron: '0 9 * * *'
+  workflow_dispatch:
+    inputs:
+      strict:
+        description: 'Fallar el job si el estado es ROJO'
+        type: boolean
+        default: false
+
+permissions:
+  contents: write # para commitear el pulso
+
+concurrency:
+  group: heartbeat
+  cancel-in-progress: false
+
+jobs:
+  latido:
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: file:./dev.db
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # el latido cuenta commits de los ultimos 7 dias
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+      - run: npm run db:generate
+
+      # Cada gate registra su resultado SIN cortar el job: el latido necesita
+      # medir tambien cuando algo esta en rojo (esa es justamente la senal).
+      - name: Gates
+        id: gates
+        continue-on-error: true
+        run: |
+          set +e
+          npm run typecheck > tc.log 2>&1;  TC=$?
+          npm run lint      > lint.log 2>&1; LI=$?
+          npm run test      > test.log 2>&1; TE=$?
+          npm run build     > build.log 2>&1; BU=$?
+          bit() { [ "$1" -eq 0 ] && echo 1 || echo 0; }
+          echo "gates=typecheck=$(bit $TC),lint=$(bit $LI),test=$(bit $TE),build=$(bit $BU)" >> "$GITHUB_OUTPUT"
+          TOTAL=$(grep -Eo 'Tests +[0-9]+ passed \([0-9]+\)' test.log | grep -Eo '\([0-9]+\)' | tr -d '()' | paste -sd+ - | bc)
+          PASS=$(grep -Eo 'Tests +[0-9]+ passed' test.log | grep -Eo '[0-9]+' | paste -sd+ - | bc)
+          echo "tests=${PASS:-0}/${TOTAL:-0}" >> "$GITHUB_OUTPUT"
+          echo "::notice::gates typecheck=$TC lint=$LI test=$TE build=$BU"
+
+      - name: Latido
+        run: npx vite-node Task/heartbeat.ts -- --gates "${{ steps.gates.outputs.gates }}" --tests "${{ steps.gates.outputs.tests }}"
+
+      - name: Plan de autoaprendizaje (autoprogramado)
+        continue-on-error: true
+        run: python scripts/autolearn.py --dry-run > resultTask/heartbeat/autolearn-dry-run.md
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pulso-${{ github.run_number }}
+          path: |
+            resultTask/heartbeat/
+            *.log
+          retention-days: 14
+
+      - name: Commitear el pulso
+        run: |
+          git config user.name  "ultraia-latido[bot]"
+          git config user.email "ultraia-latido@users.noreply.github.com"
+          git add resultTask/heartbeat/
+          if git diff --cached --quiet; then
+            echo "sin cambios en el pulso"
+          else
+            git commit -m "chore(latido): pulso $(date -u +%F) [skip ci]"
+            git push
+          fi
+
+      # El job falla SOLO si se pidio --strict y el organismo esta en ROJO.
+      - name: Veredicto
+        if: ${{ inputs.strict }}
+        run: npx vite-node Task/heartbeat.ts -- --gates "${{ steps.gates.outputs.gates }}" --tests "${{ steps.gates.outputs.tests }}" --json --strict > /dev/null
