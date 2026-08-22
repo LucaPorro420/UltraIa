@@ -37,6 +37,7 @@ export * from './replica';
 export * from './imaging';
 export * from './semantic-memory';
 export * from './autolearn';
+export * from './genesis';
 export * from './vault';
 export * from './pdfsearch';
 // kgraph: `export *` seguro — no re-exporta simbolos de otros modulos (sin colision TS2308).
@@ -110,12 +111,13 @@ import * as replica from './replica';
 import * as imaging from './imaging';
 import * as semanticMemory from './semantic-memory';
 import * as autolearn from './autolearn';
+import * as genesis from './genesis';
 import * as creativo from './creativo';
 import { vaultTools } from './vault';
 import { pdfsearchTools } from './pdfsearch';
 import { qdrantMemory as qdrantMemoryTools } from './qdrant-memory';
 
-export const tools = { web, image, video, music, stitch, reach, skills: { runSkill }, content, g0dm0d3, topics, present: presentTools, publish, enrutador, mediaScore, metrics, memoryFs: { createMemoryFs }, diagram, videoEdit, screenflow, cloud: cloudTools, harness, growth, vfx, codevfx, travel, generative, libros, sdf, videoqa, motion, replica, imaging, semanticMemory, autolearn, creativo, vault: vaultTools, pdfsearch: pdfsearchTools, qdrantMemory: qdrantMemoryTools, kgraph, brainpage };
+export const tools = { web, image, video, music, stitch, reach, skills: { runSkill }, content, g0dm0d3, topics, present: presentTools, publish, enrutador, mediaScore, metrics, memoryFs: { createMemoryFs }, diagram, videoEdit, screenflow, cloud: cloudTools, harness, growth, vfx, codevfx, travel, generative, libros, sdf, videoqa, motion, replica, imaging, semanticMemory, autolearn, genesis, creativo, vault: vaultTools, pdfsearch: pdfsearchTools, qdrantMemory: qdrantMemoryTools, kgraph, brainpage };
 
 export const TOOL_DESCRIPTIONS: Record<string, string> = {
   calculator: 'Safely evaluate a mathematical expression (math only).',
@@ -187,6 +189,8 @@ export const TOOL_DESCRIPTIONS: Record<string, string> = {
     'Semantic memory retrieval (SACD/NASA design -> UltraIa port): sparse n-gram hashing + cosine similarity over verified learnings (learning/truth corpus) with top-k ranked hits (id, texto, respuesta, score); corpus stats (total, sources, types). Deterministic, keyless, offline. Use to recall verified knowledge before proposing solutions (meta-learning loop).',
   autolearn:
     'Auto-learning agent (self-programming loop): sense learning state (parse LEARNINGS.md, scan verified truth), detect gaps (topics without verified truth, lessons not implemented, sources without analysis, pending backlog), prioritize with simplified RICE (impact x confidence / effort), generate the improvement plan (loop-piv pattern: goal, steps, files, scoped/FULL criteria, priority), compute cycle KPIs (lessons, truth, gaps, improvement rate), and build the operational-mode plan (P-P/P-B/L-T/S-D with S-D + L-T integrated into P-P). Deterministic, keyless, offline. Use to automate autoprogramming, find new information needs, and improve the project.',
+  genesis:
+    'Genesis autonomous-engineering engine (DeepSeek "Genesis" share -> UltraIa port): parse and validate an executable Genesis Project Manifest, evaluate its quality gates (build/test/coverage/lint/typecheck/security/docs), check the autonomous stop conditions (stable release, approval, safety boundary, repair budget, missing info, ambiguous repo, destructive confirmation, quality unsatisfied, autonomy budget), prioritize tasks with the Genesis formula (business_value x technical_impact x risk_reduction x dependency_criticality x confidence), and compute the next highest-value validated engineering action (the FINAL PRINCIPLE). Deterministic, keyless, offline. Use to drive or audit an autonomous software-engineering loop and to make the project self-improving via a declarative manifest contract.',
   vault:
     'Own repository (UltraIa vault): manage the local+cloud repository that stores data, files, creations, tests and prototypes (.ultraia/vault/<kind>/ with manifest). Actions: plan (classify into data/files/creations/tests/prototypes/pdfs + canonical path + mime), manifest (index with counts), search (score-based), summary (by kind/source), sync (diff vs cloud), export_github (optional, fail-soft without token). Deterministic, keyless. Use to persist what the project learns, creates and proves.',
   pdfsearch:
@@ -238,6 +242,7 @@ export type Capability =
   | 'creativo'
   | 'semantic_memory'
   | 'autolearn'
+  | 'genesis'
   | 'vault'
   | 'pdfsearch'
   | 'qdrant_memory'

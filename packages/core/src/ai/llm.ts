@@ -53,6 +53,8 @@ import * as replica from '../tools/replica';
 import * as imaging from '../tools/imaging';
 import * as semanticMemory from '../tools/semantic-memory';
 import * as autolearn from '../tools/autolearn';
+import * as genesis from '../tools/genesis';
+import type { GenesisState, GenesisTask } from '../tools/genesis';
 import { runVaultTool, planVaultEntry, buildVaultManifest, vaultSearch, summarizeVault, planVaultSync, exportVaultToGitHub, VAULT_LAYOUT, VAULT_ROOT } from '../tools/vault';
 import { runPdfsearchTool, searchOpenAlex, searchPdfWeb, planPdfHarvest, indexPdfEntry } from '../tools/pdfsearch';
 import * as qdrantMemory from '../tools/qdrant-memory';
@@ -837,6 +839,50 @@ export function chatStream(opts: {
             prediccion,
           });
           return { accion, modo, plan };
+        }
+        return { accion, ok: false, error: 'accion desconocida' };
+      },
+    });
+  }
+  if (opts.tools?.includes('genesis')) {
+    tools.genesis_run = tool({
+      description:
+        'Genesis autonomous-engineering engine (DeepSeek "Genesis" share -> UltraIa port): parse and validate an executable Genesis Project Manifest, evaluate its quality gates (build/test/coverage/lint/typecheck/security/docs), check the autonomous stop conditions (stable release, approval, safety boundary, repair budget, missing info, ambiguous repo, destructive confirmation, quality unsatisfied, autonomy budget), prioritize tasks with the Genesis formula (business_value x technical_impact x risk_reduction x dependency_criticality x confidence), and compute the next highest-value validated engineering action (the FINAL PRINCIPLE). Deterministic, keyless, offline. Use to drive or audit an autonomous software-engineering loop and to make the project self-improving via a declarative manifest contract.',
+      parameters: z.object({
+        accion: z.enum(['validate', 'gates', 'prioritize', 'stop', 'next', 'plan']),
+        manifestJson: z.string().optional(),
+        tasksJson: z.string().optional(),
+        stateJson: z.string().optional(),
+        objetivo: z.string().optional(),
+      }),
+      execute: async ({ accion, manifestJson, tasksJson, stateJson, objetivo }) => {
+        const manifest = manifestJson ? genesis.parseManifest(manifestJson) : null;
+        if (accion === 'validate') {
+          return { accion, parsed: manifest };
+        }
+        if (!manifest || !manifest.ok) {
+          return { accion, ok: false, error: 'manifestJson requerido/inválido' };
+        }
+        const m = manifest.manifest;
+        if (accion === 'gates') {
+          return { accion, gates: genesis.qualityGates(m), autonomyLevel: genesis.autonomyLevel(m) };
+        }
+        const state: GenesisState =
+          (stateJson ? (JSON.parse(stateJson) as GenesisState) : { iterations: 0, repairAttempts: 0 });
+        if (accion === 'stop') {
+          return { accion, stop: genesis.checkStopConditions(state, m) };
+        }
+        const tasks = tasksJson ? (JSON.parse(tasksJson) as GenesisTask[]) : undefined;
+        if (accion === 'prioritize') {
+          return { accion, prioritized: genesis.prioritizeTasks(tasks ?? []) };
+        }
+        if (accion === 'next') {
+          return { accion, next: genesis.nextEngineeringAction(m, state, tasks) };
+        }
+        if (accion === 'plan') {
+          const plan = genesis.buildGenesisPlan(m, state, tasks);
+          if (objetivo) plan.objetivo = objetivo;
+          return { accion, plan };
         }
         return { accion, ok: false, error: 'accion desconocida' };
       },
