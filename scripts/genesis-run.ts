@@ -16,12 +16,12 @@
 // Manifest's stop conditions (max_iterations, repair budget, approval, etc.).
 
 import { execSync } from 'node:child_process';
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { parseArgs } from 'node:util';
 import { genesisManifestSchema, evaluateGates } from '../packages/core/src/tools/genesis';
-import { runGenesisCycle } from '../packages/core/src/tools/genesis-runner';
-import { detectGaps } from '../packages/core/src/tools/autolearn';
+import { runGenesisCycle, type GapLike } from '../packages/core/src/tools/genesis-runner';
+import { detectGaps, type Gap } from '../packages/core/src/tools/autolearn';
 
 const { values } = parseArgs({
   options: {
@@ -67,7 +67,34 @@ function loadState() {
 
 function saveState(state: unknown) {
   mkdirSync(STATE_DIR, { recursive: true });
-  writeFileSync(STATE_FILE, JSON.stringify(state, null, 2), 'utf8');
+  writeFileSync(STATE_FILE, JSON.stringify(state), 'utf8');
+}
+
+/** Build autolearn GapInputs from the live repo (no mutation, read-only). */
+function buildGapInputs() {
+  const learningsPath = resolve(ROOT, 'learning', 'LEARNINGS.md');
+  const backlogPath = resolve(ROOT, 'STATE.md');
+  const learnings = existsSync(learningsPath) ? readFileSync(learningsPath, 'utf8') : '';
+  const backlog = existsSync(backlogPath) ? readFileSync(backlogPath, 'utf8') : '';
+  const sourcesDir = resolve(ROOT, 'learning', 'sources');
+  const sources = existsSync(sourcesDir)
+    ? readdirSync(sourcesDir).filter((f) => f.endsWith('.md'))
+    : [];
+  const docsDir = resolve(ROOT, 'docs');
+  const razonamientos = existsSync(docsDir)
+    ? readdirSync(docsDir).filter((f) => /^RAZONAMIENTO/i.test(f))
+    : [];
+  return { learnings, backlog, sources, razonamientos, truth: [], implemented: [] };
+}
+
+/** Map an autolearn Gap to the runner's structural GapLike. */
+function toGapLike(g: Gap): GapLike {
+  return {
+    id: `${g.kind}:${g.descripcion.slice(0, 48)}`,
+    kind: g.kind,
+    detail: g.descripcion,
+    source: g.evidencia,
+  };
 }
 
 const GATE_COMMANDS: Record<string, string | undefined> = {
@@ -100,7 +127,14 @@ function main() {
   console.log(`[genesis] autonomous loop — max_iter=${MAX_ITER} dry-run=${values['dry-run']}`);
 
   for (let i = 0; i < MAX_ITER; i++) {
-    const gaps = detectGaps();
+    let gaps: GapLike[] = [];
+    try {
+      gaps = detectGaps(buildGapInputs()).map(toGapLike);
+    } catch (e) {
+      console.log(
+        `[genesis] gap discovery failed: ${e instanceof Error ? e.message : String(e)} — continuing with no gaps.`,
+      );
+    }
     const cycle = runGenesisCycle(manifest, state, { gaps });
 
     console.log(`\n=== cycle ${cycle.state.iterations} ===`);

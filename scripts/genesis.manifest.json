@@ -1,0 +1,37 @@
+{
+  "genesis": { "version": "1.0", "manifest_version": "1.0" },
+  "project": {
+    "id": "ultraia",
+    "name": "UltraIa",
+    "description": "AI that creates AI and learns from AI. Generate purpose-built agents from a task description and improve them from usage feedback.",
+    "type": "monorepo",
+    "stage": "active",
+    "repository": "github.com/LucaPorro420/UltraIa"
+  },
+  "objective": {
+    "primary": "Keep the project green and reduce known gaps.",
+    "success_criteria": ["All quality gates passing on every commit", "Gap count trending down over iterations"]
+  },
+  "pipeline": {
+    "mode": "analyze-first",
+    "steps": ["analyze", "discover", "prioritize", "plan", "implement", "test", "repair", "refactor", "document", "validate", "commit", "reassess"]
+  },
+  "quality_gates": {
+    "typecheck": { "required": true, "command": "npm run typecheck" },
+    "lint": { "required": true, "command": "npm run lint" },
+    "test": { "required": true, "command": "npm run test" },
+    "build": { "required": true, "command": "npm run build" }
+  },
+  "autonomy": {
+    "level": 1,
+    "automatic_actions": ["discover", "prioritize", "plan"],
+    "approval_required": ["commit", "push"],
+    "repair_attempts": 3,
+    "max_iterations": 40
+  },
+  "agents": {
+    "dynamic_creation": false,
+    "enabled": ["autolearn", "genesis", "blueprint", "improve", "eval"]
+  },
+  "memory": { "semantic": ".ultraia/genesis/state.json" }
+}
