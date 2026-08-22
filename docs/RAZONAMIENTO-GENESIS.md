@@ -61,11 +61,18 @@ genesis_run(prioritize, tasksJson)          -> prioritized[]
 genesis_run(stop, stateJson, manifestJson)  -> {stop, reason}
 genesis_run(next, manifestJson, stateJson)  -> {action, rationale}
 genesis_run(plan, manifestJson, stateJson)  -> GenesisPlan
+genesis_run(run, manifestJson, stateJson, tasksJson) -> GenesisCycleResult
+genesis_run(eval, manifestJson, resultadosJson) -> {passed, gates[]}
+genesis_run(propose, manifestJson, stateJson, tasksJson) -> {proposal, nextAction, topTaskId}
 ```
+
+CLI: `npm run genesis -- [--manifest path] [--max-iter N] [--dry-run] [--propose]`.
+`--propose` escribe `.ultraia/genesis/proposal.md` (Markdown reviewable, no muta el repo).
 
 ## 7. Pendiente / extensión natural
 
 - Un runner (`scripts/genesis.py` o TS) que ejecute el bucle REAL leyendo un
-  `genesis.json` y disparando `autolearn`/habilidades del proyecto.
-- Persistir el estado del bucle en `.ultraia/genesis/` (iteración, repairAttempts).
-- Conectar `quality_gates` con los gates npm reales (typecheck/lint/test/build).
+  `genesis.json` y disparando `autolearn`/habilidades del proyecto. **Hecho** (`scripts/genesis-run.ts`, iter-84/87).
+- Persistir el estado del bucle en `.ultraia/genesis/` (iteración, repairAttempts). **Hecho**.
+- Conectar `quality_gates` con los gates npm reales (typecheck/lint/test/build). **Hecho** (runner ejecuta los gates vía `npm run ...`).
+- `propose`: artifact reviewable de la próxima mejora. **Hecho** (iter-88).

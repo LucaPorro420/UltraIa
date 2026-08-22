@@ -848,9 +848,9 @@ export function chatStream(opts: {
   if (opts.tools?.includes('genesis')) {
     tools.genesis_run = tool({
       description:
-        'Genesis autonomous-engineering engine (DeepSeek "Genesis" share -> UltraIa port): parse and validate an executable Genesis Project Manifest, evaluate its quality gates (build/test/coverage/lint/typecheck/security/docs), check the autonomous stop conditions (stable release, approval, safety boundary, repair budget, missing info, ambiguous repo, destructive confirmation, quality unsatisfied, autonomy budget), prioritize tasks with the Genesis formula (business_value x technical_impact x risk_reduction x dependency_criticality x confidence), and compute the next highest-value validated engineering action (the FINAL PRINCIPLE). Deterministic, keyless, offline. Acciones: validate | gates | prioritize | stop | next | plan | run | eval. Use to drive or audit an autonomous software-engineering loop and to make the project self-improving via a declarative manifest contract.',
+        'Genesis autonomous-engineering engine (DeepSeek "Genesis" share -> UltraIa port): parse and validate an executable Genesis Project Manifest, evaluate its quality gates (build/test/coverage/lint/typecheck/security/docs), check the autonomous stop conditions (stable release, approval, safety boundary, repair budget, missing info, ambiguous repo, destructive confirmation, quality unsatisfied, autonomy budget), prioritize tasks with the Genesis formula (business_value x technical_impact x risk_reduction x dependency_criticality x confidence), and compute the next highest-value validated engineering action (the FINAL PRINCIPLE). Deterministic, keyless, offline. Acciones: validate | gates | prioritize | stop | next | plan | run | eval | propose. Use to drive or audit an autonomous software-engineering loop and to make the project self-improving via a declarative manifest contract. `propose` emits a reviewable Markdown proposal (does NOT mutate the repo).',
       parameters: z.object({
-        accion: z.enum(['validate', 'gates', 'prioritize', 'stop', 'next', 'plan', 'run', 'eval']),
+        accion: z.enum(['validate', 'gates', 'prioritize', 'stop', 'next', 'plan', 'run', 'eval', 'propose']),
         manifestJson: z.string().optional(),
         tasksJson: z.string().optional(),
         stateJson: z.string().optional(),
@@ -895,6 +895,10 @@ export function chatStream(opts: {
             ? (JSON.parse(resultadosJson) as Record<string, boolean>)
             : {};
           return { accion, verdict: genesis.evaluateGates(m, results) };
+        }
+        if (accion === 'propose') {
+          const proposal = genesis.buildGenesisProposal({ manifest: m, state, tasks });
+          return { accion, proposal: proposal.markdown, nextAction: proposal.nextAction, topTaskId: proposal.topTaskId };
         }
         return { accion, ok: false, error: 'accion desconocida' };
       },

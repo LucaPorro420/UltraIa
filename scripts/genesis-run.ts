@@ -19,7 +19,7 @@ import { execSync } from 'node:child_process';
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { parseArgs } from 'node:util';
-import { genesisManifestSchema, evaluateGates } from '../packages/core/src/tools/genesis';
+import { genesisManifestSchema, evaluateGates, buildGenesisProposal } from '../packages/core/src/tools/genesis';
 import { runGenesisCycle, type GapLike } from '../packages/core/src/tools/genesis-runner';
 import { detectGaps, type Gap } from '../packages/core/src/tools/autolearn';
 
@@ -28,6 +28,7 @@ const { values } = parseArgs({
     manifest: { type: 'string' },
     'max-iter': { type: 'string', default: '20' },
     'dry-run': { type: 'boolean', default: false },
+    propose: { type: 'boolean', default: false },
   },
 });
 
@@ -125,6 +126,25 @@ function main() {
   mkdirSync(STATE_DIR, { recursive: true });
 
   console.log(`[genesis] autonomous loop — max_iter=${MAX_ITER} dry-run=${values['dry-run']}`);
+
+  if (values.propose) {
+    let gaps: GapLike[] = [];
+    try {
+      gaps = detectGaps(buildGapInputs()).map(toGapLike);
+    } catch (e) {
+      console.log(
+        `[genesis] gap discovery failed: ${e instanceof Error ? e.message : String(e)} — proposing with no gaps.`,
+      );
+    }
+    const cycle = runGenesisCycle(manifest, state, { gaps });
+    const proposal = buildGenesisProposal({ manifest, state: cycle.state, tasks: cycle.tasks, gaps });
+    const propFile = resolve(STATE_DIR, 'proposal.md');
+    mkdirSync(STATE_DIR, { recursive: true });
+    writeFileSync(propFile, proposal.markdown, 'utf8');
+    console.log(`[genesis] proposal written to ${propFile}`);
+    console.log(`next action: ${proposal.nextAction}${proposal.topTaskId ? ` (top task: ${proposal.topTaskId})` : ''}`);
+    return;
+  }
 
   for (let i = 0; i < MAX_ITER; i++) {
     let gaps: GapLike[] = [];

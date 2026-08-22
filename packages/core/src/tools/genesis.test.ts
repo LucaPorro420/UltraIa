@@ -9,6 +9,7 @@ import {
   checkStopConditions,
   nextEngineeringAction,
   buildGenesisPlan,
+  buildGenesisProposal,
   type GenesisManifest,
   type GenesisTask,
 } from './genesis';
@@ -260,5 +261,61 @@ describe('genesis / namespace + schema export', () => {
   });
   it('schema is exported', () => {
     expect(genesisManifestSchema).toBeDefined();
+  });
+});
+
+describe('genesis / buildGenesisProposal', () => {
+  const tasks: GenesisTask[] = [
+    {
+      id: 't1',
+      descripcion: 'Add retry to fetch',
+      business_value: 0.9,
+      technical_impact: 0.8,
+      risk_reduction: 0.7,
+      dependency_criticality: 0.6,
+      confidence: 0.8,
+    },
+    {
+      id: 't0',
+      descripcion: 'Unblock build',
+      business_value: 0.9,
+      technical_impact: 0.9,
+      risk_reduction: 0.9,
+      dependency_criticality: 0.9,
+      confidence: 0.9,
+      bloqueador: true,
+    },
+  ];
+  const gaps = [
+    { id: 'g1', kind: 'source_sin_analizar', detail: 'Fuente X sin RAZONAMIENTO' },
+  ];
+
+  it('produces deterministic reviewable Markdown', () => {
+    const p = buildGenesisProposal({
+      manifest: SAMPLE_MANIFEST,
+      state: { iterations: 3, repairAttempts: 0 },
+      tasks,
+      gaps,
+    });
+    expect(p.markdown).toContain('# Genesis Proposal');
+    expect(p.markdown).toContain('UltraIa');
+    expect(p.markdown).toContain('source_sin_analizar');
+    expect(p.markdown).toContain('Unblock build');
+    expect(p.nextAction).toContain('IMPLEMENT_TASK');
+    expect(p.topTaskId).toBe('t0'); // blocker first
+  });
+
+  it('handles empty gaps/tasks gracefully', () => {
+    const p = buildGenesisProposal({
+      manifest: SAMPLE_MANIFEST,
+      state: { iterations: 0, repairAttempts: 0 },
+    });
+    expect(p.markdown).toContain('No gaps discovered');
+    expect(p.markdown).toContain('No tasks queued');
+    expect(typeof p.nextAction).toBe('string');
+  });
+
+  it('is exposed on the namespace', () => {
+    expect(typeof genesis.buildGenesisProposal).toBe('function');
   });
 });
