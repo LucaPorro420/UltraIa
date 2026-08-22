@@ -62,6 +62,7 @@ import { runPdfsearchTool, searchOpenAlex, searchPdfWeb, planPdfHarvest, indexPd
 import * as qdrantMemory from '../tools/qdrant-memory';
 import * as kgraph from '../tools/kgraph';
 import * as brainpage from '../tools/brainpage';
+import * as security from '../tools/security';
 import * as creativo from '../tools/creativo';
 import { createPublication, listPublications, approvePublication, rejectPublication, publishDue } from '../domain/publications';
 import { generarContenido, type ContentPackage } from '../tools/enrutador';
@@ -1107,6 +1108,37 @@ export function chatStream(opts: {
           return { accion, result: await brainpage.appendTimeline(r, nid, kind ?? 'note', summary, now) };
         }
         throw new Error('accion desconocida');
+      },
+    });
+  }
+  if (opts.tools?.includes('security')) {
+    tools.security_scan = tool({
+      description:
+        'Security secret/leak scanner (cso skill port, automatable): deterministically detect leaked secrets and risky config in text, a single file, or a repo tree — AWS/GCP/Slack/GitHub/GitLab/Stripe/OpenAI keys, private-key blocks, JWTs, generic api_key/secret/password assignments, Bearer tokens, and committed real .env files (not .env.example). Pure, keyless, offline, fail-soft (never throws). Use to audit code, config or pasted snippets for secrets before committing or publishing.',
+      parameters: z.object({
+        text: z.string().optional().describe('Raw text to scan (paste a snippet).'),
+        path: z.string().optional().describe('Single file path to scan (fail-soft per file).'),
+        rootDir: z
+          .string()
+          .optional()
+          .describe('Repo root to walk recursively (skips node_modules/.git/.next/.ultraia and binaries).'),
+        maxBytes: z.number().int().optional().describe('Max bytes per file (default 512 KiB).'),
+      }),
+      execute: async ({ text, path, rootDir, maxBytes }) => {
+        const opts = maxBytes ? { maxBytes } : {};
+        if (text != null) {
+          const f = security.scanText(text);
+          return { count: f.length, findings: f };
+        }
+        if (path) {
+          const f = security.scanFile(path, opts);
+          return { count: f.length, findings: f };
+        }
+        if (rootDir) {
+          const f = security.scanRepo(rootDir, opts);
+          return { count: f.length, findings: f };
+        }
+        return { ok: false, error: 'text, path o rootDir requerido' };
       },
     });
   }

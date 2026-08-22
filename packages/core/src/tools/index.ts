@@ -46,6 +46,8 @@ export * from './kgraph';
 export * from './brainpage';
 // autopub: `export *` seguro — modulo nuevo (orquestador del ciclo F1-F4); simbolos prefijados autopub/Autopub.
 export * from './autopub';
+// security: `export *` seguro — modulo nuevo (port cso skill); simbolos unicos (scanText, scanFile, scanRepo, ...).
+export * from './security';
 // qdrant-memory: export EXPLICITO (no `export *`) — el modulo re-exporta `TruthDoc` y `tokenize`
 // de semantic-memory y un `export *` colisionaria (TS2308, mismo patron del fix MemoryHit de iter-72).
 export {
@@ -106,6 +108,7 @@ import { generative } from './generative';
 import * as kgraph from './kgraph';
 import * as brainpage from './brainpage';
 import * as autopub from './autopub';
+import * as security from './security';
 import { libros } from './libros';
 import { sdf } from './sdf';
 import * as videoqa from './videoqa';
@@ -120,7 +123,7 @@ import { vaultTools } from './vault';
 import { pdfsearchTools } from './pdfsearch';
 import { qdrantMemory as qdrantMemoryTools } from './qdrant-memory';
 
-export const tools = { web, image, video, music, stitch, reach, skills: { runSkill }, content, g0dm0d3, topics, present: presentTools, publish, enrutador, mediaScore, metrics, memoryFs: { createMemoryFs }, diagram, videoEdit, screenflow, cloud: cloudTools, harness, growth, vfx, codevfx, travel, generative, libros, sdf, videoqa, motion, replica, imaging, semanticMemory, autolearn, genesis, creativo, vault: vaultTools, pdfsearch: pdfsearchTools, qdrantMemory: qdrantMemoryTools, kgraph, brainpage, autopub };
+export const tools = { web, image, video, music, stitch, reach, skills: { runSkill }, content, g0dm0d3, topics, present: presentTools, publish, enrutador, mediaScore, metrics, memoryFs: { createMemoryFs }, diagram, videoEdit, screenflow, cloud: cloudTools, harness, growth, vfx, codevfx, travel, generative, libros, sdf, videoqa, motion, replica, imaging, semanticMemory, autolearn, genesis, creativo, vault: vaultTools, pdfsearch: pdfsearchTools, qdrantMemory: qdrantMemoryTools, kgraph, brainpage, autopub, security };
 
 export const TOOL_DESCRIPTIONS: Record<string, string> = {
   calculator: 'Safely evaluate a mathematical expression (math only).',
@@ -206,6 +209,8 @@ export const TOOL_DESCRIPTIONS: Record<string, string> = {
     'Persistent Markdown memory (brain.md port, principios originales): a durable, repo-native brain of pages, each with a rewritable compiled_truth plus an append-only timeline (chain of evidence). Actions: init (scaffold .ultraia/brainpage/ + BRAIN.md), create (new page id/category/title/summary), read, update (rewrites truth AND appends its rationale in one atomic write — truth can never change without a trace), append (timeline entry), list, reindex (index.json), lint (broken [[links]]). Deterministic, keyless, zero deps, path-traversal-safe. Use to persist decisions/constraints/learnings that outlive the session.',
   autopub:
     'AutoPub autonomous content factory (iter-90): one action runs the whole F1-F4 cycle — discover topic briefs (keyless RSS+DDG) -> TopicBrief queue -> top-N NUEVO -> deterministic content (Redactor/Guionista/guion_largo es/ar, optional edge-tts) -> per-channel package (captions/hashtags/visual/branding, 8 channels) -> Publications queue under the hybrid rule (text/blog auto-APPROVED; video/image DRAFT for human approval) -> optional publishDue. Actions: plan | run. Fail-soft per phase; reports in .ultraia/autopub/. Use to feed social channels and the blog autonomously.',
+  security:
+    'Security secret/leak scanner (cso skill port, automatable): deterministically detect leaked secrets and risky config in text, a single file, or a repo tree — AWS/GCP/Slack/GitHub/GitLab/Stripe/OpenAI keys, private-key blocks, JWTs, generic api_key/secret/password assignments, Bearer tokens, and committed real .env files (not .env.example). Pure, keyless, offline, fail-soft (never throws). Use to audit code, config or pasted snippets for secrets before committing or publishing.',
 };
 
 export type Capability =
