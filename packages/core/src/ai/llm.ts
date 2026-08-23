@@ -64,6 +64,7 @@ import * as kgraph from '../tools/kgraph';
 import * as brainpage from '../tools/brainpage';
 import * as security from '../tools/security';
 import * as codequality from '../tools/codequality';
+import * as deps from '../tools/deps';
 import * as creativo from '../tools/creativo';
 import { createPublication, listPublications, approvePublication, rejectPublication, publishDue } from '../domain/publications';
 import { generarContenido, type ContentPackage } from '../tools/enrutador';
@@ -1171,6 +1172,19 @@ export function chatStream(opts: {
           return { count: f.length, findings: f };
         }
         return { ok: false, error: 'text, path o rootDir requerido' };
+      },
+    });
+  }
+  if (opts.tools?.includes('deps')) {
+    tools.deps_audit = tool({
+      description:
+        'Dependency vulnerability audit (SCA, UltraIa port): run `npm audit --json` (or an injected runner for tests) and return a structured list of advisories — package name, severity, via, title, advisory URL and whether a fix is available — plus a fail-soft note when the audit cannot run. Use to catch known CVEs in the dependency tree before shipping.',
+      parameters: z.object({
+        cwd: z.string().optional().describe('Working dir to run the audit in (default process.cwd()).'),
+      }),
+      execute: async ({ cwd }) => {
+        const result = await deps.auditDeps({ cwd });
+        return result;
       },
     });
   }
