@@ -63,6 +63,7 @@ import * as qdrantMemory from '../tools/qdrant-memory';
 import * as kgraph from '../tools/kgraph';
 import * as brainpage from '../tools/brainpage';
 import * as security from '../tools/security';
+import * as codequality from '../tools/codequality';
 import * as creativo from '../tools/creativo';
 import { createPublication, listPublications, approvePublication, rejectPublication, publishDue } from '../domain/publications';
 import { generarContenido, type ContentPackage } from '../tools/enrutador';
@@ -1136,6 +1137,37 @@ export function chatStream(opts: {
         }
         if (rootDir) {
           const f = security.scanRepo(rootDir, opts);
+          return { count: f.length, findings: f };
+        }
+        return { ok: false, error: 'text, path o rootDir requerido' };
+      },
+    });
+  }
+  if (opts.tools?.includes('codequality')) {
+    tools.codequality_scan = tool({
+      description:
+        'Static code-quality linter (UltraIa port, complementa security): deterministically detect common code smells in text, a single file, or a repo tree — debugger statements, eval/new Function, alert/prompt/confirm, `any`/`@ts-ignore` abuse, empty catch blocks, TODO/FIXME/HACK without an issue ref, hardcoded localhost/127.0.0.1 URLs, and stray console.log. Pure, keyless, offline, fail-soft (never throws). Use to keep the codebase clean before committing or in the self-improving loop.',
+      parameters: z.object({
+        text: z.string().optional().describe('Raw text to scan (paste a snippet).'),
+        path: z.string().optional().describe('Single source file to scan (fail-soft per file).'),
+        rootDir: z
+          .string()
+          .optional()
+          .describe('Repo root to walk recursively (skips node_modules/.git/.next/.ultraia, source exts only).'),
+        maxBytes: z.number().int().optional().describe('Max bytes per file (default 512 KiB).'),
+      }),
+      execute: async ({ text, path, rootDir, maxBytes }) => {
+        const opts = maxBytes ? { maxBytes } : {};
+        if (text != null) {
+          const f = codequality.cqScanText(text);
+          return { count: f.length, findings: f };
+        }
+        if (path) {
+          const f = codequality.cqScanFile(path, opts);
+          return { count: f.length, findings: f };
+        }
+        if (rootDir) {
+          const f = codequality.cqScanRepo(rootDir, opts);
           return { count: f.length, findings: f };
         }
         return { ok: false, error: 'text, path o rootDir requerido' };

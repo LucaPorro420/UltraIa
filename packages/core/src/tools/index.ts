@@ -48,6 +48,8 @@ export * from './brainpage';
 export * from './autopub';
 // security: `export *` seguro — modulo nuevo (port cso skill); simbolos unicos (scanText, scanFile, scanRepo, ...).
 export * from './security';
+// codequality: `export *` seguro — modulo nuevo (linter estatico); simbolos unicos (scanText, scanFile, scanRepo, ...).
+export * from './codequality';
 // qdrant-memory: export EXPLICITO (no `export *`) — el modulo re-exporta `TruthDoc` y `tokenize`
 // de semantic-memory y un `export *` colisionaria (TS2308, mismo patron del fix MemoryHit de iter-72).
 export {
@@ -109,6 +111,7 @@ import * as kgraph from './kgraph';
 import * as brainpage from './brainpage';
 import * as autopub from './autopub';
 import * as security from './security';
+import * as codequality from './codequality';
 import { libros } from './libros';
 import { sdf } from './sdf';
 import * as videoqa from './videoqa';
@@ -123,7 +126,7 @@ import { vaultTools } from './vault';
 import { pdfsearchTools } from './pdfsearch';
 import { qdrantMemory as qdrantMemoryTools } from './qdrant-memory';
 
-export const tools = { web, image, video, music, stitch, reach, skills: { runSkill }, content, g0dm0d3, topics, present: presentTools, publish, enrutador, mediaScore, metrics, memoryFs: { createMemoryFs }, diagram, videoEdit, screenflow, cloud: cloudTools, harness, growth, vfx, codevfx, travel, generative, libros, sdf, videoqa, motion, replica, imaging, semanticMemory, autolearn, genesis, creativo, vault: vaultTools, pdfsearch: pdfsearchTools, qdrantMemory: qdrantMemoryTools, kgraph, brainpage, autopub, security };
+export const tools = { web, image, video, music, stitch, reach, skills: { runSkill }, content, g0dm0d3, topics, present: presentTools, publish, enrutador, mediaScore, metrics, memoryFs: { createMemoryFs }, diagram, videoEdit, screenflow, cloud: cloudTools, harness, growth, vfx, codevfx, travel, generative, libros, sdf, videoqa, motion, replica, imaging, semanticMemory, autolearn, genesis, creativo, vault: vaultTools, pdfsearch: pdfsearchTools, qdrantMemory: qdrantMemoryTools, kgraph, brainpage, autopub, security, codequality };
 
 export const TOOL_DESCRIPTIONS: Record<string, string> = {
   calculator: 'Safely evaluate a mathematical expression (math only).',
@@ -211,6 +214,8 @@ export const TOOL_DESCRIPTIONS: Record<string, string> = {
     'AutoPub autonomous content factory (iter-90): one action runs the whole F1-F4 cycle — discover topic briefs (keyless RSS+DDG) -> TopicBrief queue -> top-N NUEVO -> deterministic content (Redactor/Guionista/guion_largo es/ar, optional edge-tts) -> per-channel package (captions/hashtags/visual/branding, 8 channels) -> Publications queue under the hybrid rule (text/blog auto-APPROVED; video/image DRAFT for human approval) -> optional publishDue. Actions: plan | run. Fail-soft per phase; reports in .ultraia/autopub/. Use to feed social channels and the blog autonomously.',
   security:
     'Security secret/leak scanner (cso skill port, automatable): deterministically detect leaked secrets and risky config in text, a single file, or a repo tree — AWS/GCP/Slack/GitHub/GitLab/Stripe/OpenAI keys, private-key blocks, JWTs, generic api_key/secret/password assignments, Bearer tokens, and committed real .env files (not .env.example). Pure, keyless, offline, fail-soft (never throws). Use to audit code, config or pasted snippets for secrets before committing or publishing.',
+  codequality:
+    'Static code-quality linter (UltraIa port, complementa security): deterministically detect common code smells in text, a file or a repo tree — debugger statements, eval/new Function, alert/prompt/confirm, `any`/`@ts-ignore` abuse, empty catch blocks, TODO/FIXME/HACK without an issue ref, hardcoded localhost/127.0.0.1 URLs, and stray console.log. Pure, keyless, offline, fail-soft (never throws). Use to keep the codebase clean before committing or in the self-improving loop.',
 };
 
 export type Capability =
@@ -258,4 +263,6 @@ export type Capability =
   | 'qdrant_memory'
   | 'kgraph'
   | 'brainpage'
-  | 'autopub';
+  | 'autopub'
+  | 'security'
+  | 'codequality';
