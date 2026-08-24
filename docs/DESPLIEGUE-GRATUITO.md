@@ -87,8 +87,12 @@ intervalo 5 min. Alerta por email cuando la sonda deja de responder.
 
 ```bash
 python start.py --web --host 0.0.0.0 --browser chrome   # ya existente (iter-66)
+python start.py --lite                                   # PC con <8 GB RAM (iter-92)
 npx vite-node Task/heartbeat.ts                          # latido manual
 ```
+
+> Maquina corta de memoria? Guia completa por presupuesto de RAM (perfiles, headless y
+> reparto local↔nube): `docs/INICIO-LOCAL-Y-NUBE.md`.
 
 ## Matriz de variables de entorno
 

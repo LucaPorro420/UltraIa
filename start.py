@@ -779,6 +779,44 @@ def cmd_deploy() -> None:
     print(f"\n{DEPLOY_DOC}\n")
 
 
+LITE_DEFAULT_RAM_MB = 512
+
+
+def apply_lite_env(ram_mb: int) -> None:
+    """Cap the Node.js heap for low-RAM machines (--lite).
+
+    Sets NODE_OPTIONS=--max-old-space-size=<ram_mb> so `next dev` stays within
+    a tight budget. NEVER clobbers a --max-old-space-size already present in
+    NODE_OPTIONS (user config wins). Called AFTER setup() so npm install runs
+    with the default heap (native installs can need more than the cap).
+    """
+    current = os.environ.get("NODE_OPTIONS", "").strip()
+    if "--max-old-space-size" in current:
+        log(f"NODE_OPTIONS ya define el heap de Node — respetado ({current})")
+        return
+    merged = f"{current} --max-old-space-size={ram_mb}".strip()
+    os.environ["NODE_OPTIONS"] = merged
+    log(f"Modo LITE: heap de Node limitado a {ram_mb} MB (NODE_OPTIONS={merged})")
+
+
+def print_lite_tips(ram_mb: int) -> None:
+    """Print low-RAM operating tips (--lite)."""
+    print(
+        "\n[ultraia] Modo LITE (<8 GB RAM): consejos\n"
+        "  - Solo se arranca la web; webhooks/gen-engine omitidos "
+        "(activalos sin --lite).\n"
+        f"  - Heap de Node capped a {ram_mb} MB; si la web tarda en compilar, "
+        "es normal.\n"
+        "  - Cierra pestañas de Chrome mientras desarrollas (~100-300 MB c/u).\n"
+        "  - NUNCA corras 'npm run build' local en esta máquina: el build "
+        "pica 1.5-2+ GB.\n"
+        "    Deja ese trabajo a Vercel (docs/INICIO-LOCAL-Y-NUBE.md §Nube).\n"
+        "  - UI ultra-ligera alternativa: WebView2 launcher (~111 MB), ver "
+        "desktopFase/launcher/.\n"
+        "  - Guía completa: docs/INICIO-LOCAL-Y-NUBE.md\n"
+    )
+
+
 def cmd_single(flag: str, host: str, browser: str | None, open_web: bool) -> None:
     """Handle --web / --hooks / --gen-engine: one service, watched + restarted."""
     if flag == "--web":
@@ -836,22 +874,33 @@ def cmd_single(flag: str, host: str, browser: str | None, open_web: bool) -> Non
     raise ValueError(f"flag desconocido: {flag}")
 
 
-def cmd_full(host: str, browser: str | None, open_web: bool) -> None:
-    """Handle the default run: web + webhooks + (local) gen-engine in parallel."""
+def cmd_full(
+    host: str,
+    browser: str | None,
+    open_web: bool,
+    lite: bool = False,
+    ram_mb: int = LITE_DEFAULT_RAM_MB,
+) -> None:
+    """Handle the default run: web + webhooks + (local) gen-engine in parallel.
+
+    With lite=True only the web app starts (low-RAM machines): hooks and
+    gen-engine are skipped and a RAM tips block is printed.
+    """
     services: list[tuple[int, str, str, object]] = [
         (WEB_PORT, "web (Next.js)", "web", functools.partial(start_web, host)),
     ]
-    if WEBHOOK_SERVER.exists():
-        services.append(
-            (HOOKS_PORT, "webhooks (FastAPI)", "hooks",
-             functools.partial(start_hooks, host))
-        )
-    if GEN_ENGINE_DIR.exists():
-        services.append(
-            (gen_engine_port(gen_engine_url()),
-             "gen-engine (FastAPI)", "gen-engine",
-             functools.partial(start_gen_engine, host))
-        )
+    if not lite:
+        if WEBHOOK_SERVER.exists():
+            services.append(
+                (HOOKS_PORT, "webhooks (FastAPI)", "hooks",
+                 functools.partial(start_hooks, host))
+            )
+        if GEN_ENGINE_DIR.exists():
+            services.append(
+                (gen_engine_port(gen_engine_url()),
+                 "gen-engine (FastAPI)", "gen-engine",
+                 functools.partial(start_gen_engine, host))
+            )
     preflight_ports([(port, label) for port, label, _, _ in services])
     procs: list[tuple[subprocess.Popen, str]] = []
     for port, label, name, start_fn in services:
@@ -876,6 +925,8 @@ def cmd_full(host: str, browser: str | None, open_web: bool) -> None:
         )
         t.start()
     print_urls()
+    if lite:
+        print_lite_tips(ram_mb)
     monitor_loop(procs, [fn for _, _, _, fn in services])
 
 
@@ -922,6 +973,19 @@ def main() -> None:
         action="store_true",
         help="no abrir el navegador automáticamente al arrancar la web",
     )
+    parser.add_argument(
+        "--lite",
+        action="store_true",
+        help="modo PC con poca RAM (<8 GB): heap de Node limitado y solo la "
+        "web (sin webhooks/gen-engine). Ver docs/INICIO-LOCAL-Y-NUBE.md",
+    )
+    parser.add_argument(
+        "--ram-mb",
+        type=int,
+        default=LITE_DEFAULT_RAM_MB,
+        help="heap máximo de Node en MB para --lite (default 512; usa 384 "
+        "si el equipo tiene 4 GB o menos)",
+    )
     args = parser.parse_args()
     browser: str | None = None if args.browser == "default" else args.browser
     open_web = not args.no_open
@@ -940,11 +1004,13 @@ def main() -> None:
         return
     if not args.skip_setup:
         setup()
+    if args.lite:
+        apply_lite_env(args.ram_mb)
     if args.web or args.hooks or args.gen_engine:
         flag = "--web" if args.web else ("--hooks" if args.hooks else "--gen-engine")
         cmd_single(flag, args.host, browser, open_web)
         return
-    cmd_full(args.host, browser, open_web)
+    cmd_full(args.host, browser, open_web, lite=args.lite, ram_mb=args.ram_mb)
 
 
 if __name__ == "__main__":
