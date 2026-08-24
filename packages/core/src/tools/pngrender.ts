@@ -321,3 +321,195 @@ export async function writePngAtomic(filePath: string, bytes: Uint8Array): Promi
   await writeFile(tmp, bytes);
   await rename(tmp, filePath);
 }
+
+/* ------------------------------------------------------------------ */
+/* GIF89a animado (puro TypeScript, sin ffmpeg)                        */
+/* ------------------------------------------------------------------ */
+
+/** Paleta global fija RGB332: 256 entradas deterministas (8R·8G·4B... r3g3b2). */
+const GIF332_PALETTE: Uint8Array = (() => {
+  const t = new Uint8Array(256 * 3);
+  for (let i = 0; i < 256; i++) {
+    const r = (i >> 5) & 7;
+    const g = (i >> 2) & 7;
+    const b = i & 3;
+    t[i * 3] = Math.round((r * 255) / 7);
+    t[i * 3 + 1] = Math.round((g * 255) / 7);
+    t[i * 3 + 2] = Math.round((b * 255) / 3);
+  }
+  return t;
+})();
+
+function rgb332Index(r: number, g: number, b: number): number {
+  return ((r >> 5) << 5) | ((g >> 5) << 2) | (b >> 6);
+}
+
+/** Límites anti-runaway del GIF. */
+export const MAX_GIF_DIMENSION = 512;
+export const MAX_GIF_FRAMES = 600;
+
+export interface EncodeGifOptions {
+  width: number;
+  height: number;
+  /** Delay por frame en milisegundos (default 100 → 10 centisegundos GIF). */
+  delayMs?: number;
+  /** Loop infinito vía extensión NETSCAPE2.0 (default true). */
+  loop?: boolean;
+}
+
+/**
+ * LZW de GIF: códigos variable-width desde minCodeSize+1 bits, clear=2^mcs,
+ * EOI=clear+1, diccionario hasta 4096 (entonces clear+reset). Bits LSB-first,
+ * salida troceada en sub-bloques ≤255 bytes con prefijo de longitud.
+ */
+function lzwEncodeGif(indices: Uint8Array): Uint8Array {
+  const minCodeSize = 8;
+  const clearCode = 1 << minCodeSize; // 256
+  const eoiCode = clearCode + 1; // 257
+  let codeSize = minCodeSize + 1; // 9
+  let maxCode = (1 << codeSize) - 1; // 511
+  let nextCode = eoiCode + 1; // 258
+  let dict = new Map<number, number>();
+
+  const out: number[] = [];
+  let cur = 0;
+  let shift = 0;
+  const emit = (code: number): void => {
+    cur |= code << shift;
+    shift += codeSize;
+    while (shift >= 8) {
+      out.push(cur & 0xff);
+      cur >>>= 8;
+      shift -= 8;
+    }
+  };
+  const resetTable = (): void => {
+    dict = new Map();
+    nextCode = eoiCode + 1;
+    codeSize = minCodeSize + 1;
+    maxCode = (1 << codeSize) - 1;
+  };
+
+  emit(clearCode);
+  if (indices.length === 0) {
+    emit(eoiCode);
+  } else {
+    let prefix = indices[0];
+    for (let i = 1; i < indices.length; i++) {
+      const k = indices[i];
+      const key = (prefix << 8) | k;
+      const found = dict.get(key);
+      if (found !== undefined) {
+        prefix = found;
+        continue;
+      }
+      emit(prefix);
+      if (nextCode >= 4096) {
+        emit(clearCode);
+        resetTable();
+      } else {
+        dict.set(key, nextCode);
+        nextCode++;
+        if (nextCode > maxCode && codeSize < 12) {
+          codeSize++;
+          maxCode = (1 << codeSize) - 1;
+        }
+      }
+      prefix = k;
+    }
+    emit(prefix);
+    emit(eoiCode);
+  }
+  if (shift > 0) out.push(cur & 0xff);
+  return Uint8Array.from(out);
+}
+
+function gifSubBlocks(data: Uint8Array): number[] {
+  const out: number[] = [];
+  for (let off = 0; off < data.length; off += 255) {
+    const chunk = data.subarray(off, Math.min(off + 255, data.length));
+    out.push(chunk.length, ...chunk);
+  }
+  out.push(0); // terminador
+  return out;
+}
+
+function le16(v: number): [number, number] {
+  return [v & 0xff, (v >> 8) & 0xff];
+}
+
+/**
+ * Codifica un GIF89a ANIMADO desde frames RGBA. Determinista byte a byte:
+ * paleta global fija RGB332 + LZW estándar + loop NETSCAPE2.0.
+ * Sin transparencia (fondo opaco por diseño procedural).
+ */
+export function encodeGif(
+  frames: Uint8Array[],
+  opts: EncodeGifOptions,
+): Uint8Array {
+  const { width, height } = opts;
+  validateDims(width, height);
+  if (width > MAX_GIF_DIMENSION || height > MAX_GIF_DIMENSION)
+    throw new PngError(`dimensiones GIF exceden ${MAX_GIF_DIMENSION} (${width}x${height})`);
+  if (!Array.isArray(frames) || frames.length === 0)
+    throw new PngError('encodeGif requiere al menos 1 frame');
+  if (frames.length > MAX_GIF_FRAMES)
+    throw new PngError(`frames exceden ${MAX_GIF_FRAMES}`);
+  const expected = width * height * 4;
+  for (let f = 0; f < frames.length; f++) {
+    if (!(frames[f] instanceof Uint8Array) || frames[f].length !== expected)
+      throw new PngError(`frame ${f} debe ser RGBA de longitud ${expected}`);
+  }
+  const delayCs = Math.max(2, Math.min(655, Math.round((opts.delayMs ?? 100) / 10)));
+
+  // Índices por frame (RGB332).
+  const indexed = frames.map((rgba) => {
+    const px = width * height;
+    const idx = new Uint8Array(px);
+    for (let p = 0; p < px; p++) {
+      idx[p] = rgb332Index(rgba[p * 4], rgba[p * 4 + 1], rgba[p * 4 + 2]);
+    }
+    return idx;
+  });
+
+  const bytes: number[] = [];
+  const pushAll = (...xs: number[]): void => {
+    bytes.push(...xs);
+  };
+
+  // Header + Logical Screen Descriptor (GCT flag + 256 colores).
+  pushAll(0x47, 0x49, 0x46, 0x38, 0x39, 0x61); // "GIF89a"
+  pushAll(...le16(width), ...le16(height), 0xf7, 0x00, 0x00);
+  for (let i = 0; i < 768; i++) pushAll(GIF332_PALETTE[i]);
+
+  // NETSCAPE2.0 loop infinito.
+  if (opts.loop !== false) {
+    pushAll(0x21, 0xff, 0x0b);
+    for (const ch of 'NETSCAPE2.0') pushAll(ch.charCodeAt(0));
+    pushAll(0x03, 0x01, ...le16(0), 0x00);
+  }
+
+  // Frames: GCE + Image Descriptor + LZW sub-blocks.
+  for (const idx of indexed) {
+    pushAll(0x21, 0xf9, 0x04, 0x00, ...le16(delayCs), 0x00, 0x00); // GCE sin transparencia
+    pushAll(0x2c, ...le16(0), ...le16(0), ...le16(width), ...le16(height), 0x00);
+    pushAll(minLzwCodeSize());
+    pushAll(...gifSubBlocks(lzwEncodeGif(idx)));
+  }
+
+  pushAll(0x3b); // trailer
+  return Uint8Array.from(bytes);
+
+  function minLzwCodeSize(): number {
+    return 8;
+  }
+}
+
+/** Escribe el GIF a disco atómicamente (tmp + rename). */
+export async function writeGifAtomic(filePath: string, bytes: Uint8Array): Promise<void> {
+  const dir = path.dirname(filePath);
+  await mkdir(dir, { recursive: true });
+  const tmp = `${filePath}.tmp`;
+  await writeFile(tmp, bytes);
+  await rename(tmp, filePath);
+}

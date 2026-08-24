@@ -1,25 +1,25 @@
-// -----------------------------------------------------------------------------
+﻿// -----------------------------------------------------------------------------
 // procvid.ts - capability `procvid`
 // -----------------------------------------------------------------------------
-// Librería procedural de VIDEO (pedido usuario 23/08/2026): convierte funciones
-// matemáticas puras (x, y, t) → RGBA en videos REALES, sin IA generativa ni red.
+// LibrerÃ­a procedural de VIDEO (pedido usuario 23/08/2026): convierte funciones
+// matemÃ¡ticas puras (x, y, t) â†’ RGBA en videos REALES, sin IA generativa ni red.
 //
-// Cadena: catálogo de ANIMACIONES serializable (nombre + params JSON, invocable
-// por agentes) → frames PNG vía `pngrender.encodePng` → argv ffmpeg
-// DETERMINISTA (patrón travel/video-edit/screenflow: aquí solo se PLANIFICA,
+// Cadena: catÃ¡logo de ANIMACIONES serializable (nombre + params JSON, invocable
+// por agentes) â†’ frames PNG vÃ­a `pngrender.encodePng` â†’ argv ffmpeg
+// DETERMINISTA (patrÃ³n travel/video-edit/screenflow: aquÃ­ solo se PLANIFICA,
 // el runner ejecuta ffmpeg fuera de los tests).
 //
 // Animaciones (todas funciones cerradas deterministas):
-//   plasma       suma de senos 2D clásica
+//   plasma       suma de senos 2D clÃ¡sica
 //   waves        bandas sinusoidales con wobble
 //   orbits       cuerpos orbitando con brillo gaussiano
 //   noise-flow   simplex noise desplazado en el tiempo (usa generative.ts)
-//   fractal-zoom zoom de Mandelbrot por frame (iteración inline)
-//   shape-morph  interpolación de superfórmula de Gielis (usa geometry.ts)
+//   fractal-zoom zoom de Mandelbrot por frame (iteraciÃ³n inline)
+//   shape-morph  interpolaciÃ³n de superfÃ³rmula de Gielis (usa geometry.ts)
 //
-// Guardas anti-runaway: dims pares ≤1280, fps 1..60 entero, durationSec ≤60,
-// frameCount ≤1800. Coordenadas normalizadas: x∈[-aspect/2, aspect/2],
-// y∈[-0.5, 0.5] (Y hacia arriba), t∈[0,1) progreso del loop.
+// Guardas anti-runaway: dims pares â‰¤1280, fps 1..60 entero, durationSec â‰¤60,
+// frameCount â‰¤1800. Coordenadas normalizadas: xâˆˆ[-aspect/2, aspect/2],
+// yâˆˆ[-0.5, 0.5] (Y hacia arriba), tâˆˆ[0,1) progreso del loop.
 // -----------------------------------------------------------------------------
 
 import * as path from 'node:path';
@@ -28,10 +28,12 @@ import { mkdir, rename, writeFile } from 'node:fs/promises';
 import {
   PALETTE_NAMES,
   PngError,
+  renderImage,
   renderImagePng,
   samplePalette,
   writePngAtomic,
   type PixelFn,
+  encodeGif,
 } from './pngrender';
 import { simplexNoise2D } from './generative';
 import { superShapeRadius, type SuperShapeParams } from './geometry';
@@ -55,7 +57,7 @@ export const PROCVID_ANIMATIONS = [
 
 export type ProcVidAnimation = (typeof PROCVID_ANIMATIONS)[number];
 
-/** Límites anti-runaway. */
+/** LÃ­mites anti-runaway. */
 export const MAX_DIM = 1280;
 export const MAX_FPS = 60;
 export const MAX_DURATION_SEC = 60;
@@ -79,7 +81,7 @@ export interface ProcVidSpecInput {
   durationSec?: number;
   seed?: number;
   outName?: string;
-  /** Paleta pngrender (default por animación). */
+  /** Paleta pngrender (default por animaciÃ³n). */
   palette?: string;
   params?: ProcVidParams;
 }
@@ -139,12 +141,12 @@ const DEFAULT_PALETTE: Record<ProcVidAnimation, string> = {
 
 /**
  * Normaliza y valida la spec (determinista, sin reloj). Lanza ProcVidError con
- * mensaje accionable ante animación/paleta desconocida o límites excedidos.
+ * mensaje accionable ante animaciÃ³n/paleta desconocida o lÃ­mites excedidos.
  */
 export function resolveSpec(input: ProcVidSpecInput): NormalizedProcVidSpec {
   if (!(PROCVID_ANIMATIONS as readonly string[]).includes(input.animation)) {
     throw new ProcVidError(
-      `animación desconocida "${input.animation}" (válidas: ${PROCVID_ANIMATIONS.join(', ')})`,
+      `animaciÃ³n desconocida "${input.animation}" (vÃ¡lidas: ${PROCVID_ANIMATIONS.join(', ')})`,
     );
   }
   const animation = input.animation as ProcVidAnimation;
@@ -171,7 +173,7 @@ export function resolveSpec(input: ProcVidSpecInput): NormalizedProcVidSpec {
 
   const palette = input.palette ?? DEFAULT_PALETTE[animation];
   if (!(PALETTE_NAMES as readonly string[]).includes(palette)) {
-    throw new PngError(`paleta desconocida: ${palette} (válidas: ${PALETTE_NAMES.join(', ')})`);
+    throw new PngError(`paleta desconocida: ${palette} (vÃ¡lidas: ${PALETTE_NAMES.join(', ')})`);
   }
 
   return {
@@ -202,12 +204,12 @@ function mandelbrotPixel(re: number, im: number, maxIter: number): number {
     zr = nzr;
     iter++;
   }
-  return iter / maxIter; // 1 ≈ borde/dentro
+  return iter / maxIter; // 1 â‰ˆ borde/dentro
 }
 
 /**
- * Función de píxel del frame `t∈[0,1)` en coordenadas normalizadas.
- * Determinista: misma spec+t → mismos colores.
+ * FunciÃ³n de pÃ­xel del frame `tâˆˆ[0,1)` en coordenadas normalizadas.
+ * Determinista: misma spec+t â†’ mismos colores.
  */
 export function framePixelFn(spec: NormalizedProcVidSpec, t: number): PixelFn {
   const { width, height, seed, palette, params } = spec;
@@ -285,7 +287,7 @@ export function framePixelFn(spec: NormalizedProcVidSpec, t: number): PixelFn {
     }
 
     case 'fractal-zoom': {
-      const cx = num(params, 'centerX', -0.743643887037151); // punto profundo clásico
+      const cx = num(params, 'centerX', -0.743643887037151); // punto profundo clÃ¡sico
       const cy = num(params, 'centerY', 0.13182590420533);
       const zStart = num(params, 'zoomStart', 1.2);
       const zEnd = num(params, 'zoomEnd', 6);
@@ -298,7 +300,7 @@ export function framePixelFn(spec: NormalizedProcVidSpec, t: number): PixelFn {
         const re = cx + (x / (aspect / 2)) * halfW;
         const im = cy + y * 2 * halfH;
         const v = mandelbrotPixel(re, im, maxIter);
-        // dentro del set (v≈1) → primer stop oscuro; borde → brillo alto
+        // dentro del set (vâ‰ˆ1) â†’ primer stop oscuro; borde â†’ brillo alto
         return samplePalette(palette, clamp01(Math.pow(v, 0.6)));
       };
     }
@@ -310,7 +312,7 @@ export function framePixelFn(spec: NormalizedProcVidSpec, t: number): PixelFn {
         n2: num(params, `${prefix}N2`, dflt.n2),
         n3: num(params, `${prefix}N3`, dflt.n3),
       });
-      const A = readP('a', { m: 0, n1: 1, n2: 1, n3: 1 }); // círculo
+      const A = readP('a', { m: 0, n1: 1, n2: 1, n3: 1 }); // cÃ­rculo
       const B = readP('b', { m: 6, n1: 1, n2: 1.7, n3: 1.7 }); // flor
       const size = num(params, 'size', 0.38);
       const mix: SuperShapeParams = {
@@ -429,7 +431,7 @@ export function frameFileName(index: number): string {
   return `frame_${String(index).padStart(6, '0')}.png`;
 }
 
-/** Renderiza UN frame a PNG bytes (índice validado contra frameCount). */
+/** Renderiza UN frame a PNG bytes (Ã­ndice validado contra frameCount). */
 export function renderFramePng(spec: NormalizedProcVidSpec, frameIndex: number): Uint8Array {
   if (!Number.isInteger(frameIndex) || frameIndex < 0 || frameIndex >= spec.frameCount)
     throw new ProcVidError(
@@ -467,12 +469,12 @@ export function buildRenderScript(plan: ProcVidPlan): { sh: string; steps: strin
   const steps: string[] = [];
   steps.push(plan.ffmpegArgv.map(quoteWin).join(' '));
   if (plan.gifArgv) for (const g of plan.gifArgv) steps.push(g.map(quoteWin).join(' '));
-  const header = '#!/usr/bin/env sh\n# UltraIa procvid — render determinista (generado, no editar)\nset -eu\n';
+  const header = '#!/usr/bin/env sh\n# UltraIa procvid â€” render determinista (generado, no editar)\nset -eu\n';
   const sh = header + steps.map((s) => `${s}\n`).join('');
   return { sh, steps };
 }
 
-/** Manifest determinista (sin timestamps) → idempotente entre corridas. */
+/** Manifest determinista (sin timestamps) â†’ idempotente entre corridas. */
 export async function writeManifest(plan: ProcVidPlan): Promise<Record<string, unknown>> {
   const manifest = {
     generator: 'ultraia-procvid',
@@ -503,6 +505,48 @@ export async function writeManifest(plan: ProcVidPlan): Promise<Record<string, u
 /* Namespace                                                           */
 /* ------------------------------------------------------------------ */
 
-export const procvidNamespace = {
-  animations: PROCVID_ANIMATIONS,
+/* ------------------------------------------------------------------ */
+/* GIF nativo (sin ffmpeg) via pngrender.encodeGif                     */
+/* ------------------------------------------------------------------ */
+
+export interface RenderGifOptions {
+  /** Delay por frame en ms (default: derivado de fps -> Math.round(1000/fps)). */
+  delayMs?: number;
+  loop?: boolean;
+}
+
+/**
+ * Renderiza TODOS los frames de la spec y los ensambla como GIF89a animado
+ * 100% TypeScript (sin ffmpeg). Determinista byte a byte.
+ */
+export async function renderGifBytes(
+  spec: NormalizedProcVidSpec,
+  opts: RenderGifOptions = {},
+): Promise<Uint8Array> {
+  const frames: Uint8Array[] = [];
+  for (let i = 0; i < spec.frameCount; i++) {
+    const t = spec.frameCount === 1 ? 0 : i / spec.frameCount;
+    frames.push(renderImage({ width: spec.width, height: spec.height }, framePixelFn(spec, t)).rgba);
+  }
+  return encodeGif(frames, {
+    width: spec.width,
+    height: spec.height,
+    delayMs: opts.delayMs ?? Math.max(20, Math.round(1000 / spec.fps)),
+    loop: opts.loop,
+  });
+}
+
+export const procvid = {
+  PROCVID_ANIMATIONS,
+  resolveSpec,
+  framePixelFn,
+  planProcVid,
+  renderFramePng,
+  renderFrames,
+  buildRenderScript,
+  writeManifest,
+  renderGifBytes,
+  slugifyOutName,
+  frameFileName,
 };
+

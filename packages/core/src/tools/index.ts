@@ -237,7 +237,7 @@ export const TOOL_DESCRIPTIONS: Record<string, string> = {
   pngrender:
     'Procedural PNG renderer: real PNG encoder in pure TypeScript (node:zlib deflate level fixed -> byte-identical outputs). renderImage/renderImagePng turn any pixel(x,y)->RGB math function into an actual image; valuesToRgba maps generative fields (perlin/simplex/mandelbrot) through palettes (obsidian, neoViolet, fire, ice, mono); hslToRgb helper; atomic writes via tmp+rename. Deterministic, keyless. Use when images must come from code/math instead of an AI provider.',
   procvid:
-    'Procedural video library: deterministic animations (plasma/waves/orbits/noise-flow/fractal-zoom/shape-morph) rendered frame-by-frame to real PNGs and assembled by a planned ffmpeg argv (libx264 yuv420p crf18 faststart; optional GIF palettegen/paletteuse). planProcVid validates guards (even dims <=1280, fps<=60, <=60s, <=1800 frames); renderFrames+writeManifest are idempotent; nothing executes inside tests. Use to produce loops/backgrounds/videos from pure code without generative AI.',
+    'Procedural video library: deterministic animations (plasma/waves/orbits/noise-flow/fractal-zoom/shape-morph) rendered frame-by-frame to real PNGs and assembled by a planned ffmpeg argv (libx264 yuv420p crf18 faststart; optional GIF palettegen/paletteuse). planProcVid validates guards (even dims <=1280, fps<=60, <=60s, <=1800 frames); renderFrames+writeManifest are idempotent; native animated GIF via renderGifBytes (pure TypeScript, no ffmpeg); nothing executes inside tests. Use to produce loops/backgrounds/videos from pure code without generative AI.',
 };
 
 export type Capability =

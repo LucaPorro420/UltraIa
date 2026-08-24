@@ -2418,9 +2418,9 @@ export function chatStream(opts: {
     };
     tools.procvid_render = tool({
       description:
-        'Procedural video planner/renderer (math -> PNG frames -> ffmpeg plan): creates REAL videos from deterministic animations without any generative AI. Animations: plasma (sum of sines), waves, orbits (glowing bodies), noise-flow (time-shifted simplex noise), fractal-zoom (Mandelbrot), shape-morph (superformula interpolation). Actions: plan (validate spec + emit exact ffmpeg argv + render script, writes NOTHING), frames (render all frames as real PNGs into .ultraia/procedural/<outName>/ + write idempotent manifest; then run the returned ffmpegArgv outside this tool to encode MP4). Guards: even dims <=1280, fps<=60, duration<=60s, <=1800 frames. Use to generate procedural loops/backgrounds/videos from pure code.',
+        'Procedural video planner/renderer (math -> PNG frames -> ffmpeg plan): creates REAL videos from deterministic animations without any generative AI. Animations: plasma (sum of sines), waves, orbits (glowing bodies), noise-flow (time-shifted simplex noise), fractal-zoom (Mandelbrot), shape-morph (superformula interpolation). Actions: plan (validate spec + emit exact ffmpeg argv + render script, writes NOTHING), frames (render all frames as real PNGs into .ultraia/procedural/<outName>/ + write idempotent manifest; then run the returned ffmpegArgv outside this tool to encode MP4). Guards: even dims <=1280, fps<=60, duration<=60s, <=1800 frames. Action gif renders a NATIVE animated GIF in pure TypeScript (no ffmpeg needed). Use to generate procedural loops/backgrounds/videos from pure code.',
       parameters: z.object({
-        accion: z.enum(['plan', 'frames']),
+        accion: z.enum(['plan', 'frames', 'gif']),
         outDir: z.string().max(400).optional(),
         gif: z.boolean().optional(),
         ...procvidSpecShape,
@@ -2438,6 +2438,19 @@ export function chatStream(opts: {
             ffmpegArgv: plan.ffmpegArgv,
             steps,
             script: sh,
+          };
+        }
+        if (accion === 'gif') {
+          const bytes = await procvid.renderGifBytes(spec);
+          const dir2 = outDir ?? '.ultraia/procedural';
+          const file = `${dir2}/${spec.outName}.gif`;
+          await pngrender.writeGifAtomic(file, bytes);
+          return {
+            accion,
+            frameCount: spec.frameCount,
+            path: file,
+            sizeBytes: bytes.byteLength,
+            base64: bytes.byteLength <= 200_000 ? Buffer.from(bytes).toString('base64') : null,
           };
         }
         const rendered = await procvid.renderFrames(spec, plan);
