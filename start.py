@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""UltraIa — one command to setup, start, and deploy everything.
+"""UltraIa â€” one command to setup, start, and deploy everything.
 
 Usage:
     python start.py            # full setup (install, .env, migrate) + web + webhooks
     python start.py --web      # only the Next.js app (http://localhost:3000)
     python start.py --hooks    # only the webhook server (http://localhost:8000)
     python start.py --validate # only validate the Arabic pipeline (no servers)
-    python start.py --install  # only setup (deps, .env, migrate) — no servers
+    python start.py --install  # only setup (deps, .env, migrate) â€” no servers
     python start.py --skip-setup   # skip install/.env/migrate, just start services
     python start.py --deploy   # production build + instructions for free hosting
     python start.py --check-connections  # env keys, tools and ports report
@@ -22,11 +22,12 @@ use, and polls each service until it responds (or fails with exit 1). Health
 checks always use 127.0.0.1 (IPv4 explicit) so localhost/::1 resolution never
 causes false negatives. When the web is up, the browser opens automatically
 (Chrome/Brave detected or the OS default; --no-open disables it). Services that
-die are restarted up to 2 times with backoff. Ctrl+C stops everything — on
+die are restarted up to 2 times with backoff. Ctrl+C stops everything â€” on
 Windows the whole process tree is killed (taskkill /T), so no orphan `next
 dev`/node processes survive.
 """
 
+# pylint: disable=too-many-lines  # launcher unico: setup+web+hooks+gen-engine+auto-heal
 from __future__ import annotations
 
 import argparse
@@ -67,7 +68,7 @@ WEB_PORT = 3000
 HOOKS_PORT = 8000
 GEN_ENGINE_PORT = 8100
 
-DEPLOY_DOC = """UltraIa — deploy gratuito (2026)
+DEPLOY_DOC = """UltraIa â€” deploy gratuito (2026)
 
 Tu app Next.js puede publicarse gratis en varias plataformas. Eliges una:
 
@@ -75,8 +76,8 @@ Tu app Next.js puede publicarse gratis en varias plataformas. Eliges una:
    npx vercel            # login una vez, luego cada cambio: npx vercel --prod
    - Panel: https://vercel.com (conecta tu repo GitHub para auto-deploy)
 
-2. Netlify (gratis, muy fácil)
-   npx netlify deploy    # preview; usa --prod para producción
+2. Netlify (gratis, muy fÃ¡cil)
+   npx netlify deploy    # preview; usa --prod para producciÃ³n
    - Build command: npm run build | Publish dir: apps/web/.next
 
 3. Render (gratis, con sleep en free tier)
@@ -85,12 +86,12 @@ Tu app Next.js puede publicarse gratis en varias plataformas. Eliges una:
 4. Cloudflare Pages (gratis, CDN global)
    npx wrangler pages deploy apps/web/out --project-name ultraia
 
-5. GitHub Pages (gratis, solo estático)
-   - Exporta estático (next export) y súbelo al branch gh-pages.
+5. GitHub Pages (gratis, solo estÃ¡tico)
+   - Exporta estÃ¡tico (next export) y sÃºbelo al branch gh-pages.
 
 Notas: pega tus API keys (OPENAI/ELEVENLABS/RUNWAY/FAL) en el panel de
 la plataforma elegida (Variables de entorno). El webhook server NO se
-despliega gratis con facilidad — usa un host siempre-on como Railway,
+despliega gratis con facilidad â€” usa un host siempre-on como Railway,
 o https://localhosttunnel/ para pruebas locales."""
 
 
@@ -174,7 +175,7 @@ def check_prereqs() -> None:
         m = re.search(r"v?(\d+)\.", raw)
         major = int(m.group(1)) if m else 0
         if major < 20:
-            missing.append(f"node {raw} — se requiere >= 20")
+            missing.append(f"node {raw} â€” se requiere >= 20")
     if shutil.which(npm_exec()) is None:
         missing.append("npm (viene con Node.js)")
     if shutil.which(python_exec()[0]) is None:
@@ -185,14 +186,14 @@ def check_prereqs() -> None:
         if m:
             ver = tuple(int(x) for x in m.groups())
             if ver < (3, 10):
-                missing.append(f"python {raw} — se requiere >= 3.10")
+                missing.append(f"python {raw} â€” se requiere >= 3.10")
     if missing:
         print(f"[ultraia] ERROR: faltan: {'; '.join(missing)}", file=sys.stderr)
         sys.exit(1)
     if shutil.which("ffmpeg") is None:
         print(
-            "[ultraia] AVISO: ffmpeg no está en PATH — render/assembly de video "
-            "no funcionará. Instálalo con: winget install Gyan.FFmpeg",
+            "[ultraia] AVISO: ffmpeg no estÃ¡ en PATH â€” render/assembly de video "
+            "no funcionarÃ¡. InstÃ¡lalo con: winget install Gyan.FFmpeg",
             file=sys.stderr,
         )
     log(f"Prerequisitos OK (node {tool_version('node').split()[0]}, {tool_version(python_exec())})")
@@ -226,15 +227,15 @@ def setup() -> None:
     """Run prereq checks, npm install if needed, .env creation and DB migrate."""
     check_prereqs()
     if deps_outdated():
-        log("Dependencias ausentes o desactualizadas — npm install...")
+        log("Dependencias ausentes o desactualizadas â€” npm install...")
         run([npm_exec(), "install"])
     else:
-        log("Dependencias al día — omitiendo npm install")
+        log("Dependencias al dÃ­a â€” omitiendo npm install")
     setup_env()
     if DB_FILE.exists():
-        log(f"DB ya existe ({DB_FILE.relative_to(ROOT)}) — omitiendo migrate")
+        log(f"DB ya existe ({DB_FILE.relative_to(ROOT)}) â€” omitiendo migrate")
     else:
-        log("DB ausente — npm run db:migrate...")
+        log("DB ausente â€” npm run db:migrate...")
         run([npm_exec(), "run", "db:migrate"])
 
 
@@ -287,16 +288,170 @@ def port_free(port: int) -> bool:
 
 
 def preflight_ports(ports: list[tuple[int, str]]) -> None:
-    """Abort with exit 1 when any of the target ports is already in use."""
+    """Abort with exit 1 when any of the target ports is already in use.
+
+    With AUTO_CLEAN_PORTS enabled (--clean), first try to free the ports by
+    killing ONLY processes whose command line looks like a known UltraIa
+    service (next/node/npm/uvicorn/start.py). Foreign processes are reported
+    and left untouched (auto-heal never kills unknown owners).
+    """
     busy = [(p, s) for p, s in ports if not port_free(p)]
+    if busy and AUTO_CLEAN_PORTS:
+        clean_busy_ports(busy)
+        time.sleep(0.8)  # dar tiempo al SO a liberar los sockets
+        busy = [(p, s) for p, s in ports if not port_free(p)]
     if busy:
         for port, svc in busy:
+            hint = (
+                " (reintentÃ¡ con --clean para auto-liberar procesos UltraIa)"
+                if not AUTO_CLEAN_PORTS
+                else ""
+            )
             print(
-                f"[ultraia] ERROR: puerto {port} ya está en uso ({svc}). "
-                f"Ciérralo, o usa --skip-setup si el servicio ya está corriendo.",
+                f"[ultraia] ERROR: puerto {port} ya estÃ¡ en uso ({svc}){hint}. "
+                f"CiÃ©rralo, o usa --skip-setup si el servicio ya estÃ¡ corriendo.",
                 file=sys.stderr,
             )
         sys.exit(1)
+
+
+# --- Auto-heal de puertos (--clean) -----------------------------------------
+# Flag global activado desde main(); evita pasar `clean` por todas las capas.
+AUTO_CLEAN_PORTS = False
+
+# Tokens que identifican un proceso como servicio UltraIa conocido. La lista
+# es DELIBERADAMENTE corta: el auto-heal NUNCA mata dueÃ±os desconocidos.
+ULTRAIA_PROC_TOKENS: tuple[str, ...] = (
+    "next",
+    "node",
+    "npm",
+    "uvicorn",
+    "start.py",
+    "ultraia",
+    "gen-engine",
+)
+
+
+def parse_netstat_listeners(text: str, port: int) -> list[int]:
+    """Extrae PIDs en LISTENING de una salida `netstat -ano` para un puerto.
+
+    FunciÃ³n pura (testeable): acepta el texto crudo de netstat y devuelve los
+    PIDs Ãºnicos cuyo estado es LISTENING y cuya direcciÃ³n local termina en
+    `:<port>` (cubre IPv4 127.0.0.1:3000 e IPv6 [::]:3000).
+    """
+    pids: list[int] = []
+    suffix = f":{port}"
+    for line in text.splitlines():
+        parts = line.split()
+        is_listening = len(parts) >= 5 and parts[3].upper() == "LISTENING"
+        if is_listening and parts[1].lower().endswith(suffix):
+            try:
+                pid = int(parts[4])
+            except ValueError:
+                continue
+            if pid > 0 and pid not in pids:
+                pids.append(pid)
+    return pids
+
+
+def port_owner_pids(port: int) -> list[int]:
+    """PIDs escuchando en el puerto (Windows netstat; [] si no hay o falla)."""
+    try:
+        out = subprocess.run(
+            ["netstat", "-ano", "-p", "TCP"],
+            capture_output=True,
+            text=True,
+            timeout=10,
+            check=False,
+        ).stdout
+    except (OSError, subprocess.TimeoutExpired):
+        return []
+    return parse_netstat_listeners(out or "", port)
+
+
+def pid_command_line(pid: int) -> str:
+    """LÃ­nea de comando del PID via wmic con fallback a PowerShell CIM.
+
+    Devuelve '' si ninguna vÃ­a estÃ¡ disponible o el proceso ya no existe.
+    """
+    probes: list[list[str]] = [
+        [
+            "wmic",
+            "process",
+            "where",
+            f"processid={pid}",
+            "get",
+            "commandline",
+            "/value",
+        ],
+        [
+            "powershell",
+            "-NoProfile",
+            "-Command",
+            (
+                "(Get-CimInstance Win32_Process -Filter "
+                f"'ProcessId={pid}').CommandLine"
+            ),
+        ],
+    ]
+    for cmd in probes:
+        try:
+            proc = subprocess.run(
+                cmd, capture_output=True, text=True, timeout=10, check=False
+            )
+        except (OSError, subprocess.TimeoutExpired):
+            continue
+        for raw in (proc.stdout or "").splitlines():
+            line = raw.strip()
+            if line.lower().startswith("commandline="):
+                return line.split("=", 1)[1].strip()
+            if line and "=" not in line and line.lower() != "commandline":
+                return line
+    return ""
+
+
+def looks_like_ultraia(cmdline: str) -> bool:
+    """True cuando la lÃ­nea de comando parece un servicio UltraIa conocido."""
+    low = cmdline.lower()
+    return any(token in low for token in ULTRAIA_PROC_TOKENS)
+
+
+def clean_busy_ports(busy: list[tuple[int, str]]) -> int:
+    """Mata SOLO los Ã¡rboles de procesos UltraIa que ocupan los puertos dados.
+
+    Devuelve la cantidad de PIDs eliminados. Los dueÃ±os extranjeros se
+    reportan a stderr y se dejan intactos (fail-safe).
+    """
+    killed = 0
+    for port, svc in busy:
+        for pid in port_owner_pids(port):
+            cmdline = pid_command_line(pid)
+            if cmdline and looks_like_ultraia(cmdline):
+                log(
+                    f"--clean: puerto {port} ({svc}) ocupado por PID {pid} "
+                    f"({cmdline[:80]}): liberando..."
+                )
+                result = subprocess.run(
+                    ["taskkill", "/PID", str(pid), "/T", "/F"],
+                    capture_output=True,
+                    text=True,
+                    check=False,
+                )
+                if result.returncode == 0:
+                    killed += 1
+                else:
+                    print(
+                        f"[ultraia] --clean: no se pudo matar PID {pid}: "
+                        f"{(result.stderr or result.stdout or '').strip()}",
+                        file=sys.stderr,
+                    )
+            else:
+                print(
+                    f"[ultraia] --clean: PID {pid} en puerto {port} NO parece "
+                    f"UltraIa ({cmdline[:60] or 'desconocido'}); NO se toca.",
+                    file=sys.stderr,
+                )
+    return killed
 
 
 def wait_healthy(
@@ -314,14 +469,14 @@ def wait_healthy(
             return
         if proc is not None and proc.poll() is not None:
             print(
-                f"[ultraia] ERROR: {service} murió antes de responder (exit {proc.returncode}). "
+                f"[ultraia] ERROR: {service} muriÃ³ antes de responder (exit {proc.returncode}). "
                 f"Revisa los logs arriba.",
                 file=sys.stderr,
             )
             sys.exit(1)
         time.sleep(2)
     print(
-        f"[ultraia] ERROR: {service} no respondió en {int(timeout)}s ({url}). "
+        f"[ultraia] ERROR: {service} no respondiÃ³ en {int(timeout)}s ({url}). "
         f"Revisa los logs arriba.",
         file=sys.stderr,
     )
@@ -382,10 +537,10 @@ def report_gen_engine() -> None:
     """Print the Gen-Engine status row (local launch vs remote health)."""
     ge_url = gen_engine_url()
     if is_local_url(ge_url):
-        print(f"  [GEN]   {ge_url} — local (start.py lo lanza con --gen-engine o en el full run)")
+        print(f"  [GEN]   {ge_url} â€” local (start.py lo lanza con --gen-engine o en el full run)")
         return
     ok = http_ok(f"{ge_url}/health", 3.0)
-    print(f"  [GEN]   {ge_url} — remoto: {'OK' if ok else 'NO responde'}")
+    print(f"  [GEN]   {ge_url} â€” remoto: {'OK' if ok else 'NO responde'}")
 
 
 def check_connections() -> None:
@@ -410,7 +565,7 @@ def check_connections() -> None:
         print(f"  [PORT]  {port} ({svc}): {state}")
     report_gen_engine()
     log("check-connections: listo. Las claves reales (OPENAI/ELEVENLABS/RUNWAY/FAL)")
-    log("debes pegarlas tú en los .env.")
+    log("debes pegarlas tÃº en los .env.")
 
 
 def validate_pipeline() -> None:
@@ -447,7 +602,7 @@ def start_hooks(host: str = "127.0.0.1") -> subprocess.Popen | None:
     """Start the FastAPI webhook server on port 8000 (None if missing)."""
     if not WEBHOOK_SERVER.exists():
         print(
-            f"[ultraia] AVISO: {WEBHOOK_SERVER} no existe — omitiendo webhooks",
+            f"[ultraia] AVISO: {WEBHOOK_SERVER} no existe â€” omitiendo webhooks",
             file=sys.stderr,
         )
         return None
@@ -506,7 +661,7 @@ def write_gen_engine_env(url: str) -> None:
         return
     with target.open("a", encoding="utf-8") as f:
         f.write(f'\nGEN_ENGINE_URL="{url}"\n')
-    log(f"GEN_ENGINE_URL={url} añadido a {target.relative_to(ROOT)}")
+    log(f"GEN_ENGINE_URL={url} aÃ±adido a {target.relative_to(ROOT)}")
 
 
 def start_gen_engine(host: str = "127.0.0.1") -> subprocess.Popen | None:
@@ -518,7 +673,7 @@ def start_gen_engine(host: str = "127.0.0.1") -> subprocess.Popen | None:
     """
     if not GEN_ENGINE_DIR.exists():
         print(
-            f"[ultraia] AVISO: {GEN_ENGINE_DIR} no existe — omitiendo gen-engine",
+            f"[ultraia] AVISO: {GEN_ENGINE_DIR} no existe â€” omitiendo gen-engine",
             file=sys.stderr,
         )
         return None
@@ -536,7 +691,7 @@ def start_gen_engine(host: str = "127.0.0.1") -> subprocess.Popen | None:
 def terminate(proc: subprocess.Popen, _name: str) -> None:
     """Kill a service and its whole process tree.
 
-    Critical on Windows: npm.cmd spawns `next dev` as a child — a plain
+    Critical on Windows: npm.cmd spawns `next dev` as a child â€” a plain
     terminate() orphans it, which is why stray dev servers used to survive.
     """
     if os.name == "nt":
@@ -564,7 +719,7 @@ def shutdown(procs: list[tuple[subprocess.Popen, str]]) -> None:
 
 
 def service_url(name: str) -> str:
-    """Return the health URL for a service name (127.0.0.1 — IPv4 explicit)."""
+    """Return the health URL for a service name (127.0.0.1 â€” IPv4 explicit)."""
     if name == "web":
         return f"http://127.0.0.1:{WEB_PORT}"
     if name == "gen-engine":
@@ -582,7 +737,7 @@ def public_url(name: str) -> str:
 
 
 def print_urls() -> None:
-    """Tell the user both URL forms — Chrome/Brave usually resolves localhost,
+    """Tell the user both URL forms â€” Chrome/Brave usually resolves localhost,
     but 127.0.0.1 always works even when IPv6 resolution misbehaves."""
     log(
         f"Web lista: {public_url('web')}  "
@@ -635,7 +790,11 @@ def open_browser(url: str, browser: str | None) -> None:
     exe = find_browser(browser)
     if exe:
         log(f"Abriendo navegador: {exe}")
-        subprocess.Popen([exe, "--new-window", url])
+        # Fire-and-forget deliberado: el navegador es externo al ciclo de
+        # vida del launcher; NO lo esperamos ni lo terminamos.
+        subprocess.Popen(  # pylint: disable=consider-using-with
+            [exe, "--new-window", url]
+        )
     else:
         log(f"Abriendo navegador por defecto con {url}")
         webbrowser.open(url)
@@ -660,7 +819,7 @@ def report_browser() -> None:
         if exe:
             print(f"  [BROWSER] {name}: OK ({exe})")
             return
-    print("  [BROWSER] Chrome/Brave no detectado — se usará el navegador por defecto")
+    print("  [BROWSER] Chrome/Brave no detectado â€” se usarÃ¡ el navegador por defecto")
 
 
 def monitor_loop(
@@ -684,7 +843,7 @@ def monitor_loop(
                 if attempts[name] < restart_limit:
                     attempts[name] += 1
                     log(
-                        f"{name} terminó (exit {p.returncode}); reiniciando "
+                        f"{name} terminÃ³ (exit {p.returncode}); reiniciando "
                         f"(intento {attempts[name]}/{restart_limit})..."
                     )
                     time.sleep(2 * attempts[name])
@@ -706,7 +865,7 @@ def monitor_loop(
                     t.start()
                 else:
                     print(
-                        f"[ultraia] ERROR: {name} terminó con exit {p.returncode} "
+                        f"[ultraia] ERROR: {name} terminÃ³ con exit {p.returncode} "
                         f"tras {restart_limit} reinicios.",
                         file=sys.stderr,
                     )
@@ -749,7 +908,7 @@ def spawn_and_watch(
         code = proc.wait()
         if attempt < restart_limit:
             log(
-                f"{name} terminó (exit {code}); reiniciando "
+                f"{name} terminÃ³ (exit {code}); reiniciando "
                 f"(intento {attempt + 1}/{restart_limit})..."
             )
             time.sleep(2 * (attempt + 1))
@@ -761,7 +920,7 @@ def spawn_and_watch(
 def cmd_validate() -> None:
     """Handle --validate: pipeline validation only."""
     validate_pipeline()
-    log("Validación OK")
+    log("ValidaciÃ³n OK")
 
 
 def cmd_install() -> None:
@@ -792,7 +951,7 @@ def apply_lite_env(ram_mb: int) -> None:
     """
     current = os.environ.get("NODE_OPTIONS", "").strip()
     if "--max-old-space-size" in current:
-        log(f"NODE_OPTIONS ya define el heap de Node — respetado ({current})")
+        log(f"NODE_OPTIONS ya define el heap de Node â€” respetado ({current})")
         return
     merged = f"{current} --max-old-space-size={ram_mb}".strip()
     os.environ["NODE_OPTIONS"] = merged
@@ -807,22 +966,46 @@ def print_lite_tips(ram_mb: int) -> None:
         "(activalos sin --lite).\n"
         f"  - Heap de Node capped a {ram_mb} MB; si la web tarda en compilar, "
         "es normal.\n"
-        "  - Cierra pestañas de Chrome mientras desarrollas (~100-300 MB c/u).\n"
-        "  - NUNCA corras 'npm run build' local en esta máquina: el build "
+        "  - Cierra pestaÃ±as de Chrome mientras desarrollas (~100-300 MB c/u).\n"
+        "  - NUNCA corras 'npm run build' local en esta mÃ¡quina: el build "
         "pica 1.5-2+ GB.\n"
-        "    Deja ese trabajo a Vercel (docs/INICIO-LOCAL-Y-NUBE.md §Nube).\n"
+        "    Deja ese trabajo a Vercel (docs/INICIO-LOCAL-Y-NUBE.md Â§Nube).\n"
         "  - UI ultra-ligera alternativa: WebView2 launcher (~111 MB), ver "
         "desktopFase/launcher/.\n"
-        "  - Guía completa: docs/INICIO-LOCAL-Y-NUBE.md\n"
+        "  - GuÃ­a completa: docs/INICIO-LOCAL-Y-NUBE.md\n"
     )
+
+
+def watch_service(
+    name: str,
+    start_fn: functools.partial,
+    timeout: float,
+    on_spawn=None,
+) -> None:
+    """Arranca un servicio vigilado y lo termina limpio en Ctrl+C/salida.
+
+    PatrÃ³n comÃºn de los modos single (--web/--hooks/--gen-engine): spawn con
+    watchdog, URLs tras estar UP y terminaciÃ³n del Ã¡rbol completo.
+    """
+    proc = None
+    try:
+        if on_spawn is not None:
+            on_spawn()
+        proc = spawn_and_watch(start_fn, name, timeout=timeout)
+        print_urls()
+    except KeyboardInterrupt:
+        log("Ctrl+C recibido.")
+    finally:
+        if proc is not None:
+            terminate(proc, name)
 
 
 def cmd_single(flag: str, host: str, browser: str | None, open_web: bool) -> None:
     """Handle --web / --hooks / --gen-engine: one service, watched + restarted."""
     if flag == "--web":
         preflight_ports([(WEB_PORT, "web (Next.js)")])
-        proc = None
-        try:
+
+        def spawn_browser_thread() -> None:
             if open_web:
                 t = threading.Thread(
                     target=open_browser_when_ready,
@@ -830,29 +1013,17 @@ def cmd_single(flag: str, host: str, browser: str | None, open_web: bool) -> Non
                     daemon=True,
                 )
                 t.start()
-            proc = spawn_and_watch(
-                functools.partial(start_web, host), "web", timeout=240.0
-            )
-            print_urls()
-        except KeyboardInterrupt:
-            log("Ctrl+C recibido.")
-        finally:
-            if proc is not None:
-                terminate(proc, "web")
+
+        watch_service(
+            "web", functools.partial(start_web, host), timeout=240.0,
+            on_spawn=spawn_browser_thread,
+        )
         return
     if flag == "--hooks":
         preflight_ports([(HOOKS_PORT, "webhooks (FastAPI)")])
-        proc = None
-        try:
-            proc = spawn_and_watch(
-                functools.partial(start_hooks, host), "hooks", timeout=90.0
-            )
-            print_urls()
-        except KeyboardInterrupt:
-            log("Ctrl+C recibido.")
-        finally:
-            if proc is not None:
-                terminate(proc, "hooks")
+        watch_service(
+            "hooks", functools.partial(start_hooks, host), timeout=90.0
+        )
         return
     if flag == "--gen-engine":
         if not GEN_ENGINE_DIR.exists():
@@ -860,16 +1031,11 @@ def cmd_single(flag: str, host: str, browser: str | None, open_web: bool) -> Non
             sys.exit(1)
         port = gen_engine_port(gen_engine_url())
         preflight_ports([(port, "gen-engine (FastAPI)")])
-        proc = None
-        try:
-            proc = spawn_and_watch(
-                functools.partial(start_gen_engine, host), "gen-engine", timeout=90.0
-            )
-        except KeyboardInterrupt:
-            log("Ctrl+C recibido.")
-        finally:
-            if proc is not None:
-                terminate(proc, "gen-engine")
+        watch_service(
+            "gen-engine",
+            functools.partial(start_gen_engine, host),
+            timeout=90.0,
+        )
         return
     raise ValueError(f"flag desconocido: {flag}")
 
@@ -945,7 +1111,7 @@ def main() -> None:
     parser.add_argument(
         "--deploy",
         action="store_true",
-        help="build de producción + instrucciones de hosting gratuito",
+        help="build de producciÃ³n + instrucciones de hosting gratuito",
     )
     parser.add_argument(
         "--check-connections",
@@ -959,7 +1125,7 @@ def main() -> None:
         "--host",
         default="127.0.0.1",
         help="host de escucha de los servicios: 127.0.0.1 (local, default), "
-        "0.0.0.0 (LAN/móvil) o :: (IPv6 dual-stack)",
+        "0.0.0.0 (LAN/mÃ³vil) o :: (IPv6 dual-stack)",
     )
     parser.add_argument(
         "--browser",
@@ -971,7 +1137,7 @@ def main() -> None:
     parser.add_argument(
         "--no-open",
         action="store_true",
-        help="no abrir el navegador automáticamente al arrancar la web",
+        help="no abrir el navegador automÃ¡ticamente al arrancar la web",
     )
     parser.add_argument(
         "--lite",
@@ -980,15 +1146,24 @@ def main() -> None:
         "web (sin webhooks/gen-engine). Ver docs/INICIO-LOCAL-Y-NUBE.md",
     )
     parser.add_argument(
+        "--clean",
+        action="store_true",
+        help="auto-liberar puertos ocupados por procesos UltraIa conocidos "
+        "(next/node/uvicorn/start.py) antes de arrancar; los dueÃ±os "
+        "desconocidos se reportan y NO se tocan",
+    )
+    parser.add_argument(
         "--ram-mb",
         type=int,
         default=LITE_DEFAULT_RAM_MB,
-        help="heap máximo de Node en MB para --lite (default 512; usa 384 "
+        help="heap mÃ¡ximo de Node en MB para --lite (default 512; usa 384 "
         "si el equipo tiene 4 GB o menos)",
     )
     args = parser.parse_args()
     browser: str | None = None if args.browser == "default" else args.browser
     open_web = not args.no_open
+    global AUTO_CLEAN_PORTS  # pylint: disable=global-statement
+    AUTO_CLEAN_PORTS = bool(args.clean)
 
     if args.check_connections:
         check_connections()
