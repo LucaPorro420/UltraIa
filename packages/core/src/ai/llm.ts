@@ -1,4 +1,4 @@
-import { generateObject, generateText, streamText, tool, type LanguageModel, type Tool } from 'ai';
+﻿import { generateObject, generateText, streamText, tool, type LanguageModel, type Tool } from 'ai';
 import { createOpenAI, openai } from '@ai-sdk/openai';
 import { google } from '@ai-sdk/google';
 import { z } from 'zod';
@@ -63,6 +63,9 @@ import { runPdfsearchTool, searchOpenAlex, searchPdfWeb, planPdfHarvest, indexPd
 import * as qdrantMemory from '../tools/qdrant-memory';
 import * as kgraph from '../tools/kgraph';
 import * as brainpage from '../tools/brainpage';
+import * as geometry from '../tools/geometry';
+import * as pngrender from '../tools/pngrender';
+import * as procvid from '../tools/procvid';
 import * as security from '../tools/security';
 import * as codequality from '../tools/codequality';
 import * as deps from '../tools/deps';
@@ -110,14 +113,14 @@ function googleModel(name: string): LanguageModel {
   return google(name);
 }
 
-// Ollama serves an OpenAI-compatible API locally — fully free (Meta Llama, Microsoft Phi, etc.).
+// Ollama serves an OpenAI-compatible API locally â€” fully free (Meta Llama, Microsoft Phi, etc.).
 function ollamaModel(name: string): LanguageModel {
   const baseURL = process.env.OLLAMA_BASE_URL || 'http://localhost:11434/v1';
   const provider = createOpenAI({ baseURL, apiKey: 'ollama', compatibility: 'compatible' });
   return provider(name);
 }
 
-// LM Studio serves an OpenAI-compatible API locally — fully free (Qwen, Llama, etc.).
+// LM Studio serves an OpenAI-compatible API locally â€” fully free (Qwen, Llama, etc.).
 function lmstudioModel(name: string): LanguageModel {
   const baseURL = process.env.LMSTUDIO_BASE_URL || 'http://localhost:1234/v1';
   const provider = createOpenAI({ baseURL, apiKey: 'lmstudio', compatibility: 'compatible' });
@@ -151,7 +154,7 @@ function deepseekModel(name: string): LanguageModel {
 /**
  * Resolve a LanguageModel by provider. Controlled by ULTRAIA_PROVIDER
  * (openai | google | ollama | lmstudio). Keeps the user's existing OpenAI path
- * as an option while defaulting to local Ollama (Llama/Phi) — free, no keys.
+ * as an option while defaulting to local Ollama (Llama/Phi) â€” free, no keys.
  */
 export function resolveModel(model?: string): LanguageModel {
   // * Por defecto Ollama (local, sin API key). Cambia ULTRAIA_PROVIDER para usar
@@ -214,7 +217,7 @@ export function guardrailsBlock(guardrails: string[]): string {
   return `\n\n## Guardrails\n${guardrails.map((g, i) => `${i + 1}. ${g}`).join('\n')}`;
 }
 
-/** Resuelve el adapter cloud en runtime: R2 (Worker) si está configurado, si no local. */
+/** Resuelve el adapter cloud en runtime: R2 (Worker) si estÃ¡ configurado, si no local. */
 function resolveCloudAdapter(): CloudStorageAdapter {
   const workerUrl = process.env.CLOUDFLARE_R2_WORKER_URL;
   const token = process.env.CLOUDFLARE_R2_TOKEN;
@@ -238,7 +241,7 @@ export function chatStream(opts: {
   onFinish?: (result: { text: string }) => void;
   /** Prisma client para tools con persistencia (publications). */
   db?: import('../db/client').Db;
-  /** Memory filesystem de agente (Fable-5 pattern); si falta, efímero por request. */
+  /** Memory filesystem de agente (Fable-5 pattern); si falta, efÃ­mero por request. */
   memoryFs?: MemoryFs | null;
 }) {
   const tools: Record<string, Tool> = {};
@@ -366,7 +369,7 @@ export function chatStream(opts: {
     });
     tools.content_mixkit = tool({
       description:
-        'Read a Mixkit page (free stock video, music, sound effects, templates, illustrations — no signup, no attribution). Pass a type like "free-music", "free-sound-effects" or "free-stock-video" (or a full URL) and get the assets listed on it. Use to discover downloadable assets for a content project.',
+        'Read a Mixkit page (free stock video, music, sound effects, templates, illustrations â€” no signup, no attribution). Pass a type like "free-music", "free-sound-effects" or "free-stock-video" (or a full URL) and get the assets listed on it. Use to discover downloadable assets for a content project.',
       parameters: z.object({
         type: z.string().min(1).max(200),
         maxLength: z.number().int().min(500).max(50000).optional(),
@@ -466,7 +469,7 @@ export function chatStream(opts: {
   if (opts.tools?.includes('topics')) {
     tools.topics_briefs = tool({
       description:
-        'Generate prioritized content topic briefs (AutoPub F1) from RSS feeds and DuckDuckGo trend searches. Returns deduplicated briefs scored by novelty × channel relevance, each with tema, canal (youtube_shorts/tiktok/instagram/blog), formato, tono, angulo and fuentes. Use to feed the content factory with recurring ready-to-write ideas.',
+        'Generate prioritized content topic briefs (AutoPub F1) from RSS feeds and DuckDuckGo trend searches. Returns deduplicated briefs scored by novelty Ã— channel relevance, each with tema, canal (youtube_shorts/tiktok/instagram/blog), formato, tono, angulo and fuentes. Use to feed the content factory with recurring ready-to-write ideas.',
       parameters: z.object({
         fuentes: z
           .array(
@@ -531,9 +534,9 @@ export function chatStream(opts: {
         marca: z.string().max(100).optional(),
         branding: z
           .object({
-            // QUÉ ES: sobrescritura parcial del branding kit (F3 editable).
-            // PARA QUÉ: el agente personaliza paleta/fuente/logo/acento del paquete.
-            // POR QUÉ: aditivo y opcional — `present` hace merge sobre el kit base.
+            // QUÃ‰ ES: sobrescritura parcial del branding kit (F3 editable).
+            // PARA QUÃ‰: el agente personaliza paleta/fuente/logo/acento del paquete.
+            // POR QUÃ‰: aditivo y opcional â€” `present` hace merge sobre el kit base.
             marca: z.string().max(100).optional(),
             paleta: z.array(z.string().max(20)).max(10).optional(),
             fuente: z.string().max(50).optional(),
@@ -549,7 +552,7 @@ export function chatStream(opts: {
   if (opts.tools?.includes('publish')) {
     tools.publish_submit = tool({
       description:
-        'Publish a finished MP4 (9:16, <60s) to the configured channels (AutoPub F4): YouTube Shorts, TikTok, X, Meta (Instagram Reels / Threads), Telegram, Discord and Slack, with bilingual es/ar metadata. Validates tokens first — fails soft with a clear reason when a platform is not configured. Returns one result per platform (ok/id/url or error).',
+        'Publish a finished MP4 (9:16, <60s) to the configured channels (AutoPub F4): YouTube Shorts, TikTok, X, Meta (Instagram Reels / Threads), Telegram, Discord and Slack, with bilingual es/ar metadata. Validates tokens first â€” fails soft with a clear reason when a platform is not configured. Returns one result per platform (ok/id/url or error).',
       parameters: z.object({
         videoPath: z.string().min(1).max(500),
         title: z.string().min(1).max(200),
@@ -644,7 +647,7 @@ export function chatStream(opts: {
           const res = runtime.boot();
           return { accion, ok: res.ok, error: res.error };
         }
-        if (!runtime) return { accion, ok: false, error: 'harness sin boot() en esta sesión' };
+        if (!runtime) return { accion, ok: false, error: 'harness sin boot() en esta sesiÃ³n' };
         if (accion === 'run') {
           if (!toolName) throw new Error('run requiere tool');
           const args = argsJson ? JSON.parse(argsJson) : {};
@@ -668,7 +671,7 @@ export function chatStream(opts: {
   if (opts.tools?.includes('vfx')) {
     tools.vfx_plan = tool({
       description:
-        'VFX planning engine (Higgsfield DaVinci Resolve plugin principles): plan AI video operations deterministically and keyless — reframe (16:9 -> 9:16 crop windows that follow action centers with smooth pan, ffmpeg argv), upscale (1080p..8k ladder, lanczos vs generative), AI LUT match (grade presets warm-cinematic/neutral-punch/teal-orange/mono -> ffmpeg eq args), rotoscope (remove-background plan: keyframes, alpha, cleanup passes, cost), draw-to-edit (sketch -> video prompt with camera motion) and B-roll request builder (missing beat -> frame shape -> motion -> transition). Execution is delegated: ffmpeg renders via video_edit, generation via providers. Use to plan post-production operations before rendering.',
+        'VFX planning engine (Higgsfield DaVinci Resolve plugin principles): plan AI video operations deterministically and keyless â€” reframe (16:9 -> 9:16 crop windows that follow action centers with smooth pan, ffmpeg argv), upscale (1080p..8k ladder, lanczos vs generative), AI LUT match (grade presets warm-cinematic/neutral-punch/teal-orange/mono -> ffmpeg eq args), rotoscope (remove-background plan: keyframes, alpha, cleanup passes, cost), draw-to-edit (sketch -> video prompt with camera motion) and B-roll request builder (missing beat -> frame shape -> motion -> transition). Execution is delegated: ffmpeg renders via video_edit, generation via providers. Use to plan post-production operations before rendering.',
       parameters: z.object({
         accion: z.enum(['reframe', 'upscale', 'lut', 'rotoscope', 'draw', 'broll']),
         reframeJson: z.string().optional(), // {width,height,durSeg,centers:[{t,x01,y01,w01}],targetRatio?,pad?,maxPanPerSec?}
@@ -710,7 +713,7 @@ export function chatStream(opts: {
   if (opts.tools?.includes('growth')) {
     tools.growth_plan = tool({
       description:
-        'Channel growth engine (VidRush + Abacus.AI patterns): analyze a channel profile from samples of published videos (pacing, cut cadence, on-screen text density, hook length, thumbnail style), plan A/B experiments on ONE variable at a time (title/hook/thumbnail/duration/format — worst KPI first, capped), and build a per-channel playbook that compounds wins from engagement signals (victory = test beats control by >=5 KPI points). Deterministic, keyless. Use to model a channel, isolate what moves its metrics, and persist winning recommendations.',
+        'Channel growth engine (VidRush + Abacus.AI patterns): analyze a channel profile from samples of published videos (pacing, cut cadence, on-screen text density, hook length, thumbnail style), plan A/B experiments on ONE variable at a time (title/hook/thumbnail/duration/format â€” worst KPI first, capped), and build a per-channel playbook that compounds wins from engagement signals (victory = test beats control by >=5 KPI points). Deterministic, keyless. Use to model a channel, isolate what moves its metrics, and persist winning recommendations.',
       parameters: z.object({
         accion: z.enum(['profile', 'experiments', 'playbook']),
         muestrasJson: z.string().optional(), // para profile: [{duracionSeg, cortes, textoPantalla, hookChars}]
@@ -868,7 +871,7 @@ export function chatStream(opts: {
           return { accion, parsed: manifest };
         }
         if (!manifest || !manifest.ok) {
-          return { accion, ok: false, error: 'manifestJson requerido/inválido' };
+          return { accion, ok: false, error: 'manifestJson requerido/invÃ¡lido' };
         }
         const m = manifest.manifest;
         if (accion === 'gates') {
@@ -912,7 +915,7 @@ export function chatStream(opts: {
   if (opts.tools?.includes('autopub')) {
     tools.autopub_run = tool({
       description:
-        'AutoPub autonomous content factory (iter-90): run the full F1-F4 publishing cycle in ONE step — discover topic briefs (keyless RSS + DuckDuckGo), persist them to the TopicBrief queue with dedupe, take the top-N NUEVO briefs, generate content (deterministic Redactor/Guionista/guion_largo, es/ar, optional keyless edge-tts narration), build the per-channel publication package (captions/hashtags/visual/branding for up to 8 channels: youtube_shorts/tiktok/instagram/blog/telegram/discord/slack/facebook), enqueue Publications under the hybrid approval rule (text/blog auto-APPROVED; video/image channels DRAFT awaiting human approval), and optionally publish due APPROVED items via publishDue (fail-soft without channel tokens). Actions: plan (deterministic cycle preview, no side effects) | run (execute the cycle against Prisma; requires db). Cycle reports land in .ultraia/autopub/. Deterministic core, keyless-first, fail-soft per phase. Use to keep social feeds and the blog fed autonomously.',
+        'AutoPub autonomous content factory (iter-90): run the full F1-F4 publishing cycle in ONE step â€” discover topic briefs (keyless RSS + DuckDuckGo), persist them to the TopicBrief queue with dedupe, take the top-N NUEVO briefs, generate content (deterministic Redactor/Guionista/guion_largo, es/ar, optional keyless edge-tts narration), build the per-channel publication package (captions/hashtags/visual/branding for up to 8 channels: youtube_shorts/tiktok/instagram/blog/telegram/discord/slack/facebook), enqueue Publications under the hybrid approval rule (text/blog auto-APPROVED; video/image channels DRAFT awaiting human approval), and optionally publish due APPROVED items via publishDue (fail-soft without channel tokens). Actions: plan (deterministic cycle preview, no side effects) | run (execute the cycle against Prisma; requires db). Cycle reports land in .ultraia/autopub/. Deterministic core, keyless-first, fail-soft per phase. Use to keep social feeds and the blog fed autonomously.',
       parameters: z.object({
         accion: z.enum(['plan', 'run']),
         configJson: z.string().optional(),
@@ -940,7 +943,7 @@ export function chatStream(opts: {
         name: z.string().optional(), // plan: nombre del archivo
         sizeBytes: z.number().int().min(0).optional(), // plan
         source: z.string().optional(), // plan: origen (research/upload/generation/test/prototype/import/pdf)
-        kind: z.enum(['data', 'files', 'creations', 'tests', 'prototypes', 'pdfs']).optional(), // plan: categoría forzada
+        kind: z.enum(['data', 'files', 'creations', 'tests', 'prototypes', 'pdfs']).optional(), // plan: categorÃ­a forzada
         entriesJson: z.string().optional(), // manifest/search/summary/sync/export: [{id,kind,name,path,sizeBytes,mime,createdAt,source?,meta?}]
         query: z.string().optional(), // search
         cloudJson: z.string().optional(), // sync: [{path,name,type,sizeBytes,mime,updatedAt}]
@@ -969,7 +972,7 @@ export function chatStream(opts: {
   if (opts.tools?.includes('qdrant_memory')) {
     tools.qdrant_memory_sync = tool({
       description:
-        'External persistent memory (Qdrant, SACD/NASA FASE 4 — closes the iter-76 pending wiring): persist and query the verified-truth corpus (learning/truth/*.json) in a REAL Qdrant collection so knowledge survives across sessions and machines. Actions: plan (pure diff local corpus vs remote ids -> crear/actualizar/borrar/sinCambio, NO network), sync (ensure collection + upsert + delete retired, fail-soft), search (dense-4 embedding of the query -> top-k hits with score and payload), stats (corpus stats + collection config + reachability). Deterministic point ids (djb2 uint31) = idempotent upsert; keyless; never throws (fail-soft {ok:false, razon}). Use it to remember verified knowledge beyond the process, and memory_search for the in-process semantic recall.',
+        'External persistent memory (Qdrant, SACD/NASA FASE 4 â€” closes the iter-76 pending wiring): persist and query the verified-truth corpus (learning/truth/*.json) in a REAL Qdrant collection so knowledge survives across sessions and machines. Actions: plan (pure diff local corpus vs remote ids -> crear/actualizar/borrar/sinCambio, NO network), sync (ensure collection + upsert + delete retired, fail-soft), search (dense-4 embedding of the query -> top-k hits with score and payload), stats (corpus stats + collection config + reachability). Deterministic point ids (djb2 uint31) = idempotent upsert; keyless; never throws (fail-soft {ok:false, razon}). Use it to remember verified knowledge beyond the process, and memory_search for the in-process semantic recall.',
       parameters: z.object({
         accion: z.enum(['plan', 'sync', 'search', 'stats']),
         query: z.string().optional(), // search: texto a recuperar
@@ -1117,7 +1120,7 @@ export function chatStream(opts: {
   if (opts.tools?.includes('security')) {
     tools.security_scan = tool({
       description:
-        'Security secret/leak scanner (cso skill port, automatable): deterministically detect leaked secrets and risky config in text, a single file, or a repo tree — AWS/GCP/Slack/GitHub/GitLab/Stripe/OpenAI keys, private-key blocks, JWTs, generic api_key/secret/password assignments, Bearer tokens, and committed real .env files (not .env.example). Pure, keyless, offline, fail-soft (never throws). Use to audit code, config or pasted snippets for secrets before committing or publishing.',
+        'Security secret/leak scanner (cso skill port, automatable): deterministically detect leaked secrets and risky config in text, a single file, or a repo tree â€” AWS/GCP/Slack/GitHub/GitLab/Stripe/OpenAI keys, private-key blocks, JWTs, generic api_key/secret/password assignments, Bearer tokens, and committed real .env files (not .env.example). Pure, keyless, offline, fail-soft (never throws). Use to audit code, config or pasted snippets for secrets before committing or publishing.',
       parameters: z.object({
         text: z.string().optional().describe('Raw text to scan (paste a snippet).'),
         path: z.string().optional().describe('Single file path to scan (fail-soft per file).'),
@@ -1148,7 +1151,7 @@ export function chatStream(opts: {
   if (opts.tools?.includes('codequality')) {
     tools.codequality_scan = tool({
       description:
-        'Static code-quality linter (UltraIa port, complementa security): deterministically detect common code smells in text, a single file, or a repo tree — debugger statements, eval/new Function, alert/prompt/confirm, `any`/`@ts-ignore` abuse, empty catch blocks, TODO/FIXME/HACK without an issue ref, hardcoded localhost/127.0.0.1 URLs, and stray console.log. Pure, keyless, offline, fail-soft (never throws). Use to keep the codebase clean before committing or in the self-improving loop.',
+        'Static code-quality linter (UltraIa port, complementa security): deterministically detect common code smells in text, a single file, or a repo tree â€” debugger statements, eval/new Function, alert/prompt/confirm, `any`/`@ts-ignore` abuse, empty catch blocks, TODO/FIXME/HACK without an issue ref, hardcoded localhost/127.0.0.1 URLs, and stray console.log. Pure, keyless, offline, fail-soft (never throws). Use to keep the codebase clean before committing or in the self-improving loop.',
       parameters: z.object({
         text: z.string().optional().describe('Raw text to scan (paste a snippet).'),
         path: z.string().optional().describe('Single source file to scan (fail-soft per file).'),
@@ -1179,7 +1182,7 @@ export function chatStream(opts: {
   if (opts.tools?.includes('deps')) {
     tools.deps_audit = tool({
       description:
-        'Dependency vulnerability audit (SCA, UltraIa port): run `npm audit --json` (or an injected runner for tests) and return a structured list of advisories — package name, severity, via, title, advisory URL and whether a fix is available — plus a fail-soft note when the audit cannot run. Use to catch known CVEs in the dependency tree before shipping.',
+        'Dependency vulnerability audit (SCA, UltraIa port): run `npm audit --json` (or an injected runner for tests) and return a structured list of advisories â€” package name, severity, via, title, advisory URL and whether a fix is available â€” plus a fail-soft note when the audit cannot run. Use to catch known CVEs in the dependency tree before shipping.',
       parameters: z.object({
         cwd: z.string().optional().describe('Working dir to run the audit in (default process.cwd()).'),
       }),
@@ -1192,7 +1195,7 @@ export function chatStream(opts: {
   if (opts.tools?.includes('codevfx')) {
     tools.vfx_code = tool({
       description:
-        'Code-driven visual effects engine (Elemental Sandbox pattern, 100% code — no assets, no textures): plan a procedural effect (fire/ice/lightning/meteor/beam/ground/void/plasma/frost) with palette, physics, particles and hand-written GLSL, analyze colorimetry of a palette (HSL warmth/saturation coherence), compute curvature shading of a surface, plan camera perspective with parallax layer offsets, and render a self-contained HTML5 canvas demo. Deterministic, keyless. Use to design VFX scenes purely from math.',
+        'Code-driven visual effects engine (Elemental Sandbox pattern, 100% code â€” no assets, no textures): plan a procedural effect (fire/ice/lightning/meteor/beam/ground/void/plasma/frost) with palette, physics, particles and hand-written GLSL, analyze colorimetry of a palette (HSL warmth/saturation coherence), compute curvature shading of a surface, plan camera perspective with parallax layer offsets, and render a self-contained HTML5 canvas demo. Deterministic, keyless. Use to design VFX scenes purely from math.',
       parameters: z.object({
         accion: z.enum(['plan', 'colorimetria', 'curvatura', 'perspectiva', 'render']),
         kind: z.enum(EFFECT_KINDS).optional(), // para plan/render
@@ -1290,7 +1293,7 @@ export function chatStream(opts: {
   if (opts.tools?.includes('generative')) {
     tools.generative_media = tool({
       description:
-        'Procedural media generation engine (game-engine style, 100% code — no assets, no models, no network): images from math (perlin/simplex noise fields, mandelbrot fractals, flow fields, L-systems -> self-contained SVG), video motion (keyframe interpolation, particle simulations, Ken Burns camera windows, multi-scene video plans) and audio synthesis (waves, FM, granular, pink noise, ADSR, BPM sequencer, mixing -> PCM/WAV). Fully deterministic (seeded, checksums). Use to generate visual/audio assets entirely in code.',
+        'Procedural media generation engine (game-engine style, 100% code â€” no assets, no models, no network): images from math (perlin/simplex noise fields, mandelbrot fractals, flow fields, L-systems -> self-contained SVG), video motion (keyframe interpolation, particle simulations, Ken Burns camera windows, multi-scene video plans) and audio synthesis (waves, FM, granular, pink noise, ADSR, BPM sequencer, mixing -> PCM/WAV). Fully deterministic (seeded, checksums). Use to generate visual/audio assets entirely in code.',
       parameters: z.object({
         medio: z.enum(['imagen', 'video', 'audio']),
         accion: z.enum([
@@ -1395,7 +1398,7 @@ export function chatStream(opts: {
       },
     });
   }
-  // QUARANTINED #25 restored 18/08: research.ts/enlaces.ts existen y pasan tests — registros activos.
+  // QUARANTINED #25 restored 18/08: research.ts/enlaces.ts existen y pasan tests â€” registros activos.
   if (opts.tools?.includes('research')) {
     tools.research_search = tool({
       description:
@@ -1478,10 +1481,10 @@ export function chatStream(opts: {
         'Free programming books catalog in Spanish (librosgratis.dev / midudev pattern): search 115 free books/tutorials across 32 sections with multi-term scoring (title 3 > author 2 > section 1, accents-insensitive), list books of a section, aggregate the 8 categories (Fundamentos/Desarrollo web/Lenguajes/Plataformas/Frameworks/Herramientas/Bases de datos/IA y datos), and validate a new resource proposal against the README rules (title >=3 chars, http(s) URL, author, format PDF/HTML/ePub/eBook, free + Spanish confirmation). Deterministic, keyless. Use to recommend free Spanish programming learning resources or check catalog proposals.',
       parameters: z.object({
         accion: z.enum(['buscar', 'seccion', 'categorias', 'proponer']),
-        query: z.string().min(1).max(200).optional(), // para buscar: términos libres
-        seccion: z.string().max(60).optional(), // para seccion/buscar: id o nombre de sección
+        query: z.string().min(1).max(200).optional(), // para buscar: tÃ©rminos libres
+        seccion: z.string().max(60).optional(), // para seccion/buscar: id o nombre de secciÃ³n
         formato: z.string().max(20).optional(), // para buscar: PDF/HTML/ePub/eBook (substring)
-        max: z.number().int().min(1).max(115).optional(), // para buscar: límite (default 20)
+        max: z.number().int().min(1).max(115).optional(), // para buscar: lÃ­mite (default 20)
         propuestaJson: z.string().optional(), // para proponer: {titulo, autor, url, formato, gratis, espanol}
       }),
       execute: async ({ accion, query, seccion, formato, max, propuestaJson }) => {
@@ -1699,10 +1702,10 @@ export function chatStream(opts: {
   if (opts.tools?.includes('replica')) {
     tools.replica_run = tool({
       description:
-        'Analysis-by-synthesis orchestrator (fundamentos-programacion.md A21/A26-A37): analyze a target signature (mean/variance/span), plan a replica run (parse config with stop conditions target score, max iterations, patience, timeout; presupuestos de cómputo) and expose deterministic optimization steps. The full loop (analyze -> generate -> compare -> optimize with checkpoints, resume and fail-soft) lives in the pure domain packages/core/src/tools/replica.ts and is executed by a runner that injects the real IO (generative/videoqa/motion/sdf). Deterministic, keyless. Use to plan and drive replication of a target by synthesis.',
+        'Analysis-by-synthesis orchestrator (fundamentos-programacion.md A21/A26-A37): analyze a target signature (mean/variance/span), plan a replica run (parse config with stop conditions target score, max iterations, patience, timeout; presupuestos de cÃ³mputo) and expose deterministic optimization steps. The full loop (analyze -> generate -> compare -> optimize with checkpoints, resume and fail-soft) lives in the pure domain packages/core/src/tools/replica.ts and is executed by a runner that injects the real IO (generative/videoqa/motion/sdf). Deterministic, keyless. Use to plan and drive replication of a target by synthesis.',
       parameters: z.object({
         accion: z.enum(['analizar', 'plan']),
-        targetJson: z.string().min(2).max(12000).optional(), // number[] firma numérica del objetivo
+        targetJson: z.string().min(2).max(12000).optional(), // number[] firma numÃ©rica del objetivo
         cfgJson: z.string().optional(), // {maxIterations?, targetScore?, improvementThreshold?, patience?, theta[], stepSize?, timeoutMs?}
       }),
       execute: async ({ accion, targetJson, cfgJson }) => {
@@ -1871,7 +1874,7 @@ export function chatStream(opts: {
               canal,
               scheduledAt: scheduledAt ? new Date(scheduledAt) : null,
             });
-            return { ...res, aviso: res.requiereAprobacion ? 'requiere aprobación humana' : 'aprobada automáticamente' };
+            return { ...res, aviso: res.requiereAprobacion ? 'requiere aprobaciÃ³n humana' : 'aprobada automÃ¡ticamente' };
           }
           case 'listar': {
             const res = await listPublications(opts.db!, { estado, canal });
@@ -1896,7 +1899,7 @@ export function chatStream(opts: {
   if (opts.tools?.includes('contenido')) {
     tools.contenido_generar = tool({
       description:
-        'Content router (AutoPub F2): converts a topic brief into ready-to-use content — a written post (Redactor) for 16:9/1:1 formats, a video script + storyboard (Guionista) for 9:16, or a long-form OMAG project (Project/Act/Scene/Shot + synchronized timeline, 60-180s) for 16:9 video — in Spanish (es) or Arabic (ar), optionally generating the MP3 narration via edge-tts (tts=true, keyless) for scripts. Writes a manifest.json to disk (idempotent). Use to move from idea to content package.',
+        'Content router (AutoPub F2): converts a topic brief into ready-to-use content â€” a written post (Redactor) for 16:9/1:1 formats, a video script + storyboard (Guionista) for 9:16, or a long-form OMAG project (Project/Act/Scene/Shot + synchronized timeline, 60-180s) for 16:9 video â€” in Spanish (es) or Arabic (ar), optionally generating the MP3 narration via edge-tts (tts=true, keyless) for scripts. Writes a manifest.json to disk (idempotent). Use to move from idea to content package.',
       parameters: z.object({
         briefJson: z.string().min(1).max(2000),
         dryRun: z.boolean().optional(),
@@ -1919,7 +1922,7 @@ export function chatStream(opts: {
           paquete.tipo === 'texto'
             ? paquete.contenido?.intro.slice(0, 200)
             : paquete.tipo === 'guion_largo'
-              ? `${paquete.proyecto?.title} — ${paquete.proyecto?.acts.length} actos, ${paquete.proyecto?.acts.reduce((n, a) => n + a.sequences.reduce((m, s) => m + s.scenes.length, 0), 0)} escenas, ${paquete.timeline?.durationSec ?? 0}s`
+              ? `${paquete.proyecto?.title} â€” ${paquete.proyecto?.acts.length} actos, ${paquete.proyecto?.acts.reduce((n, a) => n + a.sequences.reduce((m, s) => m + s.scenes.length, 0), 0)} escenas, ${paquete.timeline?.durationSec ?? 0}s`
               : `${paquete.guion?.hook} (${paquete.guion?.duracionSeg}s, ${paquete.guion?.escenas.length} escenas)`;
         return {
           briefId: paquete.briefId,
@@ -1959,17 +1962,17 @@ export function chatStream(opts: {
     const memDesc = (s: string) =>
       'Memoria de agente (Fable-5 pattern, una ficha por sujeto). ' + s;
     tools.memory_list = tool({
-      description: memDesc('Lista las fichas existentes (path + description + aliases). Úsalo antes de preguntar al usuario por contexto que ya pueda estar archivado; nunca afirmes no tener algo sin listar antes.'),
+      description: memDesc('Lista las fichas existentes (path + description + aliases). Ãšsalo antes de preguntar al usuario por contexto que ya pueda estar archivado; nunca afirmes no tener algo sin listar antes.'),
       parameters: z.object({}),
       execute: async () => mfs.list(),
     });
     tools.memory_read = tool({
-      description: memDesc('Lee una ficha completa (frontmatter + líneas con tags) por path, ej. topics/food, people/sam, preferences. La descripción del listing es una pista, no sustituye abrir el archivo.'),
+      description: memDesc('Lee una ficha completa (frontmatter + lÃ­neas con tags) por path, ej. topics/food, people/sam, preferences. La descripciÃ³n del listing es una pista, no sustituye abrir el archivo.'),
       parameters: z.object({ path: z.string().min(1).max(60) }),
       execute: async ({ path }) => mfs.read(path),
     });
     tools.memory_write = tool({
-      description: memDesc('Crea o reescribe una ficha entera (frontmatter + líneas). Líneas con tag explícito "[stated] texto"; sin tag quedan [stated]. Si la ficha existe, pasa ifVersion (de la última lectura) para evitar pisar cambios ajenos.'),
+      description: memDesc('Crea o reescribe una ficha entera (frontmatter + lÃ­neas). LÃ­neas con tag explÃ­cito "[stated] texto"; sin tag quedan [stated]. Si la ficha existe, pasa ifVersion (de la Ãºltima lectura) para evitar pisar cambios ajenos.'),
       parameters: z.object({
         path: z.string().min(1).max(60),
         name: z.string().min(1).max(60).optional(),
@@ -1985,17 +1988,17 @@ export function chatStream(opts: {
       },
     });
     tools.memory_append = tool({
-      description: memDesc('Agrega una línea al final de una ficha (tag [stated] por defecto). Si la ficha no existe, la crea con frontmatter mínimo. Usa ifVersion si ya leíste la ficha.'),
+      description: memDesc('Agrega una lÃ­nea al final de una ficha (tag [stated] por defecto). Si la ficha no existe, la crea con frontmatter mÃ­nimo. Usa ifVersion si ya leÃ­ste la ficha.'),
       parameters: z.object({ path: z.string().min(1).max(60), line: z.string().min(1).max(2000), ifVersion: z.string().optional() }),
       execute: async ({ path, line, ifVersion }) => mfs.append(path, line, ifVersion),
     });
     tools.memory_replace = tool({
-      description: memDesc('Reemplaza una parte de una ficha: oldStr debe coincidir EXACTAMENTE una vez (0 o varias → error; amplía oldStr con contexto circundante). Útil para editar o borrar una línea específica (newStr vacío la elimina).'),
+      description: memDesc('Reemplaza una parte de una ficha: oldStr debe coincidir EXACTAMENTE una vez (0 o varias â†’ error; amplÃ­a oldStr con contexto circundante). Ãštil para editar o borrar una lÃ­nea especÃ­fica (newStr vacÃ­o la elimina).'),
       parameters: z.object({ path: z.string().min(1).max(60), oldStr: z.string().min(1).max(2000), newStr: z.string().max(2000), ifVersion: z.string().optional() }),
       execute: async ({ path, oldStr, newStr, ifVersion }) => mfs.strReplace(path, oldStr, newStr, ifVersion),
     });
     tools.memory_delete = tool({
-      description: memDesc('Elimina una ficha completa. Úsalo SOLO cuando el usuario lo pide explícitamente (olvidar algo), nunca proactivamente. Requiere ifVersion si la ficha existe.'),
+      description: memDesc('Elimina una ficha completa. Ãšsalo SOLO cuando el usuario lo pide explÃ­citamente (olvidar algo), nunca proactivamente. Requiere ifVersion si la ficha existe.'),
       parameters: z.object({ path: z.string().min(1).max(60), ifVersion: z.string().optional() }),
       execute: async ({ path, ifVersion }) => mfs.delete(path, ifVersion),
     });
@@ -2011,7 +2014,7 @@ export function chatStream(opts: {
     });
     tools.diagram_render = tool({
       description:
-        'Editorial diagram (diagram-design pattern): render a self-contained, accessible HTML/SVG diagram in the project design system (Dark Obsidian). Kinds: timeline (events on a time axis — use for motion specs, scene timing), data-flow (pipeline steps with roles — use for processing pipelines), architecture (components + connections), loop (flywheel: hub + stations with optional dashed write-back arcs). Anti-AI-slop geometry, role="img" + aria-labelledby, no JS, no external deps. Use to visualize any flow, roadmap or architecture in docs.',
+        'Editorial diagram (diagram-design pattern): render a self-contained, accessible HTML/SVG diagram in the project design system (Dark Obsidian). Kinds: timeline (events on a time axis â€” use for motion specs, scene timing), data-flow (pipeline steps with roles â€” use for processing pipelines), architecture (components + connections), loop (flywheel: hub + stations with optional dashed write-back arcs). Anti-AI-slop geometry, role="img" + aria-labelledby, no JS, no external deps. Use to visualize any flow, roadmap or architecture in docs.',
       parameters: z.object({
         kind: kindEnum,
         title: z.string().min(1).max(200),
@@ -2075,7 +2078,7 @@ export function chatStream(opts: {
           kind: res.kind,
           title: res.title,
           meta: res.meta,
-          html: res.html.slice(0, 2000) + '…', // preview; full output is the saved file
+          html: res.html.slice(0, 2000) + 'â€¦', // preview; full output is the saved file
           svgChars: res.svg.length,
           note: 'Guarda el HTML en disco para abrirlo offline (ej. docs/diagrams/<slug>.html).',
         };
@@ -2161,7 +2164,7 @@ export function chatStream(opts: {
   if (opts.tools?.includes('screenflow')) {
     tools.screenflow_plan = tool({
       description:
-        'Validate a declarative ActionScript for ScreenFlow (screen-recording automation) and plan the capture runs: checks action types, coordinate bounds, estimated duration (anti-runaway max 90min), warns about missing "end" action or zero open_url. exec actions are restricted to an allowlist of safe binaries (python/py/python3, node/npm/npx, ffmpeg/ffprobe, yt-dlp, mkdir) — no shells, no absolute-path binaries, no shell metacharacters. Returns ok/errors/warnings/estimatedDurationSec/runs. Use before any screenflow run.',
+        'Validate a declarative ActionScript for ScreenFlow (screen-recording automation) and plan the capture runs: checks action types, coordinate bounds, estimated duration (anti-runaway max 90min), warns about missing "end" action or zero open_url. exec actions are restricted to an allowlist of safe binaries (python/py/python3, node/npm/npx, ffmpeg/ffprobe, yt-dlp, mkdir) â€” no shells, no absolute-path binaries, no shell metacharacters. Returns ok/errors/warnings/estimatedDurationSec/runs. Use before any screenflow run.',
       parameters: z.object({
         scriptJson: z.string().min(1).max(100000), // ActionScript JSON
         actionsPerRun: z.number().int().min(1).max(50).optional(),
@@ -2209,6 +2212,255 @@ export function chatStream(opts: {
         const r = resolveState(previous, new Date().toISOString());
         return { ...r, maxRetries: MAX_RETRIES, maxRunDurationMin: MAX_RUN_DURATION_MIN };
       },
+    });
+  }
+
+  if (opts.tools?.includes('geometry')) {
+    const gnum = (v: unknown, d: number): number =>
+      typeof v === 'number' && Number.isFinite(v) ? v : d;
+    const buildGeoMesh = (preset: string, p: Record<string, unknown>) => {
+      if (preset === 'mobius') {
+        return geometry.mobiusSurface({
+          radius: gnum(p.radius, 1),
+          width: gnum(p.width, 0.6),
+          uSegs: Math.floor(gnum(p.uSegs, 48)),
+          vSegs: Math.floor(gnum(p.vSegs, 8)),
+        });
+      }
+      return geometry.superShape3D(
+        {
+          m: gnum(p.lonM, 6),
+          n1: gnum(p.lonN1, 1),
+          n2: gnum(p.lonN2, 1.7),
+          n3: gnum(p.lonN3, 1.7),
+        },
+        {
+          m: gnum(p.latM, 3),
+          n1: gnum(p.latN1, 1),
+          n2: gnum(p.latN2, 1.7),
+          n3: gnum(p.latN3, 1.7),
+        },
+        { uSegs: Math.floor(gnum(p.uSegs, 48)), vSegs: Math.floor(gnum(p.vSegs, 24)) },
+      );
+    };
+    tools.geometry_build = tool({
+      description:
+        'Procedural geometry library (Gielis superformula + Mobius + mesh ops + glTF/OBJ export): builds OBJECTS from pure math - no AI model, fully deterministic. Actions: shape2d (sample a closed 2D superformula curve), surface (build a 3D mesh: preset supershape3d|mobius with lon/lat params and segments; returns vertex/face counts + bbox), transform (translate/rotate/scale a built mesh), merge (fuse two meshes with reindexed faces), export_obj (Wavefront OBJ text), export_gltf (glTF 2.0 JSON with embedded base64 buffer - loads in three.js/Blender). Complements the algebra/basic-shapes library. Use to generate parametric objects (stars, flowers, shells, mobius bands) for demos/assets from formulas.',
+      parameters: z.object({
+        accion: z.enum(['shape2d', 'surface', 'transform', 'merge', 'export_obj', 'export_gltf']),
+        preset: z.string().optional(),
+        paramsJson: z.string().max(2000).optional(),
+        translate: z.array(z.number()).length(3).optional(),
+        rotate: z.array(z.number()).length(3).optional(),
+        scale: z.union([z.number(), z.array(z.number())]).optional(),
+        samples: z.number().int().min(8).max(1024).optional(),
+      }),
+      execute: async ({ accion, preset, paramsJson, translate, rotate, scale, samples }) => {
+        const p = paramsJson ? (JSON.parse(paramsJson) as Record<string, unknown>) : {};
+        const pr = preset ?? 'supershape3d';
+        if (accion === 'shape2d') {
+          const pts = geometry.superShape2D(
+            {
+              m: gnum(p.m, 6),
+              n1: gnum(p.n1, 1),
+              n2: gnum(p.n2, 1.7),
+              n3: gnum(p.n3, 1.7),
+            },
+            { samples: samples ?? 64 },
+          );
+          return { accion, count: pts.length, preview: pts.slice(0, 12) };
+        }
+        if (accion === 'merge') {
+          const merged = geometry.mergeMeshes([buildGeoMesh(pr, p), buildGeoMesh('mobius', {})]);
+          return { accion, stats: geometry.meshStats(merged) };
+        }
+        const mesh = buildGeoMesh(pr, p);
+        const scaleFix =
+          Array.isArray(scale) ? ([scale[0], scale[1], scale[2]] as [number, number, number]) : scale;
+        const final =
+          accion === 'transform'
+            ? geometry.transformMesh(mesh, {
+                translate: translate as [number, number, number] | undefined,
+                rotate: rotate as [number, number, number] | undefined,
+                scale: scaleFix,
+              })
+            : mesh;
+        if (accion === 'export_obj')
+          return { accion, obj: geometry.meshToObjText(final, pr) };
+        if (accion === 'export_gltf')
+          return { accion, gltfJson: geometry.meshToGltf(final, pr) };
+        return { accion, stats: geometry.meshStats(final) };
+      },
+    });
+  }
+
+  if (opts.tools?.includes('pngrender')) {
+    tools.png_render = tool({
+      description:
+        'Procedural PNG image renderer (real PNG encoder in pure TypeScript via node:zlib): turns math functions pixel(x,y)->RGB into REAL .png files - deterministic byte-for-byte, keyless. Actions: render (kinds solid|gradient|field; field sources perlin|simplex|mandelbrot reuse the generative library; optional savePath writes atomically to disk; small results include base64), palettes (list available palettes: obsidian, neoViolet, fire, ice, mono), hsl (HSL->RGB helper). Max dimension 4096. Use to produce procedural images/textures from mathematics instead of calling an image-generation API.',
+      parameters: z.object({
+        accion: z.enum(['render', 'palettes', 'hsl']),
+        width: z.number().int().min(1).max(4096).optional(),
+        height: z.number().int().min(1).max(4096).optional(),
+        kind: z.enum(['solid', 'gradient', 'field']).optional(),
+        palette: z.string().max(24).optional(),
+        colorA: z.array(z.number()).length(3).optional(),
+        colorB: z.array(z.number()).length(3).optional(),
+        field: z
+          .object({
+            source: z.enum(['perlin', 'simplex', 'mandelbrot']),
+            seed: z.number().optional(),
+            scale: z.number().optional(),
+            octaves: z.number().optional(),
+            zoom: z.number().optional(),
+            centerX: z.number().optional(),
+            centerY: z.number().optional(),
+            maxIter: z.number().optional(),
+          })
+          .optional(),
+        savePath: z.string().max(400).optional(),
+        h: z.number().optional(),
+        s: z.number().optional(),
+        l: z.number().optional(),
+      }),
+      execute: async ({ accion, width, height, kind, palette, colorA, colorB, field, savePath, h, s, l }) => {
+        if (accion === 'palettes')
+          return {
+            accion,
+            palettes: pngrender.PALETTE_NAMES.map((name) => ({
+              name,
+              stops: pngrender.PALETTES[name].length,
+            })),
+          };
+        if (accion === 'hsl') {
+          return { accion, rgb: pngrender.hslToRgb(h ?? 0, s ?? 1, l ?? 0.5) };
+        }
+        const w = width ?? 256;
+        const hh = height ?? 256;
+        const pal = palette ?? 'obsidian';
+        let rgba: Uint8Array;
+        if (kind === 'field' && field) {
+          const { perlinNoise, simplexNoiseField, mandelbrot } = await import('../tools/generative');
+          const values =
+            field.source === 'perlin'
+              ? perlinNoise(w, hh, { seed: field.seed ?? 1337, scale: field.scale ?? 16, octaves: field.octaves ?? 3 })
+              : field.source === 'simplex'
+                ? simplexNoiseField(w, hh, { seed: field.seed ?? 1337, scale: field.scale ?? 16 })
+                : mandelbrot(w, hh, {
+                    zoom: field.zoom ?? 1,
+                    center: [field.centerX ?? -0.5, field.centerY ?? 0],
+                    maxIter: field.maxIter ?? 64,
+                  });
+          rgba = pngrender.valuesToRgba(values, w, hh, pal);
+        } else if (kind === 'gradient') {
+          const a = (colorA ?? [8, 8, 10]) as [number, number, number];
+          const b = (colorB ?? [139, 92, 246]) as [number, number, number];
+          rgba = pngrender.renderImage({ width: w, height: hh }, (_x, y) => {
+            const t = y / Math.max(1, hh - 1);
+            return [
+              a[0] + (b[0] - a[0]) * t,
+              a[1] + (b[1] - a[1]) * t,
+              a[2] + (b[2] - a[2]) * t,
+            ];
+          }).rgba;
+        } else {
+          const c = (colorA ?? [139, 92, 246]) as [number, number, number];
+          rgba = pngrender.renderImage({ width: w, height: hh }, () => [c[0], c[1], c[2]]).rgba;
+        }
+        const bytes = pngrender.encodePng({ width: w, height: hh, rgba });
+        if (savePath) await pngrender.writePngAtomic(savePath, bytes);
+        return {
+          accion,
+          width: w,
+          height: hh,
+          sizeBytes: bytes.byteLength,
+          savedTo: savePath ?? null,
+          base64: !savePath && bytes.byteLength <= 200_000 ? Buffer.from(bytes).toString('base64') : null,
+        };
+      },
+    });
+  }
+
+  if (opts.tools?.includes('procvid')) {
+    const specFrom = (args: {
+      animation?: string;
+      width?: number;
+      height?: number;
+      fps?: number;
+      durationSec?: number;
+      seed?: number;
+      outName?: string;
+      palette?: string;
+      paramsJson?: string;
+    }): procvid.NormalizedProcVidSpec => {
+      return procvid.resolveSpec({
+        animation: args.animation ?? 'plasma',
+        width: args.width,
+        height: args.height,
+        fps: args.fps,
+        durationSec: args.durationSec,
+        seed: args.seed,
+        outName: args.outName,
+        palette: args.palette,
+        params: args.paramsJson ? (JSON.parse(args.paramsJson) as Record<string, unknown>) : undefined,
+      });
+    };
+    const procvidSpecShape = {
+      animation: z.enum(procvid.PROCVID_ANIMATIONS).optional(),
+      width: z.number().int().min(2).max(procvid.MAX_DIM).optional(),
+      height: z.number().int().min(2).max(procvid.MAX_DIM).optional(),
+      fps: z.number().int().min(1).max(procvid.MAX_FPS).optional(),
+      durationSec: z.number().min(0.1).max(procvid.MAX_DURATION_SEC).optional(),
+      seed: z.number().optional(),
+      outName: z.string().max(48).optional(),
+      palette: z.string().max(24).optional(),
+      paramsJson: z.string().max(2000).optional(),
+    };
+    tools.procvid_render = tool({
+      description:
+        'Procedural video planner/renderer (math -> PNG frames -> ffmpeg plan): creates REAL videos from deterministic animations without any generative AI. Animations: plasma (sum of sines), waves, orbits (glowing bodies), noise-flow (time-shifted simplex noise), fractal-zoom (Mandelbrot), shape-morph (superformula interpolation). Actions: plan (validate spec + emit exact ffmpeg argv + render script, writes NOTHING), frames (render all frames as real PNGs into .ultraia/procedural/<outName>/ + write idempotent manifest; then run the returned ffmpegArgv outside this tool to encode MP4). Guards: even dims <=1280, fps<=60, duration<=60s, <=1800 frames. Use to generate procedural loops/backgrounds/videos from pure code.',
+      parameters: z.object({
+        accion: z.enum(['plan', 'frames']),
+        outDir: z.string().max(400).optional(),
+        gif: z.boolean().optional(),
+        ...procvidSpecShape,
+      }),
+      execute: async ({ accion, outDir, gif, ...args }) => {
+        const spec = specFrom(args);
+        const plan = procvid.planProcVid(spec, { outDir: outDir ?? '.ultraia/procedural', gif });
+        if (accion === 'plan') {
+          const { sh, steps } = procvid.buildRenderScript(plan);
+          return {
+            accion,
+            frameCount: plan.frameCount,
+            framesDir: plan.framesDir,
+            outputPath: plan.outputPath,
+            ffmpegArgv: plan.ffmpegArgv,
+            steps,
+            script: sh,
+          };
+        }
+        const rendered = await procvid.renderFrames(spec, plan);
+        const manifest = await procvid.writeManifest(plan);
+        const { sh } = procvid.buildRenderScript(plan);
+        return {
+          accion,
+          count: rendered.count,
+          dir: rendered.dir,
+          filesPreview: rendered.files.slice(0, 5),
+          manifestPath: `${plan.outDir}/${plan.outName}.manifest.json`,
+          nextStep: manifest.gif ? plan.gifArgv : plan.ffmpegArgv,
+          script: sh,
+        };
+      },
+    });
+  }
+
+  if (opts.tools?.includes('cloud')) {
+    tools.cloud_files = tool({
+      description: cloudFilesTool.description,
+      parameters: cloudFilesTool.inputSchema,
+      execute: createCloudFilesHandler(resolveCloudAdapter()),
     });
   }
 
