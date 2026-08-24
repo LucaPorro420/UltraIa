@@ -2574,3 +2574,39 @@ de código, sin commit.
 **[R] Veredicto**
 - **GREEN** → iter-94 COMPLETA: el eje procedural ya produce GIF animados 100% TypeScript SIN ffmpeg (camino keyless total). Lecciones 93/94 registradas en LEARNINGS.md (commits tempranos pathspec, here-strings PS, export * vs namespace, verificacion git show HEAD:<file>).
 - Siguiente ciclo opcional: median-cut quantization para paletas optimizadas; puente procvid->Publication canal local.
+
+---
+
+## Iteración 95 — Mejoras procedurales F3: median-cut para GIF (24/08/2026)
+
+**[P] Plan**
+- Objetivo ("Continua"): pendiente [R]-94 — paletas GIF optimizadas.
+- \pngrender.quantizeMedianCut\: cajas RGB, split por canal de mayor rango (tie r>g>b),
+  mediana exacta, promedio entero por caja, nearest-color con cache — DETERMINISTA.
+- \encodeGif(opts.palette='rgb332'|'mediancut')\: default retrocompatible BYTE-EXACT;
+  mediancut usa GCT adaptativa + minCodeSize dinámico (LZW parametrizado).
+- procvid.renderGifBytes propaga palette. Demo compara tamaños rgb332 vs mediancut.
+- Criterios: ~12 tests nuevos (roundtrip con decoder dinámico) + FULL verde +
+  retrocompatibilidad byte-exact probada. Plan: .opencode/plans/loop-95-mediancut.md
+
+**[I] Commits**
+- (pendiente)
+
+**[V] Gates**
+- (pendiente)
+
+**[R] Veredicto**
+- (pendiente)
+
+**[I] Commits**
+- \124b171\ feat(core): cuantizacion median-cut determinista para GIF (palette:'mediancut'|'rgb332' byte-exact retrocompatible) + roundtrip con minCodeSize dinamico + demo comparativa (4 archivos, +368/-30).
+- Commit final docs/STATE (hash en [R]).
+
+**[V] Gates**
+- Scoped: pngrender.mediancut **9/9** (roundtrip GCT adaptativa con minCodeSize dinamico + BYTE-EXACT retrocompatibilidad rgb332 probada) · tsc core 0 · suites mias 20/20 en re-verificacion final.
+- FULL: typecheck **0** ✅ · lint **0** ✅ · build **0** ✅ (intento 3 — raza .next documentada) · test: EXIT 1 CAUSADO UNICAMENTE por el WIP NO commiteado de #92 en llm.ts (refactor resolveModel con fallback ollama/lmstudio que rompe el test preexistente 'throws when OPENAI_API_KEY missing' — verificado 2/2 PASS contra HEAD limpio; LM Studio+Ollama estan VIVOS en esta maquina ahora). Suites propias: 1409 passed / 0 fallos propias.
+- Demo real: demo-gif-mc.gif **4394B vs demo.gif 6157B = 29% mas compacto** con palette mediancut (16 frames shape-morph).
+
+**[R] Veredicto**
+- **GREEN** (scope propio completo y committeado; unico rojo = WIP ajeno en vuelo sobre archivo compartido, fuera de mi alcance por diseno). iter-95 COMPLETA: GIFs procedurales con paleta adaptativa de mayor fidelidad y menor peso; camino keyless sin ffmpeg consolidado.
+- NOTA para #92 (High Priority): al aterrizar su refactor de providers, actualizar \llm.test.ts::throws AiUnavailableError\ (con fallback activo ya no lanza; aislar fetch o probar buildProvider directo).
