@@ -440,3 +440,678 @@ export const codevfx = {
 };
 
 export const CodeVfxSchema = z.object({});
+
+
+/* ================================================================== */
+/* v2 - Principios avanzados portados del fuente real vendido          */
+/* (vendor/LinearAbiltyCastingThreeJS commit ba61847cb688, MIT).        */
+/* Port ORIGINAL de PRINCIPIOS de arquitectura: nada de codigo copiado. */
+/* Referencias de valor verificado en el vendor:                        */
+/*   - src/config/settings.js: settings-as-API (todo en unidades fisicas)*/
+/*   - src/abilities/Ability.js: phase machine + records fraccionales   */
+/*   - src/materials/LightningMaterial.js: dos relojes + ruido lineal   */
+/*   - src/materials/BeamMaterial.js: triple capa halo/sheath/core      */
+/*   - src/effects/ZoneIndicator.js: snap outCubic x bump               */
+/*   - src/effects/GroundDecals.js: anti-patron de muestreo angular     */
+/*   - src/particles/ParticleSystem.js: ring buffer + siluetas puras    */
+/* ================================================================== */
+
+function sat01(v: number): number {
+  return v < 0 ? 0 : v > 1 ? 1 : v;
+}
+function vfxEaseOutQuad(t: number): number {
+  const x = sat01(t);
+  return 1 - (1 - x) * (1 - x);
+}
+function vfxEaseOutCubic(t: number): number {
+  return 1 - Math.pow(1 - sat01(t), 3);
+}
+
+/** Maximo de casts simultaneos compartido entre tipos (AbilityManager.MAX_CONCURRENT). */
+export const MAX_CONCURRENT_CASTS = 4;
+/** Pool de luces dinamicas creado en boot; acquire() devuelve null cuando se agota. */
+export const LIGHT_POOL_SIZE = 6;
+
+export type SettingsUnit = 'm' | 'm/s' | 's' | 'hz' | 'ratio' | 'count';
+
+export interface SettingsParam {
+  value: number;
+  min: number;
+  max: number;
+  unit: SettingsUnit;
+  label: string;
+}
+
+export type SettingsGroup = Record<string, SettingsParam>;
+
+export interface EffectSettingsTree {
+  kind: EffectKind;
+  global: SettingsGroup;
+  cast: SettingsGroup;
+  effect: SettingsGroup;
+}
+
+export type CastShape = 'line' | 'zone';
+
+/** Kinds que se apuntan por zona (AoE de suelo); el resto son lineales. */
+export const ZONE_KINDS: readonly EffectKind[] = ['ground', 'void', 'plasma'];
+
+export function castShapeFor(kind: EffectKind): CastShape {
+  return ZONE_KINDS.includes(kind) ? 'zone' : 'line';
+}
+
+const GLOBAL_GROUP: SettingsGroup = {
+  timeScale: { value: 1.0, min: 0.05, max: 3, unit: 'ratio', label: 'escala temporal global' },
+  speed: { value: 1.0, min: 0.1, max: 3, unit: 'ratio', label: 'multiplicador de velocidad de viaje' },
+  glow: { value: 1.0, min: 0, max: 4, unit: 'ratio', label: 'emisivo alimentado al bloom' },
+  noiseStrength: { value: 1.0, min: 0, max: 3, unit: 'ratio', label: 'fuerza de ruido maestra' },
+  particleCount: { value: 1.0, min: 0, max: 3, unit: 'ratio', label: 'multiplicador de particulas' },
+  particleLifetime: { value: 1.0, min: 0.1, max: 3, unit: 'ratio', label: 'multiplicador de vida' },
+  lightIntensity: { value: 1.0, min: 0, max: 4, unit: 'ratio', label: 'intensidad de luz dinamica' },
+  opacity: { value: 1.0, min: 0.1, max: 1, unit: 'ratio', label: 'opacidad global' },
+  cameraShake: { value: 1.0, min: 0, max: 3, unit: 'ratio', label: 'sacudida de camara' },
+};
+
+/** Overrides por kind sobre el contrato de cast base (todo en metros/segundos). */
+const CAST_OVERRIDES: Partial<Record<EffectKind, SettingsGroup>> = {
+  ice: {
+    range: { value: 12, min: 1, max: 20, unit: 'm', label: 'alcance' },
+    speed: { value: 26, min: 2, max: 60, unit: 'm/s', label: 'velocidad del frente' },
+  },
+  lightning: {
+    range: { value: 14, min: 1, max: 22, unit: 'm', label: 'alcance' },
+    speed: { value: 34, min: 4, max: 80, unit: 'm/s', label: 'velocidad del frente' },
+  },
+  meteor: {
+    range: { value: 13, min: 2, max: 20, unit: 'm', label: 'alcance' },
+    speed: { value: 18, min: 2, max: 40, unit: 'm/s', label: 'velocidad del proyectil' },
+  },
+  beam: {
+    range: { value: 16, min: 2, max: 24, unit: 'm', label: 'alcance' },
+    speed: { value: 30, min: 4, max: 70, unit: 'm/s', label: 'velocidad del frente' },
+  },
+};
+
+function castGroupFor(kind: EffectKind): SettingsGroup {
+  const zone = castShapeFor(kind) === 'zone';
+  const base: SettingsGroup = {
+    range: { value: 12, min: 1, max: 20, unit: 'm', label: 'alcance' },
+    // El upstream exige minRange 0 en la trampa de zona: una trampa que no
+    // puedes soltar a tus propios pies pierde la mitad de sus usos.
+    minRange: { value: zone ? 0 : 1.5, min: 0, max: 10, unit: 'm', label: 'alcance minimo' },
+    speed: { value: 24, min: 2, max: 60, unit: 'm/s', label: 'velocidad del frente' },
+    cooldown: { value: 2.5, min: 0, max: 20, unit: 's', label: 'enfriamiento por habilidad' },
+  };
+  if (zone) {
+    base.zoneRadius = { value: 4.5, min: 1, max: 8, unit: 'm', label: 'radio de la zona' };
+  }
+  const over = CAST_OVERRIDES[kind];
+  return over ? { ...base, ...over } : base;
+}
+
+function effectGroupFor(kind: EffectKind): SettingsGroup {
+  const def = KIND_DEFS[kind];
+  return {
+    intensity: { value: 50, min: 0, max: 100, unit: 'ratio', label: 'intensidad reactiva' },
+    wind: { value: def.physics.wind, min: -100, max: 100, unit: 'm/s', label: 'viento lateral' },
+    friction: { value: def.physics.friction, min: 0.8, max: 1, unit: 'ratio', label: 'friccion por frame' },
+  };
+}
+
+// Arbol de settings vivo del efecto (patron settings-as-API del upstream):
+// shaders/particulas/luces LEEN este arbol cada frame; un preset se fusiona
+// con deepMergePreset y todos los bindings siguen validos sin rebuild.
+export function effectSettingsTree(kind: EffectKind): EffectSettingsTree {
+  return { kind, global: { ...GLOBAL_GROUP }, cast: castGroupFor(kind), effect: effectGroupFor(kind) };
+}
+
+// Deep merge INMUTABLE estilo presets del upstream: objetos se mezclan,
+// arrays y scalars reemplazan.
+export function deepMergePreset<T>(base: T, patch: Record<string, unknown>): T {
+  const out: Record<string, unknown> = { ...(base as unknown as Record<string, unknown>) };
+  for (const key of Object.keys(patch)) {
+    const pv = patch[key];
+    const bv = out[key];
+    if (
+      pv !== null && typeof pv === 'object' && !Array.isArray(pv) &&
+      bv !== null && typeof bv === 'object' && !Array.isArray(bv)
+    ) {
+      out[key] = deepMergePreset(bv as Record<string, unknown>, pv as Record<string, unknown>);
+    } else {
+      out[key] = pv;
+    }
+  }
+  return out as unknown as T;
+}
+// Registro de spawn: SOLO fracciones sin unidad + seed + timestamp-evento.
+export interface SpawnRecord {
+  kind: EffectKind;
+  seed: number;
+  distance01: number;
+  lateral01: number;
+  spawnedAtMs: number;
+}
+
+// Captura un spawn SIN dimensiones: ningun metro, radian o segundo queda
+// congelado (principio no-dimensions-on-CPU del upstream). Todo lo demas se
+// resuelve con resolveSpawnDimensions contra el arbol de settings VIGENTE.
+export function fractionalSpawn(
+  kind: EffectKind,
+  opts: { seed?: number; distance01?: number; lateral01?: number; atMs?: number } = {},
+): SpawnRecord {
+  const seed = opts.seed === undefined ? 0.42 : sat01(opts.seed);
+  return {
+    kind,
+    seed,
+    distance01: sat01(opts.distance01 ?? 0.75),
+    lateral01: Math.max(-1, Math.min(1, opts.lateral01 ?? 0)),
+    spawnedAtMs: opts.atMs ?? 0,
+  };
+}
+
+export interface ResolvedDimensions {
+  distanceM: number;
+  speedMps: number;
+  easeIn: number;
+  shimmer: number;
+  shape: CastShape;
+  zoneRadiusM: number | null;
+}
+
+// Brillo de luz dinamica: shimmer lento (el hielo destella, no parpadea).
+export function lightShimmer(ageSec: number): number {
+  return +(0.9 + 0.1 * Math.sin(ageSec * 9.3) * Math.sin(ageSec * 3.7)).toFixed(6);
+}
+
+// Resuelve el record fraccional CONTRA el arbol dado (o el vigente):
+// distancia = minRange + distance01 * (range - minRange); velocidad =
+// cast.speed * global.speed; ease-in del frente keyed a edad (ventana 0.08s
+// outQuad) para que el frente tenga peso sin multiplicar el primer paso por 0.
+export function resolveSpawnDimensions(
+  record: SpawnRecord,
+  tree?: EffectSettingsTree,
+  ageSec = 0,
+): ResolvedDimensions {
+  const t = tree ?? effectSettingsTree(record.kind);
+  const range = t.cast.range.value;
+  const minRange = t.cast.minRange.value;
+  const distanceM = minRange + record.distance01 * (range - minRange);
+  const speedMps = t.cast.speed.value * t.global.speed.value;
+  return {
+    distanceM: +Math.max(0.1, distanceM).toFixed(4),
+    speedMps: +speedMps.toFixed(4),
+    easeIn: +vfxEaseOutQuad(ageSec / 0.08).toFixed(6),
+    shimmer: lightShimmer(ageSec),
+    shape: castShapeFor(record.kind),
+    zoneRadiusM: t.cast.zoneRadius ? t.cast.zoneRadius.value : null,
+  };
+}
+
+export type VfxPhase = 'windup' | 'travel' | 'impact' | 'fade' | 'done';
+
+export interface PhasePlan {
+  kind: EffectKind;
+  phases: VfxPhase[];
+  windupS: number;
+  impactS: number;
+  fadeS: number;
+}
+
+export interface PhaseState {
+  phase: VfxPhase;
+  t: number;
+}
+
+const WINDUP_KINDS: readonly EffectKind[] = ['beam', 'plasma'];
+
+// Plan de fases del cast. El beat wind-up del upstream no toca la maquina:
+// advance() simplemente se niega a soltar el frente hasta cargar; aqui se
+// modela como fase previa con duracion propia (solo beam/plasma).
+export function phaseMachine(kind: EffectKind): PhasePlan {
+  const withWindup = WINDUP_KINDS.includes(kind);
+  return {
+    kind,
+    phases: withWindup ? ['windup', 'travel', 'impact', 'fade'] : ['travel', 'impact', 'fade'],
+    windupS: withWindup ? (kind === 'beam' ? 0.9 : 0.7) : 0,
+    impactS: 1.1,
+    fadeS: 1.2,
+  };
+}
+
+// Evalua la fase a una edad dada (s). Determinista: misma entrada -> mismo
+// estado (sin reloj real).
+export function evaluatePhase(plan: PhasePlan, ageSec: number, distanceM: number, speedMps: number): PhaseState {
+  let remaining = Math.max(0, ageSec);
+  for (const phase of plan.phases) {
+    const dur =
+      phase === 'windup'
+        ? plan.windupS
+        : phase === 'travel'
+          ? Math.max(0.0001, distanceM / Math.max(0.0001, speedMps))
+          : phase === 'impact'
+            ? plan.impactS
+            : plan.fadeS;
+    if (remaining < dur || phase === 'fade') {
+      if (remaining >= dur) return { phase: 'done', t: 1 };
+      return { phase, t: +sat01(remaining / dur).toFixed(6) };
+    }
+    remaining -= dur;
+  }
+  return { phase: 'done', t: 1 };
+}
+
+export interface FlickerClocks {
+  strikeIndex: number;
+  crawlPhase: number;
+}
+
+// Los dos relojes del rayo del upstream: restrike SNAPATEA cada filamento a
+// una forma nueva N veces por segundo y crawl desliza los quiebres en medio;
+// juntos evitan que un bolt sostenido parezca una cinta estatica.
+// Defaults verificados en LightningMaterial (uRestrike 24, uCrawl 3.2).
+export function flickerClocks(
+  timeSec: number,
+  opts: { restrikeHz?: number; crawlSpeed?: number } = {},
+): FlickerClocks {
+  const restrikeHz = Math.max(0.01, opts.restrikeHz ?? 24);
+  const crawlSpeed = Math.max(0, opts.crawlSpeed ?? 3.2);
+  const strikeIndex = Math.floor(timeSec * restrikeHz);
+  const raw = timeSec * crawlSpeed;
+  return { strikeIndex, crawlPhase: +(raw - Math.floor(raw)).toFixed(6) };
+}
+
+export type NoiseProfile = 'piecewise-linear' | 'smooth-flow' | 'dual-space-fbm' | 'domain-warped-plane';
+
+export interface NoiseProfileSpec {
+  profile: NoiseProfile;
+  rationale: string;
+  sampling: 'plane' | 'world+local';
+}
+
+// El perfil de ruido ES la personalidad: rayo con rampa LINEAL (smoothstep
+// redondearia las esquinas y las esquinas son toda la lectura del rayo);
+// beam suave estirado contra el flujo (un beam que se quiebra es un bolt);
+// hielo con fbm dual (fracturas en espacio MUNDO de tamano fisico fijo +
+// escarcha en espacio LOCAL siguiendo el eje de cada cristal).
+export function noiseProfileFor(kind: EffectKind): NoiseProfileSpec {
+  switch (kind) {
+    case 'lightning':
+    case 'meteor':
+      return { profile: 'piecewise-linear', rationale: 'las esquinas SON el rayo; una rampa suave las redondea y mata la lectura', sampling: 'plane' };
+    case 'beam':
+    case 'plasma':
+      return { profile: 'smooth-flow', rationale: 'ruido suave estirado contra el flujo y arrastrandose: un beam que se quiebra es un bolt', sampling: 'plane' };
+    case 'ice':
+    case 'frost':
+      return { profile: 'dual-space-fbm', rationale: 'fracturas en espacio mundo + rime en espacio local (sigue el eje de cada cristal)', sampling: 'world+local' };
+    default:
+      return { profile: 'domain-warped-plane', rationale: 'muestreo en plano con domain warp para que las vetas serpenteen y bifurquen', sampling: 'plane' };
+  }
+}
+export interface AimIndicatorPlan {
+  silhouette: 'rounded-union(box-shaft, triangle-head)';
+  units: 'metres';
+  shaftHalfWidthM: number;
+  headLengthM: number;
+  headHalfWidthM: number;
+  cornerRoundM: number;
+  startOffsetM: number;
+  outlineM: number;
+  chevronsPerMetre: number;
+  chevronScrollMps: number;
+  frostNoisePerMetre: number;
+  voronoiPlateScale: number;
+  rangeM: number;
+  minRangeM: number;
+  derivation: string[];
+}
+
+// Plan de la flecha League-style: UN quad de suelo cuya SDF se remapea a
+// METROS desde el caster, asi el shaft conserva su anchura fisica tenga el
+// cast 3 m o 15 m. Union redondeada de caja (shaft) + triangulo exacto de
+// iq (cabeza). De esa UNA SDF derivan contorno, lavado interior rim-weighted,
+// chevrones (fase sesgada por |x|), escarcha y placas voronoi.
+export function aimIndicatorPlan(opts: { rangeM?: number; minRangeM?: number } = {}): AimIndicatorPlan {
+  const rangeM = Math.max(0.5, opts.rangeM ?? 12);
+  const minRangeM = Math.max(0, Math.min(opts.minRangeM ?? 0, rangeM));
+  return {
+    silhouette: 'rounded-union(box-shaft, triangle-head)',
+    units: 'metres',
+    shaftHalfWidthM: 0.42,
+    headLengthM: 2.6,
+    headHalfWidthM: 1.35,
+    cornerRoundM: 0.12,
+    startOffsetM: 0.9,
+    outlineM: 0.09,
+    chevronsPerMetre: 0.55,
+    chevronScrollMps: 2.4,
+    frostNoisePerMetre: 1.6,
+    voronoiPlateScale: 2.4,
+    rangeM: +rangeM.toFixed(3),
+    minRangeM: +minRangeM.toFixed(3),
+    derivation: [
+      'sdBox(shaft) union sdTriangleIq(head) con redondeo',
+      'outline = edge de la misma SDF',
+      'lavado interior con peso en el borde',
+      'chevrones: banda con fase sesgada por |x| -> apuntan hacia el tip',
+      'escarcha fbm + placas voronoi comiendo el interior',
+      'ring en los pies del caster + arco del limite de alcance',
+    ],
+  };
+}
+
+export interface ZoneIndicatorPlan {
+  units: 'metres';
+  boundaryM: number;
+  boundaryBias: number;
+  linerM: number;
+  fillFalloff: number;
+  contourRings: number;
+  ringSpeedRadiiPerS: number;
+  ticks: number;
+  tickLengthM: number;
+  snap: number;
+  bumpExponent: number;
+  growEasing: 'outCubic';
+  personalityNote: string;
+}
+
+// Radio SNATEADO exacto del upstream: grow outCubic x bump sin(pi*t^p)
+// cuyo pico es tardio y muere EXACTAMENTE en 1 -> el circulo se pasa de su
+// radio y vuelve a asentarse.
+export function snappedZoneRadius(radiusM: number, reveal01: number, snap = 1.18, bumpExponent = 1.7): number {
+  const t = sat01(reveal01);
+  const bump = Math.sin(Math.PI * Math.pow(t, bumpExponent));
+  return +(radiusM * vfxEaseOutCubic(t) * (1 + (snap - 1) * bump)).toFixed(4);
+}
+
+// Plan del circulo de zona (far cast): el borde mide SU GROSOR EN METROS
+// (0.34 m) sea el radio 2 m u 8 m, partido sobre el radio nominal por
+// boundaryBias para que el labio EXTERIOR diga donde termina el efecto.
+// Un solo numero (zoneRadius) mueve indicador, tentaculos, arcos de rim,
+// campo quemado y garganta de la columna JUNTOS y en vivo.
+export function zoneIndicatorPlan(opts: { zoneRadiusM?: number; snap?: number } = {}): ZoneIndicatorPlan {
+  return {
+    units: 'metres',
+    boundaryM: 0.34,
+    boundaryBias: 0.35,
+    linerM: 0.05,
+    fillFalloff: 1.5,
+    contourRings: 2,
+    ringSpeedRadiiPerS: 0.35,
+    ticks: 24,
+    tickLengthM: 0.42,
+    snap: opts.snap ?? 1.18,
+    bumpExponent: 1.7,
+    growEasing: 'outCubic',
+    personalityNote:
+      'el circulo se abre PASANDOSE de su radio y vuelve a asentarse; uno lineal lee como elemento de UI',
+  };
+}
+
+export type ParticleSilhouette = 'soft' | 'smoke' | 'streak' | 'chip' | 'ring';
+
+export interface ParticleSystemDef {
+  id: string;
+  capacity: number;
+  silhouette: ParticleSilhouette;
+  blending: 'additive' | 'normal';
+  gravitySign: 1 | -1 | 0;
+  gradient: [string, string, string, string];
+}
+
+export interface ParticleSystemSpec {
+  kind: EffectKind;
+  systems: ParticleSystemDef[];
+  designNote: string;
+}
+
+function grad4(palette: { base: string; accent: string; energy: string }): [string, string, string, string] {
+  return [palette.energy, palette.accent, palette.base, '#0b0b10'];
+}
+
+// Sistemas de particulas por familia (GPU instanciada; la CPU solo escribe
+// spawns de slots cambiados en un ring buffer: emitir de mas RECICLA, nunca
+// aloja). Siluetas 100% procedurales: cero texturas de sprite.
+export function particleSystemSpec(kind: EffectKind): ParticleSystemSpec {
+  const p = KIND_DEFS[kind].palette;
+  const g = grad4(p);
+  switch (kind) {
+    case 'ice':
+      return {
+        kind,
+        systems: [
+          { id: 'mist', capacity: 900, silhouette: 'soft', blending: 'normal', gravitySign: 0, gradient: g },
+          { id: 'shards', capacity: 400, silhouette: 'chip', blending: 'additive', gravitySign: 1, gradient: g },
+          { id: 'glitter', capacity: 600, silhouette: 'soft', blending: 'additive', gravitySign: -1, gradient: g },
+        ],
+        designNote: 'niebla NON-additive para que la bruma ocluya de verdad y de profundidad al campo',
+      };
+    case 'lightning':
+      return {
+        kind,
+        systems: [
+          { id: 'sparks', capacity: 1200, silhouette: 'streak', blending: 'additive', gravitySign: 1, gradient: g },
+          { id: 'motes', capacity: 500, silhouette: 'soft', blending: 'additive', gravitySign: 0, gradient: g },
+          { id: 'smoke', capacity: 300, silhouette: 'smoke', blending: 'normal', gravitySign: 0, gradient: g },
+          { id: 'debris', capacity: 200, silhouette: 'chip', blending: 'additive', gravitySign: 1, gradient: g },
+        ],
+        designNote: 'sparks emitidos desde VARIOS puntos del bolt por frame: un solo origen lee como fireworks',
+      };
+    case 'beam':
+      return {
+        kind,
+        systems: [
+          { id: 'motes-intake', capacity: 700, silhouette: 'soft', blending: 'additive', gravitySign: 0, gradient: g },
+          { id: 'sparks-forward', capacity: 800, silhouette: 'streak', blending: 'additive', gravitySign: 0, gradient: g },
+          { id: 'steam', capacity: 350, silhouette: 'smoke', blending: 'normal', gravitySign: -1, gradient: g },
+          { id: 'debris', capacity: 250, silhouette: 'chip', blending: 'additive', gravitySign: 1, gradient: g },
+        ],
+        designNote: 'los motes se usan DOS veces (intake del orbe y deriva de la columna); sparks arrastrados downrange = lectura de presion',
+      };
+    case 'meteor':
+      return {
+        kind,
+        systems: [
+          { id: 'embers-wake', capacity: 900, silhouette: 'streak', blending: 'additive', gravitySign: 1, gradient: g },
+          { id: 'smoke', capacity: 400, silhouette: 'smoke', blending: 'normal', gravitySign: -1, gradient: g },
+          { id: 'chunks', capacity: 300, silhouette: 'chip', blending: 'additive', gravitySign: 1, gradient: g },
+          { id: 'shockwave', capacity: 60, silhouette: 'ring', blending: 'additive', gravitySign: 0, gradient: g },
+        ],
+        designNote: 'wake raymarched del proyectil calentandose + shockwaves como siluetas ring puras',
+      };
+    default:
+      return {
+        kind,
+        systems: [
+          { id: 'core-plume', capacity: 700, silhouette: 'soft', blending: 'additive', gravitySign: kind === 'fire' ? -1 : 0, gradient: g },
+          { id: 'dust', capacity: 350, silhouette: 'smoke', blending: 'normal', gravitySign: 0, gradient: g },
+          { id: 'burst-ring', capacity: 80, silhouette: 'ring', blending: 'additive', gravitySign: 0, gradient: g },
+        ],
+        designNote: 'familia generica: pluma central + polvo non-additive + anillo de burst procedural',
+      };
+  }
+}
+export interface PipelinePass {
+  order: number;
+  id: string;
+  detail: string;
+}
+
+export interface RenderPipelinePlan {
+  passes: PipelinePass[];
+  gradeTerms: string[];
+  notes: string[];
+}
+
+// Stack de render del upstream como DATOS ordenados: prepass de profundidad
+// half-res para intersecciones suaves, gancho de distorsion, bloom, ACES y
+// un UNICO resample de grade que pliega todos los terminos.
+export function renderPipelinePlan(): RenderPipelinePlan {
+  return {
+    passes: [
+      { order: 1, id: 'depth-prepass', detail: 'mundo opaco a buffer half-res; todo shader VFX lo muestrea para intersecciones suaves' },
+      { order: 2, id: 'distortion-hook', detail: 'offsets UV screen-space half-res; vacio hoy, es EL gancho de una refraccion futura' },
+      { order: 3, id: 'scene', detail: 'render con sombras direccionales actualizadas UNA vez por frame' },
+      { order: 4, id: 'bloom', detail: 'alimentado por glow global (multiplicador emisivo)' },
+      { order: 5, id: 'tonemap-aces', detail: 'respuesta filmica ACES antes del grade' },
+      { order: 6, id: 'grade', detail: 'aberracion cromatica + lift/gain + contraste + saturacion + temperatura + vineta + grano + flash en UN resample' },
+    ],
+    gradeTerms: ['chromaticAberration', 'lift', 'gain', 'contrast', 'saturation', 'temperature', 'vignette', 'filmGrain', 'impactFlash'],
+    notes: [
+      'pixelRatio capped en 1.75; buffers depth/distortion a media resolucion',
+      'compileAsync durante boot para que el primer cast no compile shaders en caliente',
+      'las 6 luces dinamicas se crean aparcadas a 0: cambiar el conteo recompila TODOS los materiales',
+    ],
+  };
+}
+
+export interface DecalSamplingDesc {
+  sampling: 'plane' | 'angular' | string;
+  domainWarp?: boolean;
+  space?: string;
+}
+
+export interface DecalValidation {
+  ok: boolean;
+  errors: string[];
+  warnings: string[];
+}
+
+// Guarda del anti-patron DOCUMENTADO en el vendor (GroundDecals FROST):
+// manejar la silueta desde atan(y,x) entrega a cada radio del mismo bearing
+// el mismo valor de lobe - literalmente como se dibuja una estrella. La
+// version correcta muestrea EN EL PLANO (q = c * max(0.35, radio)) y deforma
+// el lookup con fbm (patron warp ~0.45) para que las vetas serpenteen.
+export function validateDecalSampling(desc: DecalSamplingDesc): DecalValidation {
+  const errors: string[] = [];
+  const warnings: string[] = [];
+  const s = String(desc.sampling || '').toLowerCase();
+  if (s === 'angular' || s.includes('atan') || s.includes('polar')) {
+    errors.push(
+      'ANGULAR_SAMPLING_DRAWS_STARS: un lookup angular da a cada radio del mismo bearing el mismo valor de lobe - dibuja una estrella/firework, no una quemadura',
+    );
+  }
+  if (!desc.domainWarp) {
+    warnings.push('DOMAIN_WARP_RECOMMENDED: samplea en plano y deforma el lookup con fbm (~0.45) para vetas que serpentean y bifurcan');
+  }
+  return { ok: errors.length === 0, errors, warnings };
+}
+
+export interface GeometryShapeParams {
+  facets: number;
+  taper: number;
+  roughness: number;
+  bend: number;
+}
+
+// Hash estable de SOLO los params de forma que no caben en una transform por
+// instancia y se hornean en geometria (formato de clave del patron upstream:
+// facets entero + 3 decimales fijos). Mover cualquier otro slider NO
+// reconstruye geometria.
+export function geometryShapeHash(p: GeometryShapeParams): string {
+  return Math.round(p.facets) + '|' + Number(p.taper).toFixed(3) + '|' + Number(p.roughness).toFixed(3) + '|' + Number(p.bend).toFixed(3);
+}
+
+export function needsGeometryRebuild(a: GeometryShapeParams, b: GeometryShapeParams): boolean {
+  return geometryShapeHash(a) !== geometryShapeHash(b);
+}
+
+export interface DrawCallBudget {
+  kind: EffectKind;
+  calls: number;
+  breakdown: Array<{ what: string; calls: number }>;
+  caps: Record<string, number>;
+  lights: { poolSize: number; usedByEffect: number };
+}
+
+// Presupuesto de draws medido del upstream: un bolt completo = 2 llamadas sin
+// importar cuantos filamentos (la forma jamas toca la CPU); snare completo 3
+// (+2 si su circulo esta armado); beam 6 (3 pasadas del tubo + coils + discos
+// + orbe); campo de hielo = 3 meshes instanciados, techo 288 cristales.
+export function drawCallBudget(kind: EffectKind, opts: { zoneCircleArmed?: boolean } = {}): DrawCallBudget {
+  switch (kind) {
+    case 'ice':
+      return {
+        kind,
+        calls: 6,
+        breakdown: [
+          { what: 'campo de cristales (3 variantes de facetado)', calls: 3 },
+          { what: 'mist + shards + glitter', calls: 3 },
+        ],
+        caps: { crystals: 288 },
+        lights: { poolSize: LIGHT_POOL_SIZE, usedByEffect: 1 },
+      };
+    case 'lightning':
+      return {
+        kind,
+        calls: 6,
+        breakdown: [
+          { what: 'bolt ribbon halo + core', calls: 2 },
+          { what: 'burns/scorch decals', calls: 1 },
+          { what: 'sparks/motes/smoke/debris', calls: 3 },
+        ],
+        caps: { filaments: 24, samplesPerFilament: 72 },
+        lights: { poolSize: LIGHT_POOL_SIZE, usedByEffect: 1 },
+      };
+    case 'beam':
+      return {
+        kind,
+        calls: 10,
+        breakdown: [
+          { what: 'tubo x3 pasadas (halo/sheath/core sobre UNA geometria)', calls: 3 },
+          { what: 'coils helicoidales instanciadas', calls: 1 },
+          { what: 'discos de choque instanciados', calls: 1 },
+          { what: 'orbe de carga', calls: 1 },
+          { what: 'motes/sparks/steam/debris', calls: 4 },
+        ],
+        caps: { coils: 12, shockDiscs: 16 },
+        lights: { poolSize: LIGHT_POOL_SIZE, usedByEffect: 2 },
+      };
+    default: {
+      const zone = castShapeFor(kind) === 'zone';
+      const circleCalls = zone && opts.zoneCircleArmed ? 2 : 0;
+      return {
+        kind,
+        calls: (zone ? 3 : 4) + circleCalls,
+        breakdown: zone
+          ? [
+              { what: 'jaula instanciada (leash/columna/tentaculos/rim)', calls: 2 },
+              { what: 'campo quemado del suelo (quad vivo re-escalable)', calls: 1 },
+            ]
+          : [
+              { what: 'geometria/proyectil principal', calls: 2 },
+              { what: 'decals de impacto', calls: 1 },
+              { what: 'particulares de familia', calls: 1 },
+            ],
+        caps: zone ? { jaulaRoles: 56 } : {},
+        lights: { poolSize: LIGHT_POOL_SIZE, usedByEffect: 1 },
+      };
+    }
+  }
+}
+
+// Namespace v2: principios avanzados portados del fuente real vendido.
+export const codevfxV2 = {
+  effectSettingsTree,
+  deepMergePreset,
+  fractionalSpawn,
+  resolveSpawnDimensions,
+  lightShimmer,
+  phaseMachine,
+  evaluatePhase,
+  flickerClocks,
+  noiseProfileFor,
+  castShapeFor,
+  aimIndicatorPlan,
+  zoneIndicatorPlan,
+  snappedZoneRadius,
+  particleSystemSpec,
+  renderPipelinePlan,
+  validateDecalSampling,
+  geometryShapeHash,
+  needsGeometryRebuild,
+  drawCallBudget,
+  MAX_CONCURRENT_CASTS,
+  LIGHT_POOL_SIZE,
+};
