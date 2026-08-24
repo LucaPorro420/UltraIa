@@ -60,9 +60,10 @@ describe('AudioLibrary', () => {
 
   it('extractAudioFromVideo degrades with an actionable message', { timeout: 15_000 }, async () => {
     const lib = sampleLib();
-    // With ffmpeg installed the extraction on a bogus URL fails with the
-    // yt-dlp guide; without it, we get the ffmpeg install guide.
+    // Use a local nonexistent path so the test stays hermetic (no network / yt-dlp).
+    // With ffmpeg installed the extraction fails with the yt-dlp guide; without it,
+    // we get the ffmpeg install guide.
     const pattern = hasCommand('ffmpeg') ? /Could not extract audio/ : /winget install Gyan\.FFmpeg/;
-    await expect(lib.extractAudioFromVideo('https://example.com/v.mp4', 'clip')).rejects.toThrow(pattern);
+    await expect(lib.extractAudioFromVideo('./does-not-exist-video.mp4', 'clip')).rejects.toThrow(pattern);
   });
 });
