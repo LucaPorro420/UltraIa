@@ -34,9 +34,9 @@ if (-not (Test-Path $ViteNode)) {
 $Action = "cmd /c cd /d `"$Root`" && `"$ViteNode`" Task/cerebro-cycle.ts --run"
 
 if ($Mode -eq 'daily') {
-    schtasks /Create /F /TN $TaskName /SC DAILY /ST ($At.Replace(':', ''))
+    schtasks /Create /F /TN $TaskName /SC DAILY /ST ($At.Replace(':', '')) /TR $Action
 } else {
-    schtasks /Create /F /TN $TaskName /SC MINUTE /MO ([Math]::Max(5, $EveryNMinutes))
+    schtasks /Create /F /TN $TaskName /SC MINUTE /MO ([Math]::Max(5, $EveryNMinutes)) /TR $Action
 }
 Write-Host "[cerebro] tarea programada '$TaskName' ($Mode $(if ($Mode -eq 'daily') { $At } else { "$EveryNMinutes min" }))."
 Write-Host "[cerebro] probar manualmente: `"$ViteNode`" Task/cerebro-cycle.ts --run"

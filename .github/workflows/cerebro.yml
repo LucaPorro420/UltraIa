@@ -1,0 +1,101 @@
+# -----------------------------------------------------------------------------
+# CEREBRO EN LA NUBE (iter-102) — 100% gratis con GitHub Actions.
+#
+# El Cerebro corre AUTONOMO aunque tu PC esté apagado: cada 4 horas ejecuta un
+# ciclo completo LEARN → CREATE (objetos matemáticos PNG/OBJ/glTF + videos
+# procedurales MP4 con ffmpeg preinstalado en el runner) → REPORT, y commitea
+# la evidencia al repo (resultTask/cerebro/). Los MP4 y artefactos completos
+# quedan como artifacts del workflow (14 días).
+#
+# Coste: 0. Actions es gratis e ilimitado en repos públicos y trae 2.000
+# min/mes en privados; este job usa ~3-5 min por corrida (~500 min/mes a
+# cada 4h) -> ajustar `cron` si se quiere menos consumo.
+#
+# NOTA de publicaciones: la cola Publication vive en SQLite local (dev.db no
+# va al repo). En la nube el ciclo produce artefactos + evidencia; el encolado
+# real de canales ocurre cuando el web app corre contra su BD (local o
+# desplegada - ver DEPLOY.md). Patrón idéntico al latido (iter-82/90).
+# -----------------------------------------------------------------------------
+name: Cerebro (autonomo)
+
+on:
+  schedule:
+    # Cada 4 horas. Cron de Actions es UTC.
+    - cron: '0 */4 * * *'
+  workflow_dispatch:
+    inputs:
+      videos:
+        description: 'Videos procedurales por ciclo'
+        type: number
+        default: 1
+
+permissions:
+  contents: write # para commitear la evidencia
+
+concurrency:
+  group: cerebro
+  cancel-in-progress: false
+
+jobs:
+  ciclo:
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: file:./dev.db
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+      - run: npm run db:generate
+      - name: Migrar BD efimera (cola del ciclo)
+        run: npx prisma migrate deploy --schema packages/core/prisma/schema.prisma
+
+      # ffmpeg ya viene preinstalado en ubuntu-latest; verificar por evidencia.
+      - name: Verificar ffmpeg
+        run: which ffmpeg && ffmpeg -version | head -1
+
+      - name: Configurar ciclo (pequeño y barato)
+        run: |
+          mkdir -p .ultraia/cerebro
+          printf '%s' '{"videosPorCiclo":${{ inputs.videos || 1 }},"objetosPorCiclo":2,"segundosPorVideo":4,"fps":12,"ancho":320,"alto":180,"maxBriefs":1}' > .ultraia/cerebro/config.json
+
+      - name: Ciclo del Cerebro (LEARN -> CREATE -> PUBLISH -> REPORT)
+        continue-on-error: true
+        run: npx vite-node Task/cerebro-cycle.ts --run
+
+      - name: Copiar evidencia versionable
+        if: always()
+        run: |
+          mkdir -p resultTask/cerebro
+          LATEST=$(ls -1dt .ultraia/cerebro/2*/ 2>/dev/null | head -1 || true)
+          if [ -n "$LATEST" ]; then
+            cp "$LATEST/report.md" resultTask/cerebro/report.md || true
+            cp "$LATEST/manifest.json" resultTask/cerebro/manifest.json || true
+            echo "ciclo=$LATEST" >> "$GITHUB_ENV"
+          fi
+          cp .ultraia/cerebro/state.json resultTask/cerebro/state.json || true
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cerebro-${{ github.run_number }}
+          path: |
+            .ultraia/cerebro/
+          retention-days: 14
+
+      - name: Commitear la evidencia
+        if: always()
+        run: |
+          git config user.name  "ultraia-cerebro[bot]"
+          git config user.email "ultraia-cerebro@users.noreply.github.com"
+          git add resultTask/cerebro/
+          if git diff --cached --quiet; then
+            echo "sin cambios en el ciclo"
+          else
+            git commit -m "chore(cerebro): ciclo autonomo $(date -u +%F-%H%M) [skip ci]"
+            git push
+          fi

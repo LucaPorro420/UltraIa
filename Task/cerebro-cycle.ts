@@ -56,7 +56,9 @@ const SHOW_SCHEDULE = process.argv.includes('--schedule');
 
 function has(cmd: string): boolean {
   try {
-    execFileSync('where', [cmd], { stdio: 'pipe' });
+    // Windows usa `where`; Linux/macOS usa `which` (CI ubuntu-latest).
+    const finder = process.platform === 'win32' ? 'where' : 'which';
+    execFileSync(finder, [cmd], { stdio: 'pipe' });
     return true;
   } catch {
     return false;
