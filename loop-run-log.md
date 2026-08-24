@@ -2523,3 +2523,16 @@ de código, sin commit.
 **[R] Veredicto**
 - **GREEN** → commits ae5b32b (+ docs/demo). Tarea 93 completada: las tres librerías procedurales existen, están testeadaas (63 tests), commiteadas y DEMOSTRADAS con render real (PNG/OBJ/glTF/MP4 ffprobe-verificado). El eje "matemática -> objeto/imagen/video real" queda cerrado punta a punta salvo wiring de tools (pendiente documentado con artefactos listos).
 - Siguiente ciclo: (1) aplicar wiring desde %TEMP% cuando #92 libere llm/index; (2) opcional GIF encoder puro TS; (3) puente procvid -> Publication canal local.
+
+### Cierre final iter-93 (23/08/2026 ~23:58) — wiring COMPLETADO
+
+**[I] adicional**
+- \b4ed37\ feat(core): wiring aditivo geometry_build/png_render/procvid_render sobre el geom de loop-92 (4 archivos, +363/-86). La sesión #92 commiteó SU geom (\2c74084\ + wiring \8de6080\ + docs \2947a87\) — mis hunks se re-aplicaron ADITIVAMENTE sobre su base (convivencia tools.geom_ + tools.geometry_build/png_render/procvid_render).
+- Fix tests: import de MIEMBROS vía dynamic import (export * no exporta el objeto namespace); PngRenderResult es tipo → verificado por tsc.
+
+**[V] FULL definitivo (árbol con AMBOS wirings)**
+- typecheck **0** · lint **0** · test **EXIT 0** (core + runtime 193) · build **0** (.next limpio; reintento post-kill de proceso huérfano del timeout previo).
+
+**[R] Veredicto FINAL**
+- **GREEN** → loop-93 COMPLETO punta a punta: 3 librerías (ae5b32b) + demo real ffprobe-verificado (55a7030) + wiring conviviendo con geom (fb4ed37). El diferido queda ANULADO: no hay pendiente de wiring.
+- Lecciones en LEARNINGS pendientes de próxima pasada doc-reminder.
