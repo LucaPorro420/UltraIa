@@ -2536,3 +2536,41 @@ de código, sin commit.
 **[R] Veredicto FINAL**
 - **GREEN** → loop-93 COMPLETO punta a punta: 3 librerías (ae5b32b) + demo real ffprobe-verificado (55a7030) + wiring conviviendo con geom (fb4ed37). El diferido queda ANULADO: no hay pendiente de wiring.
 - Lecciones en LEARNINGS pendientes de próxima pasada doc-reminder.
+
+---
+
+## Iteración 94 — Mejoras procedurales F2: GIF animado puro TS (24/08/2026)
+
+**[P] Plan**
+- Objetivo (pedido usuario: "continua las mejoras"): cerrar los pendientes vivos del [R]-93.
+- (1) \pngrender.encodeGif\: GIF89a animado 100% TypeScript — paleta global fija RGB332
+  (determinista), LZW variable-width estándar, NETSCAPE loop, GCE delays; writeGifAtomic.
+  Camino keyless-TOTAL para loops cortos SIN ffmpeg. Guardas ≤512px/≤600 frames.
+- (2) procvid: renderGifBytes + acción 'gif' en procvid_render + descriptor actualizado.
+- (3) LEARNINGS.md lección iter-93 (concurrencia/sabotaje -> commit temprano pathspec).
+- (4) demo: .ultraia/procedural/demo.gif + evidencia ligera.
+- Criterios: ~19 tests nuevos + FULL verde; PREDICCIÓN GIF byte-idéntico; housekeeping:
+  restaurar 7 wiring tests commiteados borrados por el actor externo (HECHO al abrir ciclo).
+- Plan file: .opencode/plans/loop-94-procedural-gif.md
+
+**[I] Commits**
+- (pendiente)
+
+**[V] Gates**
+- (pendiente)
+
+**[R] Veredicto**
+- (pendiente)
+
+**[I] Commits**
+- \7b3426\ feat(core): GIF89a animado puro TypeScript (encodeGif RGB332+LZW, roundtrip test) + procvid.renderGifBytes + accion gif en procvid_render - loops keyless sin ffmpeg (6 archivos, +542/-31; incluye FIX: procvid.ts habia quedado version VIEJA en ae5b32b por revert del actor en la ventana add->commit — namespace procvid restaurado).
+- Commit final docs/demo/STATE (hash en [R]).
+
+**[V] Gates**
+- Scoped: pngrender.gif **12/12** (incluye ROUNDTRIP REAL con decoder LZW minimo) + procvid.gif **5/5** · tsc core 0.
+- FULL: typecheck **0** ✅ · lint **0** ✅ · test **EXIT 0** ✅ (cuarentena WIP ajeno recordly.test.ts: sus 2 fallos propios, no mios — restaurado byte-exact tras gates) · build **0** ✅ (.next limpio).
+- Demo real: demo.gif **6157 bytes** — firma GIF89a ✔ trailer 0x3b ✔ NETSCAPE loop ✔ (16 frames shape-morph); evidencia frame en resultTask/procedural/demo-gif-preview.png.
+
+**[R] Veredicto**
+- **GREEN** → iter-94 COMPLETA: el eje procedural ya produce GIF animados 100% TypeScript SIN ffmpeg (camino keyless total). Lecciones 93/94 registradas en LEARNINGS.md (commits tempranos pathspec, here-strings PS, export * vs namespace, verificacion git show HEAD:<file>).
+- Siguiente ciclo opcional: median-cut quantization para paletas optimizadas; puente procvid->Publication canal local.

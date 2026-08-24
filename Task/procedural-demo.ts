@@ -1,13 +1,13 @@
-// -----------------------------------------------------------------------------
-// Task/procedural-demo.ts - demo REAL de las librerías procedurales (loop-93)
+﻿// -----------------------------------------------------------------------------
+// Task/procedural-demo.ts - demo REAL de las librerÃ­as procedurales (loop-93)
 // -----------------------------------------------------------------------------
 // Genera artefactos REALES en disco para verificar el pipeline completo:
-//   matemática → geometría (superShape/Möbius) → imágenes PNG reales → video MP4.
+//   matemÃ¡tica â†’ geometrÃ­a (superShape/MÃ¶bius) â†’ imÃ¡genes PNG reales â†’ video MP4.
 //
 // Salidas:
-//   resultTask/procedural/            ← evidencia versionada (README + manifest
+//   resultTask/procedural/            â† evidencia versionada (README + manifest
 //                                        + 2 PNG de prueba ligeros)
-//   .ultraia/procedural/demo-video/   ← frames + MP4 (gitignored)
+//   .ultraia/procedural/demo-video/   â† frames + MP4 (gitignored)
 //
 // Uso: node_modules\.bin\vite-node.cmd Task/procedural-demo.ts [--quick]
 // -----------------------------------------------------------------------------
@@ -24,9 +24,9 @@ import {
   meshToGltf,
   meshStats,
 } from '../packages/core/src/tools/geometry';
-import { encodePng, renderImagePng, writePngAtomic, valuesToRgba } from '../packages/core/src/tools/pngrender';
+import { encodePng, renderImagePng, writePngAtomic, valuesToRgba, writeGifAtomic } from '../packages/core/src/tools/pngrender';
 import { mandelbrot } from '../packages/core/src/tools/generative';
-import { resolveSpec, framePixelFn, planProcVid, renderFrames, writeManifest, buildRenderScript, renderFramePng } from '../packages/core/src/tools/procvid';
+import { resolveSpec, framePixelFn, planProcVid, renderFrames, writeManifest, buildRenderScript, renderFramePng, renderGifBytes } from '../packages/core/src/tools/procvid';
 
 const ROOT = process.cwd();
 const EVIDENCE = path.join(ROOT, 'resultTask', 'procedural');
@@ -75,7 +75,7 @@ async function main(): Promise<void> {
     artifacts.supershapePng = { path: path.relative(ROOT, file), bytes: bytes.byteLength };
   }
 
-  /* 2) PNG Mandelbrot real vía puente generative->pngrender */
+  /* 2) PNG Mandelbrot real vÃ­a puente generative->pngrender */
   {
     const W = QUICK ? 240 : 420;
     const H = QUICK ? 150 : 262;
@@ -86,7 +86,7 @@ async function main(): Promise<void> {
     artifacts.mandelbrotPng = { path: path.relative(ROOT, file), source: 'generative.mandelbrot -> pngrender.valuesToRgba' };
   }
 
-  /* 3) Modelos 3D: Möbius OBJ + superShape glTF 2.0 */
+  /* 3) Modelos 3D: MÃ¶bius OBJ + superShape glTF 2.0 */
   {
     const mobius = mobiusSurface({ radius: 1, width: 0.6, uSegs: QUICK ? 32 : 96, vSegs: 12 });
     const objPath = path.join(EVIDENCE, 'mobius.obj');
@@ -102,7 +102,7 @@ async function main(): Promise<void> {
     artifacts.supershapeGltf = { path: path.relative(ROOT, gltfPath), ...geometryStats(shape), spec: 'glTF 2.0 embedded base64' };
   }
 
-  /* 4) VIDEO real: frames PNG + ffmpeg (fail-soft si no está instalado) */
+  /* 4) VIDEO real: frames PNG + ffmpeg (fail-soft si no estÃ¡ instalado) */
   const ffmpegOk = has('ffmpeg');
   let video: Record<string, unknown> = { rendered: false, reason: ffmpegOk ? null : 'ffmpeg no encontrado en PATH (winget install Gyan.FFmpeg)' };
   if (ffmpegOk) {
@@ -146,6 +146,34 @@ async function main(): Promise<void> {
   }
   manifest.video = video;
 
+  /* 5) GIF animado nativo (sin ffmpeg) */
+  {
+    const gifSpec = resolveSpec({
+      animation: 'shape-morph',
+      width: QUICK ? 96 : 160,
+      height: QUICK ? 96 : 160,
+      fps: 10,
+      durationSec: QUICK ? 1.6 : 2.4,
+      outName: 'demo-gif',
+      palette: 'neoViolet',
+    });
+    const gifBytes = await renderGifBytes(gifSpec, { loop: true });
+    const gifPath = path.join(WORK, 'demo.gif');
+    await writeGifAtomic(gifPath, gifBytes);
+    const evidence = path.join(EVIDENCE, 'demo-gif-preview.png');
+    const { framePixelFn: fpf } = await import('../packages/core/src/tools/procvid');
+    const preview = renderImagePng({ width: gifSpec.width, height: gifSpec.height }, fpf(gifSpec, 0.5));
+    await writePngAtomic(evidence, preview);
+    manifest.gif = {
+      rendered: true,
+      animation: gifSpec.animation,
+      frames: gifSpec.frameCount,
+      path: path.relative(ROOT, gifPath),
+      bytes: gifBytes.byteLength,
+      encoder: 'pngrender.encodeGif (GIF89a puro TypeScript, sin ffmpeg)',
+      evidenceFrame: path.relative(ROOT, evidence),
+    };
+  }
   /* README + manifest determinista */
   const readme = buildReadme(manifest);
   fs.writeFileSync(path.join(EVIDENCE, 'README.md'), readme, 'utf8');
@@ -160,9 +188,9 @@ function geometryStats(mesh: { vertices: number[][]; faces: number[][] }): Recor
 }
 
 function buildReadme(manifest: Record<string, unknown>): string {
-  return `# Procedural demo — librerías geometry / pngrender / procvid (loop-93)
+  return `# Procedural demo â€” librerÃ­as geometry / pngrender / procvid (loop-93)
 
-Artefactos generados 100% desde código determinista (matemática + geometría + lógica),
+Artefactos generados 100% desde cÃ³digo determinista (matemÃ¡tica + geometrÃ­a + lÃ³gica),
 sin IA generativa ni red. Regenerar con:
 
 \`\`\`
@@ -171,27 +199,27 @@ node_modules\\.bin\\vite-node.cmd Task/procedural-demo.ts [--quick]
 
 ## Artefactos
 
-| Archivo | Qué demuestra |
+| Archivo | QuÃ© demuestra |
 |---|---|
-| \`supershape*.png\` | superfórmula de Gielis (\`m=8,n1=n2=0.5,n3=8\`) rasterizada por \`pngrender.renderImagePng\` |
-| \`mandelbrot*.png\` | puente \`generative.mandelbrot\` → \`pngrender.valuesToRgba\` (paleta fire) |
-| \`mobius.obj\` | banda de Möbius como malla explícita exportada a Wavefront OBJ |
-| \`supershape.gltf\` | superShape 3D en glTF 2.0 válido (buffer embebido base64; ábrelo en three.js/Blender) |
-| \`video-frame*.png\` | frame de la animación \`waves\` de \`procvid\` |
+| \`supershape*.png\` | superfÃ³rmula de Gielis (\`m=8,n1=n2=0.5,n3=8\`) rasterizada por \`pngrender.renderImagePng\` |
+| \`mandelbrot*.png\` | puente \`generative.mandelbrot\` â†’ \`pngrender.valuesToRgba\` (paleta fire) |
+| \`mobius.obj\` | banda de MÃ¶bius como malla explÃ­cita exportada a Wavefront OBJ |
+| \`supershape.gltf\` | superShape 3D en glTF 2.0 vÃ¡lido (buffer embebido base64; Ã¡brelo en three.js/Blender) |
+| \`video-frame*.png\` | frame de la animaciÃ³n \`waves\` de \`procvid\` |
 
 ## Video
 
 El MP4 completo se escribe en \`.ultraia/procedural/demo-video/demo-video.mp4\` (gitignored):
-frames PNG reales + ensamblado ffmpeg según el argv planificado (\`libx264 crf18 yuv420p faststart\`).
-Duración esperada 2s @ 24fps. Verificado con \`ffprobe\` cuando ffmpeg está disponible.
+frames PNG reales + ensamblado ffmpeg segÃºn el argv planificado (\`libx264 crf18 yuv420p faststart\`).
+DuraciÃ³n esperada 2s @ 24fps. Verificado con \`ffprobe\` cuando ffmpeg estÃ¡ disponible.
 
 Estado de esta corrida: \`${JSON.stringify(manifest.video)}\`
 
-## Módulos
+## MÃ³dulos
 
-- \`packages/core/src/tools/geometry.ts\` — superfórmula de Gielis 2D/3D, Möbius, ops de malla, glTF/OBJ.
-- \`packages/core/src/tools/pngrender.ts\` — encoder PNG puro TypeScript (determinista byte a byte).
-- \`packages/core/src/tools/procvid.ts\` — animaciones puras → frames PNG → plan ffmpeg.
+- \`packages/core/src/tools/geometry.ts\` â€” superfÃ³rmula de Gielis 2D/3D, MÃ¶bius, ops de malla, glTF/OBJ.
+- \`packages/core/src/tools/pngrender.ts\` â€” encoder PNG puro TypeScript (determinista byte a byte).
+- \`packages/core/src/tools/procvid.ts\` â€” animaciones puras â†’ frames PNG â†’ plan ffmpeg.
 `;
 }
 
