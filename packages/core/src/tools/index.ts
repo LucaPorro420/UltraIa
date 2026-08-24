@@ -28,6 +28,7 @@ export * from './geom';
 // geometry/pngrender/procvid (loop-93): simbolos unicos Geo*/Png*/procvid - sin colision TS2308 con geom.
 export * from './geometry';
 export * from './pngrender';
+export * as recordly from './recordly';
 export * from './procvid';
 // cadgeo/evo/evolution (loop-94 Motor Evolutivo): sin colisiones verificadas por grep.
 // physics2d NO va por export *: exporta `Vec2` que ya vive en geom/geometry -> se
