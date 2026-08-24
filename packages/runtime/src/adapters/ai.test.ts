@@ -30,10 +30,14 @@ describe('createCoreAiGateway', () => {
     await ai.close();
   });
 
-  it('google without GOOGLE_API_KEY pings unhealthy', async () => {
+  // Contrato post-refactor local-first (#92 3da0905, cerrado en iter-96 para core):
+  // un proveedor cloud sin clave NO lanza AiUnavailableError — tryResolve cae a la
+  // cadena local (ollama → lmstudio), que se construye SIN tocar la red. ping() es
+  // construcción-only, así que el resultado es determinista en cualquier máquina.
+  it('cloud provider sin clave cae a local-first y ping healthy', async () => {
     const ai = createCoreAiGateway({ provider: 'google' });
     expect(ai.provider).toBe('google');
-    expect(await ai.ping()).toBe(false);
+    expect(await ai.ping()).toBe(true);
   });
 
   it('google with a key pings healthy', async () => {
@@ -42,9 +46,9 @@ describe('createCoreAiGateway', () => {
     expect(await ai.ping()).toBe(true);
   });
 
-  it('deepseek/openai without keys ping unhealthy', async () => {
-    expect(await createCoreAiGateway({ provider: 'deepseek' }).ping()).toBe(false);
-    expect(await createCoreAiGateway({ provider: 'openai' }).ping()).toBe(false);
+  it('deepseek/openai sin claves caen a local-first (ping healthy, sin lanzar)', async () => {
+    expect(await createCoreAiGateway({ provider: 'deepseek' }).ping()).toBe(true);
+    expect(await createCoreAiGateway({ provider: 'openai' }).ping()).toBe(true);
   });
 
   it('applies model override and sets ULTRAIA_MODEL', async () => {

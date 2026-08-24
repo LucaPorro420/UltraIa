@@ -9,8 +9,9 @@ import type { AiGatewayAdapter } from './ports';
  *   sobrescribe valores ya presentes (mismo principio que el Installer con `.env`).
  * - `ping()` = intenta construir el modelo con `resolveModel` sin llamar a la API:
  *   - ollama/lmstudio → true sin claves (local, gratuito);
- *   - openai/google/deepseek sin key → `AiUnavailableError` → false (no configurado);
- *   - nunca gasta tokens.
+ *   - openai/google/deepseek sin key → el fallback local-first de core (#92) construye
+ *     ollama/lmstudio sin red → true (el gateway SIEMPRE resuelve un modelo);
+ *   - false solo si NI la cadena local puede construirse; nunca gasta tokens.
  */
 
 export interface AiGatewayAdapterOptions {
