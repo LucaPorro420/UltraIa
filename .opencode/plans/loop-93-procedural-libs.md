@@ -140,3 +140,39 @@ Tres capabilities nuevas en packages/core, dominio puro determinista keyless 0 d
 | Colisión exports TS2308 | exports EXPLÍCITOS si hace falta + grep símbolos pre-commit |
 | Raza con sesión #92 en gates | heartbeat lock + backup SHA256 + commit pathspec apenas verdes |
 | Perf demo (~61M px) | caps anti-runaway; 4s@480×854 aceptable |
+
+## VERIFICACIÓN TAKEOVER — geometry / pngrender / procvid (23/08, piv-build)
+
+El usuario pidió "ambos": dejar `geom` enviado Y tomar el relevo de geometry/pngrender/procvid
+desde la sesión hermana de la MISMA tarea 93 (que tenía WIP roto sin commitear encima de los
+commits buenos). Hallazgo clave: **los tres módulos YA ESTABAN commITEADOS Y WIREADOS** en git:
+- `ae5b32b` (feat(core): librerias procedurales - geometry/pngrender/procvid con 63 tests)
+- `8de6080` (mi wiring de `geom`) ya contenía también `geometry_build`/`png_render`/`procvid_render`
+  en `ai/llm.ts` (imports `import * as geometry/pngrender/procvid`, guards
+  `opts.tools?.includes('geometry'|'pngrender'|'procvid')`, handlers que llaman exactamente los
+  símbolos exportados por cada módulo).
+- `index.ts` ya tiene `export * from './geometry'/'./pngrender'/'./procvid'` (sin colisión con
+  `geom`: geometry usa `GeoMesh`/`GeoPoint2`/`geometry`, geom usa `GeomMesh`/`GeomVec3`).
+
+Así que el "takeover" fue: restaurar versiones commiteadas buenas (`git checkout` de los 3 módulos
++ index/llm), cuarentenar SOLO archivos ajenos (recordly* + 7 `*.wiring.test.ts`) durante gates, y
+verificar. **Gates FULL (CI order) — TODOS VERDES:**
+- typecheck root ✅ · core `tsc --noEmit` ✅
+- lint ✅ ("No ESLint warnings or errors")
+- test core `--no-cache`: **89 files / 1386 tests PASS** (geometry 19 + pngrender 17 + procvid 16 =
+  52 de las 3 capabilities; + geom 50 + resto). NOTA: `npm run test -- --no-cache` desde root NO
+  reenvía el flag (muestra 193 stale) → correr `npx vitest run --no-cache` en packages/core.
+- build web ✅ (`BUILD_EXIT:0`, reproducible tras `Remove-Item .next` + kill dev servers).
+
+**Incidente de build transitorio**: el primer `next build` falló con
+`pngrender.ts:476 Type 'number' is not assignable to type 'void'` (spurious). Causa: la sesión
+hermana VIVA reescribía `pngrender.ts` a mitad de su type-check. Confirmado reproducible-green
+cuando `pngrender.ts`/`geometry.ts`/`procvid.ts` coinciden con HEAD (`git diff --quiet` → 0) y no
+hay dev server. Lección: ante sesión concurrente, el build puede dar error falso si ella pisa el
+mismo archivo durante el type-check → verificar `git diff --quiet` de los módulos bajo prueba y
+re-correr build antes de diagnosticar.
+
+**Resultado**: geom + geometry + pngrender + procvid = 4 capabilities de programación matemática
+2D/3D/video, todas commiteadas, wireadas y con gates verdes. NO hubo nuevos commits de código en
+este takever (el código ya estaba en git); solo se cuarentenó/restauró WIP ajeno y se verificó.
+WIP ajeno (recordly*, wiring tests) restaurado byte-exact; lock de loop liberado.
