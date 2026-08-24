@@ -1,6 +1,6 @@
 ﻿import { generateObject, generateText, streamText, tool, type LanguageModel, type Tool } from 'ai';
-import { createOpenAI, openai } from '@ai-sdk/openai';
-import { google } from '@ai-sdk/google';
+import { createOpenAI } from '@ai-sdk/openai';
+import { createGoogleGenerativeAI } from '@ai-sdk/google';
 import { z } from 'zod';
 import type { AiGateway, ChatMessage, ChatTextInput, StructuredGenInput } from './gateway';
 import { AiUnavailableError } from './gateway';
@@ -104,26 +104,36 @@ import { join } from 'node:path';
 
 const modelCache = new Map<string, LanguageModel>();
 
+// --- Model request reliability: a hard timeout so a slow or unreachable local model
+// (Ollama / LM Studio) can NEVER hang the browser stream forever. Node's global fetch already
+// reuses keep-alive connections, so we only add the timeout here. ---
+const PROVIDER_TIMEOUT_MS = Number(process.env.ULTRAIA_MODEL_TIMEOUT_MS || 120_000);
+
+export const modelFetch: typeof fetch = (input, init) => {
+  const signal = init?.signal ?? AbortSignal.timeout(PROVIDER_TIMEOUT_MS);
+  return fetch(input, { ...init, signal });
+};
+
 function googleModel(name: string): LanguageModel {
   if (!process.env.GOOGLE_API_KEY) {
     throw new AiUnavailableError(
       'GOOGLE_API_KEY is not set (ULTRAIA_PROVIDER=google). Get a free key at https://aistudio.google.com/apikey.',
     );
   }
-  return google(name);
+  return createGoogleGenerativeAI({ apiKey: process.env.GOOGLE_API_KEY, fetch: modelFetch })(name);
 }
 
 // Ollama serves an OpenAI-compatible API locally â€” fully free (Meta Llama, Microsoft Phi, etc.).
 function ollamaModel(name: string): LanguageModel {
   const baseURL = process.env.OLLAMA_BASE_URL || 'http://localhost:11434/v1';
-  const provider = createOpenAI({ baseURL, apiKey: 'ollama', compatibility: 'compatible' });
+  const provider = createOpenAI({ baseURL, apiKey: 'ollama', compatibility: 'compatible', fetch: modelFetch });
   return provider(name);
 }
 
 // LM Studio serves an OpenAI-compatible API locally â€” fully free (Qwen, Llama, etc.).
 function lmstudioModel(name: string): LanguageModel {
   const baseURL = process.env.LMSTUDIO_BASE_URL || 'http://localhost:1234/v1';
-  const provider = createOpenAI({ baseURL, apiKey: 'lmstudio', compatibility: 'compatible' });
+  const provider = createOpenAI({ baseURL, apiKey: 'lmstudio', compatibility: 'compatible', fetch: modelFetch });
   return provider(name);
 }
 
@@ -133,7 +143,7 @@ function openaiModel(name: string): LanguageModel {
       'OPENAI_API_KEY is not set. Add it to apps/web/.env (see .env.example) to enable agent design, evaluation and chat.',
     );
   }
-  return openai(name);
+  return createOpenAI({ apiKey: process.env.OPENAI_API_KEY, fetch: modelFetch })(name);
 }
 
 // DeepSeek is OpenAI-compatible: point the SDK at its base URL with a (free) key.
@@ -147,6 +157,7 @@ function deepseekModel(name: string): LanguageModel {
     baseURL: process.env.DEEPSEEK_BASE_URL || 'https://api.deepseek.com/v1',
     apiKey: process.env.DEEPSEEK_API_KEY,
     compatibility: 'compatible',
+    fetch: modelFetch,
   });
   return provider(name);
 }
@@ -156,37 +167,59 @@ function deepseekModel(name: string): LanguageModel {
  * (openai | google | ollama | lmstudio). Keeps the user's existing OpenAI path
  * as an option while defaulting to local Ollama (Llama/Phi) â€” free, no keys.
  */
-export function resolveModel(model?: string): LanguageModel {
-  // * Por defecto Ollama (local, sin API key). Cambia ULTRAIA_PROVIDER para usar
-  // * openai / google / deepseek / lmstudio.
-  const provider = (process.env.ULTRAIA_PROVIDER || 'ollama').toLowerCase();
-  const defaultName =
-    provider === 'google'
-      ? 'gemini-2.5-flash'
-      : provider === 'ollama'
-        ? 'llama3.1'
-        : provider === 'lmstudio'
-          ? 'qwen2.5-7b-instruct'
-          : provider === 'deepseek'
-            ? 'deepseek-chat'
-            : 'gpt-4o-mini';
-  const name = model || process.env.ULTRAIA_MODEL || defaultName;
-  const cacheKey = `${provider}:${name}`;
-  let cached = modelCache.get(cacheKey);
-  if (!cached) {
-    cached =
-      provider === 'google'
-        ? googleModel(name)
-        : provider === 'ollama'
-          ? ollamaModel(name)
-          : provider === 'lmstudio'
-            ? lmstudioModel(name)
-            : provider === 'deepseek'
-              ? deepseekModel(name)
-              : openaiModel(name);
-    modelCache.set(cacheKey, cached);
+function defaultNameFor(provider: ProviderName): string {
+  switch (provider) {
+    case 'google': return 'gemini-2.5-flash';
+    case 'ollama': return 'llama3.1';
+    case 'lmstudio': return 'qwen2.5-7b-instruct';
+    case 'deepseek': return 'deepseek-chat';
+    default: return 'gpt-4o-mini';
   }
-  return cached;
+}
+
+function buildProvider(p: ProviderName, name: string): LanguageModel {
+  switch (p) {
+    case 'google': return googleModel(name);
+    case 'ollama': return ollamaModel(name);
+    case 'lmstudio': return lmstudioModel(name);
+    case 'deepseek': return deepseekModel(name);
+    case 'openai': return openaiModel(name);
+  }
+}
+
+/**
+ * Resolve a LanguageModel by provider (ULTRAIA_PROVIDER). Local-first: if the configured
+ * provider is unavailable (e.g. missing API key) it falls back to Ollama then LM Studio so the
+ * agent keeps working fully offline ("IA local sin intermediario"). Every provider request carries
+ * a hard timeout via `modelFetch`, so a dead/slow model can never hang the UI stream.
+ */
+export function resolveModel(model?: string): LanguageModel {
+  const primary = (process.env.ULTRAIA_PROVIDER || 'ollama') as ProviderName;
+  const name = model || process.env.ULTRAIA_MODEL || defaultNameFor(primary);
+  const direct = modelCache.get(`${primary}:${name}`);
+  if (direct) return direct;
+  return tryResolve(name, primary);
+}
+
+function tryResolve(name: string, primary: ProviderName): LanguageModel {
+  const order: ProviderName[] = [primary];
+  if (primary !== 'ollama') order.push('ollama');
+  if (primary !== 'lmstudio') order.push('lmstudio');
+  let lastErr: unknown;
+  for (const p of order) {
+    try {
+      const built = buildProvider(p, name);
+      modelCache.set(`${p}:${name}`, built);
+      return built;
+    } catch (e) {
+      if (e instanceof AiUnavailableError) {
+        lastErr = e;
+        continue;
+      }
+      throw e;
+    }
+  }
+  throw lastErr ?? new AiUnavailableError('No local model provider available (Ollama/LMStudio).');
 }
 
 export type ProviderName = 'openai' | 'google' | 'ollama' | 'lmstudio' | 'deepseek';
