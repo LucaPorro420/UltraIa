@@ -32,5 +32,18 @@
     "mp4Bytes": 37356,
     "probedDurationSec": 2,
     "expectedDurationSec": 2
+  },
+  "gif": {
+    "rendered": true,
+    "animation": "shape-morph",
+    "frames": 16,
+    "path": ".ultraia\\procedural\\demo.gif",
+    "bytes": 6157,
+    "encoder": "pngrender.encodeGif (GIF89a puro TypeScript, sin ffmpeg)",
+    "mediancut": {
+      "path": ".ultraia\\procedural\\demo-gif-mc.gif",
+      "bytes": 4394
+    },
+    "evidenceFrame": "resultTask\\procedural\\demo-gif-preview.png"
   }
 }

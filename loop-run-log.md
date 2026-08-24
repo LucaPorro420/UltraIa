@@ -2727,3 +2727,13 @@ de código, sin commit.
 ```json
 {"pattern":"pivr","iter":98,"items_found":3,"escalations":0,"gates":{"typecheck":0,"lint":0,"test":0,"build":0},"scoped":{"tsc_core":0,"motor_evolutivo":89,"runtime_ai":7},"commits":["a08d858","bd5a967","aa8b2bc"],"lock":"r98-UTEC-5695-20260824-PIVB"}
 ```
+
+### [P]/[I]/[V]/[R] Iteracion 99 - recordly + browser-e2e + verificacion codevfx v2 (24/08/2026, sesion r99)
+
+- **[P] Sensado**: pedido usuario "continua con los procesos pendientes... commit y push" (autorizacion de push explicita 24/08). Lock r98 propio activo (toma autorizada). Cola real segun [R] iter-98: capability `recordly` (dominio escrito por #92 sin tests ni wiring), browser-e2e.mjs (plan loop-95), verificacion del arbol sucio de codevfx v2.
+- **[I]** (1) **codevfx v2 VERIFICADO y commiteado**: dominio (+675 l), tests (+306, 29 nuevos casos), wiring llm.ts (12 acciones nuevas: settings/preset/spawn/fases/flicker/ruido/aim/zona/particulas/pipeline/decal_check/budget) + descriptor index.ts v2 + vendor LinearAbiltyCastingThreeJS (MIT, 16MB, referencia). (2) **capability `recordly` COMPLETADA**: recordly.test.ts (39 tests) ya en arbol por #92 - anadido WIRING faltante: import estatico + tool `recordly_plan` (acciones plan/zoom/cursor/export/timeline/manifest) en ai/llm.ts + namespace/tools/TOOL_DESCRIPTIONS/Capability 'recordly' en tools/index.ts. Fix TS: resolveCursorMotionPresetId requiere values (no id suelto) y ExportDimensionsInput usa sourceWidth/sourceHeight. (3) **browser-e2e.mjs** (plan loop-95) + .gitignore shots/. Incidente menor: Set-Content anadio BOM a index.ts (leccion vigente PS 5.1) - detectado por diff de primeros bytes vs HEAD y corregido con WriteAllText UTF8 sin BOM, contenido intacto.
+- **[V]** Scoped: tsc core EXIT 0 - vitest recordly+codevfx+geometry/pngrender/procvid.wiring **97/97**. FULL en orden CI: typecheck **0** - lint **0** - test **0** (core **1564**/1564 en 99 files + runtime **193**/193 = **1757**) - build **0** (sin dev servers, .next limpio).
+- **[R]** iter-99 DONE. Quedan vivos: perf-studio (loop-94-perf-studio), filas #6/#17/#25 human-blocked. Push realizado por autorizacion explicita del usuario en el prompt.
+```json
+{"pattern":"pivr","iter":99,"items_found":3,"escalations":0,"gates":{"typecheck":0,"lint":0,"test":0,"build":0},"scoped":{"tsc_core":0,"scoped_vitest":97,"core_total":1564,"runtime_total":193},"commits":["ver JSON siguiente tras commit"],"lock":"loop-98-codevfx-v2"}
+```

@@ -3,6 +3,21 @@
   "plan": {
     "crear": [
       {
+        "id": 8222415,
+        "vector": [
+          0.608,
+          0.387,
+          0.608,
+          0.332
+        ],
+        "payload": {
+          "tipo": "text",
+          "fuente": "UltraIa capabilities verificadas: search (reach DDG/Exa keyless), image (pollinations/meigen), video (video_edit ffmpeg + travel Ken Burns), code (builder codegen + codevfx), audio (edge-tts + Tunetank) — 20/08/2026",
+          "texto": "\"\"",
+          "respuesta": "edge-tts keyless 100+ voces 14 idiomas detectLang; Tunetank MCP una palabra SSE"
+        }
+      },
+      {
         "id": 22400172,
         "vector": [
           0.524,
@@ -15,6 +30,21 @@
           "fuente": "truth_ai_gen_resources",
           "texto": "\"\"",
           "respuesta": "denoising-diffusion-pytorch: 10.7k stars MIT; Unet+GaussianDiffusion+Trainer; objetivos pred_noise/x0/v; DDIM 250; EMA 0.995; Unet1D para audio"
+        }
+      },
+      {
+        "id": 47264276,
+        "vector": [
+          0.148,
+          0.481,
+          0.148,
+          0.851
+        ],
+        "payload": {
+          "tipo": "text",
+          "fuente": "UltraIa capabilities verificadas: search (reach DDG/Exa keyless), image (pollinations/meigen), video (video_edit ffmpeg + travel Ken Burns), code (builder codegen + codevfx), audio (edge-tts + Tunetank) — 20/08/2026",
+          "texto": "\"\"",
+          "respuesta": "searchWeb DuckDuckGo IA keyless + Exa opcional con EXA_API_KEY; readWeb via r.jina.ai con fallback directo"
         }
       },
       {
@@ -150,6 +180,36 @@
           "fuente": "truth_content_tools",
           "texto": "\"\"",
           "respuesta": ""
+        }
+      },
+      {
+        "id": 417086540,
+        "vector": [
+          0.371,
+          0.649,
+          0.278,
+          0.603
+        ],
+        "payload": {
+          "tipo": "text",
+          "fuente": "UltraIa capabilities verificadas: search (reach DDG/Exa keyless), image (pollinations/meigen), video (video_edit ffmpeg + travel Ken Burns), code (builder codegen + codevfx), audio (edge-tts + Tunetank) — 20/08/2026",
+          "texto": "\"\"",
+          "respuesta": "pollinations keyless URL image.pollinations.ai/prompt/{prompt}?width=&height=&model=flux&nologo=true"
+        }
+      },
+      {
+        "id": 432411874,
+        "vector": [
+          0.514,
+          0.514,
+          0.457,
+          0.514
+        ],
+        "payload": {
+          "tipo": "text",
+          "fuente": "UltraIa capabilities verificadas: search (reach DDG/Exa keyless), image (pollinations/meigen), video (video_edit ffmpeg + travel Ken Burns), code (builder codegen + codevfx), audio (edge-tts + Tunetank) — 20/08/2026",
+          "texto": "\"\"",
+          "respuesta": "builder genera HTML/CSS/JS + React+Tailwind; codevfx genera HTML5 canvas autocontenido"
         }
       },
       {
@@ -540,6 +600,21 @@
           "fuente": "truth_gstack",
           "texto": "Cual es el name del skill raiz gstack?",
           "respuesta": "gstack"
+        }
+      },
+      {
+        "id": 1643988801,
+        "vector": [
+          0.504,
+          0.504,
+          0.252,
+          0.655
+        ],
+        "payload": {
+          "tipo": "text",
+          "fuente": "UltraIa capabilities verificadas: search (reach DDG/Exa keyless), image (pollinations/meigen), video (video_edit ffmpeg + travel Ken Burns), code (builder codegen + codevfx), audio (edge-tts + Tunetank) — 20/08/2026",
+          "texto": "\"\"",
+          "respuesta": "video_edit EDL ffmpeg fades 30ms -c copy faststart; travel Ken Burns zoompan+xfade"
         }
       },
       {

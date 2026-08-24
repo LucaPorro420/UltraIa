@@ -1,0 +1,27 @@
+{
+  "fuente": "Motor Evolutivo (planificacionImplementar DOCX) integrado 24/08/2026, plan loop-94 tarea #94",
+  "fecha_verificacion": "2026-08-24",
+  "verificador": "r94-retoma-20260824",
+  "casos": [
+    {
+      "id": "physics_simulation_2d_determinista",
+      "tema": "physics/simulation",
+      "pregunta": "¿Cómo simular física 2D determinista en UltraIa sin motor externo?",
+      "respuesta": "capability physics2d: Verlet posicional para partículas (velocidad implícita pos-prev, substeps fijos gravity->integrate->container->links->collisions, links stick ponderados por radio^2) y rígidos círculo/caja con impulsos secuenciales multi-iteración (restitución + fricción Coulomb clampeada, corrección Baumgarte una vez por frame de lógica del par, restitución anulada si |velN|<1). Estados zod-validados JSON-serializables; determinismo byte-exact probado por JSON.stringify.",
+      "source": "packages/core/src/tools/physics2d.ts (commit 985f7ea)",
+      "verified": true,
+      "note": "31/31 tests: pirámide de 5 cajas asienta con energía acotada; momento conservado con e=1; contenedores círculo/rect contienen; renderPhysicsHtml autocontenido sin URLs.",
+      "usage": "tool physics_sim (acciones stack/step/render); agente bp-fisico; capability physics2d en llm.ts"
+    },
+    {
+      "id": "genetic_algorithm_optimization_determinista",
+      "tema": "genetic-algorithms",
+      "pregunta": "¿Cómo optimizar vectores numéricos de forma reproducible entre procesos?",
+      "respuesta": "capability evo: PRNG xorshift32 con semilla entera (misma secuencia en cualquier proceso), evolveGeneration PURA con fitnessFn inyectable, selección por torneo k configurable, cruce uniform/arithmetic/blend(BLX-alpha), mutación gaussiana Box-Muller, elitismo. statsEvolution da best/mean/worst/diversidad. Benchmark esférico (-|x|²) converge <50 generaciones con semilla fija y es bit-exact reproducible.",
+      "source": "packages/core/src/tools/evo.ts (commit c512ca7)",
+      "verified": true,
+      "note": "19/19 tests incl. reproducibilidad byte-exact de 1000 salidas del PRNG y de la población evolucionada completa; composición superior en evolution.ts con checkpoints reanudables == corrida completa.",
+      "usage": "tools evo_optimize (benchmark/evolve/stats) y evolution_run (cycle); agentes bp-matematico y bp-orquestador"
+    }
+  ]
+}

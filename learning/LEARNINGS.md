@@ -332,3 +332,16 @@ Implementacion: capability vfx (tools/vfx.ts: planReframe / planUpscale / planLu
       corregido en b7b3426).
 
 - Un `next build` puede dar un TypeScript error FALSO si una sesion concurrente pisa el mismo core tool a mitad de su type-check (23/08, ciclo 93 takeover geometry/pngrender/procvid): el primer build fallo con `pngrender.ts:476 Type 'number' is not assignable to type 'void'` (spurious) porque la sesion hermana reescribia `pngrender.ts` durante el type-check. Regla: ante sesion concurrente en el mismo arbol, (a) `git diff --quiet <modulos>` debe dar 0 (coincidir con HEAD = version buena) antes de build; (b) matar TODO dev server y `Remove-Item -Recurse -Force .next` para no heredar `.next` corrupto de un build truncado; (c) si el build falla con type error en un archivo que core-tsc acaba de aprobar, NO diagnosticar: re-verificar que coincide con HEAD y RE-CORRER build — el error falso desaparece. El green fue reproducible (BUILD_EXIT:0) una vez que pngrender.ts/geometry.ts/procvid.ts coincidian con HEAD.
+
+- **24/08/2026 (loop-98/99, codevfx v2)**: (1) Portear principios desde fuente VENDIDA >> portearlos
+  desde un README indirecto: el README del upstream documenta los PORQUES ("linear on purpose:
+  smoothstep would round the corners off"), pero el codigo confirma las CONSTANTES exactas
+  (snap 1.18, restrike 24 Hz, crawl 3.2, boundary 0.34 m, ventana easeIn 0.08 s, MAX_SPIKES 288)
+  y documenta anti-patrones que solo existen en comentarios del codigo (atan(y,x) dibuja
+  estrellas - GroundDecals FROST). (2) Los records fraccionales del spawn (solo fracciones +
+  seed + timestamps, todo lo demas resuelto contra settings EN EL MOMENTO) son el mecanismo que
+  hace posible editar-en-pausa; es un patron aplicable a CUALQUIER planner determinista nuestro.
+  (3) FP: no tests contra instantes EXACTOS de frontera entre fases acumuladas por restas
+  sucesivas (0.5+1.1+1.2 cae JUSTO debajo del limite binario); samplear pasado el borde.
+  (4) deepMergePreset generico: constraint `<T extends Record<string,unknown>>` rechaza
+  interfaces sin index signature (EffectSettingsTree) - usar `<T>` plano con casts internos.

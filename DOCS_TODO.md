@@ -540,3 +540,267 @@ Cada commit agrega una sección con fecha y la lista de archivos `.ts/.tsx` toca
 - [ ] Task/sync-qdrant.ts
 - [ ] packages/core/src/tools/qdrant-memory.test.ts
 - [ ] packages/core/src/tools/qdrant-memory.ts
+
+## 2026-08-21T01:09:53.904Z
+- [ ] packages/core/src/ai/llm.ts
+- [ ] packages/core/src/tools/autolearn.test.ts
+- [ ] packages/core/src/tools/autolearn.ts
+- [ ] packages/core/src/tools/index.ts
+- [ ] packages/core/src/tools/pdfsearch.test.ts
+- [ ] packages/core/src/tools/pdfsearch.ts
+- [ ] packages/core/src/tools/research.test.ts
+- [ ] packages/core/src/tools/research.ts
+- [ ] packages/core/src/tools/vault.test.ts
+- [ ] packages/core/src/tools/vault.ts
+
+## 2026-08-21T01:21:27.082Z
+- [ ] packages/core/src/ai/llm.ts
+- [ ] packages/core/src/tools/index.ts
+- [ ] packages/core/src/tools/qdrant-memory.wiring.test.ts
+
+## 2026-08-21T03:57:49.699Z
+- [ ] Task/batch-tomasporro.ts
+- [ ] Task/brain-sync.ts
+- [ ] Task/build-real-tomasporro.ts
+- [ ] Task/knowledge-graph.ts
+- [ ] Task/run-remaining.ts
+- [ ] Task/run-tomasporro.ts
+- [ ] apps/web/src/app/(app)/lab/page.tsx
+- [ ] apps/web/src/components/app-shell/nav.tsx
+- [ ] apps/web/src/components/lab-client.tsx
+- [ ] creativo.test.ts
+- [ ] creativo.ts
+- [ ] packages/core/src/domain/blueprint.test.ts
+- [ ] packages/core/src/domain/blueprint.ts
+- [ ] packages/core/src/domain/connections.ts
+- [ ] packages/core/src/domain/publications.test.ts
+- [ ] packages/core/src/domain/publications.ts
+- [ ] packages/core/src/index.ts
+- [ ] packages/core/src/omag/vfx-generator.test.ts
+- [ ] packages/core/src/tools/automation.ts
+- [ ] packages/core/src/tools/brain.test.ts
+- [ ] packages/core/src/tools/brain.ts
+- [ ] packages/core/src/tools/enrutador.ts
+- [ ] packages/core/src/tools/knowledge-graph.test.ts
+- [ ] packages/core/src/tools/knowledge-graph.ts
+- [ ] packages/core/src/tools/media-synthesis/math/prng.ts
+- [ ] packages/core/src/tools/present.ts
+- [ ] packages/core/src/tools/publish.test.ts
+- [ ] packages/core/src/tools/reach.test.ts
+- [ ] packages/core/src/tools/reach.ts
+- [ ] packages/core/src/tools/recorder.ts
+- [ ] packages/core/src/tools/topics.ts
+- [ ] scripts/dbg-creativo.ts
+
+## 2026-08-21T20:51:28.127Z
+- [ ] Task/bench-embeddings.ts
+- [ ] Task/sync-qdrant.ts
+- [ ] packages/core/src/ai/llm.ts
+- [ ] packages/core/src/tools/index.ts
+- [ ] packages/core/src/tools/qdrant-memory.test.ts
+- [ ] packages/core/src/tools/qdrant-memory.ts
+- [ ] packages/core/src/tools/qdrant-memory.wiring.test.ts
+- [ ] packages/core/src/tools/semantic-memory.test.ts
+- [ ] packages/core/src/tools/semantic-memory.ts
+- [ ] packages/core/src/tools/topics.test.ts
+
+## 2026-08-21T21:58:15.763Z
+- [ ] Task/bench-embeddings.ts
+- [ ] packages/core/src/tools/qdrant-memory.ts
+
+## 2026-08-21T23:17:09.196Z
+- [ ] packages/core/src/ai/llm.ts
+- [ ] packages/core/src/tools/index.ts
+- [ ] packages/core/src/tools/kgraph.test.ts
+- [ ] packages/core/src/tools/kgraph.ts
+- [ ] packages/core/src/tools/kgraph.wiring.test.ts
+
+## 2026-08-22T02:52:30.940Z
+- [ ] Task/heartbeat.ts
+- [ ] apps/web/src/app/api/health/route.ts
+- [ ] packages/core/src/tools/vitals.test.ts
+- [ ] packages/core/src/tools/vitals.ts
+
+## 2026-08-22T03:07:53.118Z
+- [ ] packages/core/src/ai/llm.ts
+- [ ] packages/core/src/tools/brainpage.test.ts
+- [ ] packages/core/src/tools/brainpage.ts
+- [ ] packages/core/src/tools/brainpage.wiring.test.ts
+- [ ] packages/core/src/tools/index.ts
+
+## 2026-08-22T18:08:58.183Z
+- [ ] packages/core/src/ai/llm.ts
+- [ ] packages/core/src/tools/genesis.test.ts
+- [ ] packages/core/src/tools/genesis.ts
+- [ ] packages/core/src/tools/index.ts
+
+## 2026-08-22T18:35:01.952Z
+- [ ] packages/core/src/ai/llm.ts
+- [ ] packages/core/src/tools/genesis-runner.test.ts
+- [ ] packages/core/src/tools/genesis-runner.ts
+- [ ] packages/core/src/tools/genesis.ts
+- [ ] scripts/genesis-run.ts
+
+## 2026-08-22T18:48:48.972Z
+- [ ] packages/core/src/ai/llm.ts
+
+## 2026-08-22T18:54:09.437Z
+- [ ] packages/core/src/tools/index.ts
+
+## 2026-08-22T19:01:58.195Z
+- [ ] scripts/genesis-run.ts
+
+## 2026-08-22T20:12:34.989Z
+- [ ] packages/core/src/ai/llm.ts
+- [ ] packages/core/src/tools/genesis.test.ts
+- [ ] packages/core/src/tools/genesis.ts
+- [ ] scripts/genesis-run.ts
+
+## 2026-08-22T21:11:57.889Z
+- [ ] Task/run-autopub.ts
+- [ ] packages/core/src/tools/autopub.test.ts
+- [ ] packages/core/src/tools/autopub.ts
+- [ ] packages/core/src/tools/qdrant-memory.test.ts
+- [ ] packages/core/src/tools/qdrant-memory.ts
+
+## 2026-08-22T23:44:16.062Z
+- [ ] packages/core/src/ai/llm.ts
+- [ ] packages/core/src/tools/autopub.wiring.test.ts
+- [ ] packages/core/src/tools/index.ts
+
+## 2026-08-22T23:50:48.284Z
+- [ ] packages/core/src/ai/llm.ts
+- [ ] packages/core/src/tools/index.ts
+- [ ] packages/core/src/tools/security.test.ts
+- [ ] packages/core/src/tools/security.ts
+
+## 2026-08-23T00:06:07.506Z
+- [ ] packages/core/src/ai/llm.ts
+- [ ] packages/core/src/tools/codequality.test.ts
+- [ ] packages/core/src/tools/codequality.ts
+- [ ] packages/core/src/tools/index.ts
+
+## 2026-08-23T00:11:09.556Z
+- [ ] packages/core/src/ai/llm.ts
+- [ ] packages/core/src/tools/deps.test.ts
+- [ ] packages/core/src/tools/deps.ts
+- [ ] packages/core/src/tools/index.ts
+
+## 2026-08-24T01:22:56.615Z
+- [ ] packages/core/src/tools/geometry.test.ts
+- [ ] packages/core/src/tools/geometry.ts
+- [ ] packages/core/src/tools/geometry.wiring.test.ts
+- [ ] packages/core/src/tools/pngrender.test.ts
+- [ ] packages/core/src/tools/pngrender.ts
+- [ ] packages/core/src/tools/pngrender.wiring.test.ts
+- [ ] packages/core/src/tools/procvid.test.ts
+- [ ] packages/core/src/tools/procvid.ts
+- [ ] packages/core/src/tools/procvid.wiring.test.ts
+
+## 2026-08-24T01:56:54.759Z
+- [ ] packages/core/src/tools/geom.test.ts
+- [ ] packages/core/src/tools/geom.ts
+
+## 2026-08-24T02:12:56.633Z
+- [ ] packages/core/src/ai/llm.ts
+- [ ] packages/core/src/tools/index.ts
+
+## 2026-08-24T02:45:14.791Z
+- [ ] Task/procedural-demo.ts
+
+## 2026-08-24T02:52:57.634Z
+- [ ] packages/core/src/ai/llm.ts
+- [ ] packages/core/src/tools/index.ts
+- [ ] packages/core/src/tools/pngrender.wiring.test.ts
+- [ ] packages/core/src/tools/procvid.wiring.test.ts
+
+## 2026-08-24T03:39:27.333Z
+- [ ] packages/core/src/ai/llm.ts
+- [ ] packages/core/src/tools/index.ts
+- [ ] packages/core/src/tools/pngrender.gif.test.ts
+- [ ] packages/core/src/tools/pngrender.ts
+- [ ] packages/core/src/tools/procvid.gif.test.ts
+- [ ] packages/core/src/tools/procvid.ts
+
+## 2026-08-24T04:11:46.890Z
+- [ ] Task/procedural-demo.ts
+
+## 2026-08-24T04:36:45.180Z
+- [ ] Task/procedural-demo.ts
+- [ ] packages/core/src/tools/pngrender.mediancut.test.ts
+- [ ] packages/core/src/tools/pngrender.ts
+- [ ] packages/core/src/tools/procvid.ts
+
+## 2026-08-24T05:32:37.340Z
+- [ ] packages/core/src/ai/llm.ts
+
+## 2026-08-24T05:40:30.835Z
+- [ ] apps/web/src/app/api/chat/general/route.ts
+- [ ] apps/web/src/app/api/chat/route.ts
+- [ ] apps/web/src/app/api/studio/chat/route.ts
+
+## 2026-08-24T05:42:08.281Z
+- [ ] apps/web/src/app/(app)/studio/studio-client.tsx
+- [ ] apps/web/src/components/agent-chat.tsx
+- [ ] apps/web/src/components/assistant-chat.tsx
+
+## 2026-08-24T05:56:25.435Z
+- [ ] packages/core/src/ai/llm.test.ts
+- [ ] packages/core/src/omag/audiolibrary.test.ts
+
+## 2026-08-24T05:59:15.928Z
+- [ ] packages/core/src/ai/llm.test.ts
+
+## 2026-08-24T06:12:53.107Z
+- [ ] packages/core/src/tools/index.ts
+- [ ] packages/core/src/tools/procedural-pub.test.ts
+- [ ] packages/core/src/tools/procedural-pub.ts
+
+## 2026-08-24T06:15:58.626Z
+- [ ] cloudflare/worker.ts
+- [ ] packages/core/src/db/client.ts
+- [ ] packages/core/src/tools/gen-engine.ts
+
+## 2026-08-24T06:25:45.547Z
+- [ ] packages/core/src/tools/gen-engine.test.ts
+
+## 2026-08-24T09:35:51.010Z
+- [ ] packages/core/src/tools/cadgeo.test.ts
+- [ ] packages/core/src/tools/cadgeo.ts
+
+## 2026-08-24T09:41:42.996Z
+- [ ] packages/core/src/tools/evo.test.ts
+- [ ] packages/core/src/tools/evo.ts
+
+## 2026-08-24T09:52:33.585Z
+- [ ] packages/core/src/tools/evolution.test.ts
+- [ ] packages/core/src/tools/evolution.ts
+
+## 2026-08-24T10:11:03.520Z
+- [ ] packages/core/src/tools/physics2d.test.ts
+- [ ] packages/core/src/tools/physics2d.ts
+
+## 2026-08-24T10:34:18.426Z
+- [ ] packages/core/src/ai/llm.ts
+- [ ] packages/core/src/tools/index.ts
+- [ ] packages/core/src/tools/motor-evolutivo.wiring.test.ts
+
+## 2026-08-24T15:42:10.188Z
+- [ ] packages/core/src/tools/evo.ts
+- [ ] packages/core/src/tools/physics2d.ts
+
+## 2026-08-24T16:08:04.441Z
+- [ ] packages/runtime/src/adapters/ai.test.ts
+- [ ] packages/runtime/src/adapters/ai.ts
+
+## 2026-08-24T18:38:21.336Z
+- [ ] packages/core/src/tools/codevfx.test.ts
+- [ ] packages/core/src/tools/codevfx.ts
+
+## 2026-08-24T18:38:44.128Z
+- [ ] packages/core/src/tools/recordly.test.ts
+- [ ] packages/core/src/tools/recordly.ts
+
+## 2026-08-24T18:38:57.901Z
+- [ ] packages/core/src/ai/llm.ts
+- [ ] packages/core/src/tools/index.ts
