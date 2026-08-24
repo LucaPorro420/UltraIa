@@ -1,37 +1,37 @@
 {
-  "fecha": "2026-08-22",
-  "entorno": "local",
+  "fecha": "2026-08-24",
+  "entorno": "github-actions",
   "vitals": {
-    "puntuacion": 78,
-    "estado": "AMBAR",
+    "puntuacion": 40,
+    "estado": "ROJO",
     "signos": [
       {
         "nombre": "gates",
-        "valor": 1,
+        "valor": 0.5,
         "peso": 0.35,
-        "ok": true,
-        "nota": "4/4 verdes"
+        "ok": false,
+        "nota": "2/4 verdes (ROJO: test, build)"
       },
       {
         "nombre": "tests",
-        "valor": 1,
+        "valor": 0,
         "peso": 0.2,
-        "ok": true,
-        "nota": "1314/1314 tests"
+        "ok": false,
+        "nota": "0/0 tests"
       },
       {
         "nombre": "backlog",
         "valor": 0.99,
         "peso": 0.15,
         "ok": false,
-        "nota": "77/78 accionables cerradas, 1 pendientes, 1 bloqueadas"
+        "nota": "90/91 accionables cerradas, 1 pendientes, 1 bloqueadas"
       },
       {
         "nombre": "gaps",
         "valor": 0,
         "peso": 0.15,
         "ok": false,
-        "nota": "13 gaps abiertos"
+        "nota": "14 gaps abiertos"
       },
       {
         "nombre": "memoria",
@@ -45,20 +45,25 @@
         "valor": 1,
         "peso": 0.05,
         "ok": true,
-        "nota": "187 commits + 34 lecciones"
+        "nota": "168 commits + 29 lecciones"
       }
     ],
     "razones": [
-      "backlog: 77/78 accionables cerradas, 1 pendientes, 1 bloqueadas",
-      "gaps: 13 gaps abiertos"
+      "gates: 2/4 verdes (ROJO: test, build)",
+      "tests: 0/0 tests",
+      "backlog: 90/91 accionables cerradas, 1 pendientes, 1 bloqueadas",
+      "gaps: 14 gaps abiertos"
     ]
   },
   "input": {
     "tests": {
-      "pasados": 1314,
-      "total": 1314
+      "pasados": 0,
+      "total": 0
     },
     "gaps": [
+      {
+        "kind": "source_sin_analizar"
+      },
       {
         "kind": "source_sin_analizar"
       },
@@ -104,28 +109,28 @@
       "fuentes": 8
     },
     "backlog": {
-      "total": 79,
-      "done": 77,
+      "total": 92,
+      "done": 90,
       "bloqueadas": 1,
       "pendientes": 1
     },
     "actividad": {
-      "commits": 187,
-      "lecciones": 34
+      "commits": 168,
+      "lecciones": 29
     },
     "gates": {
       "typecheck": true,
       "lint": true,
-      "test": true,
-      "build": true
+      "test": false,
+      "build": false
     }
   },
   "regresiones": [],
   "accion": {
-    "modo": "explotar",
-    "objetivo": "cerrar 1 tarea(s) pendientes del backlog",
-    "razon": "hay trabajo comprometido sin cerrar: explotacion antes que exploracion",
-    "prioridad": "P1",
-    "comando": "python scripts/autolearn.py --dry-run"
+    "modo": "reparar",
+    "objetivo": "gates en rojo: test, build",
+    "razon": "el organismo se esta degradando: reparar antes que avanzar (regla: no commitear con gates rojos)",
+    "prioridad": "P0",
+    "comando": "npm run test"
   }
 }
