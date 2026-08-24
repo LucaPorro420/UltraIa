@@ -58,6 +58,17 @@ import {
   type RecordlyEditorState,
   type ZoomRegion,
 } from '../tools/recordly';
+import {
+  buildCronLine,
+  buildSchtasksArgv,
+  buildBrainReport,
+  cycleIdFor,
+  nextRunAt,
+  parseBrainState,
+  planBrainCycle,
+  planProceduralBatch,
+  resolveCerebroConfig,
+} from '../tools/cerebro';
 import { planTravelVideo, buildTakeManifest, buildTravelRender, replicateLandscape, travelLeadImage, type TravelPlan } from '../tools/travel';
 import {
   perlinNoise,
@@ -1420,6 +1431,71 @@ export function chatStream(opts: {
             if (!sourcePath) throw new Error('manifest requiere sourcePath');
             const manifest = buildRecordlyManifest({ sourcePath, editorState: editorState ?? {}, durationMs: duracionMs });
             return { accion, manifest: JSON.parse(manifest) };
+          }
+          default:
+            return { accion, ok: false, error: 'accion desconocida' };
+        }
+      },
+    });
+  }
+  if (opts.tools?.includes('cerebro')) {
+    tools.cerebro_run = tool({
+      description:
+        'Cerebro autónomo de UltraIa (autoaprendizaje + creación procedural + autopublicación programada): planifica el ciclo completo LEARN (gaps de autolearn sobre learning/truth) → CREATE (objetos matemáticos PNG/OBJ/glTF desde cero y videos procedurales MP4 vía ffmpeg, keyless) → PUBLISH (briefs→contenido→cola Publication en youtube/tiktok/telegram/...) → REPORT (manifest+report+state idempotente). Acciones: plan (plan del ciclo con presupuesto diario), siguiente (próxima ejecución según schedule), schedule (argv schtasks Windows + línea cron Linux/macOS), procedural (lote determinista de specs videos/objetos por semilla), report (reporte markdown de un ciclo). La ejecución REAL vive en Task/cerebro-cycle.ts; esta tool es el plano puro y determinista. Deterministic, keyless.',
+      parameters: z.object({
+        accion: z.enum(['plan', 'siguiente', 'schedule', 'procedural', 'report']),
+        configJson: z.string().optional(), // CerebroConfig parcial
+        estadoJson: z.string().optional(), // estado previo parseable
+        semilla: z.number().int().optional(), // para procedural
+        workdir: z.string().optional(), // para schedule
+      }),
+      execute: async ({ accion, configJson, estadoJson, semilla, workdir }) => {
+        const cfgInput = configJson ? (JSON.parse(configJson) as Record<string, unknown>) : {};
+        const config = resolveCerebroConfig(cfgInput);
+        const state = estadoJson
+          ? parseBrainState(JSON.parse(estadoJson))
+          : parseBrainState(undefined);
+        switch (accion) {
+          case 'plan': {
+            return { accion, plan: planBrainCycle(cfgInput, state), config };
+          }
+          case 'siguiente': {
+            return { accion, proximaEjecucion: nextRunAt(config.schedule)?.toISOString() ?? null };
+          }
+          case 'schedule': {
+            const opts = {
+              taskName: config.schedule.taskName,
+              mode: config.schedule.mode === 'daily' ? ('daily' as const) : ('interval' as const),
+              cadaNMinutos: config.schedule.cadaNMinutos,
+              aLas: config.schedule.aLas,
+              workdir: workdir ?? process.cwd(),
+            };
+            return {
+              accion,
+              windows: buildSchtasksArgv(opts),
+              cron: buildCronLine(opts),
+              taskName: config.schedule.taskName,
+            };
+          }
+          case 'procedural': {
+            return { accion, lote: planProceduralBatch(config, semilla ?? 1) };
+          }
+          case 'report': {
+            const plan = planBrainCycle(cfgInput, state);
+            return {
+              accion,
+              cycleId: cycleIdFor(),
+              markdown: buildBrainReport(plan, {
+                cycleId: plan.cycleId,
+                artefactos: 0,
+                videos: config.videosPorCiclo,
+                objetos: config.objetosPorCiclo,
+                publicaciones: 0,
+                lecciones: state.leccionesRecientes,
+                errores: [],
+                duracionMs: 0,
+              }),
+            };
           }
           default:
             return { accion, ok: false, error: 'accion desconocida' };
