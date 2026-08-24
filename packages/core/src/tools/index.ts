@@ -29,6 +29,7 @@ export * from './geom';
 export * from './geometry';
 export * from './pngrender';
 export * from './procvid';
+export * from './procedural-pub';
 export * from './videoqa';
 // motion: export explicito (catmullRom colisiona con generative; queda vÃ­a './motion' directo)
 export {
