@@ -1,0 +1,149 @@
+================================================================================
+ ULTRAIA - GUIA DE INICIO Y USO LOCAL (para ti, paso a paso)
+ Generada 24/08/2026 · version verificada con gates verdes
+================================================================================
+
+ QUE ES ESTO
+------------
+UltraIa es tu fabrica autonomia de contenido: un monorepo con
+  - apps/web        -> la aplicacion web (Next.js 15) con agentes IA
+  - packages/core   -> el cerebro: 58 capabilities (crear imagenes/videos/
+                       objetos desde matematica, publicar, aprender...)
+  - packages/runtime-> runtime local de escritorio (Fase B lista)
+  - Task/           -> runners reales (cerebro, autopub, demos)
+  - scripts/        -> schedulers y utilidades Python
+
+El "Cerebro" aprende -> crea objetos/videos desde cero -> encola publicaciones.
+NADA se publica a redes sin TU aprobacion (los videos quedan en DRAFT).
+
+================================================================================
+ 1) REQUISITOS
+================================================================================
+  - Windows 10/11 (tambien funciona en Linux/Mac con ajustes minimos)
+  - Node.js >= 20          -> https://nodejs.org  (LTS)
+  - Python >= 3.10         -> https://python.org (marca "Add to PATH")
+  - Git                    -> https://git-scm.com
+  - ffmpeg (solo para ensamblar MP4 del Cerebro):
+        winget install Gyan.FFmpeg      (luego CIERRA y reabre la terminal)
+
+================================================================================
+ 2) INSTALAR (una sola vez)
+================================================================================
+  cd C:\Users\UTEC-5695\Desktop\UltraIa     (o donde tengas el proyecto / el zip)
+  npm install                               (instala todo el monorepo)
+  npm run db:migrate                        (crea la base de datos SQLite)
+  copy apps\web\.env.example apps\web\.env  (si no existe ya; luego edita claves)
+
+  Claves OPCIONALES en apps/web/.env:
+    OPENAI_API_KEY / GOOGLE_API_KEY / DEEPSEEK_API_KEY  -> chat con LLM de nube
+    (SIN clave: UltraIa usa modelos locales Ollama/LM Studio o degrada elegante)
+    GEN_ENGINE_URL=http://localhost:8100                -> motor de generacion local
+
+================================================================================
+ 3) ARRANCAR EL PROYECTO
+================================================================================
+  MODO RECOMENDADO (PC <8GB RAM, como este):
+        py -3.12 start.py --lite --clean --no-open
+        (solo web :3000 con heap limitado; libera puertos ocupados solos)
+
+  MODO COMPLETO (web + webhooks + gen-engine):
+        py -3.12 start.py --clean
+
+  Al arrancar veras los health-check "UP". Abre:
+        http://localhost:3000
+  Login por defecto:  usuario: admin   contrasena: admin
+  (cambiala despues en la UI; el usuario admin trae 8 agentes bp-admin-*)
+
+  Parar: Ctrl+C en la terminal (start.py mata el arbol completo limpio).
+  Atajo alternativo: .\scripts\iniciar-local.ps1  (detecta RAM y elige modo)
+
+================================================================================
+ 4) USAR EL CEREBRO (autonomia: aprender + crear + publicar)
+================================================================================
+  Un ciclo AHORA:
+        npm run cerebro
+  Ver el plan sin ejecutar:
+        npm run cerebro:plan
+  Programarlo cada 120 min (aunque no tengas la terminal abierta):
+        powershell -File scripts\cerebro-schedule.ps1
+        (quitarlo:  scripts\cerebro-schedule.ps1 -Remove )
+  En la NUBE 24/7 aunque el PC este apagado ($0):
+        GitHub -> tu repo -> pestana Actions -> "Cerebro (autonomo)" -> Run workflow
+        (el workflow .github/workflows/cerebro.yml corre solo cada 4h y commitea
+         la evidencia en resultTask/cerebro/)
+
+  Configurar cuantos objetos/videos/canales por ciclo:
+        edita .ultraia/cerebro/config.json
+        { "videosPorCiclo":1, "objetosPorCiclo":2, "segundosPorVideo":6,
+          "fps":12, "ancho":320, "alto":180,
+          "canales":["youtube","tiktok","telegram"], "maxBriefs":2 }
+
+  Resultados de cada ciclo en:  .ultraia\cerebro\<fecha-hora>\
+        report.md + manifest.json  (que hizo el ciclo)
+        objects\*.png|*.obj|*.gltf (objetos matematicos reales)
+        video\*.mp4                (videos procedurales reales, ffmpeg)
+
+================================================================================
+ 5) VERIFICAR QUE TODO FUNCIONA (pruebas)
+================================================================================
+  Gates completos (orden CI, ~5 min):
+        npm run typecheck
+        npm run lint
+        npm run test          (core + runtime, ~1200 tests)
+        npm run build
+
+  Solo los tests del Cerebro:
+        cd packages\core
+        npx vitest run src/tools/cerebro.test.ts     (11 tests)
+        cd ..\..
+
+  Evidencia historica:  type .ultraia\cerebro\state.json
+
+  Publicaciones encoladas (ninguna sale sin ti):
+        entra a http://localhost:3000 con admin/admin -> cola de publicaciones
+        o SQL:  sqlite3 packages\core\prisma\dev.db "SELECT estado,canal,titulo FROM Publication"
+
+================================================================================
+ 6) PUBLICAR A UNA RED REAL (solo si TU quieres, 3 pasos obligatorios)
+================================================================================
+  1. Token del canal en .env (guia completa: docs\CANALES-CONFIG-2026.md)
+     Ejemplos: TELEGRAM_BOT_TOKEN=... | YOUTUBE_ACCESS_TOKEN=... | DISCORD_WEBHOOK_URL=...
+  2. APRUEBA la publicacion DRAFT en la web (o API POST /api/publications/[id]/approve)
+  3. Que corra publishDue (boton ADMIN o el ciclo local lo hace al final)
+
+  Sin esos 3 pasos NADA sale de tu maquina. Auditado 24/08/2026:
+  repo privado (404 anonimo), cero tokens configurados, 0 filas PUBLISHED.
+
+================================================================================
+ 7) PRIVACIDAD
+================================================================================
+  - El repo en GitHub es PRIVADO.
+  - Tus creaciones (MP4/PNG/OBJ) viven en .ultraia\ que esta GITIGNORED
+    (nunca se suben al repo ni a ningun lado).
+  - El workflow de la nube solo commitea reportes tecnicos a TU repo privado.
+  - Detalle completo: docs\CEREBRO.md (seccion Privacidad).
+
+================================================================================
+ 8) PROBLEMAS COMUNES
+================================================================================
+  "puerto 3000 en uso"            -> py -3.12 start.py --clean  (auto-libera)
+  "ffmpeg not found"              -> winget install Gyan.FFmpeg y REABRE terminal;
+                                     sin ffmpeg igual obtienes PNG/OBJ (fail-soft)
+  tests fallan raros tras editar  -> borra caches: node_modules\.vite en core/runtime
+  DB locked                       -> cierra otras ventanas del proyecto (connection_limit=1 ya ayuda)
+  PC lento                        -> usa --lite (heap capado) y cierra Chrome extra
+  Olvidaste contrasena admin      -> npm run db:migrate + seed (admin/admin default)
+
+================================================================================
+ 9) MAPA RAPIDO DEL CODIGO
+================================================================================
+  packages/core/src/tools/cerebro.ts      -> dominio del Cerebro (plan/presupuesto)
+  Task/cerebro-cycle.ts                   -> ejecucion REAL de un ciclo
+  packages/core/src/ai/llm.ts             -> 58 capabilities wired como tools
+  packages/core/prisma/schema.prisma      -> modelo de datos (Publication, etc.)
+  docs/CEREBRO.md                         -> autonomia + privacidad
+  docs/CANALES-CONFIG-2026.md             -> tokens por red social
+  STATE.md / loop-run-log.md              -> bitacora viva del proyecto
+================================================================================
+ FIN - Con esto corres, verificas y usas UltraIa completo en tu maquina.
+================================================================================
