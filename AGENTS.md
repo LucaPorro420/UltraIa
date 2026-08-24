@@ -834,3 +834,23 @@ LEY: `git add` explicito (nunca `.`), NO tocar DOCS_TODO/blueprint/reach/automat
 - **perf-studio** cerrado: F1-F4 DONE verificados (plan loop-94-perf-studio commiteado); el bug
   "studio agent request se traba" resuelto desde iteraciones previas (timeout 120s + fallback
   local-first + stop/retry UI + connection_limit=1).
+## Autonomia del Cerebro (24/08/2026, iter-102)
+
+- **El Cerebro NO corre solo por magia**: tiene 3 disparadores. (1) Tarea programada
+  Windows `UltraIa-Cerebro` (cada 120 min; registrar/quitar con
+  `scripts/cerebro-schedule.ps1 [-Remove]`; fix /TR faltante). (2) Workflow cloud
+  `.github/workflows/cerebro.yml` (cron cada 4h, patron latido iter-82): corre en
+  ubuntu runner AUNQUE EL PC ESTE APAGADO ($0), commitea evidencia a
+  `resultTask/cerebro/` con bot ultraia-cerebro[bot] + artifacts 14 dias; la cola
+  Publication vive en SQLite local -> el cloud produce artefactos/evidencia, el
+  encolado real de canales ocurre local o con web desplegada (DEPLOY.md).
+  (3) Manual: `npm run cerebro|cerebro:plan`. Verificado e2e con `schtasks /Run`
+  (ciclo completo sin terminal; 2 publicaciones DRAFT encoladas al 24/08).
+- has() en runners Task/*.ts ahora es cross-platform (where win32 / which linux) -
+  los workflows corren en ubuntu.
+- **CrewAI decision (usuario 24/08)**: NO se conecta por ahora - instalable (py -3.12,
+  v1.15.17, pip dry-run exit 0) pero el stack nativo multi-agente ya cubre
+  Agent/Tools/Crew/Memory/Critic/Runtime (11 bp-* + 58 caps + OMAG critics +
+  qdrant memoria_experiencial_v2 + @ultraia/runtime Fase B). Si algun dia se quiere:
+  puente Python scripts/crewai_bridge.py con crews JSON (opcion recomendada) o exponer
+  tools UltraIa via MCP/HTTP para crewai-tools. Guia: docs/CEREBRO.md.
