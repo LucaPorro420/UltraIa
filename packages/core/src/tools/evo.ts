@@ -30,7 +30,7 @@ export const individualSchema = z.object({
   genes: z.array(z.number().finite()).min(1),
   fitness: z.number().finite().optional(),
 });
-export type Individual = z.inference<typeof individualSchema>;
+export type Individual = z.infer<typeof individualSchema>;
 export type IndividualInput = z.input<typeof individualSchema>;
 
 export function parseIndividual(input: IndividualInput): Individual {

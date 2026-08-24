@@ -246,7 +246,9 @@ function solveParticleCollisions(particles: VerletParticle[], responseCoef: numb
 export function verletImplicitVelocity(p: VerletParticle, config?: VerletConfig): Vec2 {
   const cfg: VerletConfigResolved = verletConfigSchema.parse(config ?? {});
   const vScale = cfg.substeps / cfg.dt;
-  return [(p.x - p.px) * vScale, (p.y - p.py) * vScale];
+  const px = p.px ?? p.x;
+  const py = p.py ?? p.y;
+  return [(p.x - px) * vScale, (p.y - py) * vScale];
 }
 
 /** Energía cinética aproximada del mundo Verlet (masa ~ radius^2). Ãštil para tests de settle. */

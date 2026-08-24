@@ -2610,3 +2610,110 @@ de código, sin commit.
 **[R] Veredicto**
 - **GREEN** (scope propio completo y committeado; unico rojo = WIP ajeno en vuelo sobre archivo compartido, fuera de mi alcance por diseno). iter-95 COMPLETA: GIFs procedurales con paleta adaptativa de mayor fidelidad y menor peso; camino keyless sin ffmpeg consolidado.
 - NOTA para #92 (High Priority): al aterrizar su refactor de providers, actualizar \llm.test.ts::throws AiUnavailableError\ (con fallback activo ya no lanza; aislar fetch o probar buildProvider directo).
+
+---
+
+## Iteración 96 — Fix llm.test (contrato post-fallback) + puente procvid→Publicación (24/08/2026)
+
+**[P] Plan**
+- Contexto: push aprobado y EJECUTADO (c70aecd..1a18c1b, 6 commits incl. refactor providers de #92).
+- (1) FIX llm.test.ts: el test 'throws when OPENAI_API_KEY missing' codificaba el contrato
+  VIEJO; con el fallback local-first de 3da0905 resolveModel ya no lanza (ollama/lmstudio
+  construyen sin ping). Nuevo contrato: cae a local -> toBeDefined(); hermético.
+- (2) procvid.buildPublicationPayload: builder puro bilingüe es/ar hacia la cola AutoPub
+  (tema/canal blog/caption/hashtags/media paths/metadata) SIN tocar dominios compartidos.
+- Criterios: llm.test 2/2 hermético + payload 7/7 + FULL verde + push aprobado.
+- Plan: .opencode/plans/loop-96-fix-test-pub-payload.md
+
+**[I] Commits**
+- (pendiente)
+
+**[V] Gates**
+- (pendiente)
+
+**[R] Veredicto**
+- (pendiente)
+
+## Iteración 96 — cierre factual de bitácora (24/08/2026, r94-retoma)
+
+- **[I] Commits** (implementados por la sesión #92, cerrado bookkeeping por r94-retoma): `94033fd` —
+  llm.test.ts hermético al contrato local-first (el test "throws when OPENAI_API_KEY missing"
+  codificaba el contrato viejo; con fallback ollama/lmstudio resolveModel ya no lanza) +
+  `procedural-pub.ts` builder puro bilingüe es/ar hacia la cola AutoPub (+ index.ts export).
+- **[V] Gates**: re-verificado por r94-retoma en el ciclo 97: tsc core EXIT 0 y suites core verdes con
+  procedural-pub incluido (93/93 nuevas + existentes).
+- **[R] Veredicto**: GREEN (código en HEAD desde 03:12 -03:00; solo faltaba esta evidencia — check-12).
+
+---
+
+## Iteración 97 — Motor Evolutivo [I]/[V]/[R] (24/08/2026, sesión r94-retoma)
+
+**[I] Commits**
+- `985f7ea` physics2d (módulo zod-based co-construido con r94-toma-control + fix TDZ RIGID_DT +
+  impulsos secuenciales multi-iteración + restitución nula en reposo = pirámide estable) ·
+  `69cef24` cadgeo (Delaunay/Voronoi/BVH/quadtree/B-spline/extrude-revolve, 902 líneas) ·
+  `c512ca7` evo (GA xorshift32 puro) · `246a523` evolution (checkpoints reanudables) ·
+  `5e62a64` wiring 4 tools (physics_sim/cadgeo_compute/evo_optimize/evolution_run; physics2d por
+  namespace por colisión Vec2) · `6f987c3` seed 3 subagentes + orquestador 19 caps.
+- Todos con pathspec explícito; cero archivos ajenos arrastrados.
+
+**[V] Gates**
+- Scoped por módulo: physics2d **31/31** (tras fix solver: energía acotada) · cadgeo **23/23** ·
+  evo **19/19** · evolution **16/16** (resume==corrida completa byte-exact probado) · wiring **4/4**.
+- tsc core EXIT 0. Seed verificado en DB REAL (Prisma): Matemático(evo/evolution/cadgeo ✓) ·
+  Geómetra(cadgeo ✓) · Físico(physics2d ✓) · Orquestador 19 caps con las 4 nuevas.
+- FULL cierre: ver bloque siguiente (typecheck/lint/test/build).
+
+**[R] Veredicto**
+- GREEN pendiente de FULL (se anota al cerrar). Lecciones: (1) heartbeat del lock = única fuente de
+  propiedad — una sesión que retoma tras ~100 min debe asumir lock canibalizado; (2) RECAÍDA
+  Set-Content sobre archivos del repo (physics2d.ts doble-codificación latin-1 reparada por tramos
+  `[\x80-\xff]{2,}` → encode('latin-1').decode('utf-8'); index.ts restaurado desde HEAD y re-editado
+  con tools seguras) — lección registrada en LEARNINGS.md.
+
+```json
+{"ciclo":"iter-97-motor-evolutivo","fases":{"sensado":"lock canibalizado detectado en gates","razonamiento":"toma de control autorizada por usuario (retoma)","accion":"6 commits pathspec","ajuste":"2 fixes reales (TDZ+solver) + 1 incidente encoding reparado"},"prediccion":"C1-C3 scoped verdes + FULL verde","resultado":"scoped 93/93 + tsc 0 + seed DB real OK","veredicto":"GREEN (pending FULL annotation)","duracion_s":7200,"time_cap_s":12600,"commits":["985f7ea","69cef24","c512ca7","246a523","5e62a64","6f987c3"]}
+```
+
+
+- **[P] Sensado**: peticion directa del usuario - plan de mejoras desde `planificacionImplementar/` (Manual_Completo_Motor_Evolutivo.docx + Chat_Motor_Evolutivo.docx extraidos con python zipfile; **ALERTA fuente**: automatizacion.json a 0 bytes, Download(34).mp4 no textual -> contenido pedido al usuario, NO inventado). Pre-flight OK: kill switch NO activo; lock AUSENTE (iter-93 cerro GREEN ~23:58 23/08: ae5b32b/55a7030/fb4ed37); state-doctor checks 1/2/6/8/13 sin bloqueos (STATE.md == HEAD; raiz > 0; sin dups; loop-94 libre); llm.ts/index.ts LIMPIOS post-cierre r93. Baseline FULL test 1452/1452.
+- **[P] Razonamiento + S-D + L-T**: mapeo capitulo-a-capitulo del manual contra el repo -> ya existe (PIVR/vitals/genesis/autolearn = ciclo evolutivo; semantic/qdrant v2/brainpage = memoria; g0dm0d3 ollama = LLMs locales; generative/geometry/pngrender/procvid/sdf = procedural; replica/growth/META-IA = RL-ish) y GAPS reales -> 4 modulos nuevos deterministas keyless SIN deps: M1 physics2d (Verlet posicional bit-exact estilo Pezza + rigidos impulso box2d-lite), M2 cadgeo (Bowyer-Watson/Voronoi dual/BVH median-split/quadtree/B-spline de Boor/extrude-revolve sobre GeomMesh), M3 evo (GA xorshift32 puro fitnessFn inyectable), M4 evolution (motor evolutivo de artefactos compuesto sobre evo + checkpoints brainpage/vault, IO inyectable) + M5 subagentes seed-data (bp-matematico/bp-geometra/bp-fisico + caps orquestador, patron iter-70) + M6 wiring aditivo (physics_sim/cadgeo_compute/evo_optimize/evolution_run) + M7 docs/truth. AutoGen/LangGraph/Blender/Godot/OpenCASCADE/ROS2 evaluados y DIFERIDOS (harness propio cumple ese rol; OBJ/STL/glTF dan interop).
+- Plan file: `.opencode/plans/loop-94-motor-evolutivo.md` (tarea #94, P1, 3 pasadas C1/C2/C3).
+- **[P] PREDICCION**: scoped C1 physics2d ~25/25 PASS + tsc core 0; C2 cadgeo+evo ~38/38 + tsc 0; C3 evolution+wiring ~16/16 + tsc 0 + seed verificado en DB real (3 agentes nuevos + orquestador +4 caps). Gates FULL cierre: typecheck 0 / lint 0 / test ~1527+ PASS (baseline 1452) / build 0 (~44-45 paginas). Riesgo top: colision concurrencia sobre llm.ts/index.ts -> merge aditivo + lock + commit pathspec; riesgo secundario: Delaunay degenerado (super-triangulo 10x + dedupe <1e-9).
+- NO-hacer: no tocar geom.ts/recordly*/planes 92-93; sin deps nuevas; sin push; nunca git add .; no recrear PIVR/vitals/genesis (leccion iter-86).
+
+---
+
+## Iteracion 94 - [I] CEDE de r94-motor-evolutivo a r94-toma-control (24/08/2026 05:55 -03:00)
+
+- **[P] SKIP / CEDE (precedentes iter-58/80, "quien commitea primero gana")**: esta sesion (r94-motor-evolutivo, continuacion del [P] registrado arriba) ejecuto pre-flight completo + refresh del lock propio + implemento C1 physics2d.ts (Verlet Pezza + rigidos box2d-lite, ~600 lineas) y physics2d.test.ts (~25 tests). AL EJECUTAR los gates scoped descubrio que la sesion r94-toma-control-20260824 hizo TOMA DE CONTROL del lock vencido (~100 min stale) y SOBRESCRIBIO physics2d.ts con su propia implementacion zod-based (misma SPEC: stepVerlet/stepRigid/RIGID_DT/verletConfigSchema; en disco 08:48 UTC) + tomo el lock con touching COMPLETO de la tarea (incl. STATE.md y run-log).
+- **Accion de cesion**: (1) ELIMINADO mi physics2d.test.ts huerfano (referenciaba una API que ya no existe en disco; dejarlo romperia los gates scoped de la sesion propietaria - regla "nunca dejar el arbol ajeno peor"); (2) mi physics2d.ts ya no existe (sobrescrito por el suyo); (3) NO se toca su lock ni sus archivos; (4) sin commits (nada mio que stagear).
+- **Leccion reafirmada**: el heartbeat del lock es la unica fuente de verdad de propiedad - una sesion que retoma tras ~100 min debe asumir que su lock fue canibalizado y RE-VERIFICAR session_id antes de escribir cualquier archivo del plan.
+- ```json
+  {"ciclo":"iter-94-cede","fases":{"sensado":"ok","razonamiento":"ok (plan heredado)","accion":"CEDE - sin commit","ajuste":"leccion registrada"},"prediccion":"C1 ~25/25 PASS","resultado":"N/A - tarea cedida a r94-toma-control-20260824","veredicto":"SKIP por lock ajeno activo (protocolo loop-piv P paso 3)","duracion_s":1560,"time_cap_s":12600,"tokens_est":45000,"commits":[],"gates":{"scoped":"n/a (artefactos propios retirados)","full":"no aplica"}}
+  ```
+
+
+---
+
+## Iteracion 98 - codevfx v2: vendor LinearAbiltyCastingThreeJS + mejoras aditivas (24/08/2026 12:35 -03:00)
+
+- **[P] Plan**: peticion directa del usuario ("Adiciona el repositorio, analizalo e implementa
+  mejoras e copia el modelo para aprender, razonar y seguir mejorando" + repo GitHub).
+  El repo ya fue fuente INDIRECTA de capability codevfx (loop-45, 17/08) pero NUNCA vendido ni
+  analizado a nivel fuente. Decisiones usuario: vendor COMPLETO (incluye FBX/HDR) + alcance
+  COMPLETO A-F. Plan file: `.opencode/plans/loop-98-codevfx-v2.md`.
+- **[P] Sensado**: lock stale de loop-95 (~7h sin heartbeat) tomado con nota de toma de control;
+  archivos disjuntos verificados (browser-e2e.mjs vs codevfx.ts). WIP ajeno activo NO tocable:
+  evo.ts/physics2d.ts/pngrender.wiring.test.ts M + recordly.* untracked. codevfx.ts/llm.ts/
+  index.ts LIMPIOS.
+- **[P] Razonamiento**: port ORIGINAL aditivo de los principios avanzados documentados en el
+  README upstream (settings-as-API, no-dimensions-on-CPU, ribbon (t,side), beam triple-capa,
+  dos relojes flicker, perfiles de ruido, SDF en metros, GPU particles ring-buffer, phase
+  machine con wind-up, anti-patron atan-decals, render pipeline, pooling budgets) -> 12
+  planners nuevos en codevfx.ts + acciones vfx_code + ~25 tests + docs v2.
+- **[P] PREDICCION**: vitest codevfx >= 54 PASS (29 actuales + ~25 nuevos); tsc core EXIT 0;
+  gates FULL verdes con cuarentena de WIP ajeno si aplica; commit pathspec feat(core)+vendor;
+  vendor <= 30 MB verificado antes de commit.
+- NO-hacer: no copiar codigo upstream (port ORIGINAL); no tocar omag/vfx-generator.ts ni firmas
+  existentes; no tocar WIP ajeno (lista cerrada en plan file); sin push.
