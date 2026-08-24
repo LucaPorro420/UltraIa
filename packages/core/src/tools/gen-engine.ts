@@ -5,10 +5,11 @@ import { setVideoProvider } from './video';
 
 /**
  * Cliente del Gen-Engine self-hosted (gen-engine/, FastAPI).
- * Usa GEN_ENGINE_URL (p.ej. http://localhost:8000 o el pod GPU cloud).
+ * Usa GEN_ENGINE_URL (p.ej. http://localhost:8100 o el pod GPU cloud).
+ * El default es :8100 para NO colisionar con el webhook server (:8000).
  * Cualquier fallo de red degrada a keyless desde generateVideo/generateMusic.
  */
-const GEN_ENGINE_URL = process.env.GEN_ENGINE_URL || 'http://localhost:8000';
+const GEN_ENGINE_URL = process.env.GEN_ENGINE_URL || 'http://localhost:8100';
 
 async function genEnginePost(
   path: string,

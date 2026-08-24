@@ -18,6 +18,7 @@ interface Env {
   ULTRAIA_BUCKET: R2Bucket;
   CLOUD_TOKEN: string;
   CLOUD_PUBLIC_URL?: string;
+  CLOUD_ALLOWED_ORIGINS?: string;
 }
 
 const MAX_UPLOAD_BYTES = 100 * 1024 * 1024;
@@ -43,10 +44,33 @@ function json(body: unknown, status = 200, extra: Record<string, string> = {}): 
   });
 }
 
-/** Rate limit por IP: ventana fija 1 min, 120 req/min (patrón Local API de Fase B). */
-function rateLimit(cf: IncomingRequestCfProperties | undefined): Response | null {
-  const ip = cf?.httpFullLocation?.asn ? `asn:${cf.httpFullLocation.asn}` : (cf?.colo ?? 'unknown');
-  // Memoria compartida solo por colocation; suficiente como primer freno.
+async function timingSafeEqual(a: string, b: string): Promise<boolean> {
+  const enc = new TextEncoder();
+  const ab = enc.encode(a);
+  const bb = enc.encode(b);
+  if (ab.byteLength !== bb.byteLength) return false;
+  return await crypto.subtle.timingSafeEqual(ab, bb);
+}
+
+/** Rate limit por IP (CF-Connecting-IP): ventana fija 1 min, 120 req/min. */
+const RATE_WINDOW_MS = 60_000;
+const RATE_MAX = 120;
+const buckets = new Map<string, { count: number; resetAt: number }>();
+function rateLimit(request: Request): Response | null {
+  const ip = request.headers.get('CF-Connecting-IP') ?? 'unknown';
+  const now = Date.now();
+  const b = buckets.get(ip);
+  if (!b || now > b.resetAt) {
+    buckets.set(ip, { count: 1, resetAt: now + RATE_WINDOW_MS });
+    return null;
+  }
+  b.count++;
+  if (b.count > RATE_MAX) {
+    return new Response(JSON.stringify({ error: 'rate limited' }), {
+      status: 429,
+      headers: { 'Content-Type': 'application/json', 'Retry-After': '60', ...CORS_HEADERS },
+    });
+  }
   return null;
 }
 
@@ -54,16 +78,28 @@ export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
     const origin = request.headers.get('Origin') ?? '';
-    const allowOrigin = origin ? { 'Access-Control-Allow-Origin': origin } : {};
+    const allowed = (env.CLOUD_ALLOWED_ORIGINS ?? '')
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean);
+    // CORS lock: si se configura CLOUD_ALLOWED_ORIGINS, solo esos orígenes reciben
+    // ACAO; si no, se refleja el Origin del request (la API sigue token-gated).
+    const allowOrigin =
+      origin && (allowed.length === 0 || allowed.includes(origin))
+        ? { 'Access-Control-Allow-Origin': origin }
+        : {};
 
     if (request.method === 'OPTIONS') {
       return new Response(null, { status: 204, headers: { ...CORS_HEADERS, ...allowOrigin } });
     }
 
-    // Auth: Bearer token (timing-safe-ish; comparación constante).
+    const limited = rateLimit(request);
+    if (limited) return limited;
+
+    // Auth: Bearer token con comparación timing-safe.
     const auth = request.headers.get('Authorization') ?? '';
     const token = auth.startsWith('Bearer ') ? auth.slice(7) : '';
-    if (!token || token !== env.CLOUD_TOKEN) {
+    if (!token || !(await timingSafeEqual(token, env.CLOUD_TOKEN))) {
       return json({ error: 'unauthorized' }, 401, allowOrigin);
     }
 
