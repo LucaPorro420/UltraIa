@@ -83,6 +83,7 @@ apps/mobile/.claude/
 
 # repomix (L825): paquete del repo para LLMs — regenerable, nunca commitear
 repomix-output.*
+resultTask/browser-e2e/shots/
 repomix-output/
 repomix.config.json
 
