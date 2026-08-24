@@ -48,3 +48,20 @@ Memory/Critic/Runtime (11 blueprints bp-* + 58 capabilities + OMAG critics +
 qdrant v2 + @ultraia/runtime) y es keyless-first. CrewAI queda como proveedor
 opcional vía puente Python (`pip install crewai` resuelve OK en py -3.12) si
 alguna vez se necesita un crew externo — no aporta capacidad que falte.
+
+## Privacidad (auditada 24/08/2026)
+
+| Capa | Estado |
+|---|---|
+| Repo GitHub | **PRIVADO** (API anónima responde 404) |
+| Tokens de redes sociales | **CERO configurados** en `.env` (solo LLM keys + BD + gen-engine) — sin token, ningún adapter puede publicar aunque quiera |
+| Cola `Publication` | Todo queda **DRAFT** (video exige tu aprobación humana por diseño); verificado en BD real: **0 filas PUBLISHED** |
+| Salida hacia redes | SOLO si TÚ apruebas una publicación Y hay token del canal Y corre `publishDue`. Sin esos 3, nada sale |
+| Artefactos (MP4/PNG/OBJ) | Viven en `.ultraia/` (**gitignored**, nunca subidos); en la nube van como artifacts privados del workflow |
+| Lo que el cloud commitea | Únicamente reportes técnicos (`resultTask/cerebro/report.md`, `manifest.json`, `state.json`) a TU repo privado |
+
+Para publicar algo a una red real necesitas, en este orden: (1) poner el token
+del canal en `.env` (ver `docs/CANALES-CONFIG-2026.md`), (2) aprobar el DRAFT
+(UI `/gallery`… cola en dashboard o API `POST /api/publications/[id]/approve`),
+(3) que corra `publishDue` (botón/endpoint ADMIN o el ciclo local).
+
