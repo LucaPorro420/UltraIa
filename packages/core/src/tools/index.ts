@@ -24,6 +24,7 @@ export * from './travel';
 export * from './generative';
 export * from './libros';
 export * from './sdf';
+export * from './geom';
 export * from './videoqa';
 // motion: export explicito (catmullRom colisiona con generative; queda vía './motion' directo)
 export {
@@ -117,6 +118,7 @@ import * as codequality from './codequality';
 import * as deps from './deps';
 import { libros } from './libros';
 import { sdf } from './sdf';
+import { geom } from './geom';
 import * as videoqa from './videoqa';
 import * as motion from './motion';
 import * as replica from './replica';
@@ -129,7 +131,7 @@ import { vaultTools } from './vault';
 import { pdfsearchTools } from './pdfsearch';
 import { qdrantMemory as qdrantMemoryTools } from './qdrant-memory';
 
-export const tools = { web, image, video, music, stitch, reach, skills: { runSkill }, content, g0dm0d3, topics, present: presentTools, publish, enrutador, mediaScore, metrics, memoryFs: { createMemoryFs }, diagram, videoEdit, screenflow, cloud: cloudTools, harness, growth, vfx, codevfx, travel, generative, libros, sdf, videoqa, motion, replica, imaging, semanticMemory, autolearn, genesis, creativo, vault: vaultTools, pdfsearch: pdfsearchTools, qdrantMemory: qdrantMemoryTools, kgraph, brainpage, autopub, security, codequality, deps };
+export const tools = { web, image, video, music, stitch, reach, skills: { runSkill }, content, g0dm0d3, topics, present: presentTools, publish, enrutador, mediaScore, metrics, memoryFs: { createMemoryFs }, diagram, videoEdit, screenflow, cloud: cloudTools, harness, growth, vfx, codevfx, travel, generative, libros, sdf, videoqa, motion, replica, imaging, semanticMemory, autolearn, genesis, creativo, vault: vaultTools, pdfsearch: pdfsearchTools, qdrantMemory: qdrantMemoryTools, kgraph, brainpage, autopub, security, codequality, deps, geom };
 
 export const TOOL_DESCRIPTIONS: Record<string, string> = {
   calculator: 'Safely evaluate a mathematical expression (math only).',
@@ -187,6 +189,8 @@ export const TOOL_DESCRIPTIONS: Record<string, string> = {
     'Free programming books catalog in Spanish (librosgratis.dev / midudev pattern): 115 free books and tutorials in 32 sections across 8 categories — search with multi-term scoring (title 3 > author 2 > section 1, accents-insensitive), list by section, aggregate categories, and validate new resource proposals against the README rules. Deterministic, keyless. Use to recommend free Spanish learning resources for any programming topic.',
   sdf:
     'Signed Distance Fields + ray marching (Inigo Quilez pattern, 100% code): plan a 3D SDF scene (sphere/box/torus/capsule/plane primitives; union/intersection/subtract/smooth ops with evaluable tree and human-readable formula), generate GLSL reference code, estimate a ray-march render plan (steps, 16:9 resolution, ops per frame) or render a self-contained HTML5 canvas 2D scene (drag rotate, wheel zoom, R reset, Dark Obsidian, a11y). Deterministic, keyless, offline. Use to visualize procedural 3D shapes as code.',
+  geom:
+    'Computational geometry & math library (fundamentos-programacion pattern, 100% code): scalars+easings, Vec2/Vec3 ops, Mat3/Mat4 (row-major: rotation/translation/lookAt) and quaternions (axis-angle, multiply, rotate vector, slerp, toMat4); 2D generators (polygon/star/spiral/lissajous/superellipse/grid/bezier/boundingBox) + SVG render (role=img, a11y); 3D meshes (sphere/torus/box/cylinder/helix/parametric surface) + normals + OBJ/STL export + orthographic projection SVG; keyframed timelines (linear/cubic/back ease) for video, self-contained HTML5 Canvas 2D/3D animation presets, and an SDF implicit-point-cloud bridge. Deterministic, keyless, offline. Use to program 2D/3D objects and animations purely from math.',
   videoqa:
     'Video quality metrics (fundamentos-programacion.md A20-A24 pattern): compute MAE/MSE/PSNR/SSIM between reference and distorted luminance buffers, optical-flow error E_flow, weighted total error E_total (pixel 0.6 / flow 0.3 / semantic 0.1), a PASS/FAIL verdict against thresholds (PSNR>40dB, SSIM>0.95, E_total<0.4), and the deterministic ffmpeg/libvmaf argv (never executes). Deterministic, keyless. Use to verify a rendered/edited video against a reference before publishing.',
   motion:
@@ -255,6 +259,7 @@ export type Capability =
   | 'enlaces'
   | 'libros'
   | 'sdf'
+  | 'geom'
   | 'videoqa'
   | 'motion'
    | 'replica'

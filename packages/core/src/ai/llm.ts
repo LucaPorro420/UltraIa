@@ -47,6 +47,7 @@ import { researchSearch, searchArxiv, researchWeb, researchGitHub, fetchAndExtra
 import { classifyEnlaces, contentChecksum } from '../tools/enlaces';
 import { buscarLibros, librosPorSeccion, categoriasLibros, validarPropuestaLibro } from '../tools/libros';
 import { sdf } from '../tools/sdf';
+import { geom, type GeomVec3 } from '../tools/geom';
 import * as videoqa from '../tools/videoqa';
 import * as motion from '../tools/motion';
 import * as replica from '../tools/replica';
@@ -1530,6 +1531,67 @@ export function chatStream(opts: {
             return { accion, formula: plan.formula, ray: sdf.rayMarchPlan(plan) };
           case 'html':
             return { accion, formula: plan.formula, html: sdf.renderSdfHtml(plan, { width, height }) };
+          default:
+            return { accion, ok: false, error: 'accion desconocida' };
+        }
+      },
+    });
+  }
+  if (opts.tools?.includes('geom')) {
+    tools.geom_program = tool({
+      description:
+        'Computational geometry & math library (fundamentos-programacion pattern, 100% code): scalars+easings, Vec2/Vec3 ops, Mat3/Mat4 (row-major rotation/translation/lookAt) and quaternions (axis-angle, multiply, rotate vector, slerp, toMat4); 2D generators (polygon/star/spiral/lissajous/superellipse/grid/bezier/boundingBox) + SVG render (role=img, a11y); 3D meshes (sphere/torus/box/cylinder/helix/parametric surface) + normals + OBJ/STL export + orthographic projection SVG; keyframed timelines (linear/cubic/back ease) and self-contained HTML5 Canvas 2D/3D animation presets; plus an SDF implicit-point-cloud bridge. Deterministic, keyless, offline. Use to program 2D/3D objects and animations purely from math.',
+      parameters: z.object({
+        accion: z.enum([
+          'v2add', 'v2sub', 'v2dot', 'v2cross', 'v2len', 'v3add', 'v3sub', 'v3dot', 'v3cross', 'v3len',
+          'mat4mul', 'transform', 'quat', 'polygon', 'star', 'spiral', 'lissajous', 'superellipse', 'grid', 'bezier', 'bbox', 'svg2d',
+          'sphere', 'torus', 'box', 'cylinder', 'helix', 'parametric', 'obj', 'stl', 'project', 'timeline', 'anim', 'implicit',
+        ]),
+        A: z.string().min(1).max(400).optional(),
+        B: z.string().min(1).max(400).optional(),
+        params: z.string().min(1).max(4000).optional(),
+        width: z.number().int().min(160).max(1920).optional(),
+        height: z.number().int().min(90).max(1080).optional(),
+      }),
+      execute: async ({ accion, A, B, params, width, height }) => {
+        const P = params ? JSON.parse(params) : {};
+        const vA = A ? JSON.parse(A) : undefined;
+        const vB = B ? JSON.parse(B) : undefined;
+        switch (accion) {
+          case 'v2add': return { accion, result: geom.v2add(vA, vB) };
+          case 'v2sub': return { accion, result: geom.v2sub(vA, vB) };
+          case 'v2dot': return { accion, result: geom.v2dot(vA, vB) };
+          case 'v2cross': return { accion, result: geom.v2cross(vA, vB) };
+          case 'v2len': return { accion, result: geom.v2len(vA) };
+          case 'v3add': return { accion, result: geom.v3add(vA, vB) };
+          case 'v3sub': return { accion, result: geom.v3sub(vA, vB) };
+          case 'v3dot': return { accion, result: geom.v3dot(vA, vB) };
+          case 'v3cross': return { accion, result: geom.v3cross(vA, vB) };
+          case 'v3len': return { accion, result: geom.v3len(vA) };
+          case 'mat4mul': return { accion, result: geom.mat4Multiply(vA, vB) };
+          case 'transform': return { accion, result: geom.transformPoint(vA, vB) };
+          case 'quat': return { accion, result: geom.quatRotateVec3(geom.quatFromAxisAngle(P.axis || [0, 1, 0], P.angle || 0), vA) };
+          case 'polygon': return { accion, points: geom.polygon2D(P.sides || 5, P.radius || 1) };
+          case 'star': return { accion, points: geom.star2D(P.points || 5, P.outer || 1, P.inner || 0.5) };
+          case 'spiral': return { accion, points: geom.spiral2D(P.turns || 3, P.growth || 0.1, P.scale || 1, P.samples || 100) };
+          case 'lissajous': return { accion, points: geom.lissajous2D(P.ax || 3, P.ay || 2, P.bx || 1, P.by || 1, P.delta || Math.PI / 2, P.samples || 100) };
+          case 'superellipse': return { accion, points: geom.superellipse2D(P.a || 4, P.b || 4, P.samples || 100) };
+          case 'grid': return { accion, points: geom.grid2D(P.cols || 3, P.rows || 2, P.size || 1) };
+          case 'bezier': return { accion, points: geom.bezierPath2D(vA, P.samples || 20) };
+          case 'bbox': { const b = geom.boundingBox2D(vA); return { accion, min: b.min, max: b.max, width: b.width, height: b.height }; }
+          case 'svg2d': return { accion, svg: geom.render2DSvg(vA, { width: width || 480, height: height || 480 }) };
+          case 'sphere': return { accion, vertices: geom.sphere3D(P.radius || 1, P.segU || 12, P.segV || 16).positions.length, faces: geom.sphere3D(P.radius || 1, P.segU || 12, P.segV || 16).faces.length };
+          case 'torus': return { accion, faces: geom.torus3D(P.R || 1, P.r || 0.4, P.segU || 12, P.segV || 16).faces.length };
+          case 'box': return { accion, vertices: geom.box3D(P.w || 1, P.h || 1, P.d || 1).positions.length, faces: geom.box3D(P.w || 1, P.h || 1, P.d || 1).faces.length };
+          case 'cylinder': return { accion, faces: geom.cylinder3D(P.radius || 1, P.height || 2, P.seg || 8).faces.length };
+          case 'helix': return { accion, points: geom.helix3D(P.turns || 3, P.radius || 1, P.height || 4, P.samples || 50) };
+          case 'parametric': return { accion, faces: geom.parametricSurface3D((P.fn ? new Function('u', 'v', 'return ' + P.fn) : (u, v) => [Math.cos(u * 2 * Math.PI) * (1 + 0.3 * Math.cos(v * 2 * Math.PI)), Math.sin(u * 2 * Math.PI) * (1 + 0.3 * Math.cos(v * 2 * Math.PI)), 0.3 * Math.sin(v * 2 * Math.PI)]) as (u: number, v: number) => GeomVec3, P.segU || 24, P.segV || 8).faces.length };
+          case 'obj': return { accion, obj: geom.meshToOBJ(geom.sphere3D(P.radius || 1, P.segU || 4, P.segV || 6)) };
+          case 'stl': return { accion, stl: geom.meshToSTL(geom.box3D(1, 1, 1)).slice(0, 200) };
+          case 'project': { const m = geom.sphere3D(1, 12, 16); const mat = geom.mat4Multiply(geom.mat4LookAt([0, 0, 4], [0, 0, 0], [0, 1, 0]), geom.mat4RotationY(P.angle || 0.4)); return { accion, svg: geom.projectMeshSvg(m, mat) }; }
+          case 'timeline': { const tl = P.timeline || { x: [{ t: 0, value: 0 }, { t: 1, value: 10 }] }; return { accion, sample: geom.sampleTimeline(tl, P.t || 0.5) }; }
+          case 'anim': return { accion, html: geom.renderGeomHtml({ mode: P.mode || '2d', preset: P.preset || 'lissajous', params: P.params || {}, width: width || 720, height: height || 480 }) };
+          case 'implicit': { const field = (P.field ? new Function('p', 'return ' + P.field) : (p) => Math.hypot(p[0], p[1], p[2]) - 1) as (p: GeomVec3) => number; return { accion, points: geom.implicitPointCloud(field, { bounds: (P.bounds || [[-1.5, -1.5, -1.5], [1.5, 1.5, 1.5]]) as [GeomVec3, GeomVec3], step: P.step || 0.1, eps: P.eps || 0.09 }).length }; }
           default:
             return { accion, ok: false, error: 'accion desconocida' };
         }
