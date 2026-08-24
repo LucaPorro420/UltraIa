@@ -2737,3 +2737,12 @@ de código, sin commit.
 ```json
 {"pattern":"pivr","iter":99,"items_found":3,"escalations":0,"gates":{"typecheck":0,"lint":0,"test":0,"build":0},"scoped":{"tsc_core":0,"scoped_vitest":97,"core_total":1564,"runtime_total":193},"commits":["ver JSON siguiente tras commit"],"lock":"loop-98-codevfx-v2"}
 ```
+### [P]/[I]/[V]/[R] Iteracion 100 - mejora continua: start.py --clean + recordly wiring test (24/08/2026)
+
+- **[P] Sensado**: pedido usuario "Mejora todo y sigue". Cola sin pendientes funcionales -> mejoras de robustez: follow-up F4 de perf-studio (auto-heal de puertos fragil) y hueco de consistencia (recordly sin wiring test, patron geometry/pngrender/procvid/qdrant).
+- **[I]** (1) start.py --clean: auto-heal fail-safe (solo tokens UltraIa conocidos, extranjero reportado NUNCA muerto) + funciones puras testeables + refactor watch_service (dedupe triplicado cmd_single; R0912/R1732 resueltos, pylint 0 absoluto). (2) recordly.wiring.test.ts 4/4 + `export * as recordly` (namespace seguro contra colision de tipos genericos).
+- **[V]** Python: ruff/pylint/pyflakes 0, start_clean.test.py 5/5, --help OK. FULL CI: typecheck 0 - lint 0 - test 0 (core 100 files PASS + runtime 22 files PASS) - build 0.
+- **[R]** iter-100 DONE. Push por autorizacion vigente del usuario ("realisar commit y push" + "sigue").
+``json
+{"pattern":"pivr","iter":100,"gates":{"typecheck":0,"lint":0,"test":0,"build":0},"scoped":{"python_tests":5,"wiring_tests":4,"pylint_issues":0}}
+``

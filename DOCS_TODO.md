@@ -804,3 +804,7 @@ Cada commit agrega una sección con fecha y la lista de archivos `.ts/.tsx` toca
 ## 2026-08-24T18:38:57.901Z
 - [ ] packages/core/src/ai/llm.ts
 - [ ] packages/core/src/tools/index.ts
+
+## 2026-08-24T19:32:45.180Z
+- [ ] packages/core/src/tools/index.ts
+- [ ] packages/core/src/tools/recordly.wiring.test.ts

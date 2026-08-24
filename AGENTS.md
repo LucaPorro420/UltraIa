@@ -805,3 +805,32 @@ LEY: `git add` explicito (nunca `.`), NO tocar DOCS_TODO/blueprint/reach/automat
   mine\{llm.ts.wired,index.ts.wired}\ — aplicar al liberarse la sesión y commitear.
   Los módulos YA están exportados por index.ts (\export * from './geometry'|'./pngrender'|
   './procvid'\) y usables por import directo.
+
+## Iter-99/100 (24/08/2026) - cierre de cola + mejoras
+
+- **codevfx v2** (`c15e5a9`): vendor LinearAbiltyCastingThreeJS (MIT, referencia) + port aditivo
+  de principios: settings-as-API tree, preset deep-merge inmutable, spawn fraccional
+  edit-while-paused, maquina de fases windup/travel/impact/fade, flicker restrike+crawl,
+  ruido por personalidad, indicadores SDF aim/zona con snap overshoot, specs GPU ring-buffer,
+  pipeline depth/bloom/ACES/grade, guard anti-pattern decal angular, shape hash, budgets
+  draw-call. Tool `vfx_code` con 12 acciones nuevas. 29 tests nuevos.
+- **capability `recordly`** (`8720a6a`+`13cd80c`+wiring test): ScreenFlow Studio planner (port de
+  principios del repo Recordly AGPL - implementacion ORIGINAL): auto-zoom por telemetria de cursor
+  (dwell 450-2600ms + clusters click), presets motion focused/smooth, webcam bubble, export MP4
+  (calidad x aspecto con fitting par), timeline por regiones, manifest .recordly JSON.
+  Tool `recordly_plan` (plan/zoom/cursor/export/timeline/manifest). Export namespace via
+  `export * as recordly from './recordly'` (NO `export *`: tipos genericos como ZoomRegion/
+  ClipRegion colisionarian con video-edit/screenflow). recordly.wiring.test.ts 4/4.
+- **browser-e2e.mjs** (`9c3b444`, plan loop-95): pruebas E2E reales en Chrome; shots fuera del repo.
+- **start.py --clean auto-heal** (cierra follow-up F4 de perf-studio): preflight_ports intenta
+  liberar puertos ocupados matando SOLO procesos cuyo cmdline matchea ULTRAIA_PROC_TOKENS
+  (next/node/npm/uvicorn/start.py/ultraia/gen-engine); extranjeros se reportan y NUNCA se tocan.
+  Funciones puras testeables: parse_netstat_listeners (dedupe IPv4+IPv6, sufijo exacto :port),
+  port_owner_pids (netstat -ano), pid_command_line (wmic -> fallback PowerShell CIM),
+  looks_like_ultraia, clean_busy_ports. Refactor: watch_service() deduplica el patron try/
+  spawn/print/terminate de los 3 modos single (pylint R0912 resuelto; ruff/pylint/pyflakes 0).
+  scripts/start_clean.test.py 5/5 standalone stdlib (patron loop_piv_doctor.test.py - los
+  *.test.py de scripts/ NO corren via pytest, corren como scripts: py -3.12 scripts/X.test.py).
+- **perf-studio** cerrado: F1-F4 DONE verificados (plan loop-94-perf-studio commiteado); el bug
+  "studio agent request se traba" resuelto desde iteraciones previas (timeout 120s + fallback
+  local-first + stop/retry UI + connection_limit=1).
