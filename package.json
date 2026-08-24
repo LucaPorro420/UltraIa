@@ -19,7 +19,9 @@
     "db:studio": "prisma studio --schema packages/core/prisma/schema.prisma",
     "repomix": "repomix --include \"packages/core/src,packages/runtime/src,apps/web/src,apps/mobile/src,scripts,Task,start.py\"",
     "genesis": "vite-node scripts/genesis-run.ts --manifest scripts/genesis.manifest.json",
-    "autopub": "vite-node Task/run-autopub.ts"
+    "autopub": "vite-node Task/run-autopub.ts",
+    "cerebro": "vite-node Task/cerebro-cycle.ts --run",
+    "cerebro:plan": "vite-node Task/cerebro-cycle.ts --plan"
   },
   "devDependencies": {
     "prisma": "^6.7.0",
