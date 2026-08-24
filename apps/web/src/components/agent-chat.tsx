@@ -2,7 +2,7 @@
 
 import { useChat } from 'ai/react';
 import { useEffect, useRef, useState } from 'react';
-import { Plus, SendHorizontal, Sparkles } from 'lucide-react';
+import { Plus, SendHorizontal, Sparkles, Square, RefreshCcw } from 'lucide-react';
 import { FeedbackControl } from './feedback-control';
 
 type ConversationMeta = { id: string; title: string; createdAt: string };
@@ -13,7 +13,7 @@ export function AgentChat({ agentId }: { agentId: string }) {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [loadingHistory, setLoadingHistory] = useState(false);
   const conversationRef = useRef<string | null>(null);
-  const { messages, input, handleInputChange, handleSubmit, setMessages, isLoading, error } = useChat({
+  const { messages, input, handleInputChange, handleSubmit, setMessages, isLoading, error, stop, reload } = useChat({
     api: '/api/chat',
   });
 
@@ -166,13 +166,33 @@ export function AgentChat({ agentId }: { agentId: string }) {
           placeholder="Ask your agent something…"
           className="flex-1 rounded-lg border border-border-muted bg-input-active px-3 py-2.5 text-sm text-neutral-100 outline-none transition-colors duration-150 placeholder:text-neutral-600 focus:border-border-active focus:ring-1 focus:ring-border-active"
         />
-        <button
-          type="submit"
-          disabled={isLoading || !input.trim()}
-          className="rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white transition-colors duration-150 hover:bg-primary/85 disabled:opacity-50"
-        >
-          <SendHorizontal className="h-4 w-4" /> Send
-        </button>
+        {isLoading && (
+          <button
+            type="button"
+            onClick={() => stop()}
+            className="rounded-lg bg-panel px-4 py-2.5 text-sm font-semibold text-neutral-100 transition-colors duration-150 hover:bg-panel-hover"
+          >
+            <Square className="h-4 w-4" /> Stop
+          </button>
+        )}
+        {error && (
+          <button
+            type="button"
+            onClick={() => reload()}
+            className="rounded-lg bg-panel px-4 py-2.5 text-sm font-semibold text-neutral-100 transition-colors duration-150 hover:bg-panel-hover"
+          >
+            <RefreshCcw className="h-4 w-4" /> Retry
+          </button>
+        )}
+        {!isLoading && (
+          <button
+            type="submit"
+            disabled={!input.trim()}
+            className="rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white transition-colors duration-150 hover:bg-primary/85 disabled:opacity-50"
+          >
+            <SendHorizontal className="h-4 w-4" /> Send
+          </button>
+        )}
       </form>
     </div>
   );

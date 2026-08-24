@@ -3,7 +3,7 @@
 import { useChat } from 'ai/react';
 import { useEffect, useRef, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
-import { Check, Copy, RefreshCcw, SendHorizontal, Sparkles } from 'lucide-react';
+import { Check, Copy, RefreshCcw, SendHorizontal, Sparkles, Square } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const SUGGESTIONS = [
@@ -22,7 +22,7 @@ export function AssistantChat() {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const { messages, input, setInput, handleInputChange, handleSubmit, isLoading, error, setMessages } =
+  const { messages, input, setInput, handleInputChange, handleSubmit, isLoading, error, setMessages, stop, reload } =
     useChat({
       api: '/api/chat/general',
     });
@@ -177,13 +177,35 @@ export function AssistantChat() {
             placeholder="Escribe un mensaje… (Enter para enviar)"
             className="max-h-[200px] flex-1 resize-none bg-transparent py-1.5 text-sm text-neutral-100 outline-none placeholder:text-neutral-600"
           />
-          <button
-            type="submit"
-            disabled={isLoading || !input.trim()}
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary text-white transition-all duration-150 hover:bg-primary/85 disabled:opacity-40"
-          >
-            <SendHorizontal className="h-4 w-4" />
-          </button>
+          {isLoading && (
+            <button
+              type="button"
+              onClick={() => stop()}
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-panel text-white transition-all duration-150 hover:bg-panel/85"
+              aria-label="Detener"
+            >
+              <Square className="h-4 w-4" />
+            </button>
+          )}
+          {error && (
+            <button
+              type="button"
+              onClick={() => reload()}
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-panel text-white transition-all duration-150 hover:bg-panel/85"
+              aria-label="Reintentar"
+            >
+              <RefreshCcw className="h-4 w-4" />
+            </button>
+          )}
+          {!isLoading && (
+            <button
+              type="submit"
+              disabled={!input.trim()}
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary text-white transition-all duration-150 hover:bg-primary/85 disabled:opacity-40"
+            >
+              <SendHorizontal className="h-4 w-4" />
+            </button>
+          )}
         </div>
         <p className="mt-2 text-center text-[10px] text-neutral-600">
           Enter para enviar · Shift+Enter para nueva línea · Streaming con el modelo configurado

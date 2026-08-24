@@ -13,6 +13,8 @@ import {
   ExternalLink,
   Megaphone,
   SendHorizontal,
+  Square,
+  RefreshCw,
 } from 'lucide-react';
 import { MarketingHeader } from '@/components/marketing-header';
 
@@ -36,17 +38,24 @@ const CONNECTORS = [
   { label: 'X / Twitter', href: 'https://x.com/explore', note: 'Social listening (public posts)' },
 ];
 
-async function postJson<T>(url: string, body: unknown): Promise<T> {
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  });
-  if (!res.ok) {
-    const msg = await res.text().catch(() => 'Request failed');
-    throw new Error(msg || `Request failed (${res.status})`);
+async function postJson<T>(url: string, body: unknown, opts?: { timeoutMs?: number }): Promise<T> {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), opts?.timeoutMs ?? 120_000);
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+      signal: ctrl.signal,
+    });
+    if (!res.ok) {
+      const msg = await res.text().catch(() => 'Request failed');
+      throw new Error(msg || `Request failed (${res.status})`);
+    }
+    return res.json() as Promise<T>;
+  } finally {
+    clearTimeout(timer);
   }
-  return res.json() as Promise<T>;
 }
 
 const inputCls =
@@ -590,7 +599,7 @@ function BrandingPanel() {
 }
 
 function ChatPanel({ capabilities }: { capabilities: Cap[] }) {
-  const { messages, input, handleInputChange, handleSubmit, isLoading, error } = useChat({
+  const { messages, input, handleInputChange, handleSubmit, isLoading, error, stop, reload } = useChat({
     api: '/api/studio/chat',
     body: { capabilities },
   });
@@ -627,22 +636,34 @@ function ChatPanel({ capabilities }: { capabilities: Cap[] }) {
           </div>
         )}
       </div>
-      {error && (
-        <p className="mb-2 rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-2 font-mono text-[11px] text-red-300">
-          {(error.message || 'Chat failed') + ' — set OPENAI_API_KEY to enable.'}
-        </p>
-      )}
-      <form onSubmit={handleSubmit} className="flex gap-2">
-        <input
-          className={inputCls}
-          placeholder="Ask the multimodal assistant…"
-          value={input}
-          onChange={handleInputChange}
-        />
-        <button type="submit" disabled={isLoading} className={btnCls}>
-          <SendHorizontal className="h-4 w-4" /> Send
-        </button>
-      </form>
+        {error && (
+          <p className="mb-2 rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-2 font-mono text-[11px] text-red-300">
+            {error.message || 'Chat failed'}
+          </p>
+        )}
+        <form onSubmit={handleSubmit} className="flex gap-2">
+          <input
+            className={inputCls}
+            placeholder="Ask the multimodal assistant…"
+            value={input}
+            onChange={handleInputChange}
+          />
+          {isLoading && (
+            <button type="button" onClick={() => stop()} className={btnCls}>
+              <Square className="h-4 w-4" /> Stop
+            </button>
+          )}
+          {error && (
+            <button type="button" onClick={() => reload()} className={btnCls}>
+              <RefreshCw className="h-4 w-4" /> Retry
+            </button>
+          )}
+          {!isLoading && (
+            <button type="submit" className={btnCls}>
+              <SendHorizontal className="h-4 w-4" /> Send
+            </button>
+          )}
+        </form>
     </StudioCard>
   );
 }
