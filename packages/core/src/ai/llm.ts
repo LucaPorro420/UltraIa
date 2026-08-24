@@ -70,6 +70,10 @@ import * as security from '../tools/security';
 import * as codequality from '../tools/codequality';
 import * as deps from '../tools/deps';
 import * as creativo from '../tools/creativo';
+import * as physics2d from '../tools/physics2d';
+import * as cadgeo from '../tools/cadgeo';
+import * as evoDomain from '../tools/evo';
+import * as evolutionDomain from '../tools/evolution';
 import { createPublication, listPublications, approvePublication, rejectPublication, publishDue } from '../domain/publications';
 import { generarContenido, type ContentPackage } from '../tools/enrutador';
 import { computeChannelKpis, fetchChannelAnalytics } from '../tools/metrics';
@@ -2497,6 +2501,196 @@ export function chatStream(opts: {
           manifestPath: `${plan.outDir}/${plan.outName}.manifest.json`,
           nextStep: manifest.gif ? plan.gifArgv : plan.ffmpegArgv,
           script: sh,
+        };
+      },
+    });
+  }
+
+  if (opts.tools?.includes('physics2d')) {
+    const parseJsonLoose = <T,>(raw: string, label: string): T => {
+      try {
+        return JSON.parse(raw) as T;
+      } catch {
+        throw new Error(`${label} no es JSON válido`);
+      }
+    };
+    tools.physics_sim = tool({
+      description:
+        'Deterministic 2D physics simulator (Motor Evolutivo M1, pure TypeScript): Verlet positional particles (implicit velocity, fixed substeps gravity->integrate->container->links->collisions, stick links weighted by radius^2) and rigid circle/box bodies with sequential impulses (restitution + Coulomb friction, multi-iteration solver stable for stacks). Actions: stack (build a particle stack and settle it N frames), step (advance a given Verlet state inside a container), render (self-contained Dark Obsidian HTML canvas of the given state). 100% deterministic byte-exact, serializable JSON states, keyless. Use to simulate soft/rigid motion from pure code without any engine.',
+      parameters: z.object({
+        accion: z.enum(['stack', 'step', 'render']),
+        count: z.number().int().min(1).max(60).optional(),
+        radius: z.number().positive().max(200).optional(),
+        frames: z.number().int().min(0).max(2000).optional(),
+        stateJson: z.string().max(400_000).optional(),
+        containerKind: z.enum(['circle', 'rect']).optional(),
+        containerJson: z.string().max(4000).optional(),
+      }),
+      execute: async ({ accion, count, radius, frames, stateJson, containerKind, containerJson }) => {
+        const container: physics2d.VerletContainer =
+          containerJson
+            ? parseJsonLoose<physics2d.VerletContainer>(containerJson, 'containerJson')
+            : containerKind === 'circle'
+              ? { kind: 'circle', cx: 0, cy: 0, radius: 280 }
+              : { kind: 'rect', x: -300, y: -600, width: 600, height: 580 };
+        if (accion === 'step') {
+          let st = stateJson ? parseJsonLoose<physics2d.VerletState>(stateJson, 'stateJson') : physics2d.createVerletStack(count ?? 5, container, radius ?? 20);
+          const n = frames ?? 60;
+          for (let i = 0; i < n; i++) st = physics2d.stepVerlet(st, container);
+          return { accion, frames: n, energy: physics2d.verletKineticEnergy(st), state: st };
+        }
+        if (accion === 'render') {
+          const st = stateJson ? parseJsonLoose<physics2d.VerletState>(stateJson, 'stateJson') : physics2d.createVerletStack(count ?? 5, container, radius ?? 20);
+          return { accion, html: physics2d.renderPhysicsHtml({ verlet: { state: st, container } }, { title: 'physics_sim' }) };
+        }
+        let st = physics2d.createVerletStack(count ?? 5, container, radius ?? 20);
+        const n = frames ?? 120;
+        for (let i = 0; i < n; i++) st = physics2d.stepVerlet(st, container);
+        return { accion, frames: n, particles: st.particles.length, energy: physics2d.verletKineticEnergy(st), state: st };
+      },
+    });
+  }
+
+  if (opts.tools?.includes('cadgeo')) {
+    const ptsFrom = (raw: string | undefined, fallback: Array<[number, number]>): Array<[number, number]> =>
+      raw ? JSON.parse(raw) as Array<[number, number]> : fallback;
+    tools.cadgeo_compute = tool({
+      description:
+        'Computational geometry toolkit (Motor Evolutivo M2, pure math): Delaunay triangulation (Bowyer-Watson, empty-circle property), Voronoi cells via half-plane clipping (partition the bounding box exactly), BVH median-split build with AABB and ray queries (slab method, identical results to brute force), point quadtree with circular range queries, clamped uniform B-spline evaluation (de Boor, degree<=5, optional rational weights) and CAD-lite extrudeMesh/revolveMesh producing standard GeoMesh exportable as OBJ/glTF 2.0. Deterministic, keyless, zero deps. Use for spatial analysis, mesh generation and computational geometry from code.',
+      parameters: z.object({
+        accion: z.enum(['delaunay', 'voronoi', 'bvh', 'quadtree', 'bspline', 'extrude', 'revolve']),
+        pointsJson: z.string().max(200_000).optional(),
+        boxesJson: z.string().max(200_000).optional(),
+        queryJson: z.string().max(2000).optional(),
+        rayJson: z.string().max(500).optional(),
+        degree: z.number().int().min(1).max(5).optional(),
+        t: z.number().min(0).max(1).optional(),
+        height: z.number().positive().max(10_000).optional(),
+        segments: z.number().int().min(3).max(256).optional(),
+      }),
+      execute: async ({ accion, pointsJson, boxesJson, queryJson, rayJson, degree, t, height, segments }) => {
+        const squarePts: Array<[number, number]> = [[0, 0], [2, 0], [2, 2], [0, 2]];
+        if (accion === 'delaunay') {
+          return { accion, triangles: cadgeo.delaunayTriangulate(ptsFrom(pointsJson, squarePts)) };
+        }
+        if (accion === 'voronoi') {
+          const cells = cadgeo.voronoiCells(ptsFrom(pointsJson, squarePts));
+          return { accion, cells: cells.map((c) => ({ site: c.site, vertices: c.polygon.length })) , polygons: cells.map((c) => c.polygon) };
+        }
+        if (accion === 'bvh') {
+          const boxes = JSON.parse(boxesJson ?? '[]') as cadgeo.BvhBox[];
+          const root = cadgeo.bvhBuild(boxes);
+          const q = queryJson ? (JSON.parse(queryJson) as cadgeo.BvhBox) : { minX: -1e9, minY: -1e9, maxX: 1e9, maxY: 1e9 };
+          const base: Record<string, unknown> = { accion, nodes: boxes.length };
+          if (rayJson) {
+            const [ox, oy, dx, dy] = JSON.parse(rayJson) as [number, number, number, number];
+            base.rayHits = cadgeo.bvhRayQuery(root, boxes, ox, oy, dx, dy);
+          } else {
+            base.aabbHits = cadgeo.bvhAabbQuery(root, boxes, q);
+          }
+          return base;
+        }
+        if (accion === 'quadtree') {
+          const pts = ptsFrom(pointsJson, squarePts);
+          const qt = cadgeo.quadtreeCreate(-1000, -1000, 2000, 4, 12);
+          pts.forEach((p, i) => qt.insert(p[0], p[1], i));
+          const c = queryJson ? (JSON.parse(queryJson) as { cx: number; cy: number; r: number }) : { cx: 1, cy: 1, r: 3 };
+          return { accion, inserted: pts.length, hits: qt.query(c.cx, c.cy, c.r) };
+        }
+        if (accion === 'bspline') {
+          const ctrl = ptsFrom(pointsJson, [[0, 0], [1, 2], [3, 2], [4, 0]]);
+          return { accion, point: cadgeo.bsplineEval(ctrl, degree ?? 3, t ?? 0.5) };
+        }
+        if (accion === 'extrude') {
+          const mesh = cadgeo.extrudeMesh(ptsFrom(pointsJson, squarePts), height ?? 5);
+          return { accion, vertices: mesh.vertices.length, faces: mesh.faces.length, objPreview: geometry.meshToObjText(mesh).split('\n').slice(0, 6) };
+        }
+        const mesh = cadgeo.revolveMesh(ptsFrom(pointsJson, [[1, 0], [2, 1], [1, 2]]), segments ?? 24);
+        return { accion, vertices: mesh.vertices.length, faces: mesh.faces.length, gltfBytes: geometry.meshToGltf(mesh).length };
+      },
+    });
+  }
+
+  if (opts.tools?.includes('evo')) {
+    tools.evo_optimize = tool({
+      description:
+        'Deterministic genetic algorithm optimizer (Motor Evolutivo M3, pure TypeScript): xorshift32 PRNG (same seed -> same evolution across processes), tournament selection, uniform/arithmetic/blend crossover, gaussian mutation, elitism. Actions: benchmark (sphere minimization demo proving convergence <50 generations), evolve (run generations over genes provided as JSON with your OWN fitness expression evaluated offline), stats (best/mean/worst/diversity of a population). Maximizes fitness; encode minimization by negating. Deterministic byte-exact, keyless. Use to optimize numeric parameter vectors from pure code.',
+      parameters: z.object({
+        accion: z.enum(['benchmark', 'evolve', 'stats']),
+        populationJson: z.string().max(400_000).optional(),
+        fitnessJson: z.string().max(10_000).optional(),
+        generations: z.number().int().min(1).max(1000).optional(),
+        seed: z.number().int().optional(),
+      }),
+      execute: async ({ accion, populationJson, fitnessJson, generations, seed }) => {
+        if (accion === 'benchmark') {
+          const r = evoDomain.benchmarkSphere({ dims: 8, size: 40, generations: Math.min(generations ?? 50, 50), target: -0.01, seed: seed ?? 20260824 });
+          return { accion, bestFitness: r.bestFitness, reachedAtGeneration: r.reachedAtGeneration, bestGenesPreview: r.bestGenes.slice(0, 4) };
+        }
+        if (accion === 'stats') {
+          const pop = (populationJson ? JSON.parse(populationJson) : [{ genes: [0, 0] }, { genes: [1, 1] }]) as evoDomain.Individual[];
+          return { accion, stats: evoDomain.statsEvolution(pop) };
+        }
+        // evolve: usa una función de fitness declarativa segura (suma ponderada de genes)
+        let weights: number[] = [1];
+        try {
+          const parsed = fitnessJson ? (JSON.parse(fitnessJson) as { weights?: number[] }) : {};
+          if (parsed.weights && parsed.weights.every((w) => Number.isFinite(w))) weights = parsed.weights;
+        } catch {
+          /* fallback default */
+        }
+        const fitnessFn = (genes: readonly number[]) => genes.reduce((a, g, i) => a - g * (weights[i % weights.length] ?? 1), 0);
+        const initial = populationJson
+          ? (JSON.parse(populationJson) as evoDomain.IndividualInput[])
+          : evoDomain.spherePopulation(20, weights.length || 4, 5, seed ?? 42);
+        const r = evoDomain.runGa(initial, Math.min(generations ?? 20, 200), fitnessFn, {
+          seed: seed ?? 42,
+          elite: 2,
+          crossover: { kind: 'blend', rate: 0.9 },
+          mutation: { sigma: 0.05, rate: 0.2 },
+        });
+        const last = r.history[r.history.length - 1];
+        return { accion, generations: r.history.length, ...last };
+      },
+    });
+  }
+
+  if (opts.tools?.includes('evolution')) {
+    tools.evolution_run = tool({
+      description:
+        'Artifact evolution engine (Motor Evolutivo M4): maps the manual pipeline Observe->Measure->Analyze->Propose->Implement->Test->Evaluate->Learn onto injectable generator/evaluator domains with periodic resumable checkpoints (resume == full run, byte-exact) and fail-soft IO to brainpage timeline + vault. Action cycle runs the built-in tracking domain (genes converge toward a sine target vector; fitness = negative L1 distance). Use to evolve numeric parameter sets deterministically and persist evolutionary memory.',
+      parameters: z.object({
+        accion: z.enum(['cycle']),
+        dims: z.number().int().min(2).max(32).optional(),
+        size: z.number().int().min(4).max(200).optional(),
+        generations: z.number().int().min(1).max(500).optional(),
+        checkpointEvery: z.number().int().min(1).max(100).optional(),
+        seed: z.number().int().optional(),
+      }),
+      execute: async ({ accion, dims, size, generations, checkpointEvery, seed }) => {
+        void accion;
+        const d = dims ?? 6;
+        const n = size ?? 24;
+        const targetVec = Array.from({ length: d }, (_, i) => Math.sin(i * 1.7 + 0.3));
+        const r = evolutionDomain.runEvolutionCycle<number[]>({
+          initialPopulation: Array.from({ length: n }, (_, i) => ({
+            genes: Array.from({ length: d }, (_, j) => Math.cos(i * 2.3 + j) * 1.5),
+          })),
+          generator: (genes) => [...genes],
+          evaluator: (artifact, target) => -(artifact as number[]).reduce((a, g, i) => a + Math.abs(g - (target as number[])[i]), 0),
+          target: targetVec,
+          generations: generations ?? 30,
+          checkpointEvery: checkpointEvery ?? 5,
+          ga: { seed: seed ?? 20260824, elite: 2, crossover: { kind: 'blend', rate: 0.9 }, mutation: { sigma: 0.04, rate: 0.25 } },
+        });
+        return {
+          accion,
+          bestFitness: r.bestFitness,
+          stoppedEarly: r.stoppedEarly,
+          checkpointsWritten: r.checkpointsWritten,
+          warnings: r.warnings,
+          historyTail: r.history.slice(-3),
+          bestGenesPreview: r.bestGenes.slice(0, 4),
         };
       },
     });

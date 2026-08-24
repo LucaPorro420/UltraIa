@@ -29,6 +29,12 @@ export * from './geom';
 export * from './geometry';
 export * from './pngrender';
 export * from './procvid';
+// cadgeo/evo/evolution (loop-94 Motor Evolutivo): sin colisiones verificadas por grep.
+// physics2d NO va por export *: exporta `Vec2` que ya vive en geom/geometry -> se
+// expone como NAMESPACE (mismo tratamiento que geom) para evitar TS2308.
+export * from './cadgeo';
+export * from './evo';
+export * from './evolution';
 export * from './procedural-pub';
 export * from './videoqa';
 // motion: export explicito (catmullRom colisiona con generative; queda vÃ­a './motion' directo)
@@ -127,6 +133,10 @@ import { geom } from './geom';
 import { geometry } from './geometry';
 import * as pngrender from './pngrender';
 import * as procvid from './procvid';
+import * as physics2d from './physics2d';
+import * as cadgeo from './cadgeo';
+import * as evoDomain from './evo';
+import * as evolutionDomain from './evolution';
 import * as videoqa from './videoqa';
 import * as motion from './motion';
 import * as replica from './replica';
@@ -139,7 +149,7 @@ import { vaultTools } from './vault';
 import { pdfsearchTools } from './pdfsearch';
 import { qdrantMemory as qdrantMemoryTools } from './qdrant-memory';
 
-export const tools = { web, image, video, music, stitch, reach, skills: { runSkill }, content, g0dm0d3, topics, present: presentTools, publish, enrutador, mediaScore, metrics, memoryFs: { createMemoryFs }, diagram, videoEdit, screenflow, cloud: cloudTools, harness, growth, vfx, codevfx, travel, generative, libros, sdf, videoqa, motion, replica, imaging, semanticMemory, autolearn, genesis, creativo, vault: vaultTools, pdfsearch: pdfsearchTools, qdrantMemory: qdrantMemoryTools, kgraph, brainpage, autopub, security, codequality, deps, geom, geometry, pngrender, procvid };
+export const tools = { web, image, video, music, stitch, reach, skills: { runSkill }, content, g0dm0d3, topics, present: presentTools, publish, enrutador, mediaScore, metrics, memoryFs: { createMemoryFs }, diagram, videoEdit, screenflow, cloud: cloudTools, harness, growth, vfx, codevfx, travel, generative, libros, sdf, videoqa, motion, replica, imaging, semanticMemory, autolearn, genesis, creativo, vault: vaultTools, pdfsearch: pdfsearchTools, qdrantMemory: qdrantMemoryTools, kgraph, brainpage, autopub, security, codequality, deps, geom, geometry, pngrender, procvid, physics2d, cadgeo, evo: evoDomain, evolution: evolutionDomain };
 
 export const TOOL_DESCRIPTIONS: Record<string, string> = {
   calculator: 'Safely evaluate a mathematical expression (math only).',
@@ -239,6 +249,14 @@ export const TOOL_DESCRIPTIONS: Record<string, string> = {
     'Procedural PNG renderer: real PNG encoder in pure TypeScript (node:zlib deflate level fixed -> byte-identical outputs). renderImage/renderImagePng turn any pixel(x,y)->RGB math function into an actual image; valuesToRgba maps generative fields (perlin/simplex/mandelbrot) through palettes (obsidian, neoViolet, fire, ice, mono); hslToRgb helper; atomic writes via tmp+rename. Deterministic, keyless. Use when images must come from code/math instead of an AI provider.',
   procvid:
     'Procedural video library: deterministic animations (plasma/waves/orbits/noise-flow/fractal-zoom/shape-morph) rendered frame-by-frame to real PNGs and assembled by a planned ffmpeg argv (libx264 yuv420p crf18 faststart; optional GIF palettegen/paletteuse). planProcVid validates guards (even dims <=1280, fps<=60, <=60s, <=1800 frames); renderFrames+writeManifest are idempotent; native animated GIF via renderGifBytes (pure TypeScript, no ffmpeg); nothing executes inside tests. Use to produce loops/backgrounds/videos from pure code without generative AI.',
+  physics2d:
+    'Deterministic 2D physics (Motor Evolutivo M1): Verlet positional particles (implicit velocity, fixed substeps gravity->integrate->container->links->collisions, radius-weighted stick links) + rigid circle/box bodies with sequential impulses (restitution + Coulomb friction, multi-iteration solver stable for stacks/pyramids), energy and momentum probes, self-contained Dark Obsidian HTML canvas render. Pure functions over serializable zod-validated JSON states; byte-exact determinism, keyless, zero deps.',
+  cadgeo:
+    'Computational geometry toolkit (Motor Evolutivo M2): Delaunay triangulation (Bowyer-Watson, empty-circle property, dedupe + colinear guards), Voronoi cells via half-plane clipping (exact bbox partition), BVH median-split with AABB/ray slab queries equal to brute force, point quadtree circular queries, clamped uniform B-spline de Boor (degree<=5, rational weights) and CAD-lite extrude/revolve producing GeoMesh exportable as OBJ/glTF 2.0. Deterministic, keyless, zero deps.',
+  evo:
+    'Deterministic genetic algorithm (Motor Evolutivo M3): xorshift32 PRNG reproducible across processes, tournament selection, uniform/arithmetic/blend crossover, gaussian mutation, elitism, population stats (best/mean/worst/diversity) and a sphere benchmark proving convergence in <50 generations. Pure functions over serializable individuals; same seed -> byte-exact evolution. Use to optimize numeric parameter vectors from code.',
+  evolution:
+    'Artifact evolution engine (Motor Evolutivo M4): runs the pipeline Observe->Measure->Analyze->Propose->Implement->Test->Evaluate->Learn over injectable generator/evaluator domains, with periodic resumable checkpoints (resume == full run byte-exact) and fail-soft IO to brainpage timeline (evolutionary memory) and vault. Composes the deterministic GA of evo. Use to evolve parameters/artifacts with persisted memory.',
 };
 
 export type Capability =
@@ -293,4 +311,8 @@ export type Capability =
   | 'deps'
   | 'geometry'
   | 'pngrender'
-  | 'procvid';
+  | 'procvid'
+  | 'physics2d'
+  | 'cadgeo'
+  | 'evo'
+  | 'evolution';
