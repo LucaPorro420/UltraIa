@@ -1,4 +1,4 @@
-﻿export * from './calculator';
+export * from './calculator';
 export * from './web';
 export * from './image';
 export * from './meigen';
@@ -119,6 +119,7 @@ import { harness } from './harness';
 import { growth } from './growth';
 import { vfx } from './vfx';
 import { codevfx } from './codevfx';
+import * as recordly from './recordly';
 import { travel } from './travel';
 import { generative } from './generative';
 import * as kgraph from './kgraph';
@@ -149,7 +150,7 @@ import { vaultTools } from './vault';
 import { pdfsearchTools } from './pdfsearch';
 import { qdrantMemory as qdrantMemoryTools } from './qdrant-memory';
 
-export const tools = { web, image, video, music, stitch, reach, skills: { runSkill }, content, g0dm0d3, topics, present: presentTools, publish, enrutador, mediaScore, metrics, memoryFs: { createMemoryFs }, diagram, videoEdit, screenflow, cloud: cloudTools, harness, growth, vfx, codevfx, travel, generative, libros, sdf, videoqa, motion, replica, imaging, semanticMemory, autolearn, genesis, creativo, vault: vaultTools, pdfsearch: pdfsearchTools, qdrantMemory: qdrantMemoryTools, kgraph, brainpage, autopub, security, codequality, deps, geom, geometry, pngrender, procvid, physics2d, cadgeo, evo: evoDomain, evolution: evolutionDomain };
+export const tools = { web, image, video, music, stitch, reach, skills: { runSkill }, content, g0dm0d3, topics, present: presentTools, publish, enrutador, mediaScore, metrics, memoryFs: { createMemoryFs }, diagram, videoEdit, screenflow, cloud: cloudTools, harness, growth, vfx, codevfx, travel, generative, libros, sdf, videoqa, motion, replica, imaging, semanticMemory, autolearn, genesis, creativo, vault: vaultTools, pdfsearch: pdfsearchTools, qdrantMemory: qdrantMemoryTools, kgraph, brainpage, autopub, security, codequality, deps, geom, geometry, pngrender, procvid, physics2d, cadgeo, recordly, evo: evoDomain, evolution: evolutionDomain };
 
 export const TOOL_DESCRIPTIONS: Record<string, string> = {
   calculator: 'Safely evaluate a mathematical expression (math only).',
@@ -194,7 +195,9 @@ export const TOOL_DESCRIPTIONS: Record<string, string> = {
   vfx:
     'VFX planning engine (Higgsfield DaVinci Resolve plugin principles): plan AI post-production operations deterministically and keyless â€” reframe (16:9 -> 9:16 crop windows following action centers with smooth pan + ffmpeg argv), upscale (1080p..8k ladder, lanczos vs generative), AI LUT match (grade presets -> ffmpeg eq args), rotoscope (remove-background plan: keyframes/alpha/cleanup/cost), draw-to-edit (sketch -> video prompt with camera motion) and B-roll request builder (missing beat -> frame shape -> motion -> transition). Execution delegates to ffmpeg/video_edit and generation providers. Use to plan post-production before rendering.',
   codevfx:
-    'Code-driven visual effects (Elemental Sandbox pattern ï¿½?" 100% code, no assets): plan procedural effects (fire/ice/lightning/meteor/beam/ground/void/plasma/frost) with palette, physics, particles and hand-written GLSL; analyze colorimetry coherence (HSL warmth/saturation); compute curvature shading; plan camera perspective with parallax; render a self-contained HTML5 canvas demo. Deterministic, keyless. Use to design VFX scenes purely from math.',
+    'Code-driven visual effects (Elemental Sandbox pattern ï¿½?" 100% code, no assets): plan procedural effects (fire/ice/lightning/meteor/beam/ground/void/plasma/frost) with palette, physics, particles and hand-written GLSL; analyze colorimetry coherence (HSL warmth/saturation); compute curvature shading; plan camera perspective with parallax; render a self-contained HTML5 canvas demo; v2 adds the vendored upstream architecture principles as deterministic planners: settings-as-API tree + immutable preset deep-merge, fractional spawn resolved against live settings (edit-while-paused), phase machine with wind-up beat, restrike+crawl flicker clocks, noise personalities, metres-based SDF aim/zone indicators with snap overshoot, GPU ring-buffer particle specs, render pipeline data, angular-decal anti-pattern guard, geometry shape hash, and per-family draw call budgets.',
+  recordly:
+    'Recordly ScreenFlow Studio planner (port of principles, AGPL-safe original implementation): auto-zoom suggestions from cursor telemetry (dwell detection 450-2600ms + click clusters), cursor motion presets (focused/smooth), webcam bubble layout (position presets, overlay scale/size/position, crop normalization), MP4 export dimensions (quality ladder source..high, aspect ratios native/16:9/4:3/1:1/9:16 with even-dimension fitting), region-based timeline model (zoom/clips/annotations/audio rows -> render items) and .recordly-style project manifest (JSON). Deterministic, keyless. Use to plan screen-recording demo edits before rendering.',
   travel:
     'Travel video engine ("tomas de paisajes" pattern): plan a 9:16 travel video from a destination (hook + scenes with camera MOTIONS + bilingual es/ar narration + CTA + per-scene image prompts), persist a saved landscape "take" manifest (.ultraia/travel/tomas/<slug>/), build the deterministic ffmpeg render pipeline (Ken Burns zoompan + chained xfade + narration TTS + background music), and replicate a landscape as N prompt variations (time of day x weather x lens) with keyless Pollinations URLs. Deterministic, keyless. Use to turn saved landscape references into automated travel videos.',
   generative:
@@ -285,6 +288,7 @@ export type Capability =
   | 'growth'
   | 'vfx'
   | 'codevfx'
+  | 'recordly'
   | 'travel'
   | 'generative'
   | 'research'

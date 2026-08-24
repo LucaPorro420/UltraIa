@@ -1,4 +1,4 @@
-﻿import { generateObject, generateText, streamText, tool, type LanguageModel, type Tool } from 'ai';
+import { generateObject, generateText, streamText, tool, type LanguageModel, type Tool } from 'ai';
 import { createOpenAI } from '@ai-sdk/openai';
 import { createGoogleGenerativeAI } from '@ai-sdk/google';
 import { z } from 'zod';
@@ -21,7 +21,43 @@ import { createDefaultPublishers, publishToAll, buildBilingualMetadata } from '.
 import { createHarness, type HarnessRuntime } from '../tools/harness';
 import { analyzeChannel, planExperiments, buildPlaybook } from '../tools/growth';
 import { planReframe, planUpscale, planLutMatch, planRotoscope, planDrawToEdit, planBroll } from '../tools/vfx';
-import { planEffect, colorimetryAnalyze, curvatureShade, perspectivePlan, renderEffectHtml, EFFECT_KINDS } from '../tools/codevfx';
+import {
+  EFFECT_KINDS,
+  planEffect,
+  colorimetryAnalyze,
+  curvatureShade,
+  perspectivePlan,
+  renderEffectHtml,
+  effectSettingsTree,
+  deepMergePreset,
+  fractionalSpawn,
+  resolveSpawnDimensions,
+  phaseMachine,
+  evaluatePhase,
+  flickerClocks,
+  noiseProfileFor,
+  castShapeFor,
+  aimIndicatorPlan,
+  zoneIndicatorPlan,
+  snappedZoneRadius,
+  particleSystemSpec,
+  renderPipelinePlan,
+  validateDecalSampling,
+  drawCallBudget,
+} from '../tools/codevfx';
+import {
+  CURSOR_MOTION_PRESETS,
+  buildInteractionZoomSuggestions,
+  buildRecordlyManifest,
+  buildRegionTimeline,
+  calculateMp4ExportDimensions,
+  type AudioRegion,
+  type AnnotationRegion,
+  type ClipRegion,
+  type CursorSample,
+  type RecordlyEditorState,
+  type ZoomRegion,
+} from '../tools/recordly';
 import { planTravelVideo, buildTakeManifest, buildTravelRender, replicateLandscape, travelLeadImage, type TravelPlan } from '../tools/travel';
 import {
   perlinNoise,
@@ -1232,9 +1268,9 @@ export function chatStream(opts: {
   if (opts.tools?.includes('codevfx')) {
     tools.vfx_code = tool({
       description:
-        'Code-driven visual effects engine (Elemental Sandbox pattern, 100% code â€” no assets, no textures): plan a procedural effect (fire/ice/lightning/meteor/beam/ground/void/plasma/frost) with palette, physics, particles and hand-written GLSL, analyze colorimetry of a palette (HSL warmth/saturation coherence), compute curvature shading of a surface, plan camera perspective with parallax layer offsets, and render a self-contained HTML5 canvas demo. Deterministic, keyless. Use to design VFX scenes purely from math.',
+        'Code-driven visual effects engine (Elemental Sandbox pattern, 100% code â€” no assets, no textures): plan a procedural effect (fire/ice/lightning/meteor/beam/ground/void/plasma/frost) with palette, physics, particles and hand-written GLSL, analyze colorimetry of a palette (HSL warmth/saturation coherence), compute curvature shading of a surface, plan camera perspective with parallax layer offsets, and render a self-contained HTML5 canvas demo. Deterministic, keyless. V2 actions port the advanced architecture principles of the vendored upstream (settings-as-API trees + preset deep-merge; fractional spawn records resolved against live settings = edit-while-paused; windup/travel/impact/fade phase machine; restrike+crawl flicker clocks; noise personality per effect; metres-based SDF aim/zone indicators with snap overshoot; GPU particle ring-buffer specs with 4-stop lifetime gradients; depth-prepass/bloom/ACES/grade pipeline data; anti-pattern guard against angular decal sampling; geometry shape-hash sync; per-family draw-call budgets). Deterministic, keyless. Use to design VFX scenes purely from math.',
       parameters: z.object({
-        accion: z.enum(['plan', 'colorimetria', 'curvatura', 'perspectiva', 'render']),
+        accion: z.enum(['plan', 'colorimetria', 'curvatura', 'perspectiva', 'render', 'settings', 'preset', 'spawn', 'fases', 'flicker', 'ruido', 'aim', 'zona', 'particulas', 'pipeline', 'decal_check', 'budget']),
         kind: z.enum(EFFECT_KINDS).optional(), // para plan/render
         opcionesJson: z.string().optional(), // para plan/render: {intensity, speed, width, height, title}
         coloresJson: z.string().optional(), // para colorimetria: ["#ff6b35", ...]
@@ -1265,6 +1301,125 @@ export function chatStream(opts: {
             if (!kind) throw new Error('render requiere kind');
             const plan = planEffect(kind, opts);
             return { accion, plan, html: renderEffectHtml(plan, opts) };
+          }
+          case 'settings': {
+            if (!kind) throw new Error('settings requiere kind');
+            return { accion, tree: effectSettingsTree(kind), forma: castShapeFor(kind) };
+          }
+          case 'preset': {
+            if (!kind) throw new Error('preset requiere kind');
+            const patch = (opts.patch ?? {}) as Record<string, unknown>;
+            const base = effectSettingsTree(kind) as unknown as Record<string, unknown>;
+            return { accion, tree: deepMergePreset(base, patch) };
+          }
+          case 'spawn': {
+            if (!kind) throw new Error('spawn requiere kind');
+            const record = fractionalSpawn(kind, opts);
+            const ageSec = typeof opts.ageSec === 'number' ? opts.ageSec : 0;
+            return { accion, record, resuelto: resolveSpawnDimensions(record, undefined, ageSec) };
+          }
+          case 'fases': {
+            if (!kind) throw new Error('fases requiere kind');
+            const pm = phaseMachine(kind);
+            const distanceM = typeof opts.distanceM === 'number' ? opts.distanceM : 10;
+            const speedMps = typeof opts.speedMps === 'number' ? opts.speedMps : 20;
+            const ageSec = typeof opts.ageSec === 'number' ? opts.ageSec : 0;
+            return { accion, plan: pm, estado: evaluatePhase(pm, ageSec, distanceM, speedMps) };
+          }
+          case 'flicker': {
+            const timeSec = typeof opts.timeSec === 'number' ? opts.timeSec : 0;
+            const cfg = opts as unknown as Parameters<typeof flickerClocks>[1];
+            return { accion, relojes: flickerClocks(timeSec, cfg) };
+          }
+          case 'ruido': {
+            if (!kind) throw new Error('ruido requiere kind');
+            return { accion, perfil: noiseProfileFor(kind) };
+          }
+          case 'aim':
+            return { accion, plan: aimIndicatorPlan(opts as unknown as Parameters<typeof aimIndicatorPlan>[0]) };
+          case 'zona': {
+            const zOpts = opts as unknown as Parameters<typeof zoneIndicatorPlan>[0];
+            const radiusM = typeof opts.zoneRadiusM === 'number' ? opts.zoneRadiusM : 4.5;
+            const reveal01 = typeof opts.reveal01 === 'number' ? opts.reveal01 : 1;
+            return { accion, plan: zoneIndicatorPlan(zOpts), radioSnapeado: snappedZoneRadius(radiusM, reveal01) };
+          }
+          case 'particulas': {
+            if (!kind) throw new Error('particulas requiere kind');
+            return { accion, spec: particleSystemSpec(kind) };
+          }
+          case 'pipeline':
+            return { accion, pipeline: renderPipelinePlan() };
+          case 'decal_check':
+            return { accion, validacion: validateDecalSampling(opts as unknown as Parameters<typeof validateDecalSampling>[0]) };
+          case 'budget':
+            if (!kind) throw new Error('budget requiere kind');
+            return { accion, presupuesto: drawCallBudget(kind, opts as unknown as Parameters<typeof drawCallBudget>[1]) };
+          default:
+            return { accion, ok: false, error: 'accion desconocida' };
+        }
+      },
+    });
+  }
+  if (opts.tools?.includes('recordly')) {
+    tools.recordly_plan = tool({
+      description:
+        'Recordly ScreenFlow Studio planner (port of principles, AGPL-safe original implementation): auto-zoom suggestions from cursor telemetry (dwell detection 450-2600ms + click clusters), cursor motion presets (focused/smooth), webcam bubble layout (position presets, overlay scale/size/position, crop normalization), MP4 export dimensions (quality ladder source..high, aspect ratios native/16:9/4:3/1:1/9:16 with even-dimension fitting), region-based timeline model (zoom/clips/annotations/audio rows -> render items) and .recordly-style project manifest (JSON). Deterministic, keyless. Use to plan screen-recording demo edits before rendering.',
+      parameters: z.object({
+        accion: z.enum(['plan', 'zoom', 'cursor', 'export', 'timeline', 'manifest']),
+        telemetriaJson: z.string().optional(), // zoom/plan: CursorSample[]
+        duracionMs: z.number().min(0).optional(),
+        presetId: z.string().optional(), // cursor
+        ancho: z.number().int().positive().optional(), // export
+        alto: z.number().int().positive().optional(), // export
+        calidad: z.enum(['source', 'low', 'medium', 'good', 'high']).optional(),
+        aspecto: z.enum(['native', '16:9', '4:3', '1:1', '9:16']).optional(),
+        regionesJson: z.string().optional(), // timeline: {zoomRegions?, clipRegions?, annotationRegions?, audioRegions?}
+        sourcePath: z.string().optional(), // manifest/plan
+        editorJson: z.string().optional(), // manifest/plan: RecordlyEditorState
+      }),
+      execute: async ({ accion, telemetriaJson, duracionMs, presetId, ancho, alto, calidad, aspecto, regionesJson, sourcePath, editorJson }) => {
+        const editorState = editorJson ? (JSON.parse(editorJson) as RecordlyEditorState) : undefined;
+        const samples = telemetriaJson ? (JSON.parse(telemetriaJson) as CursorSample[]) : [];
+        switch (accion) {
+          case 'plan': {
+            const src = sourcePath ?? 'recording.mp4';
+            const zoom = buildInteractionZoomSuggestions({ cursorTelemetry: samples, totalMs: duracionMs ?? 0 });
+            const manifest = buildRecordlyManifest({ sourcePath: src, editorState: editorState ?? {}, durationMs: duracionMs });
+            return { accion, zoom, manifest };
+          }
+          case 'zoom': {
+            const zoom = buildInteractionZoomSuggestions({ cursorTelemetry: samples, totalMs: duracionMs ?? 0 });
+            return { accion, ...zoom };
+          }
+          case 'cursor': {
+            const id = presetId === 'smooth' || presetId === 'focused' ? presetId : 'focused';
+            return { accion, id, presets: CURSOR_MOTION_PRESETS };
+          }
+          case 'export': {
+            if (!ancho || !alto) throw new Error('export requiere ancho y alto');
+            const dims = calculateMp4ExportDimensions({
+              sourceWidth: ancho,
+              sourceHeight: alto,
+              quality: calidad,
+              aspectRatio: aspecto,
+            });
+            return { accion, dims };
+          }
+          case 'timeline': {
+            const regions = regionesJson
+              ? (JSON.parse(regionesJson) as {
+                  zoomRegions?: ZoomRegion[];
+                  clipRegions?: ClipRegion[];
+                  annotationRegions?: AnnotationRegion[];
+                  audioRegions?: AudioRegion[];
+                })
+              : {};
+            return { accion, items: buildRegionTimeline(regions) };
+          }
+          case 'manifest': {
+            if (!sourcePath) throw new Error('manifest requiere sourcePath');
+            const manifest = buildRecordlyManifest({ sourcePath, editorState: editorState ?? {}, durationMs: duracionMs });
+            return { accion, manifest: JSON.parse(manifest) };
           }
           default:
             return { accion, ok: false, error: 'accion desconocida' };
