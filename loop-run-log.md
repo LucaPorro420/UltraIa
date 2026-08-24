@@ -2746,3 +2746,13 @@ de código, sin commit.
 ``json
 {"pattern":"pivr","iter":100,"gates":{"typecheck":0,"lint":0,"test":0,"build":0},"scoped":{"python_tests":5,"wiring_tests":4,"pylint_issues":0}}
 ``
+
+### [P]/[I]/[V]/[R] Iteracion 101 - Cerebro autonomo (learn+create+publish programado) (24/08/2026)
+
+- **[P] Sensado**: pedido usuario "crea una automatizacion o cerebro... autoaprendizaje programado... objetos y videos desde cero... automatizar publicaciones". Recon: autopub F1-F5 ya orquesta publish; procvid/geometry/pngrender crean desde matematica; autolearn aprende. Falta el ORQUESTADOR programado que una los tres -> capability cerebro + runner real + scheduler.
+- **[I]** cerebro.ts (dominio puro: plan/presupuesto/lote procedural/estado/schedule schtasks+cron/reporte) + wiring llm/index + Task/cerebro-cycle.ts (ejecucion REAL: objetos OBJ/glTF/PNG, MP4 ffmpeg, encolado Prisma fail-soft outbox) + scripts/cerebro-schedule.ps1 + npm run cerebro. Fixes durante smoke real: frame_%06d (formato real de frameFileName), meshStats.vertexCount, contenido string (createPublication hace slice), BOM strip en config.json.
+- **[V]** Scoped cerebro 11/11. E2E REAL verificado: ciclo completo 1.4s -> 1 objeto (1225 vertices) + MP4 (ffprobe 2.000s exactos) + 1 publicacion DRAFT en BD + report/state. FULL CI: typecheck 0 - lint 0 - test 0 (core 101 files + runtime 22) - build 0.
+- **[R]** iter-101 DONE. Push por autorizacion vigente.
+``json
+{"pattern":"pivr","iter":101,"gates":{"typecheck":0,"lint":0,"test":0,"build":0},"scoped":{"cerebro_tests":11,"e2e_real":true,"mp4_ffprobe":"2.000000"},"commit":"ver-log"}
+``

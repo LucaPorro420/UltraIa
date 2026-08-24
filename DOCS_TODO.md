@@ -808,3 +808,12 @@ Cada commit agrega una sección con fecha y la lista de archivos `.ts/.tsx` toca
 ## 2026-08-24T19:32:45.180Z
 - [ ] packages/core/src/tools/index.ts
 - [ ] packages/core/src/tools/recordly.wiring.test.ts
+
+## 2026-08-24T20:13:10.267Z
+- [ ] packages/core/src/ai/llm.ts
+- [ ] packages/core/src/tools/cerebro.test.ts
+- [ ] packages/core/src/tools/cerebro.ts
+- [ ] packages/core/src/tools/index.ts
+
+## 2026-08-24T20:13:13.153Z
+- [ ] Task/cerebro-cycle.ts
