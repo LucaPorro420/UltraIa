@@ -513,6 +513,8 @@ export interface RenderGifOptions {
   /** Delay por frame en ms (default: derivado de fps -> Math.round(1000/fps)). */
   delayMs?: number;
   loop?: boolean;
+  /** Paleta del encoder GIF ('rgb332' default | 'mediancut' adaptativa). */
+  palette?: 'rgb332' | 'mediancut';
 }
 
 /**
@@ -533,6 +535,7 @@ export async function renderGifBytes(
     height: spec.height,
     delayMs: opts.delayMs ?? Math.max(20, Math.round(1000 / spec.fps)),
     loop: opts.loop,
+    palette: opts.palette,
   });
 }
 

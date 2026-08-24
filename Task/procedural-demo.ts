@@ -164,6 +164,9 @@ async function main(): Promise<void> {
     const { framePixelFn: fpf } = await import('../packages/core/src/tools/procvid');
     const preview = renderImagePng({ width: gifSpec.width, height: gifSpec.height }, fpf(gifSpec, 0.5));
     await writePngAtomic(evidence, preview);
+    const mcBytes = await renderGifBytes(gifSpec, { loop: true, palette: 'mediancut' });
+    const mcPath = path.join(WORK, 'demo-gif-mc.gif');
+    await writeGifAtomic(mcPath, mcBytes);
     manifest.gif = {
       rendered: true,
       animation: gifSpec.animation,
@@ -171,6 +174,7 @@ async function main(): Promise<void> {
       path: path.relative(ROOT, gifPath),
       bytes: gifBytes.byteLength,
       encoder: 'pngrender.encodeGif (GIF89a puro TypeScript, sin ffmpeg)',
+      mediancut: { path: path.relative(ROOT, mcPath), bytes: mcBytes.byteLength },
       evidenceFrame: path.relative(ROOT, evidence),
     };
   }

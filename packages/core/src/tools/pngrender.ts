@@ -362,8 +362,8 @@ export interface EncodeGifOptions {
  * EOI=clear+1, diccionario hasta 4096 (entonces clear+reset). Bits LSB-first,
  * salida troceada en sub-bloques ≤255 bytes con prefijo de longitud.
  */
-function lzwEncodeGif(indices: Uint8Array): Uint8Array {
-  const minCodeSize = 8;
+function lzwEncodeGif(indices: Uint8Array, minCodeSizeInput = 8): Uint8Array {
+  const minCodeSize = Math.max(2, Math.min(8, minCodeSizeInput));
   const clearCode = 1 << minCodeSize; // 256
   const eoiCode = clearCode + 1; // 257
   let codeSize = minCodeSize + 1; // 9
@@ -439,9 +439,152 @@ function le16(v: number): [number, number] {
 }
 
 /**
- * Codifica un GIF89a ANIMADO desde frames RGBA. Determinista byte a byte:
- * paleta global fija RGB332 + LZW estándar + loop NETSCAPE2.0.
- * Sin transparencia (fondo opaco por diseño procedural).
+ * Resultado de la cuantización median-cut.
+ */
+export interface MedianCutResult {
+  /** Paleta RGB plana (3*n bytes); n potencia de 2 (>=2, <=256). */
+  palette: Uint8Array;
+  /** Colores útiles en la paleta. */
+  size: number;
+  /** Índice más cercano (euclídea cuadrática, tie menor índice) con cache. */
+  indexOf: (r: number, g: number, b: number) => number;
+}
+
+/**
+ * Cuantización median-cut DETERMINISTA sobre muestreo fijo de los frames:
+ * split por canal de mayor rango (tie r>g>b) en la mediana exacta; color de
+ * caja = promedio ponderado por frecuencia; nearest-color cacheado.
+ * Sin aleatoriedad ni reloj -> mismos frames -> misma paleta.
+ */
+export function quantizeMedianCut(
+  frames: Uint8Array[],
+  maxColors = 256,
+): MedianCutResult {
+  if (!Number.isInteger(maxColors) || maxColors < 2 || maxColors > 256)
+    throw new PngError(`maxColors debe ser entero 2..256`);
+  const totalPx = frames.reduce((acc, f) => acc + f.length / 4, 0);
+  const step = Math.max(1, Math.ceil(totalPx / 16384));
+  const counts = new Map<number, number>();
+  for (const f of frames) {
+    const px = f.length / 4;
+    for (let p = 0; p < px; p += step) {
+      const o = p * 4;
+      const key = ((f[o] << 16) | (f[o + 1] << 8) | f[o + 2]) >>> 0;
+      counts.set(key, (counts.get(key) ?? 0) + 1);
+    }
+  }
+  let boxes: Array<{ colors: number[] }> = [{ colors: [...counts.keys()] }];
+  const boxWeight = (b: { colors: number[] }): number => {
+    let n = 0;
+    for (const c of b.colors) n += counts.get(c) ?? 0;
+    return n;
+  };
+  const rangeOf = (b: { colors: number[] }, ch: 0 | 1 | 2): number => {
+    let mn = 255;
+    let mx = 0;
+    for (const c of b.colors) {
+      const v = (c >> (16 - ch * 8)) & 255;
+      if (v < mn) mn = v;
+      if (v > mx) mx = v;
+    }
+    return mx - mn;
+  };
+  while (boxes.length < maxColors) {
+    let bi = -1;
+    let bestN = 0;
+    for (let i = 0; i < boxes.length; i++) {
+      if (boxes[i].colors.length < 2) continue;
+      const n = boxWeight(boxes[i]);
+      if (n > bestN) {
+        bestN = n;
+        bi = i;
+      }
+    }
+    if (bi < 0) break;
+    const box = boxes[bi];
+    const ranges = [rangeOf(box, 0), rangeOf(box, 1), rangeOf(box, 2)] as [number, number, number];
+    let ch: 0 | 1 | 2 = 0;
+    let bestR = -1;
+    for (const cand of [2, 1, 0] as const) {
+      if (ranges[cand] >= bestR) {
+        bestR = ranges[cand];
+        ch = cand;
+      }
+    }
+    if (bestR <= 0) break; // caja monocroma: nada que partir
+    const shift = 16 - ch * 8;
+    const sorted = [...box.colors].sort(
+      (a, b) => ((a >> shift) & 255) - ((b >> shift) & 255),
+    );
+    const cut = Math.floor(sorted.length / 2);
+    // orden de creación determinista: mitad alta primero, luego baja
+    boxes.splice(bi, 1, { colors: sorted.slice(cut) }, { colors: sorted.slice(0, cut) });
+  }
+  const entries = boxes
+    .filter((b) => b.colors.length > 0)
+    .map((b) => {
+      let rs = 0;
+      let gs = 0;
+      let bs = 0;
+      let n = 0;
+      for (const c of b.colors) {
+        const wgt = counts.get(c) ?? 0;
+        rs += ((c >> 16) & 255) * wgt;
+        gs += ((c >> 8) & 255) * wgt;
+        bs += (c & 255) * wgt;
+        n += wgt;
+      }
+      return { r: Math.round(rs / n), g: Math.round(gs / n), b: Math.round(bs / n) };
+    });
+  let sizePow2 = 2;
+  while (sizePow2 < entries.length && sizePow2 < maxColors) sizePow2 <<= 1;
+  const palette = new Uint8Array(sizePow2 * 3);
+  entries.forEach((e, i) => {
+    palette[i * 3] = e.r;
+    palette[i * 3 + 1] = e.g;
+    palette[i * 3 + 2] = e.b;
+  });
+  const cache = new Map<number, number>();
+  const indexOf = (r: number, g: number, b: number): number => {
+    const key = (((r << 16) | (g << 8) | b) >>> 0);
+    const hit = cache.get(key);
+    if (hit !== undefined) return hit;
+    let best = 0;
+    let bd = Infinity;
+    for (let i = 0; i < sizePow2; i++) {
+      const dr = palette[i * 3] - r;
+      const dg = palette[i * 3 + 1] - g;
+      const db = palette[i * 3 + 2] - b;
+      const d = dr * dr + dg * dg + db * db;
+      if (d < bd) {
+        bd = d;
+        best = i;
+      }
+    }
+    cache.set(key, best);
+    return best;
+  };
+  return { palette, size: sizePow2, indexOf };
+}
+
+export interface EncodeGifOptions {
+  width: number;
+  height: number;
+  /** Delay por frame en milisegundos (default 100 → 10 centisegundos GIF). */
+  delayMs?: number;
+  /** Loop infinito vía extensión NETSCAPE2.0 (default true). */
+  loop?: boolean;
+  /**
+   * Paleta global: 'rgb332' fija (default, retrocompatible byte-exact) o
+   * 'mediancut' adaptativa calculada de los propios frames (mejor fidelidad).
+   */
+  palette?: 'rgb332' | 'mediancut';
+}
+
+/**
+ * Codifica un GIF89a ANIMADO desde frames RGBA. Determinista byte a byte.
+ * Paleta 'rgb332' fija o 'mediancut' adaptativa; LZW estándar variable-width;
+ * loop NETSCAPE2.0. Sin transparencia (procedural opaco).
  */
 export function encodeGif(
   frames: Uint8Array[],
@@ -461,51 +604,60 @@ export function encodeGif(
       throw new PngError(`frame ${f} debe ser RGBA de longitud ${expected}`);
   }
   const delayCs = Math.max(2, Math.min(655, Math.round((opts.delayMs ?? 100) / 10)));
+  const mode = opts.palette ?? 'rgb332';
 
-  // Índices por frame (RGB332).
-  const indexed = frames.map((rgba) => {
-    const px = width * height;
-    const idx = new Uint8Array(px);
-    for (let p = 0; p < px; p++) {
-      idx[p] = rgb332Index(rgba[p * 4], rgba[p * 4 + 1], rgba[p * 4 + 2]);
-    }
-    return idx;
-  });
+  let gct: Uint8Array;
+  let minCodeSize: number;
+  let indexed: Uint8Array[];
+  if (mode === 'mediancut') {
+    const q = quantizeMedianCut(frames, 256);
+    gct = q.palette;
+    minCodeSize = Math.max(2, Math.ceil(Math.log2(q.size)));
+    indexed = frames.map((rgba) => {
+      const idx = new Uint8Array(width * height);
+      for (let p = 0; p < width * height; p++) {
+        idx[p] = q.indexOf(rgba[p * 4], rgba[p * 4 + 1], rgba[p * 4 + 2]);
+      }
+      return idx;
+    });
+  } else {
+    gct = GIF332_PALETTE;
+    minCodeSize = 8;
+    indexed = frames.map((rgba) => {
+      const idx = new Uint8Array(width * height);
+      for (let p = 0; p < width * height; p++) {
+        idx[p] = rgb332Index(rgba[p * 4], rgba[p * 4 + 1], rgba[p * 4 + 2]);
+      }
+      return idx;
+    });
+  }
 
   const bytes: number[] = [];
   const pushAll = (...xs: number[]): void => {
     bytes.push(...xs);
   };
 
-  // Header + Logical Screen Descriptor (GCT flag + 256 colores).
   pushAll(0x47, 0x49, 0x46, 0x38, 0x39, 0x61); // "GIF89a"
-  pushAll(...le16(width), ...le16(height), 0xf7, 0x00, 0x00);
-  for (let i = 0; i < 768; i++) pushAll(GIF332_PALETTE[i]);
+  const sizeBits = Math.log2(gct.length / 3); // 8 para rgb332/mediancut-256
+  pushAll(...le16(width), ...le16(height), (0x80 | 0x70 | (sizeBits - 1)) & 0xff, 0x00, 0x00);
+  for (let i = 0; i < gct.length; i++) pushAll(gct[i]);
 
-  // NETSCAPE2.0 loop infinito.
   if (opts.loop !== false) {
     pushAll(0x21, 0xff, 0x0b);
     for (const ch of 'NETSCAPE2.0') pushAll(ch.charCodeAt(0));
     pushAll(0x03, 0x01, ...le16(0), 0x00);
   }
 
-  // Frames: GCE + Image Descriptor + LZW sub-blocks.
   for (const idx of indexed) {
-    pushAll(0x21, 0xf9, 0x04, 0x00, ...le16(delayCs), 0x00, 0x00); // GCE sin transparencia
+    pushAll(0x21, 0xf9, 0x04, 0x00, ...le16(delayCs), 0x00, 0x00);
     pushAll(0x2c, ...le16(0), ...le16(0), ...le16(width), ...le16(height), 0x00);
-    pushAll(minLzwCodeSize());
-    pushAll(...gifSubBlocks(lzwEncodeGif(idx)));
+    pushAll(minCodeSize);
+    pushAll(...gifSubBlocks(lzwEncodeGif(idx, minCodeSize)));
   }
 
-  pushAll(0x3b); // trailer
+  pushAll(0x3b);
   return Uint8Array.from(bytes);
-
-  function minLzwCodeSize(): number {
-    return 8;
-  }
 }
-
-/** Escribe el GIF a disco atómicamente (tmp + rename). */
 export async function writeGifAtomic(filePath: string, bytes: Uint8Array): Promise<void> {
   const dir = path.dirname(filePath);
   await mkdir(dir, { recursive: true });
