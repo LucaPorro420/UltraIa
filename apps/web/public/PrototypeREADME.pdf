@@ -3,7 +3,7 @@
 << /Type /Catalog /Pages 2 0 R >>
 endobj
 2 0 obj
-<< /Type /Pages /Kids [5 0 R 7 0 R 9 0 R] /Count 3 >>
+<< /Type /Pages /Kids [5 0 R 7 0 R 9 0 R 11 0 R] /Count 4 >>
 endobj
 3 0 obj
 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>
@@ -18,7 +18,7 @@ endobj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 6 0 R >>
 endobj
 7 0 obj
-<< /Length 5136 >>
+<< /Length 5220 >>
 stream
 BT /F2 18.0 Tf 50 781.89 Td (UltraIa) Tj ET
 BT /F1 10.5 Tf 66 750.59 Td (Plataforma IA integral: agentes, generación audiovisual, publicación automática y) Tj ET
@@ -26,13 +26,13 @@ BT /F1 10.5 Tf 66 734.42 Td (runtime de escritorio. En fase de prototipo activo 
 BT /F2 13.5 Tf 50 707.24 Td (Descripción general) Tj ET
 BT /F1 10.5 Tf 50 684.02 Td (UltraIa es un monorepo \(npm workspaces\) que combina un **app web** \(Next.js 15 + Tailwind v4 +) Tj ET
 BT /F1 10.5 Tf 50 669.84 Td (Vercel AI SDK\), un **núcleo de dominio** \(TypeScript con Prisma\), un **motor de generación**) Tj ET
-BT /F1 10.5 Tf 50 655.67 Td (\(Gen-Engine en Python\) y un **runtime de escritorio** \(`@ultraia/runtime`\). Su lógica central es) Tj ET
-BT /F1 10.5 Tf 50 641.49 Td (un **sistema operativo de mundos mediáticos** \(OMAG\): con una idea entra un plan de director,) Tj ET
-BT /F1 10.5 Tf 50 627.32 Td (generadores de imagen/video/audio \(keyless-first, sin API keys obligatorias\), críticos que) Tj ET
-BT /F1 10.5 Tf 50 613.14 Td (evalúan sincronía e identidad, y un bucle de corrección automática \(máx 5 iteraciones\).) Tj ET
-BT /F1 10.5 Tf 50 593.97 Td (Principio rector: **keyless-first con degradación elegante** -- todo funciona sin API keys usando) Tj ET
-BT /F1 10.5 Tf 50 579.79 Td (servicios gratuitos; las claves opcionales \(MEIGEN, EXA, YOUTUBE, TIKTOK, GEN_ENGINE_URL\) solo) Tj ET
-BT /F1 10.5 Tf 50 565.62 Td (activan providers premium.) Tj ET
+BT /F1 10.5 Tf 50 655.67 Td (\(Gen-Engine en Python\), una **app móvil** \(Expo, Android/iOS\) y un **runtime de escritorio**) Tj ET
+BT /F1 10.5 Tf 50 641.49 Td (\(`@ultraia/runtime`\). Su lógica central es un **sistema operativo de mundos mediáticos** \(OMAG\):) Tj ET
+BT /F1 10.5 Tf 50 627.32 Td (con una idea entra un plan de director, generadores de imagen/video/audio \(keyless-first, sin API) Tj ET
+BT /F1 10.5 Tf 50 613.14 Td (keys obligatorias\), críticos que evalúan sincronía e identidad, y un bucle de corrección) Tj ET
+BT /F1 10.5 Tf 50 598.97 Td (automática \(máx 5 iteraciones\).) Tj ET
+BT /F1 10.5 Tf 50 579.79 Td (Principio rector: **keyless-first con degradación elegante** -- todo funciona sin API keys usando) Tj ET
+BT /F1 10.5 Tf 50 565.62 Td (servicios gratuitos; las claves opcionales solo activan providers premium.) Tj ET
 BT /F2 13.5 Tf 50 538.44 Td (Lógica general) Tj ET
 BT /F3 8.5 Tf 58 509.22 Td (apps/web \(Next.js\)  ----  packages/core \(dominio, tools, OMAG, AutoPub, Prisma\)) Tj ET
 BT /F3 8.5 Tf 58 497.74 Td (        |                          |) Tj ET
@@ -41,30 +41,31 @@ BT /F3 8.5 Tf 58 474.79 Td (  webhooks :8000        @ultraia/runtime \(desktop, 
 BT /F3 8.5 Tf 58 463.32 Td (        |                          |) Tj ET
 BT /F3 8.5 Tf 58 451.84 Td (        v                          v) Tj ET
 BT /F3 8.5 Tf 58 440.37 Td (  Gen-Engine :8100 \(Python, keyless-first\)   Desktop Fase D \(launcher + host WebView2\)) Tj ET
-BT /F2 13.5 Tf 50 411.89 Td (Capacidades actuales \(estado 15/08/2026\)) Tj ET
-BT /F1 10.5 Tf 68 388.67 Td (-  **Agentes de IA** \(`bp-admin-*`\): 8 agentes con capability `skills` \(plan/build/test/review/) Tj ET
-BT /F1 10.5 Tf 50 374.49 Td (ship/simplify\), `memory` \(memoria Fable-5: 6 ops con version guards, tags stated/observed/) Tj ET
-BT /F1 10.5 Tf 50 360.32 Td (inferred, persistencia atómica\), `content` \(publicación\), más herramientas de web) Tj ET
-BT /F1 10.5 Tf 50 346.14 Td (\(AgentReach\), música, audio, publicación y g0dm0d3 \(parsing/auto-tune de respuestas\).) Tj ET
-BT /F1 10.5 Tf 68 331.97 Td (-  **OMAG v0.1 expandido**: MediaField \(entidades con identidad persistente, eventos con efectos) Tj ET
-BT /F1 10.5 Tf 50 317.79 Td (causales\), timeline compartido con sincronía \(<0.1s offset\), memorias, generadores keyless) Tj ET
-BT /F1 10.5 Tf 50 303.62 Td (\(imagen pollinations/meigen, video storyboard, audio edge-tts 14 idiomas + música Tunetank +) Tj ET
-BT /F1 10.5 Tf 50 289.44 Td (síntesis procedural WAV sin deps\), vocabulario de cámara MOTIONS por shot, y long-form) Tj ET
-BT /F1 10.5 Tf 50 275.27 Td (Project->Act->Sequence->Scene->Shot para guiones 60-180s con MasterTimeline.) Tj ET
-BT /F1 10.5 Tf 68 261.09 Td (-  **AutoPub F1-F5 completos**: motor de ideas `topics` \(RSS + DuckDuckGo, dedupe bigram,) Tj ET
-BT /F1 10.5 Tf 50 246.92 Td (cola `TopicBrief` persistente\) -> enrutador `contenido` \(redactor/guionista determinista,) Tj ET
-BT /F1 10.5 Tf 50 232.74 Td (multi-idioma es/ar, TTS edge-tts -> narración mp3, guion largo OMAG 60s+\) -> presentación) Tj ET
-BT /F1 10.5 Tf 50 218.57 Td (unificada `present` \(paquete por canal con branding Dark Obsidian/Neo Violet\) -> distribución) Tj ET
-BT /F1 10.5 Tf 50 204.39 Td (`publish` \(adaptadores YouTube resumable v3 y TikTok Direct Post, cola `Publication` con) Tj ET
-BT /F1 10.5 Tf 50 190.22 Td (aprobación híbrida: video/imagen -> DRAFT humano; texto -> auto\) -> métricas y mejora) Tj ET
-BT /F1 10.5 Tf 50 176.04 Td (\(KPIs por canal, `media_score` pre-pub, feedback post-pub -> señales al modelo\).) Tj ET
-BT /F1 10.5 Tf 68 161.87 Td (-  **Loop PIVR**: harness de desarrollo continuo \(plan -> implementar -> verificar -> reiniciar\)) Tj ET
-BT /F1 10.5 Tf 50 147.69 Td (con agentes `piv-plan`/`piv-build`/`loop-triage`, driver `scripts/loop_piv.py` \(flags) Tj ET
-BT /F1 10.5 Tf 50 133.52 Td (`--cycles/--plan-only/--gate-only/--triage/--no-commit/--dry-run`\) y gates CI duales) Tj ET
-BT /F1 10.5 Tf 50 119.34 Td (\(scoped + FULL\). 20 iteraciones completadas, todas GREEN.) Tj ET
-BT /F1 10.5 Tf 68 105.17 Td (-  **@ultraia/runtime** \(Fases A-C\): runtime local con módulos lazy \(`load ONLY WHEN NEEDED`\),) Tj ET
-BT /F1 10.5 Tf 50 90.99 Td (memoria con persistencia y eviction, health/recovery, command executor con allowlist y) Tj ET
-BT /F1 10.5 Tf 50 76.82 Td (roles, y **Local API HTTP/WS** en 127.0.0.1 \(token de sesión timing-safe, origin solo) Tj ET
+BT /F3 8.5 Tf 58 428.89 Td ( ) Tj ET
+BT /F3 8.5 Tf 58 417.42 Td (apps/mobile \(Expo\) --? REST de apps/web \(header x-ultraia-session\)) Tj ET
+BT /F3 8.5 Tf 58 405.94 Td (Cerebro: local cada 120 min \(schtasks\) + nube cada 4 h \(GitHub Actions cron\)) Tj ET
+BT /F2 13.5 Tf 50 377.47 Td (Capacidades actuales \(estado 24/08/2026\)) Tj ET
+BT /F1 10.5 Tf 68 354.24 Td (-  **Agentes de IA**: 16 blueprints del sistema \(investigador, analista, guionista, publicador,) Tj ET
+BT /F1 10.5 Tf 50 340.07 Td (orquestador...\) con capability `skills` \(pipeline plan/build/test/review/ship/simplify\),) Tj ET
+BT /F1 10.5 Tf 50 325.89 Td (`memory` \(memoria versionada con guards y persistencia atómica\), `content`, `semantic_memory`) Tj ET
+BT /F1 10.5 Tf 50 311.72 Td (\(búsqueda semántica sobre verdad verificada\) y **58+ herramientas** agrupadas por capacidad:) Tj ET
+BT /F1 10.5 Tf 50 297.54 Td (búsqueda web/lectura \(reach\), imagen, video \(EDL + ffmpeg argv\), audio \(TTS 14 idiomas +) Tj ET
+BT /F1 10.5 Tf 50 283.37 Td (música Tunetank + síntesis WAV\), código \(builder/codegen\), diagramas editoriales, imaging) Tj ET
+BT /F1 10.5 Tf 50 269.19 Td (\(kernels TS puro\), motion \(flujo óptico\), videoqa \(PSNR/SSIM/E_total\), replica \(análisis-por-) Tj ET
+BT /F1 10.5 Tf 50 255.02 Td (síntesis\), sdf/ray-marching, generative \(perlin/simplex/mandelbrot/l-system/FM/granular\),) Tj ET
+BT /F1 10.5 Tf 50 240.84 Td (geometry/pngrender/procvid \(glTF/OBJ/PNG/GIF puros\), codevfx \(VFX 100 % código, 12 acciones) Tj ET
+BT /F1 10.5 Tf 50 226.67 Td (en v2\), travel, screenflow + recordly \(grabación con auto-zoom\), vault, pdfsearch, libros,) Tj ET
+BT /F1 10.5 Tf 50 212.49 Td (research, enlaces, kgraph \(grafo de conocimiento\), brainpage \(memoria Markdown persistente\),) Tj ET
+BT /F1 10.5 Tf 50 198.32 Td (cloud \(archivos Local/R2 + CLI Python\), g0dm0d3 \(parseltongue/auto-tune/races\) y harness.) Tj ET
+BT /F1 10.5 Tf 68 184.14 Td (-  **AutoPub F1-F5 completo + ciclo autónomo**: ideas \(`topics` RSS/DDG -> cola `TopicBrief`\) ->) Tj ET
+BT /F1 10.5 Tf 50 169.97 Td (contenido bilingüe es/ar \(redactor, guionista 45-60 s, guion largo OMAG 60-180 s con TTS\) ->) Tj ET
+BT /F1 10.5 Tf 50 155.79 Td (presentación unificada \(paquete por canal con branding\) -> distribución a **10 canales**) Tj ET
+BT /F1 10.5 Tf 50 141.62 Td (\(YouTube resumable, TikTok Direct Post, X v2, Instagram Reels, Threads, LinkedIn,) Tj ET
+BT /F1 10.5 Tf 50 127.44 Td (Telegram, Discord, Slack, blog propio\) con cola `Publication` y aprobación híbrida) Tj ET
+BT /F1 10.5 Tf 50 113.27 Td (\(video/imagen -> DRAFT humano\) -> métricas \(KPIs + analytics reales YouTube\) -> growth) Tj ET
+BT /F1 10.5 Tf 50 99.09 Td (\(perfil de canal -> experimentos de una variable -> playbook\). Ciclo F1->F4 programado vía) Tj ET
+BT /F1 10.5 Tf 50 84.92 Td (`scripts/schedule-autopub.ps1` \(UltraIA AutoPub 0900/1400/1900\) + tool `autopub_run`.) Tj ET
+BT /F1 10.5 Tf 68 70.74 Td (-  **Cerebro autónomo \(iter-101/102\)**: `npm run cerebro` ejecuta un ciclo real \(autolearn) Tj ET
 BT /F1 8 Tf 295.64 36 Td (1) Tj ET
 endstream
 endobj
@@ -72,57 +73,58 @@ endobj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 8 0 R >>
 endobj
 9 0 obj
-<< /Length 4580 >>
+<< /Length 5298 >>
 stream
-BT /F1 10.5 Tf 50 791.89 Td (loopback, rate limit 120 req/min, body cap 64 KiB, eventos por topic\).) Tj ET
-BT /F1 10.5 Tf 68 777.72 Td (-  **Desktop Fase D**: SHELL_DECISION MVP WebView2 + launcher validado end-to-end -- el host) Tj ET
-BT /F1 10.5 Tf 50 763.54 Td (nativo \(`webview2-host.exe`, C#/WinForms compilado con csc del .NET Framework\) compila,) Tj ET
-BT /F1 10.5 Tf 50 749.37 Td (inicializa el runtime Evergreen, navega al dashboard real y reporta su versión) Tj ET
-BT /F1 10.5 Tf 50 735.19 Td (\(`--host-check` OK\). Fallback `msedge --app` si el host no está disponible.) Tj ET
-BT /F1 10.5 Tf 68 721.02 Td (-  **Gen-Engine** \(Python\): API local en `:8100` con TTS \(edge-tts\) y providers intercambiables;) Tj ET
-BT /F1 10.5 Tf 50 706.84 Td (la web lo detecta en boot \(`GEN_ENGINE_URL`\) y registra music/video providers si responde) Tj ET
-BT /F1 10.5 Tf 50 692.67 Td (\(sin engine -> keyless: Tunetank música + storyboard video\).) Tj ET
-BT /F1 10.5 Tf 68 678.49 Td (-  **Sistema learning/**: memoria de verdad verificada aparte \(`learning/truth/` + `verify.py`,) Tj ET
-BT /F1 10.5 Tf 50 664.32 Td (16/16 casos PASS\) con fuente cruda de enlaces del usuario en `learning/sources/`) Tj ET
-BT /F1 10.5 Tf 50 650.14 Td (\(p. ej. system prompt Fable-5 -> capability `memory`\).) Tj ET
-BT /F2 13.5 Tf 50 622.97 Td (Quickstart) Tj ET
-BT /F1 10.5 Tf 50 599.74 Td (Requisitos: Node >= 20, Python >= 3.10, ffmpeg \(opcional, `winget install Gyan.FFmpeg`\).) Tj ET
-BT /F3 8.5 Tf 58 574.57 Td (# 1. Instalar dependencias y levantar TODO \(setup + web :3000 + webhooks :8000 + gen-engine :8100\)) Tj ET
-BT /F3 8.5 Tf 58 563.09 Td (python start.py) Tj ET
-BT /F3 8.5 Tf 58 551.62 Td ( ) Tj ET
-BT /F3 8.5 Tf 58 540.14 Td (# 2. Solo web \(dev server\):) Tj ET
-BT /F3 8.5 Tf 58 528.67 Td (npm run dev            # o: python start.py --web) Tj ET
-BT /F3 8.5 Tf 58 517.19 Td ( ) Tj ET
-BT /F3 8.5 Tf 58 505.72 Td (# 3. Verificación de salud del stack:) Tj ET
-BT /F3 8.5 Tf 58 494.24 Td (python start.py --check-connections) Tj ET
-BT /F1 10.5 Tf 50 473.77 Td (Acceso web: `http://localhost:3000` · Login demo: `admin` / `admin`.) Tj ET
-BT /F2 13.5 Tf 50 446.59 Td (Prototipo de uso inicial) Tj ET
-BT /F3 8.5 Tf 58 417.37 Td (# Levantar el stack completo \(setup automático si es la primera vez\)) Tj ET
-BT /F3 8.5 Tf 58 405.89 Td (python start.py) Tj ET
-BT /F3 8.5 Tf 58 394.42 Td ( ) Tj ET
-BT /F3 8.5 Tf 58 382.94 Td (# Probar el loop de desarrollo continuo \(plan -> build -> gates -> commit\)) Tj ET
-BT /F3 8.5 Tf 58 371.47 Td (python scripts/loop_piv.py --dry-run     # vista previa de comandos) Tj ET
-BT /F3 8.5 Tf 58 359.99 Td (python scripts/loop_piv.py --plan-only   # solo fase P \(escribe .opencode/plans/loop-<id>-<slug>.md\)) Tj ET
-BT /F3 8.5 Tf 58 348.52 Td (python scripts/loop_piv.py --gate-only   # solo verificación FULL) Tj ET
-BT /F3 8.5 Tf 58 337.04 Td (python scripts/loop_piv.py --triage      # triage report-only \(actualiza STATE.md\)) Tj ET
-BT /F3 8.5 Tf 58 325.57 Td ( ) Tj ET
-BT /F3 8.5 Tf 58 314.09 Td (# Generar contenido \(API OMAG -- requiere sesión web\)) Tj ET
-BT /F3 8.5 Tf 58 302.62 Td (curl -X POST http://localhost:3000/api/omag \\) Tj ET
-BT /F3 8.5 Tf 58 291.14 Td (  -H "Authorization: Bearer <token>" \\) Tj ET
-BT /F3 8.5 Tf 58 279.67 Td (  -H "Content-Type: application/json" \\) Tj ET
-BT /F3 8.5 Tf 58 268.19 Td (  -d '{"idea":"una aurora sobre el desierto","quality":"balanced","modalities":["image","audio"]}') Tj ET
-BT /F3 8.5 Tf 58 256.71 Td ( ) Tj ET
-BT /F3 8.5 Tf 58 245.24 Td (# Publicación automática \(calendario -- ADMIN\)) Tj ET
-BT /F3 8.5 Tf 58 233.76 Td (curl -X POST http://localhost:3000/api/publications/publish-due -H "Authorization: Bearer <token>") Tj ET
-BT /F3 8.5 Tf 58 222.29 Td ( ) Tj ET
-BT /F3 8.5 Tf 58 210.81 Td (# Endpoints de la cola de publicaciones \(auth: ADMIN o creador\)) Tj ET
-BT /F3 8.5 Tf 58 199.34 Td (curl http://localhost:3000/api/publications -H "Authorization: Bearer <token>") Tj ET
-BT /F3 8.5 Tf 58 187.87 Td (curl -X POST http://localhost:3000/api/publications/<id>/approve -H "Authorization: Bearer <token>") Tj ET
-BT /F1 10.5 Tf 50 167.39 Td (Verificación del repo \(orden CI\):) Tj ET
-BT /F3 8.5 Tf 58 142.22 Td (npm run typecheck && npm run lint && npm run test && npm run build) Tj ET
-BT /F1 10.5 Tf 50 121.74 Td (Estado actual: **555/555 PASS** \(core 362 + runtime 193\) -- typecheck, lint, test y build) Tj ET
-BT /F1 10.5 Tf 50 107.57 Td (TODO verde \(verificado 15/08/2026\).) Tj ET
-BT /F2 13.5 Tf 50 80.39 Td (Hoja de ruta \(pendientes reales\)) Tj ET
+BT /F1 10.5 Tf 50 791.89 Td (detecta gaps RICE/META-IA -> prioriza -> genera plan\); tarea programada Windows) Tj ET
+BT /F1 10.5 Tf 50 777.72 Td (`UltraIa-Cerebro` cada 120 min + workflow nube `.github/workflows/cerebro.yml` cada 4 h) Tj ET
+BT /F1 10.5 Tf 50 763.54 Td (\(corre aunque el PC esté apagado, commitea evidencia a `resultTask/cerebro/`\).) Tj ET
+BT /F1 10.5 Tf 68 749.37 Td (-  **Salud y auto-mejora**: capability `vitals` \(6 signos ponderados 0-100 VERDE/ÁMBAR/ROJO +) Tj ET
+BT /F1 10.5 Tf 50 735.19 Td (detección de regresiones + política reparar->explotar->optimizar->explorar\), `autolearn`) Tj ET
+BT /F1 10.5 Tf 50 721.02 Td (\(gaps, RICE, matriz META-IA A-D, plan diario 70/20/10\), `genesis` \(motor de ingeniería) Tj ET
+BT /F1 10.5 Tf 50 706.84 Td (autónoma: quality gates reales, stop conditions, propuesta revisable\) y heartbeat con) Tj ET
+BT /F1 10.5 Tf 50 692.67 Td (pulso markdown + `vitals.json`.) Tj ET
+BT /F1 10.5 Tf 68 678.49 Td (-  **Memoria externa persistente**: `semantic-memory` \(corpus desde `learning/truth/*.json`\)) Tj ET
+BT /F1 10.5 Tf 50 664.32 Td (+ `qdrant-memory` v2 \(embedding denso dim-1024 determinista + rescoring disperso;) Tj ET
+BT /F1 10.5 Tf 50 650.14 Td (colección `memoria_experiencial_v2`; bench leave-one-out recall@1 = 100 %\).) Tj ET
+BT /F1 10.5 Tf 68 635.97 Td (-  **OMAG v0.1 expandido**: MediaField \(entidades con identidad persistente, eventos causales\),) Tj ET
+BT /F1 10.5 Tf 50 621.79 Td (timeline compartido \(<0.1s offset\), memorias, generadores keyless \(imagen, video storyboard,) Tj ET
+BT /F1 10.5 Tf 50 607.62 Td (audio edge-tts 14 idiomas, música, síntesis procedural WAV, VFX canvas\), vocabulario MOTIONS) Tj ET
+BT /F1 10.5 Tf 50 593.44 Td (por shot, long-form Project->Act->Sequence->Scene->Shot 60-180 s con MasterTimeline.) Tj ET
+BT /F1 10.5 Tf 68 579.27 Td (-  **Loop PIVR**: harness de desarrollo continuo \(plan -> implementar -> verificar -> reiniciar\)) Tj ET
+BT /F1 10.5 Tf 50 565.09 Td (con agentes `piv-plan`/`piv-build` \(modos P-P/P-B con sub-fases S-D y L-T\), `loop-triage`,) Tj ET
+BT /F1 10.5 Tf 50 550.92 Td (`state-doctor` \(13 checks de integridad\) y driver `scripts/loop_piv.py`. 103 iteraciones) Tj ET
+BT /F1 10.5 Tf 50 536.74 Td (documentadas con bitácora `[P]/[V]/[R]` auditable.) Tj ET
+BT /F1 10.5 Tf 68 522.57 Td (-  **@ultraia/runtime** \(Fases A-C\): módulos lazy, memoria con eviction, health/recovery,) Tj ET
+BT /F1 10.5 Tf 50 508.39 Td (command executor con allowlist y roles, Local API HTTP/WS en 127.0.0.1 \(token timing-safe,) Tj ET
+BT /F1 10.5 Tf 50 494.22 Td (origin loopback, rate limit, body cap, eventos por topic\).) Tj ET
+BT /F1 10.5 Tf 68 480.04 Td (-  **Desktop Fase D**: ventana WebView2 real operativa \(host nativo C#/WinForms, bundle) Tj ET
+BT /F1 10.5 Tf 50 465.87 Td (13.7 MB, RAM ~111 MB\) + fallback `msedge --app`; launcher Node sin deps con `--check`.) Tj ET
+BT /F1 10.5 Tf 68 451.69 Td (-  **App móvil**: Expo SDK 57 \(Android/iOS\) con login/registro, dashboard KPIs, cola de) Tj ET
+BT /F1 10.5 Tf 50 437.52 Td (publicaciones \(aprobar/rechazar\), cloud y blog; tema Dark Obsidian; token en SecureStore.) Tj ET
+BT /F1 10.5 Tf 68 423.34 Td (-  **Sistema learning/**: verdad verificada aparte \(`learning/truth/` + `verify.py`\),) Tj ET
+BT /F1 10.5 Tf 50 409.17 Td (fuentes crudas \(`learning/sources/`\), lecciones \(`LEARNINGS.md`\), memoria empaquetada) Tj ET
+BT /F1 10.5 Tf 50 394.99 Td (\(`learning/memory/ultraia_memory.zip`\) y sincronización a Qdrant \(`Task/sync-qdrant.ts`\).) Tj ET
+BT /F2 13.5 Tf 50 367.82 Td (Quickstart) Tj ET
+BT /F1 10.5 Tf 50 344.59 Td (Requisitos: Node >= 20, Python >= 3.10, ffmpeg \(opcional, `winget install Gyan.FFmpeg`\).) Tj ET
+BT /F3 8.5 Tf 58 319.42 Td (# 1. Instalar dependencias y levantar TODO \(setup + web :3000 + webhooks :8000 + gen-engine :8100\)) Tj ET
+BT /F3 8.5 Tf 58 307.94 Td (python start.py            # flags: --web --hooks --gen-engine --validate --check-connections --clean) Tj ET
+BT /F3 8.5 Tf 58 296.47 Td ( ) Tj ET
+BT /F3 8.5 Tf 58 284.99 Td (# 2. Solo web \(dev server\):) Tj ET
+BT /F3 8.5 Tf 58 273.52 Td (npm run dev                # o: python start.py --web) Tj ET
+BT /F3 8.5 Tf 58 262.04 Td ( ) Tj ET
+BT /F3 8.5 Tf 58 250.57 Td (# 3. Verificación de salud del stack:) Tj ET
+BT /F3 8.5 Tf 58 239.09 Td (python start.py --check-connections) Tj ET
+BT /F3 8.5 Tf 58 227.62 Td ( ) Tj ET
+BT /F3 8.5 Tf 58 216.14 Td (# 4. Un ciclo del Cerebro autónomo:) Tj ET
+BT /F3 8.5 Tf 58 204.67 Td (npm run cerebro            # o: npm run cerebro:plan \(solo plan\)) Tj ET
+BT /F1 10.5 Tf 50 184.19 Td (Acceso web: `http://localhost:3000` · Login demo: `admin` / `admin`.) Tj ET
+BT /F2 13.5 Tf 50 157.02 Td (Prototipo de uso inicial) Tj ET
+BT /F3 8.5 Tf 58 127.79 Td (# Levantar el stack completo \(setup automático si es la primera vez\)) Tj ET
+BT /F3 8.5 Tf 58 116.32 Td (python start.py) Tj ET
+BT /F3 8.5 Tf 58 104.84 Td ( ) Tj ET
+BT /F3 8.5 Tf 58 93.37 Td (# Probar el loop de desarrollo continuo \(plan -> build -> gates -> commit\)) Tj ET
+BT /F3 8.5 Tf 58 81.89 Td (python scripts/loop_piv.py --dry-run     # vista previa de comandos) Tj ET
+BT /F3 8.5 Tf 58 70.42 Td (python scripts/loop_piv.py --plan-only   # solo fase P \(escribe .opencode/plans/loop-<id>-<slug>.md\)) Tj ET
 BT /F1 8 Tf 295.64 36 Td (2) Tj ET
 endstream
 endobj
@@ -130,33 +132,73 @@ endobj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 10 0 R >>
 endobj
 11 0 obj
-<< /Length 2217 >>
+<< /Length 5088 >>
 stream
-BT /F1 10.5 Tf 68 791.89 Td (-  **Gen-Engine F5**: entrenamiento real de difusión \(E0-E5, roadmap documentado en) Tj ET
-BT /F1 10.5 Tf 50 777.72 Td (`04-pipeline-ultraia/plan-de-implementacion.md`\) -- requiere GPU / decisión humana.) Tj ET
-BT /F1 10.5 Tf 68 763.54 Td (-  **AutoPub F4+**: adaptadores Meta \(IG Reels/Threads\), X API v2 y LinkedIn \(app review) Tj ET
-BT /F1 10.5 Tf 50 749.37 Td (humana para el acceso a las APIs\).) Tj ET
-BT /F1 10.5 Tf 68 735.19 Td (-  **AutoPub F3**: branding kit editable \(hoy es determinista Dark Obsidian/Neo Violet\).) Tj ET
-BT /F1 10.5 Tf 68 721.02 Td (-  **Desktop Fase D paso 4+**: persistencia de la ventana \(bounds/perfil\), upgrade path a) Tj ET
-BT /F1 10.5 Tf 50 706.84 Td (Tauri 2; Fase E \(empaquetado/instalador\) tras decisión de shell.) Tj ET
-BT /F1 10.5 Tf 68 692.67 Td (-  **Documentación**: seguir el protocolo de `enlaces.txt` \(análisis de fuentes -> capability\).) Tj ET
-BT /F2 13.5 Tf 50 665.49 Td (Descargables) Tj ET
-BT /F1 10.5 Tf 68 642.27 Td (-  `PrototypeREADME.pdf` -- este documento en PDF \(generado con `scripts/md2pdf.py`, stdlib) Tj ET
-BT /F1 10.5 Tf 50 628.09 Td (puro, sin dependencias; regenerar con `python scripts/md2pdf.py PrototypeREADME.md --out) Tj ET
-BT /F1 10.5 Tf 50 613.92 Td (PrototypeREADME.pdf`\).) Tj ET
-BT /F1 10.5 Tf 68 599.74 Td (-  `learning/memory/ultraia_memory.zip` -- memoria de aprendizaje verificada \(esquemas truth +) Tj ET
-BT /F1 10.5 Tf 50 585.57 Td (lecciones; cargar con `python learning/scripts/restore_memory.py summary`\).) Tj ET
-BT /F2 13.5 Tf 50 558.39 Td (Notas) Tj ET
-BT /F1 10.5 Tf 68 535.17 Td (-  Sin API keys requeridas para el uso base; consultar `.env.example` para las opcionales.) Tj ET
-BT /F1 10.5 Tf 68 520.99 Td (-  Los commits/pushes del loop requieren aprobación humana \(nunca push automático\).) Tj ET
-BT /F1 10.5 Tf 68 506.82 Td (-  Docs de referencia: `AGENTS.md` \(guía de agentes\), `docs/AUTO-PUBLICACION.md`,) Tj ET
-BT /F1 10.5 Tf 50 492.64 Td (`desktopFase/ARCHITECTURE.md` + `desktopFase/docs/`, `DEPLOY.md` \(hosting gratuito\),) Tj ET
-BT /F1 10.5 Tf 50 478.47 Td (`docs/RAZONAMIENTO-FABLE5.md` \(análisis de fuentes de razonamiento\).) Tj ET
+BT /F3 8.5 Tf 58 791.89 Td (python scripts/loop_piv.py --gate-only   # solo verificación FULL) Tj ET
+BT /F3 8.5 Tf 58 780.41 Td (python scripts/loop_piv.py --triage      # triage report-only \(actualiza STATE.md\)) Tj ET
+BT /F3 8.5 Tf 58 768.94 Td ( ) Tj ET
+BT /F3 8.5 Tf 58 757.46 Td (# Generar contenido \(API OMAG -- requiere sesión web\)) Tj ET
+BT /F3 8.5 Tf 58 745.99 Td (curl -X POST http://localhost:3000/api/omag \\) Tj ET
+BT /F3 8.5 Tf 58 734.51 Td (  -H "Authorization: Bearer <token>" \\) Tj ET
+BT /F3 8.5 Tf 58 723.04 Td (  -H "Content-Type: application/json" \\) Tj ET
+BT /F3 8.5 Tf 58 711.56 Td (  -d '{"idea":"una aurora sobre el desierto","quality":"balanced","modalities":["image","audio"]}') Tj ET
+BT /F3 8.5 Tf 58 700.09 Td ( ) Tj ET
+BT /F3 8.5 Tf 58 688.61 Td (# Publicación automática \(calendario -- ADMIN\)) Tj ET
+BT /F3 8.5 Tf 58 677.14 Td (curl -X POST http://localhost:3000/api/publications/publish-due -H "Authorization: Bearer <token>") Tj ET
+BT /F3 8.5 Tf 58 665.66 Td ( ) Tj ET
+BT /F3 8.5 Tf 58 654.19 Td (# Endpoints de la cola de publicaciones \(auth: ADMIN o creador\)) Tj ET
+BT /F3 8.5 Tf 58 642.71 Td (curl http://localhost:3000/api/publications -H "Authorization: Bearer <token>") Tj ET
+BT /F3 8.5 Tf 58 631.24 Td (curl -X POST http://localhost:3000/api/publications/<id>/approve -H "Authorization: Bearer <token>") Tj ET
+BT /F1 10.5 Tf 50 610.76 Td (Verificación del repo \(orden CI\):) Tj ET
+BT /F3 8.5 Tf 58 585.59 Td (npm run typecheck && npm run lint && npm run test && npm run build) Tj ET
+BT /F1 10.5 Tf 50 565.11 Td (Estado actual: **gates FULL verdes** \(typecheck / lint / test >1.450 PASS core+runtime /) Tj ET
+BT /F1 10.5 Tf 50 550.94 Td (build 44 páginas\) -- última ronda completa verificada en las iteraciones 93-102.) Tj ET
+BT /F2 13.5 Tf 50 523.76 Td (Hoja de ruta \(pendientes reales\)) Tj ET
+BT /F1 10.5 Tf 68 500.54 Td (-  **UltraIa Web IDE V0.1 \(APROBADO por el usuario, 24/08\)**: convertir toda la web en un) Tj ET
+BT /F1 10.5 Tf 50 486.36 Td (entorno IDE "todo-en-uno" \(paneles redimensionables con `react-resizable-panels`, ya) Tj ET
+BT /F1 10.5 Tf 50 472.19 Td (instalada, varios agentes/modos simultáneos por ventana\), gestión de conexiones de canales) Tj ET
+BT /F1 10.5 Tf 50 458.01 Td (desde la interfaz \(dominio `connections.ts` + tabla `ChannelConnection` YA migrados; falta) Tj ET
+BT /F1 10.5 Tf 50 443.84 Td (UI/HUD + endpoints\), refinamiento gráfico y responsividad web+móvil. Ejecución por fases) Tj ET
+BT /F1 10.5 Tf 50 429.66 Td (\(F1 shell -> F2 workspace multi-agente -> F4 conexiones -> F3 diseño -> F5 responsividad\).) Tj ET
+BT /F1 10.5 Tf 68 415.49 Td (-  **Wiring tools procedurales** \(iter-93\): registrar `geometry_build`/`png_render`/) Tj ET
+BT /F1 10.5 Tf 50 401.31 Td (`procvid_render` en llm.ts/index.ts -- hunks verificados en cuarentena `%TEMP%\\opencode\\) Tj ET
+BT /F1 10.5 Tf 50 387.14 Td (wip-quarantine-20260823\\mine\\`, aplicar al liberarse la concurrencia.) Tj ET
+BT /F1 10.5 Tf 68 372.96 Td (-  **Gen-Engine F5**: entrenamiento real de difusión \(E0-E5, roadmap documentado en) Tj ET
+BT /F1 10.5 Tf 50 358.79 Td (`04-pipeline-ultraia/plan-de-implementacion.md`\) -- requiere GPU / decisión humana.) Tj ET
+BT /F1 10.5 Tf 68 344.61 Td (-  **Desktop Fase D paso 4+**: persistencia de la ventana \(bounds/perfil\), upgrade path a) Tj ET
+BT /F1 10.5 Tf 50 330.44 Td (Tauri 2; Fase E \(empaquetado/instalador\) tras decisión de shell.) Tj ET
+BT /F1 10.5 Tf 68 316.26 Td (-  **Documentación**: seguir el protocolo de `enlaces.txt` \(análisis de fuentes -> capability\).) Tj ET
+BT /F2 13.5 Tf 50 289.09 Td (Descargables) Tj ET
+BT /F1 10.5 Tf 68 265.86 Td (-  `DESCRIPCION.md` -- descripción total del proyecto desde la perspectiva del usuario) Tj ET
+BT /F1 10.5 Tf 50 251.69 Td (\(sin tecnología ni código; la cara del producto\).) Tj ET
+BT /F1 10.5 Tf 68 237.51 Td (-  `PrototypeREADME.pdf` -- este documento en PDF \(generado con `scripts/md2pdf.py`, stdlib) Tj ET
+BT /F1 10.5 Tf 50 223.34 Td (puro, sin dependencias; regenerar con `python scripts/md2pdf.py PrototypeREADME.md --out) Tj ET
+BT /F1 10.5 Tf 50 209.16 Td (PrototypeREADME.pdf`\).) Tj ET
+BT /F1 10.5 Tf 68 194.99 Td (-  `learning/memory/ultraia_memory.zip` -- memoria de aprendizaje verificada \(esquemas truth +) Tj ET
+BT /F1 10.5 Tf 50 180.81 Td (lecciones; cargar con `python learning/scripts/restore_memory.py summary`\).) Tj ET
+BT /F1 10.5 Tf 68 166.64 Td (-  `UltraIa-Prototipo.zip` -- el prototipo se distribuye como paquete Web+Desktop \(Next.js) Tj ET
+BT /F1 10.5 Tf 50 152.46 Td (standalone + DB embebida con login demo `admin`/`admin` + launcher WebView2 + `UltraIa.bat`) Tj ET
+BT /F1 10.5 Tf 50 138.29 Td (de 1 clic; Windows 10/11; regenerable con `python scripts/build-prototipo.py`\).) Tj ET
+BT /F2 13.5 Tf 50 111.11 Td (Notas) Tj ET
+BT /F1 10.5 Tf 68 87.89 Td (-  Sin API keys requeridas para el uso base; consultar `.env.example` para las opcionales.) Tj ET
+BT /F1 10.5 Tf 68 73.71 Td (-  Los commits/pushes del loop requieren aprobación humana \(nunca push automático\).) Tj ET
 BT /F1 8 Tf 295.64 36 Td (3) Tj ET
 endstream
 endobj
+12 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 12 0 R >>
+endobj
+13 0 obj
+<< /Length 385 >>
+stream
+BT /F1 10.5 Tf 68 791.89 Td (-  Docs de referencia: `AGENTS.md` \(guía de agentes\), `docs/AUTO-PUBLICACION.md`,) Tj ET
+BT /F1 10.5 Tf 50 777.72 Td (`desktopFase/ARCHITECTURE.md` + `desktopFase/docs/`, `DEPLOY.md` \(hosting gratuito\),) Tj ET
+BT /F1 10.5 Tf 50 763.54 Td (`docs/CEREBRO.md` \(cerebro autónomo\), `docs/MOBILE.md` \(app móvil\).) Tj ET
+BT /F1 8 Tf 295.64 36 Td (4) Tj ET
+endstream
+endobj
 xref
-0 12
+0 14
 0000000000 65535 f 
 0000000001 00000 n 
 0000000004 00000 n 
@@ -169,8 +211,10 @@ xref
 0000000025 00000 n 
 0000000028 00000 n 
 0000000031 00000 n 
+0000000034 00000 n 
+0000000037 00000 n 
 trailer
-<< /Size 12 /Root 1 0 R >>
+<< /Size 14 /Root 1 0 R >>
 startxref
-34
+40
 %%EOF

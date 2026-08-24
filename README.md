@@ -78,6 +78,7 @@ Verification order: `typecheck → lint → test → build` (mirrored in CI).
 
 ## Documentation / Descargables
 
+- **DESCRIPCION.md** — descripción total del proyecto desde la perspectiva del usuario admin/final (qué puedes usar, sin tecnología ni código): `DESCRIPCION.md`
 - **PrototypeREADME.md** — prototipo al estado real (capacidades, quickstart, hoja de ruta de pendientes): `PrototypeREADME.md`
 - **PrototypeREADME.pdf** — descargable del prototipo (generado con `scripts/md2pdf.py`, stdlib puro):
   - Repo: `PrototypeREADME.pdf`
