@@ -1,0 +1,247 @@
+Aquí tienes la guía técnica paso a paso, detallada y lista para ejecutar, para construir tu **Sistema Autónomo de Creación Digital (SACD)**. He dividido el proceso en 5 fases prácticas, con los comandos y códigos exactos que necesitas.
+
+---
+
+### 🏗️ PASO 1: Infraestructura de Memoria (Docker)
+
+El sistema necesita "recordar". Usaremos **Qdrant** (para memoria semántica y experiencial: "qué funcionó") y **Neo4j** (para memoria procedimental: "cómo se relacionan los pasos").
+
+1. Instala [Docker Desktop](https://www.docker.com/products/docker-desktop/) en tu PC.
+2. Crea una carpeta llamada `sacd_system` y dentro crea un archivo llamado `docker-compose.yml`.
+3. Pega este código en el archivo:
+
+```yaml
+version: "3.8"
+services:
+  qdrant:
+    image: qdrant/qdrant:latest
+    ports:
+      - "6333:6333" # API REST
+      - "6334:6334" # API gRPC
+    volumes:
+      - ./qdrant_storage:/qdrant/storage
+    environment:
+      - QDRANT__SERVICE__GRPC_PORT=6334
+
+  neo4j:
+    image: neo4j:5.15
+    ports:
+      - "7474:7474" # Interfaz web (http://localhost:7474)
+      - "7687:7687" # Conexión Bolt
+    environment:
+      - NEO4J_AUTH=neo4j/sacd_password_2026
+      - NEO4J_PLUGINS=["apoc"]
+    volumes:
+      - ./neo4j_data:/data
+```
+
+4. Abre tu terminal en esa carpeta y ejecuta:
+   ```bash
+   docker-compose up -d
+   ```
+   _Verifica:_ Abre tu navegador en `http://localhost:6333/dashboard` (Qdrant) y `http://localhost:7474` (Neo4j, usuario: `neo4j`, contraseña: `sacd_password_2026`).
+
+---
+
+### ⚙️ PASO 2: Configuración del Entorno Python y Orquestador
+
+Usaremos **LangGraph** en lugar de CrewAI para esta fase, porque LangGraph permite crear _bucles de retroalimentación_ (ciclos de automejora) de manera nativa, que es el corazón de tu arquitectura NASA.
+
+1. En tu terminal, dentro de `sacd_system`, crea un entorno virtual:
+   ```bash
+   python -m venv venv
+   # En Windows: venv\Scripts\activate
+   # En Mac/Linux: source venv/bin/activate
+   ```
+2. Instala las dependencias:
+   ```bash
+   pip install langgraph langchain-openai langchain-qdrant neo4j requests pydantic
+   ```
+3. Crea un archivo `.env` con tu clave de API (puedes usar OpenAI, o un endpoint local de Qwen/DeepSeek si tienes uno montado):
+   ```env
+   OPENAI_API_KEY=tu_clave_aqui
+   OPENAI_API_BASE=https://api.openai.com/v1 # O la URL de tu modelo local
+   LLM_MODEL=gpt-4o # O qwen-2.5-72b, deepseek-chat, etc.
+   ```
+
+---
+
+### 🧠 PASO 3: El Primer Flujo Funcional (Triángulo de Oro)
+
+Vamos a crear el ciclo: **Investigador → Programador → Evaluador → Memoria**.
+
+Crea un archivo llamado `nucleo_nasa.py`:
+
+```python
+import os
+from typing import TypedDict, Annotated
+from langgraph.graph import StateGraph, END
+from langchain_openai import ChatOpenAI
+from langchain_qdrant import Qdrant
+from qdrant_client import QdrantClient
+from langchain_core.documents import Document
+from dotenv import load_dotenv
+
+load_dotenv()
+
+# 1. Definir el Estado del Sistema (La "Memoria de Trabajo")
+class AgentState(TypedDict):
+    objetivo: str
+    plan_investigacion: str
+    codigo_generado: str
+    metricas_evaluacion: dict
+    leccion_aprendida: str
+
+# Inicializar Modelos y Bases de Datos
+llm = ChatOpenAI(model=os.getenv("LLM_MODEL", "gpt-4o"), temperature=0.2)
+qdrant_client = QdrantClient(url="http://localhost:6333")
+vector_store = Qdrant(client=qdrant_client, collection_name="memoria_experiencial", embedding=llm.embeddings)
+
+# 2. Definir los Nodos (Agentes)
+def investigador(state: AgentState):
+    print("🔍 [INVESTIGADOR] Analizando el objetivo y buscando en memoria...")
+    # Buscar experiencias pasadas similares
+    docs = vector_store.similarity_search(state["objetivo"], k=2)
+    contexto_pasado = "\n".join([d.page_content for d in docs]) if docs else "Sin experiencias previas."
+
+    prompt = f"Objetivo: {state['objetivo']}. Experiencias pasadas: {contexto_pasado}. Diseña un plan técnico paso a paso."
+    response = llm.invoke(prompt)
+    return {"plan_investigacion": response.content}
+
+def programador(state: AgentState):
+    print("💻 [PROGRAMADOR] Escribiendo el código basado en el plan...")
+    prompt = f"Basado en este plan: {state['plan_investigacion']}. Escribe un script de Python funcional (ej. optimización de FFmpeg o script de Blender)."
+    response = llm.invoke(prompt)
+    return {"codigo_generado": response.content}
+
+def evaluador(state: AgentState):
+    print("🛡️ [EVALUADOR] Analizando el código y simulando métricas...")
+    prompt = f"Evalúa este código: {state['codigo_generado']}. Asigna puntuaciones (0-100) en: calidad, eficiencia, y probabilidad de error. Devuelve SOLO un JSON."
+    response = llm.invoke(prompt)
+
+    # Simulación de extracción de JSON (en producción usarías structured output)
+    metricas = {"calidad": 85, "eficiencia": 70, "errores": 2}
+    leccion = f"El código es funcional pero la eficiencia es {metricas['eficiencia']}. Sugerencia: Usar procesamiento por lotes."
+
+    # GUARDAR EN MEMORIA EXPERIENCIAL (El paso más importante)
+    vector_store.add_documents([
+        Document(page_content=f"Problema: {state['objetivo']}. Solución: {leccion}. Métricas: {metricas}")
+    ])
+    print("💾 [MEMORIA] Lección guardada en Qdrant.")
+
+    return {"metricas_evaluacion": metricas, "leccion_aprendida": leccion}
+
+# 3. Construir el Grafo (La Coordinación)
+workflow = StateGraph(AgentState)
+workflow.add_node("investigador", investigador)
+workflow.add_node("programador", programador)
+workflow.add_node("evaluador", evaluador)
+
+workflow.set_entry_point("investigador")
+workflow.add_edge("investigador", "programador")
+workflow.add_edge("programador", "evaluador")
+workflow.add_edge("evaluador", END) # En el futuro, aquí irá un condicional: si score < 80, volver a "investigador"
+
+app = workflow.compile()
+
+# 4. Ejecutar el Sistema
+if __name__ == "__main__":
+    resultado = app.invoke({"objetivo": "Optimizar la exportación de video 4K a 1080p usando FFmpeg en Python"})
+    print("\n✅ RESULTADO FINAL:")
+    print(f"Lección Aprendida: {resultado['leccion_aprendida']}")
+```
+
+Ejecuta con: `python nucleo_nasa.py`. Verás cómo los agentes "hablan", generan una solución y **la guardan automáticamente en Qdrant**.
+
+---
+
+### 🔌 PASO 4: Integración de Herramientas Externas (ComfyUI y Blender)
+
+Los agentes no solo deben escribir texto, deben _ejecutar_ herramientas.
+
+#### A. Conectar con ComfyUI (Generación de Imágenes)
+
+1. Inicia ComfyUI con soporte de API: `python main.py --listen --enable-cors-header`
+2. Crea un archivo `herramienta_comfy.py` que el Agente Programador pueda invocar:
+
+```python
+import requests
+import json
+
+def generar_imagen_comfyui(prompt_texto: str, negative_prompt: str = "low quality"):
+    # Cargar el workflow API de ComfyUI (exportado desde la interfaz como JSON)
+    with open("workflow_api.json", "r") as f:
+        workflow = json.load(f)
+
+    # El agente modifica dinámicamente el prompt en el nodo de texto (ej. nodo "6")
+    workflow["6"]["inputs"]["text"] = prompt_texto
+    workflow["7"]["inputs"]["text"] = negative_prompt
+
+    # Enviar a ComfyUI
+    response = requests.post("http://127.0.0.1:8188/prompt", json={"prompt": workflow})
+    return response.json() # Devuelve el ID del prompt para hacer polling del resultado
+```
+
+_Nota:_ El Agente Programador puede ser instruido para modificar este script y cambiar los parámetros del JSON antes de enviarlo.
+
+#### B. Conectar con Blender (Automatización 3D)
+
+El agente puede generar scripts `.py` y ejecutarlos en segundo plano.
+
+1. El agente genera un archivo `script_blender.py`:
+
+```python
+import bpy
+# Limpiar escena
+bpy.ops.wm.read_factory_settings(use_empty=True)
+# Crear un cubo (ejemplo simple)
+bpy.ops.mesh.primitive_cube_add(size=2, location=(0, 0, 0))
+# Renderizar
+bpy.context.scene.render.filepath = "//resultado.png"
+bpy.ops.render.render(write_still=True)
+```
+
+2. El sistema ejecuta el comando de terminal:
+   ```bash
+   blender -b -P script_blender.py
+   ```
+   _(El flag `-b` ejecuta Blender en modo "headless" o sin interfaz gráfica, perfecto para servidores y agentes)._
+
+---
+
+### 🧬 PASO 5: Activar el Ciclo de Automejora (NASA)
+
+Ahora que el sistema guarda lecciones en Qdrant, debemos hacer que las **use** para mejorar.
+
+Modifica el nodo `investigador` en `nucleo_nasa.py` para que, antes de planificar, haga una consulta específica de "automejora":
+
+```python
+def investigador_con_automejora(state: AgentState):
+    print("🧬 [NASA] Buscando patrones de mejora en la memoria...")
+
+    # Consulta específica: ¿Qué mejoró la eficiencia en tareas de video/3D?
+    docs_mejora = vector_store.similarity_search("mejorar eficiencia render video", k=3)
+
+    prompt_mejora = f"Basado en estas lecciones pasadas: {docs_mejora}. Y el objetivo actual: {state['objetivo']}. Diseña un plan que EVITE los errores pasados y aplique las soluciones que dieron >80 de eficiencia."
+
+    response = llm.invoke(prompt_mejora)
+    return {"plan_investigacion": response.content}
+```
+
+**¿Qué acaba de suceder?**
+
+1. El sistema intentó algo y el Evaluador le dio una puntuación baja en "eficiencia".
+2. Guardó esa lección en Qdrant.
+3. En la siguiente ejecución, el Investigador **lee esa lección** y modifica el plan _antes_ de que el Programador escriba el código.
+4. **Esto es Meta-Aprendizaje real:** El sistema no necesita que tú le digas cómo mejorar; lo deduce de su propio historial de éxitos y fracasos.
+
+---
+
+### 📋 Tu Hoja de Trabajo para esta Semana
+
+1. **Día 1:** Ejecuta el `docker-compose.yml` y asegúrate de que Qdrant y Neo4j responden en el navegador.
+2. **Día 2:** Configura el entorno Python, el `.env` y ejecuta `nucleo_nasa.py`. Verifica en el dashboard de Qdrant (`localhost:6333/dashboard`) que la colección `memoria_experiencial` se creó y tiene documentos.
+3. **Día 3:** Descarga ComfyUI, exporta un workflow básico a `workflow_api.json` y prueba el script `herramienta_comfy.py`.
+4. **Día 4:** Modifica el grafo de LangGraph para añadir una **condición**: si `metricas_evaluacion["calidad"] < 80`, el grafo debe volver al nodo `investigador` con la instrucción "Rehacer aplicando la lección aprendida".
+
+¿Quieres que detallemos el **Paso 4 (Condición de bucle en LangGraph)** para que el sistema se re-intente automáticamente hasta alcanzar una puntuación de calidad aceptable?

@@ -1,0 +1,234 @@
+¡Perfecto! Vamos a implementar el **Corazón Evolutivo** de tu sistema. 
+
+Hasta ahora, el sistema ejecutaba una tarea de una sola vez (lineal). Pero en tu arquitectura **NASA (Núcleo Autónomo de Superación y Aprendizaje)**, el sistema debe ser capaz de **fallar, evaluar su propio fallo, aprender de él y reintentarlo** hasta alcanzar la calidad deseada.
+
+Para lograr esto en **LangGraph**, no usamos aristas (conexiones) estáticas, sino **Aristas Condicionales (Conditional Edges)**. Esto permite que el grafo tome decisiones en tiempo de ejecución basándose en el estado actual (las métricas del Evaluador).
+
+Aquí tienes el código completo y actualado para el **Paso 4: El Bucle de Automejora**.
+
+### 🔄 Paso 4: Implementación del Bucle de Automejora (Ciclo NASA)
+
+Crea o reemplaza tu archivo `nucleo_nasa.py` con este código. He añadido simulaciones de "fallo" en el primer intento para que puedas ver el bucle en acción.
+
+```python
+import os
+from typing import TypedDict, Literal
+from langgraph.graph import StateGraph
+from langchain_openai import ChatOpenAI
+from langchain_qdrant import Qdrant
+from qdrant_client import QdrantClient
+from langchain_core.documents import Document
+from dotenv import load_dotenv
+
+load_dotenv()
+
+# 1. ESTADO DEL SISTEMA (Ampliado para soportar el bucle)
+class AgentState(TypedDict):
+    objetivo: str
+    plan_investigacion: str
+    codigo_generado: str
+    metricas_evaluacion: dict
+    leccion_aprendida: str
+    intentos: int               # Contador para evitar bucles infinitos
+    feedback_evaluador: str     # El "por qué" falló o acertó
+    estado_final: Literal["aprobado", "rechazado", "max_intentos"]
+
+# Inicializar Modelos y Bases de Datos
+llm = ChatOpenAI(model=os.getenv("LLM_MODEL", "gpt-4o"), temperature=0.2)
+qdrant_client = QdrantClient(url="http://localhost:6333")
+
+# Asegurar que la colección de memoria existe
+try:
+    qdrant_client.create_collection(
+        collection_name="memoria_experiencial",
+        vectors_config={"size": 1536, "distance": "Cosine"} 
+    )
+except Exception:
+    pass # Si ya existe, ignorar error
+
+vector_store = Qdrant(client=qdrant_client, collection_name="memoria_experiencial", embedding=llm.embeddings)
+
+# ==========================================
+# 2. NODOS (LOS AGENTES)
+# ==========================================
+
+def investigador(state: AgentState):
+    intentos = state.get("intentos", 0)
+    print(f"\n🔍 [INVESTIGADOR] Iniciando Intento #{intentos + 1}...")
+    
+    # Si hay feedback de un intento anterior, el investigador DEBE usarlo para no repetir errores
+    feedback = state.get("feedback_evaluador", "")
+    contexto_feedback = f"FEEDBACK CRÍTICO DEL INTENTO ANTERIOR (NO REPETIR ESTOS ERRORES): {feedback}" if feedback else "Primer intento, sin feedback previo."
+    
+    # Buscar en la memoria experiencial (Qdrant)
+    docs = vector_store.similarity_search(state["objetivo"], k=2)
+    contexto_pasado = "\n".join([d.page_content for d in docs]) if docs else "Sin experiencias previas en la base de datos."
+    
+    prompt = f"""
+    OBJETIVO: {state['objetivo']}
+    HISTORIAL DE ÉXITOS/FRACASOS: {contexto_pasado}
+    {contexto_feedback}
+    
+    TAREA: Diseña un plan técnico paso a paso. Si hay feedback de un fallo anterior, tu plan DEBE corregir explícitamente esos fallos.
+    """
+    response = llm.invoke(prompt)
+    
+    return {
+        "plan_investigacion": response.content, 
+        "intentos": intentos + 1  # Incrementamos el contador
+    }
+
+def programador(state: AgentState):
+    print("💻 [PROGRAMADOR] Generando código basado en el plan...")
+    prompt = f"Basado en este plan técnico: {state['plan_investigacion']}. Escribe un script de Python funcional y robusto. Devuelve SOLO el código."
+    response = llm.invoke(prompt)
+    return {"codigo_generado": response.content}
+
+def evaluador(state: AgentState):
+    print("🛡️ [EVALUADOR] Ejecutando pruebas de calidad y simulando métricas...")
+    
+    intentos = state.get("intentos", 1)
+    
+    # SIMULACIÓN: Forzamos un fallo en el primer intento para demostrar el bucle de automejora
+    if intentos == 1:
+        metricas = {"calidad": 60, "eficiencia": 50, "errores": 5} 
+        feedback = "FALLO: El código no maneja excepciones al leer archivos y la eficiencia es baja porque no usa procesamiento por lotes."
+    else:
+        # En el segundo intento, asumimos que el investigador corrigió el plan y el programador lo hizo bien
+        metricas = {"calidad": 92, "eficiencia": 88, "errores": 0}
+        feedback = "ÉXITO: El código es robusto, maneja excepciones y es altamente eficiente."
+
+    print(f"📊 Métricas obtenidas: {metricas}")
+    
+    # Lógica de Aprobación (El umbral de calidad)
+    aprobado = metricas["calidad"] >= 80 and metricas["eficiencia"] >= 80
+    
+    if aprobado:
+        leccion = f"ÉXITO en '{state['objetivo']}'. Solución validada: {state['plan_investigacion'][:100]}..."
+        # Guardar el ÉXITO en la Memoria Experiencial para futuros proyectos
+        vector_store.add_documents([Document(page_content=leccion)])
+        print("💾 [MEMORIA] Éxito guardado en Qdrant.")
+        return {"metricas_evaluacion": metricas, "leccion_aprendida": leccion, "feedback_evaluador": feedback, "estado_final": "aprobado"}
+    else:
+        leccion = f"FRACASO en '{state['objetivo']}'. Razón: {feedback}"
+        # No guardamos el fracaso como "solución", pero lo pasamos al siguiente ciclo
+        return {"metricas_evaluacion": metricas, "leccion_aprendida": leccion, "feedback_evaluador": feedback, "estado_final": "rechazado"}
+
+# ==========================================
+# 3. EL CEREBRO DEL BUCLE (ARISTA CONDICIONAL)
+# ==========================================
+
+def decidir_siguiente_paso(state: AgentState) -> Literal["investigador", "fin_exitoso", "fin_fallido"]:
+    """
+    Esta función evalúa el estado actual y decide a qué nodo ir.
+    Es la implementación de la "Regla de Automejora".
+    """
+    estado = state.get("estado_final", "")
+    intentos = state.get("intentos", 0)
+    
+    if estado == "aprobado":
+        return "fin_exitoso"
+    elif intentos >= 3: # Límite de seguridad (Máximo 3 intentos)
+        return "fin_fallido"
+    else:
+        # Si fue rechazado y aún hay intentos, vuelve al inicio del ciclo cognitivo
+        return "investigador"
+
+# ==========================================
+# 4. CONSTRUCCIÓN DEL GRAFO (LANGGRAPH)
+# ==========================================
+
+workflow = StateGraph(AgentState)
+
+# Añadir nodos
+workflow.add_node("investigador", investigador)
+workflow.add_node("programador", programador)
+workflow.add_node("evaluador", evaluador)
+
+# Nodos de finalización
+workflow.add_node("fin_exitoso", lambda state: print("\n✅ [SISTEMA] PROYECTO APROBADO. LISTO PARA PRODUCCIÓN."))
+workflow.add_node("fin_fallido", lambda state: print("\n❌ [SISTEMA] PROYECTO RECHAZADO TRAS 3 INTENTOS. REQUIERE INTERVENCIÓN HUMANA."))
+
+# Conexiones estáticas
+workflow.set_entry_point("investigador")
+workflow.add_edge("investigador", "programador")
+workflow.add_edge("programador", "evaluador")
+
+# CONEXIÓN DINÁMICA (La magia de la automejora)
+workflow.add_conditional_edges(
+    "evaluador",             # Desde qué nodo se evalúa
+    decidir_siguiente_paso,  # Qué función toma la decisión
+    {
+        "investigador": "investigador", # Si decide reintentar
+        "fin_exitoso": "fin_exitoso",   # Si decide aprobar
+        "fin_fallido": "fin_fallido"    # Si decide abortar
+    }
+)
+
+# Compilar el grafo
+app = workflow.compile()
+
+# ==========================================
+# 5. EJECUCIÓN DEL SISTEMA
+# ==========================================
+
+if __name__ == "__main__":
+    print("="*50)
+    print("INICIANDO CICLO DE AUTOMEJORA NASA")
+    print("="*50)
+    
+    resultado = app.invoke({
+        "objetivo": "Optimizar la exportación de video 4K a 1080p usando FFmpeg en Python",
+        "intentos": 0,
+        "estado_final": ""
+    })
+    
+    print("\n" + "="*50)
+    print("REPORTE FINAL DEL CICLO")
+    print("="*50)
+    print(f"Intentos totales ejecutados: {resultado['intentos']}")
+    print(f"Estado final del proyecto: {resultado['estado_final'].upper()}")
+    print(f"Última lección registrada: {resultado['leccion_aprendida']}")
+```
+
+### 🧠 ¿Qué acaba de suceder aquí? (Análisis del Ciclo)
+
+1. **Intento 1 (El Fallo):** 
+   - El `Investigador` hace un plan.
+   - El `Programador` escribe el código.
+   - El `Evaluador` simula que el código es malo (calidad 60) y genera un **Feedback** específico: *"No maneja excepciones y no usa procesamiento por lotes"*.
+   - El estado final se marca como `"rechazado"`.
+2. **La Decisión (Arista Condicional):** 
+   - La función `decidir_siguiente_paso` ve que el estado es `"rechazado"` y los intentos son 1 (menor a 3). 
+   - Devuelve `"investigador"`, creando un **bucle**.
+3. **Intento 2 (La Automejora):** 
+   - El `Investigador` vuelve a ejecutarse. Esta vez, su prompt incluye el `feedback_evaluador` del intento anterior.
+   - La IA lee: *"FEEDBACK CRÍTICO... NO REPETIR ESTOS ERRORES"*.
+   - Genera un nuevo plan que **explícitamente** incluye manejo de excepciones y procesamiento por lotes.
+   - El `Programador` genera el código corregido.
+   - El `Evaluador` simula que ahora es perfecto (calidad 92).
+   - El estado se marca como `"aprobado"` y **se guarda en Qdrant** como una nueva experiencia de éxito.
+4. **Finalización:** 
+   - La función condicional ve `"aprobado"` y dirige el flujo a `fin_exitoso`.
+
+### 🛡️ La Regla de Oro de la Automejora: El Límite de Seguridad
+
+Fíjate en esta línea dentro de `decidir_siguiente_paso`:
+```python
+elif intentos >= 3: # Límite de seguridad
+```
+**Esto es crítico.** En sistemas autónomos, si la IA no puede resolver un problema, puede entrar en un bucle infinito consumiendo tokens y recursos. El "Supervisor General" (tu arquitectura) siempre debe tener un **fusible de seguridad** que detenga el ciclo y escale el problema a un humano si se supera un umbral de intentos.
+
+---
+
+### 🚀 Siguiente Paso (Paso 5): De Texto a Acción Real
+
+Ahora tienes el **cerebro cognitivo** funcionando. El sistema puede pensar, fallar, aprender y reintentar.
+
+El **Paso 5** consiste en conectar este cerebro con los "músculos" (las herramientas reales). En lugar de que el Evaluador *simule* métricas, necesitamos que el sistema:
+1. Guarde el `codigo_generado` en un archivo `.py` real.
+2. Ejecute ese archivo en tu terminal.
+3. Capture los errores reales de la consola o los tiempos de ejecución.
+4. Pase esos datos reales al Evaluador para que calcule las métricas.
+
+¿Quieres que te muestre cómo crear el **Nodo de Ejecución de Herramientas** (el "sandbox" seguro) para que el código generado por el Programador se ejecute realmente en tu máquina y alimente al Evaluador con datos reales?

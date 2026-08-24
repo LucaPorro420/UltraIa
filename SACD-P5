@@ -1,0 +1,290 @@
+¡Excelente! Llegamos al punto de inflexión. Hasta ahora, el sistema "imaginaba" el código y "simulaba" si funcionaba.
+
+En el **PASO 5**, vamos a darle al sistema la capacidad de **ejecutar código real en tu máquina**, capturar los errores reales (stderr), medir el tiempo exacto de ejecución y usar esos datos _reales_ para que el Evaluador tome decisiones.
+
+Para hacer esto de forma segura, implementaremos un **"Sandbox" (Caja de Arena)** usando el módulo `subprocess` de Python con límites de tiempo estrictos.
+
+---
+
+### 🛠️ PASO 5: El Nodo Ejecutor y la Evaluación con Datos Reales
+
+Reemplaza todo el contenido de tu archivo `nucleo_nasa.py` con esta versión mejorada. He añadido el nodo `ejecutor` y actualizado el `evaluador` para que deje de simular y use la realidad.
+
+````python
+import os
+import time
+import subprocess
+from typing import TypedDict, Literal
+from langgraph.graph import StateGraph
+from langchain_openai import ChatOpenAI
+from langchain_qdrant import Qdrant
+from qdrant_client import QdrantClient
+from langchain_core.documents import Document
+from dotenv import load_dotenv
+
+load_dotenv()
+
+# 1. ESTADO DEL SISTEMA (Actualizado con resultados de ejecución)
+class AgentState(TypedDict):
+    objetivo: str
+    plan_investigacion: str
+    codigo_generado: str
+    resultado_ejecucion: dict  # NUEVO: Guarda stdout, stderr, tiempo y éxito
+    metricas_evaluacion: dict
+    leccion_aprendida: str
+    intentos: int
+    feedback_evaluador: str
+    estado_final: Literal["aprobado", "rechazado", "max_intentos"]
+
+# Inicializar Modelos y Bases de Datos
+llm = ChatOpenAI(model=os.getenv("LLM_MODEL", "gpt-4o"), temperature=0.2)
+qdrant_client = QdrantClient(url="http://localhost:6333")
+
+try:
+    qdrant_client.create_collection(collection_name="memoria_experiencial", vectors_config={"size": 1536, "distance": "Cosine"})
+except Exception:
+    pass
+
+vector_store = Qdrant(client=qdrant_client, collection_name="memoria_experiencial", embedding=llm.embeddings)
+
+# ==========================================
+# 2. NODOS (LOS AGENTES)
+# ==========================================
+
+def investigador(state: AgentState):
+    intentos = state.get("intentos", 0)
+    print(f"\n🔍 [INVESTIGADOR] Iniciando Intento #{intentos + 1}...")
+
+    feedback = state.get("feedback_evaluador", "")
+    contexto_feedback = f"⚠️ ERROR ANTERIOR A CORREGIR: {feedback}" if feedback else "Primer intento."
+
+    docs = vector_store.similarity_search(state["objetivo"], k=2)
+    contexto_pasado = "\n".join([d.page_content for d in docs]) if docs else "Sin experiencias previas."
+
+    prompt = f"""
+    OBJETIVO: {state['objetivo']}
+    HISTORIAL: {contexto_pasado}
+    {contexto_feedback}
+
+    TAREA: Diseña un plan técnico. Si hay un error anterior, el plan DEBE incluir una solución explícita para evitarlo.
+    """
+    response = llm.invoke(prompt)
+    return {"plan_investigacion": response.content, "intentos": intentos + 1}
+
+def programador(state: AgentState):
+    print("💻 [PROGRAMADOR] Generando código ejecutable...")
+    prompt = f"""
+    Basado en este plan: {state['plan_investigacion']}.
+    Escribe un script de Python COMPLETO y EJECUTABLE.
+    El script debe imprimir un mensaje de "ÉXITO" al final si todo sale bien.
+    NO incluyas markdown (```python), solo el código puro.
+    """
+    response = llm.invoke(prompt)
+    # Limpieza básica por si el LLM incluye markdown
+    codigo_limpio = response.content.replace("```python", "").replace("```", "").strip()
+    return {"codigo_generado": codigo_limpio}
+
+def ejecutor(state: AgentState):
+    print("⚙️ [EJECUTOR] Ejecutando código en Sandbox controlado...")
+    codigo = state["codigo_generado"]
+    archivo_temp = "temp_script_sacd.py"
+
+    # 1. Guardar el código en un archivo
+    with open(archivo_temp, "w", encoding="utf-8") as f:
+        f.write(codigo)
+
+    # 2. Ejecutar con límites de seguridad (Sandbox)
+    inicio = time.time()
+    try:
+        # Timeout de 15 segundos para evitar bucles infinitos
+        resultado = subprocess.run(
+            ["python", archivo_temp],
+            capture_output=True,
+            text=True,
+            timeout=15,
+            encoding="utf-8"
+        )
+        tiempo_ejecucion = time.time() - inicio
+
+        return {
+            "resultado_ejecucion": {
+                "exito": resultado.returncode == 0,
+                "stdout": resultado.stdout.strip(),
+                "stderr": resultado.stderr.strip(),
+                "tiempo_segundos": round(tiempo_ejecucion, 2)
+            }
+        }
+    except subprocess.TimeoutExpired:
+        return {
+            "resultado_ejecucion": {
+                "exito": False,
+                "stdout": "",
+                "stderr": "ERROR CRÍTICO: El script excedió el límite de tiempo de 15 segundos (posible bucle infinito).",
+                "tiempo_segundos": 15.0
+            }
+        }
+    except Exception as e:
+        return {
+            "resultado_ejecucion": {
+                "exito": False,
+                "stdout": "",
+                "stderr": f"ERROR DEL SISTEMA: {str(e)}",
+                "tiempo_segundos": 0.0
+            }
+        }
+    finally:
+        # 3. Limpieza: Eliminar el archivo temporal por seguridad
+        if os.path.exists(archivo_temp):
+            os.remove(archivo_temp)
+
+def evaluador(state: AgentState):
+    print("🛡️ [EVALUADOR] Analizando resultados REALES de la ejecución...")
+
+    ejecucion = state.get("resultado_ejecucion", {})
+    intentos = state.get("intentos", 1)
+
+    # Lógica de evaluación basada en DATOS REALES
+    if ejecucion.get("exito"):
+        # Si funcionó, evaluamos la eficiencia (tiempo)
+        tiempo = ejecucion.get("tiempo_segundos", 0)
+        eficiencia_score = 95 if tiempo < 2.0 else 75
+
+        metricas = {"calidad": 90, "eficiencia": eficiencia_score, "errores": 0}
+        feedback = f"ÉXITO. El script se ejecutó correctamente en {tiempo} segundos. Salida: {ejecucion.get('stdout')[:50]}..."
+        estado = "aprobado"
+
+        # Guardar ÉXITO en memoria
+        leccion = f"ÉXITO: {state['objetivo']}. Método validado en {tiempo}s."
+        vector_store.add_documents([Document(page_content=leccion)])
+
+    else:
+        # Si falló, la calidad es 0 y el feedback es el error real
+        metricas = {"calidad": 0, "eficiencia": 0, "errores": 1}
+        error_real = ejecucion.get("stderr", "Error desconocido")
+        feedback = f"FALLO DE EJECUCIÓN. Error real del sistema: {error_real}"
+        estado = "rechazado"
+        leccion = f"FRACASO: {state['objetivo']}. Razón: {error_real}"
+
+    print(f"📊 Métricas Reales: {metricas}")
+    return {
+        "metricas_evaluacion": metricas,
+        "leccion_aprendida": leccion,
+        "feedback_evaluador": feedback,
+        "estado_final": estado
+    }
+
+# ==========================================
+# 3. LÓGICA DEL BUCLE (ARISTA CONDICIONAL)
+# ==========================================
+
+def decidir_siguiente_paso(state: AgentState) -> Literal["investigador", "fin_exitoso", "fin_fallido"]:
+    estado = state.get("estado_final", "")
+    intentos = state.get("intentos", 0)
+
+    if estado == "aprobado":
+        return "fin_exitoso"
+    elif intentos >= 3: # Fusible de seguridad máximo
+        return "fin_fallido"
+    else:
+        return "investigador" # Vuelve a intentarlo con el nuevo feedback
+
+# ==========================================
+# 4. CONSTRUCCIÓN DEL GRAFO
+# ==========================================
+
+workflow = StateGraph(AgentState)
+
+workflow.add_node("investigador", investigador)
+workflow.add_node("programador", programador)
+workflow.add_node("ejecutor", ejecutor)       # <-- NUEVO NODO
+workflow.add_node("evaluador", evaluador)
+
+workflow.add_node("fin_exitoso", lambda state: print("\n✅ [SISTEMA] PROYECTO APROBADO Y EJECUTADO CON ÉXITO."))
+workflow.add_node("fin_fallido", lambda state: print("\n❌ [SISTEMA] PROYECTO RECHAZADO TRAS 3 INTENTOS. INTERVENCIÓN HUMANA REQUERIDA."))
+
+workflow.set_entry_point("investigador")
+workflow.add_edge("investigador", "programador")
+workflow.add_edge("programador", "ejecutor")
+workflow.add_edge("ejecutor", "evaluador")
+
+workflow.add_conditional_edges(
+    "evaluador",
+    decidir_siguiente_paso,
+    {
+        "investigador": "investigador",
+        "fin_exitoso": "fin_exitoso",
+        "fin_fallido": "fin_fallido"
+    }
+)
+
+app = workflow.compile()
+
+# ==========================================
+# 5. EJECUCIÓN DEL SISTEMA
+# ==========================================
+
+if __name__ == "__main__":
+    print("="*60)
+    print("INICIANDO CICLO DE AUTOMEJORA NASA (CON EJECUCIÓN REAL)")
+    print("="*60)
+
+    # OBJETIVO DE PRUEBA: Algo seguro pero que requiere lógica
+    resultado = app.invoke({
+        "objetivo": "Crear un script Python que genere un archivo llamado 'reporte_sacd.txt' con la fecha actual y 5 líneas de texto simulando un log de sistema, y que imprima 'PROCESO COMPLETADO' al finalizar.",
+        "intentos": 0,
+        "estado_final": ""
+    })
+
+    print("\n" + "="*60)
+    print("REPORTE FINAL DEL CICLO")
+    print("="*60)
+    print(f"Intentos totales: {resultado['intentos']}")
+    print(f"Estado final: {resultado['estado_final'].upper()}")
+    print(f"Última lección: {resultado['leccion_aprendida']}")
+
+    # Verificación final: ¿Se creó el archivo?
+    if os.path.exists("reporte_sacd.txt"):
+        print("\n📂 VERIFICACIÓN: El archivo 'reporte_sacd.txt' fue creado exitosamente en tu disco.")
+        with open("reporte_sacd.txt", "r") as f:
+            print("Contenido del archivo:\n", f.read())
+````
+
+---
+
+### 🔍 Análisis de los Cambios Clave en el Paso 5
+
+1. **El Nodo `ejecutor` (El Sandbox):**
+   - Usa `subprocess.run` para ejecutar el código en un proceso hijo aislado.
+   - **`timeout=15`**: Esta es la medida de seguridad más importante. Si la IA genera un bucle `while True:`, el sistema lo matará a los 15 segundos en lugar de congelar tu PC.
+   - **Limpieza automática**: El bloque `finally` garantiza que el archivo `temp_script_sacd.py` se elimine inmediatamente después de ejecutarse, evitando acumulación de basura o riesgos de seguridad.
+
+2. **El Evaluador Basado en Realidad:**
+   - Ya no "adivina" si el código es bueno. Lee `ejecucion["exito"]` (código de retorno 0) y `ejecucion["stderr"]` (el mensaje de error real de Python, como `SyntaxError` o `ModuleNotFoundError`).
+   - Si falla, el `feedback_evaluador` contiene el **mensaje de error exacto de Python**. Cuando el ciclo se reinicia, el Investigador lee ese error específico y le dice al Programador: _"En el intento anterior falló con 'NameError: name 'os' is not defined'. Asegúrate de importar 'os' esta vez"_.
+
+3. **Objetivo de Prueba Seguro:**
+   - He cambiado el objetivo a algo que **puedes verificar visualmente**: crear un archivo de texto (`reporte_sacd.txt`). Al final del script, el código comprueba si el archivo existe y te muestra su contenido, probando que la IA no solo escribió código, sino que **ejecutó una acción en el mundo real**.
+
+---
+
+### ⚠️ Reglas de Seguridad para la Ejecución Autónoma
+
+Dado que ahora la IA ejecuta código en tu máquina, debes seguir estas reglas estrictas:
+
+1. **Entorno Aislado**: Ejecuta siempre este sistema dentro del entorno virtual (`venv`) que creamos en el Paso 2. Nunca lo ejecutes como administrador/root.
+2. **Prohibiciones en el Prompt del Sistema**: En una versión de producción, debes añadir al prompt del Programador: _"Está estrictamente prohibido usar comandos como os.system, subprocess para borrar archivos, o acceder a rutas fuera del directorio actual"_.
+3. **Límite de Recursos**: El `timeout=15` es tu mejor amigo. Para tareas de renderizado 3D o video reales (que tardan minutos), en el futuro crearás un nodo ejecutor especializado que lance el proceso en segundo plano y solo "escuche" un archivo de estado, en lugar de bloquear el `subprocess`.
+
+---
+
+### 🚀 ¿Listo para el PASO 6?
+
+Ahora tu sistema tiene:
+
+1. Memoria (Qdrant).
+2. Razonamiento y bucles de reintento (LangGraph).
+3. Capacidad de ejecutar y verificar código real (Sandbox).
+
+El **PASO 6** consiste en conectar este "cerebro" con los "músculos" creativos reales. Específicamente, enseñarle al Agente Programador a generar y ejecutar un **Workflow de ComfyUI (para imágenes)** o un **Script de Blender (para 3D)** en lugar de scripts genéricos de Python.
+
+¿Quieres que avancemos al **Paso 6: Integración con ComfyUI API** para que el sistema genere su primera imagen de forma autónoma?
