@@ -1,4 +1,4 @@
-import { chatStream, guardrailsBlock, prisma } from '@ultraia/core';
+import { chatStream, guardrailsBlock, prisma, AiUnavailableError } from '@ultraia/core';
 import { z } from 'zod';
 import { getBlueprintForUser, getActiveVersion } from '@ultraia/core';
 import { getCurrentUser } from '@/lib/server/context';
@@ -41,28 +41,36 @@ export async function POST(req: Request) {
   const lastUserText =
     [...messages].reverse().find((m) => m.role === 'user')?.content ?? '';
 
-  const result = chatStream({
-    model: version.model,
-    system: version.systemPrompt + guardrailsBlock(guardrails),
-    messages,
-    tools,
-    onFinish: async ({ text }) => {
-      const count = await prisma.message.count({ where: { conversationId } });
-      const userSeq = count + 1;
-      await prisma.message.createMany({
-        data: [
-          { conversationId, sequence: userSeq, role: 'user', content: lastUserText },
-          { conversationId, sequence: userSeq + 1, role: 'assistant', content: text },
-        ],
-      });
-      if (userSeq === 1) {
-        await prisma.conversation.update({
-          where: { id: conversationId },
-          data: { title: lastUserText.slice(0, 60) },
+  let result;
+  try {
+    result = chatStream({
+      model: version.model,
+      system: version.systemPrompt + guardrailsBlock(guardrails),
+      messages,
+      tools,
+      onFinish: async ({ text }) => {
+        const count = await prisma.message.count({ where: { conversationId } });
+        const userSeq = count + 1;
+        await prisma.message.createMany({
+          data: [
+            { conversationId, sequence: userSeq, role: 'user', content: lastUserText },
+            { conversationId, sequence: userSeq + 1, role: 'assistant', content: text },
+          ],
         });
-      }
-    },
-  });
+        if (userSeq === 1) {
+          await prisma.conversation.update({
+            where: { id: conversationId },
+            data: { title: lastUserText.slice(0, 60) },
+          });
+        }
+      },
+    });
+  } catch (e) {
+    if (e instanceof AiUnavailableError) {
+      return new Response(e.message, { status: 503 });
+    }
+    throw e;
+  }
 
   return result.toDataStreamResponse();
 }

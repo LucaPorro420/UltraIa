@@ -2,10 +2,10 @@ import { z } from 'zod';
 import { chatStream, AiUnavailableError } from '@ultraia/core';
 import { getCurrentUser } from '@/lib/server/context';
 
-const CAPABILITIES = ['calculator', 'web', 'image', 'video', 'music'] as const;
+const CAPABILITIES = ['calculator', 'web', 'image', 'video', 'music', 'design', 'branding'] as const;
 
 const bodySchema = z.object({
-  capabilities: z.array(z.enum(CAPABILITIES)).max(5).optional(),
+  capabilities: z.array(z.enum(CAPABILITIES)).max(7).optional(),
   messages: z
     .array(z.object({ role: z.enum(['user', 'assistant']), content: z.string().max(16000) }))
     .min(1)

@@ -1,4 +1,4 @@
-import { chatStream } from '@ultraia/core';
+import { chatStream, AiUnavailableError } from '@ultraia/core';
 import { z } from 'zod';
 import { getCurrentUser } from '@/lib/server/context';
 
@@ -41,11 +41,19 @@ export async function POST(req: Request) {
   if (!parsed.success) return new Response('Invalid body', { status: 400 });
   const { messages } = parsed.data;
 
-  const result = chatStream({
-    system: ASSISTANT_SYSTEM,
-    messages,
-    tools: ['web', 'calculator', 'image', 'design', 'reach', 'skills', 'content'],
-  });
+  let result;
+  try {
+    result = chatStream({
+      system: ASSISTANT_SYSTEM,
+      messages,
+      tools: ['web', 'calculator', 'image', 'design', 'reach', 'skills', 'content'],
+    });
+  } catch (e) {
+    if (e instanceof AiUnavailableError) {
+      return new Response(e.message, { status: 503 });
+    }
+    throw e;
+  }
 
   return result.toDataStreamResponse();
 }
