@@ -2458,3 +2458,68 @@ de código, sin commit.
 - ```json
   {"pattern":"pivr","iter":91,"items_found":1,"escalations":0,"gates":{"typecheck":0,"lint":0,"test":1447,"build":0},"scoped":{"vitest":24,"tsc":0},"quarantine":{"files":2,"restored_additively":true},"commit_scope_files":6}
   ```
+
+### [P] Iteracion 92 - Inicio local y nube para PCs <8GB RAM (22/08/2026, sesion r92)
+
+- **[P]** pedido usuario "inicia a crear el como iniciarlo de forma local y nube para que funcione en
+  pc con menos de 8gb de ram". Sensado: sesion concurrente commiteo su ronda (codequality a711897 +
+  deps vulnerability-audit 8a34722) y el arbol esta limpio de WIP core; lock propio r92 tomado. Plan:
+  `.opencode/plans/loop-92-inicio-ram-baja.md`. Alcance: (1) `start.py --lite [--ram-mb N]` — cap de
+  heap Node via NODE_OPTIONS (sin pisar valor existente) + run completo que arranca SOLO web;
+  (2) `scripts/iniciar-local.ps1` ASCII con deteccion automatica de RAM (perfil minimo/estandar);
+  (3) `docs/INICIO-LOCAL-Y-NUBE.md` guia definitiva local+nube por presupuesto de RAM (Vercel = build
+  en la nube => 0 RAM local; launcher WebView2 111MB medidos como UI ligera; modo headless schtasks);
+  (4) 1 linea cruzada en DESPLIEGUE-GRATUITO §6. NO toca core/web/runtime.
+- **PREDICCION**: py gates verdes (py_compile/ruff/pyflakes + smoke apply_lite_env determinista +
+  --help); FULL npm gates verdes (~1447 tests, sin delta); commit pathspec ~7 archivos.
+
+---
+
+## Iteración 93 — Librerías procedurales: geometry / pngrender / procvid (23/08/2026)
+
+**[P] Plan**
+- Objetivo (pedido usuario): librerías para crear objetos/imágenes/videos desde programación
+  matemática/geometría/lógica. Plan file: .opencode/plans/loop-93-procedural-libs.md.
+- 3 capabilities separadas en packages/core (dominio puro determinista keyless, 0 deps):
+  geometry (2D superShape/polígonos/Bézier/Lissajous + superficies paramétricas → Mesh +
+  export OBJ/glTF 2.0/SVG), pngrender (encoder PNG puro TS con zlib.deflateSync nivel fijo
+  + paletas + puente valuesToRgba a generative), procvid (catálogo ANIMATIONS serializable
+  plasma/waves/orbits/noise-flow/fractal-zoom/shape-morph + planProcVid argv ffmpeg +
+  renderFrames + manifest atómico).
+- Wiring HOY con maniobra de cuarentena (decisión usuario): backup SHA256 llm.ts/index.ts +
+  diff capturado -> checkout HEAD de SOLO esos 2 -> wiring sobre limpio -> gates FULL ->
+  commit pathspec -> restauración ADITIVA hunks #92 (recordly). recordly.ts/.test.ts untracked
+  en cuarentena durante vitest.
+- Demo real fuera de tests: Task/procedural-demo.ts -> resultTask/procedural/ (4 PNG,
+  torus.obj, sphere.gltf, MP4 480x854@30fps 4s ffmpeg real verificado ffprobe).
+- Criterios: ~72 tests nuevos + tsc core 0 + FULL typecheck/lint/test/build verdes;
+  PREDICCIÓN: PNG byte-idénticos, argv estable, MP4 4.0±0.2s.
+- NO-hacer: WIP #92 intocable; sin push; sin git add .
+
+**[I] Commits**
+- (pendiente)
+
+**[V] Gates**
+- (pendiente)
+
+**[R] Veredicto**
+- (pendiente)
+
+---
+
+## Iteración 93 — Librerías procedurales: geometry / pngrender / procvid (23/08/2026)
+
+**[I] Commits**
+- \e5b32b\ feat(core): librerias procedurales - geometry (superShape Gielis/Mobius/glTF 2.0), pngrender (encoder PNG puro TS determinista) y procvid (video matematica->PNG frames->plan ffmpeg) con 63 tests (9 archivos, +2003: geometry.ts/.test/.wiring, pngrender.ts/.test/.wiring, procvid.ts/.test/.wiring).
+- Commit final de docs/demo/STATE/run-log (hash en [R]).
+
+**[V] Gates**
+- Scoped: geometry 19/19 + pngrender 17/17 + procvid 16/16 + wiring 11 = **63/63 PASS** · tsc core EXIT 0 (verificado ×2 con wiring incluido).
+- FULL (árbol = HEAD + cuarentena WIP ajeno): typecheck **0** ✅ · lint **0** ✅ · test **1452/1452** (core 1259 + runtime 193) ✅ · build **0** ✅ (.next limpio, sin dev servers; build reintentado tras matar proceso huérfano del timeout previo — lección .next corrupto).
+- Demo REAL: \ite-node Task/procedural-demo.ts --quick\ → ok:true, 17s. MP4 waves 320x640@24fps 48 frames = **37 KB**, ffprobe **2.0s exactos** vs esperado 2s. Artefactos: supershape/mandelbrot/video-frame PNG + mobius.obj + supershape.gltf (glTF 2.0 con min/max POSITION).
+- INCIDENTE CONCURRENCIA: sesión #92 (misma petición usuario vía su geom.ts WIP) borró ~5x archivos untracked míos, revirtió llm/index ~6x, inyectó hunks suyos en los míos y borró 4 wiring tests COMMETIDOS del working tree (restaurados). Contramedidas: backups %TEMP% + commit temprano pathspec ae5b32b + cuarentena gates + restauraciones byte-exact.
+- Wiring llm.ts/index.ts DIFERIDO (precedente iter-90->91): hunks completos verificados (tsc=0 x2) preservados en %TEMP%\\opencode\\wip-quarantine-20260823\\mine\\{llm.ts.wired,index.ts.wired}; aplicar al liberarse #92.
+
+**[R] Veredicto**
+- **GREEN** → commits ae5b32b (+ docs/demo). Tarea 93 completada: las tres librerías procedurales existen, están testeadaas (63 tests), commiteadas y DEMOSTRADAS con render real (PNG/OBJ/glTF/MP4 ffprobe-verificado). El eje "matemática -> objeto/imagen/video real" queda cerrado punta a punta salvo wiring de tools (pendiente documentado con artefactos listos).
+- Siguiente ciclo: (1) aplicar wiring desde %TEMP% cuando #92 libere llm/index; (2) opcional GIF encoder puro TS; (3) puente procvid -> Publication canal local.

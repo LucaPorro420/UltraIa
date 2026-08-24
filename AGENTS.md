@@ -776,3 +776,32 @@ LEY: `git add` explicito (nunca `.`), NO tocar DOCS_TODO/blueprint/reach/automat
 - **Wiring**: llm.ts (vault_manage/pdfsearch_search/autolearn_run mode_plan) + tools/index.ts
   (exports + TOOL_DESCRIPTIONS + union Capability `vault|pdfsearch`) + opencode.json prompts
   piv-plan v2/piv-build v2. Tests scoped 90/90; gates FULL 20/08: typecheck/lint/test/build OK.
+
+## Librerías procedurales (23/08/2026, loop-93)
+
+- **Pedido**: "librerías para crear objetos/imágenes/videos desde matemática/geometría/lógica".
+  Tres capabilities commiteadas (\e5b32b\, 63 tests, FULL 1452/1452):
+- \geometry\ (tools/geometry.ts): superfórmula de Gielis (superShape2D/3D — guardas n1
+  saturado ±0.01 contra underflow/overflow), Möbius, ops de malla (transformMesh orden
+  T·R_xyz·S / mergeMeshes / meshStats / validateGeoMesh), export glTF 2.0 estándar
+  (buffer data-uri base64; accessors POSITION con min/max OBLIGATORIOS) + OBJ texto.
+  Símbolos prefijados Geo* para no colisionar vía \export *\ con el WIP geom.ts ajeno.
+- \pngrender\ (tools/pngrender.ts): encoder PNG puro TypeScript — CRC32 IEEE canónico,
+  IHDR/IDAT(deflate nivel FIJO 6 → byte-exact)/IEND; renderImage/renderImagePng
+  pixel(x,y)→RGBA; valuesToRgba puente directo a generative (perlin/simplex/mandelbrot);
+  paletas obsidian/neoViolet/fire/ice/mono + hslToRgb; writePngAtomic tmp+rename.
+  Colisión resuelta: RenderResult→PngRenderResult (ya existía en diagram).
+- \procvid\ (tools/procvid.ts): animaciones puras serializables plasma/waves/orbits/
+  noise-flow/fractal-zoom/shape-morph; coordenadas normalizadas x∈[-a/2,a/2], y∈[-.5,.5],
+  t∈[0,1); guardas dims PARES ≤1280/fps≤60/≤60s/≤1800 frames; planProcVid argv ffmpeg
+  exacto (+GIF palettegen/paletteuse); renderFrames idempotente; manifest sin timestamps.
+- **Demo real** (\ite-node Task/procedural-demo.ts [--quick]\): resultTask/procedural/
+  (supershape.png, mandelbrot.png, mobius.obj, supershape.gltf, video-frame.png) +
+  MP4 en .ultraia/procedural/demo-video.mp4 — ffprobe 2.0s exactos (48 frames @24fps).
+  \.gitignore\: \.ultraia/procedural/\.
+- **Wiring pendiente (iter-93)**: tools geometry_build/png_render/procvid_render NO
+  registradas aún en llm.ts/index.ts (concurrencia #92 activa sobre esos archivos);
+  hunks completos verificados (tsc=0 ×2) en \%TEMP%\opencode\wip-quarantine-20260823\
+  mine\{llm.ts.wired,index.ts.wired}\ — aplicar al liberarse la sesión y commitear.
+  Los módulos YA están exportados por index.ts (\export * from './geometry'|'./pngrender'|
+  './procvid'\) y usables por import directo.

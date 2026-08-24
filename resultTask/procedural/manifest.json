@@ -1,0 +1,36 @@
+{
+  "generator": "ultraia-procedural-demo",
+  "artifacts": {
+    "supershapePng": {
+      "path": "resultTask\\procedural\\supershape-quick.png",
+      "bytes": 16741
+    },
+    "mandelbrotPng": {
+      "path": "resultTask\\procedural\\mandelbrot-quick.png",
+      "source": "generative.mandelbrot -> pngrender.valuesToRgba"
+    },
+    "mobiusObj": {
+      "path": "resultTask\\procedural\\mobius.obj",
+      "vertices": 429,
+      "faces": 768
+    },
+    "supershapeGltf": {
+      "path": "resultTask\\procedural\\supershape.gltf",
+      "vertices": 561,
+      "faces": 1024,
+      "spec": "glTF 2.0 embedded base64"
+    }
+  },
+  "video": {
+    "rendered": true,
+    "animation": "waves",
+    "width": 320,
+    "height": 640,
+    "fps": 24,
+    "framesWritten": 48,
+    "mp4": ".ultraia\\procedural\\demo-video.mp4",
+    "mp4Bytes": 37356,
+    "probedDurationSec": 2,
+    "expectedDurationSec": 2
+  }
+}
