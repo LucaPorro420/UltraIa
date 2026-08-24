@@ -30,7 +30,7 @@ describe('genEngineVideoProvider', () => {
     expect(res.kind).toBe('video');
     if (res.kind === 'video') {
       expect(res.provider).toBe('local');
-      expect(res.url).toBe('http://localhost:8000/media/video.mp4');
+      expect(res.url).toBe('http://localhost:8100/media/video.mp4');
     }
   });
 
@@ -57,7 +57,7 @@ describe('genEngineMusicProvider', () => {
     expect(res.kind).toBe('audio');
     if (res.kind === 'audio') {
       expect(res.provider).toBe('local');
-      expect(res.url).toBe('http://localhost:8000/media/music.wav');
+      expect(res.url).toBe('http://localhost:8100/media/music.wav');
     }
   });
 });
@@ -66,7 +66,7 @@ describe('genEngineTts', () => {
   it('returns the audio URL from the engine', async () => {
     stubFetch({ provider: 'edge-tts', url: '/media/tts.mp3' });
     const url = await genEngineTts('hola', 'es');
-    expect(url).toBe('http://localhost:8000/media/tts.mp3');
+    expect(url).toBe('http://localhost:8100/media/tts.mp3');
   });
 
   it('returns null when the engine is down', async () => {
