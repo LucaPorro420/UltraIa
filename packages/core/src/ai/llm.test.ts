@@ -1,6 +1,5 @@
 import { afterAll, describe, expect, it } from 'vitest';
 import { resolveModel } from './llm';
-import { AiUnavailableError } from './gateway';
 
 const prevKey = process.env.OPENAI_API_KEY;
 const prevProvider = process.env.ULTRAIA_PROVIDER;
