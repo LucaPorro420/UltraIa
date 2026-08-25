@@ -345,3 +345,24 @@ Implementacion: capability vfx (tools/vfx.ts: planReframe / planUpscale / planLu
   sucesivas (0.5+1.1+1.2 cae JUSTO debajo del limite binario); samplear pasado el borde.
   (4) deepMergePreset generico: constraint `<T extends Record<string,unknown>>` rechaza
   interfaces sin index signature (EffectSettingsTree) - usar `<T>` plano con casts internos.
+
+## Leccion 108 (25/08/2026, iter-107): pull --rebase pausado = falso "wiper"
+
+- **Sintoma confuso**: archivos propios (commiteados y untracked) "se borraban/revirtian" en bucle,
+  segundos despues de escribirlos; .git/index.lock aparecia y desaparecia; HEAD cambiaba de linaje.
+- **Causa raiz**: la sesion concurrente lanzo `git pull --rebase origin master` y quedo PAUSADO a
+  mitad (pick conflictivo duplicado en el todo). Durante el rebase el worktree se reconstruye por
+  cada pick -> cualquier archivo nuestro no-picked aun parece "borrado/revertido". NO hay wiper.
+- **Diagnostico correcto SIEMPRE**: `Test-Path .git/rebase-merge` + `Get-Content .git/rebase-merge/git-rebase-todo`
+  ANTES de atribuir borados a concurrencia hostil. Reflog muestra "pull --rebase (start)/(pick)".
+- **Recuperacion**: (1) deduplicar el todo (GIT_SEQUENCE_EDITOR con ps1 y ruta forward-slash);
+  (2) resolver cada conflicto tomando el pick entrante (`git checkout --theirs` / `git rm` si delete-vs-...);
+  (3) GIT_EDITOR en Windows = `powershell.exe -NoProfile -Command exit 0` (el `true` unix no existe);
+  (4) si el estado interno queda pegado con todo vacio y todo aplicado: `git rebase --quit` +
+  `git checkout -B master <ultimo-pick>` (resultado identico al continue exitoso).
+- **Verificacion inmune al churn**: worktree aislado en %TEMP% (`git worktree add`), junctions de
+  node_modules raiz Y por-workspace (core/runtime/web/mobile), copia de .env y dev.db; gates FULL
+  ahi sin matar dev servers ni pelear por el arbol. Eliminar con worktree remove --force + prune.
+- **Fail-soft REST**: un FetchLike que solo declara text() NO tiene json() - usar text()+JSON.parse
+  tambien en los stubs de test (devolver body string), o el parser fail-soft engulle el error y el
+  test ve source:'none' sin saber que fue el stub.
