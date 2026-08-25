@@ -2828,3 +2828,14 @@ de código, sin commit.
 ``json
 {"pattern":"pivr","iter":107,"gates":{"typecheck":0,"lint":0,"test":"1655/1656-atribuido","build":0},"scoped":{"firecrawl_tests":6,"total_scoped":46},"commits":["3367bb6","14120bd","f913019","27142df","bb25650"],"incident":"pull-rebase-pausado-recuperado","oss_wired":["firecrawl","openbrowser"],"next":"movil-creaciones-o-mcp-search"}
 ```
+
+### [P]/[I]/[V]/[R] Iteracion 108 - capability reporeview (agente revisor de repos + nube documental) + RECUPERACION de rebase perdido (25/08/2026)
+
+- **[P]**: continuacion del plan aprobado (usuario "SIGUE"): camino 1 = agente automatizado que revisa repos y documenta en nube con aprendizaje por dimensiones (codigo/razonamiento/logica/matematicas/implementaciones/tecnologias). Prediccion: dominio puro + 15 tests, runner keyless con --sync fusionando corpus completo, FULL verde.
+- **[I]**: reporeview.ts (plan 6 dimensiones + tech lexicon + dedupe hash + TruthDocs + manifest/report) + reporeview.test.ts 15/15 + scripts/reporeview-run.ts + npm script. Smoke real: docs+sources = 81 archivos -> 69 truth-docs; artefactos .ultraia/reporeview/20260825-162118/. Qdrant local caido (docker daemon) -> fail-soft verificado, sync pendiente de levantar docker.
+- **[V] INCIDENTE MAYOR RESUELTO**: imports de archivos YA COMITEADOS fallaron -> reflog revelo pull --rebase origin master (post latido cloud fd8117c) que reconstruyo el linaje descartando 15 commits (mi F2/F4/reporeview + studio-v2/video-v2/loop-106/107). Recuperacion: git restore --source=11f2b56 (60 archivos), exclusion de lo ya arreglado (27142df), research.ts al blob nuevo para casar su test, round-robin buildTruthDocs re-aplicado. La sesion concurrente llego a la misma diagnosis por su lado (9b7919a: "rebase pausado = falso wiper") - recuperacion conjunta convergente sin perdidas. Falso fallo post-restauracion por cache stale node_modules/.vite. GATES FULL finales: typecheck 0 / lint 0 / test 1849 (core 1656 + runtime 193) / build 0.
+- **[R]** iter-108 DONE. IDE V0.1: F1+F2+F4 DONE; restan F3 pulido grafico + F5 responsividad. reporeview listo; sync nube pendiente de docker arriba. Commits: dac14cf + 2e56e6c + cd63d22 sobre recuperacion conjunta.
+
+```json
+{"pattern":"pivr","iter":108,"gates":{"typecheck":0,"lint":0,"test":1849,"build":0},"commits":["dac14cf","2e56e6c","cd63d22"],"incidente":"pull-rebase-descarto-15-commits-recuperado","qdrant_sync":"pendiente-docker-caido","next":"IDE-F3-F5-o-sync-nube"}
+```
