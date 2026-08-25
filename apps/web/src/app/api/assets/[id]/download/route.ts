@@ -1,17 +1,27 @@
-import { prisma, slugifyPrompt } from '@ultraia/core';
+import { prisma, getSessionUser, slugifyPrompt } from '@ultraia/core';
 import { getCurrentUser } from '@/lib/server/context';
 import { getStudioCloud, MIME_BY_EXT, resolveAssetBytes } from '@/lib/server/studio-assets';
 
 /**
  * GET /api/assets/[id]/download — descarga el binario con Content-Disposition.
+ * Auth: header/cookie O `?session=<token>` (móvil, loop-108).
  * Cloud primero (durable); proxy a la URL externa como fallback.
  */
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
-  const user = await getCurrentUser(req);
-  if (!user) return new Response('Unauthorized', { status: 401 });
+  let userId: string | null = null;
+  const qs = new URL(req.url).searchParams.get('session');
+  if (qs) {
+    const u = await getSessionUser(prisma, qs);
+    if (u) userId = u.id;
+  }
+  if (!userId) {
+    const u = await getCurrentUser(req);
+    userId = u?.id ?? null;
+  }
+  if (!userId) return new Response('Unauthorized', { status: 401 });
 
   const { id } = await params;
-  const asset = await prisma.generatedAsset.findFirst({ where: { id, userId: user.id } });
+  const asset = await prisma.generatedAsset.findFirst({ where: { id, userId } });
   if (!asset) return new Response('Not found', { status: 404 });
 
   const resolved = await resolveAssetBytes(asset, getStudioCloud());

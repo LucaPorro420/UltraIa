@@ -309,11 +309,26 @@ export function buildTruthDocs(results: ReviewResult[], fuenteTag: string): Trut
     const top = r.insights[0];
     if (!top || top.score < TRUTH_MIN_SCORE) continue;
     // Evidencia sustantiva: excluye la lista sintética de tecnologías (ya está en texto).
-    const evidencia = r.insights
+    // Evidencia sustantiva con diversidad: round-robin entre dimensiones
+    // (excluye la lista sintética de tecnologías, que ya vive en `texto`).
+    const perDim = r.insights
       .filter((i) => i.dimension !== 'tecnologias')
-      .flatMap((i) => i.evidencias.map((e) => `[${i.dimension}] ${e}`))
-      .slice(0, 4)
-      .join('\n');
+      .map((i) => i.evidencias.map((e) => `[${i.dimension}] ${e}`));
+    const picked: string[] = [];
+    let depth = 0;
+    while (picked.length < 4 && depth < 3) {
+      let added = false;
+      for (const arr of perDim) {
+        if (picked.length >= 4) break;
+        if (depth < arr.length) {
+          picked.push(arr[depth]);
+          added = true;
+        }
+      }
+      if (!added) break;
+      depth += 1;
+    }
+    const evidencia = picked.join('\n');
     docs.push({
       id: `reporeview-${r.hash}`,
       texto: `${r.path} (${r.kind}) — dimensiones: ${r.primaryDimensions.join(', ') || 'n/a'}${

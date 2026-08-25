@@ -1,11 +1,27 @@
 import { z } from 'zod';
-import { prisma } from '@ultraia/core';
+import { getSessionUser, prisma } from '@ultraia/core';
 import { getCurrentUser } from '@/lib/server/context';
 import { getStudioCloud, resolveAssetBytes } from '@/lib/server/studio-assets';
 
+/**
+ * Auth del GET: header/cookie (web) O `?session=<token>` — la app móvil abre
+ * imágenes/audio/vídeo en el navegador del sistema, donde no puede mandar
+ * headers (loop-108). PATCH/DELETE siguen por getCurrentUser estándar.
+ */
+async function getUserForRead(req: Request): Promise<{ id: string } | null> {
+  const sp = new URL(req.url).searchParams;
+  const qs = sp.get('session');
+  if (qs) {
+    const u = await getSessionUser(prisma, qs);
+    if (u) return { id: u.id };
+  }
+  const u = await getCurrentUser(req);
+  return u ? { id: u.id } : null;
+}
+
 /** GET /api/assets/[id] — sirve el binario durable (cloud) o por-proxy la URL externa. */
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
-  const user = await getCurrentUser(req);
+  const user = await getUserForRead(req);
   if (!user) return new Response('Unauthorized', { status: 401 });
 
   const { id } = await params;

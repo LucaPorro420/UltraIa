@@ -897,3 +897,48 @@ Cada commit agrega una sección con fecha y la lista de archivos `.ts/.tsx` toca
 - [ ] packages/core/src/tools/geometry.ts
 - [ ] packages/core/src/tools/procvid.test.ts
 - [ ] packages/core/src/tools/procvid.ts
+
+## 2026-08-25T21:08:24.065Z
+- [ ] Task/cerebro-cycle.ts
+- [ ] Task/media-v2-demo.ts
+- [ ] apps/web/src/app/(app)/connections/connections-client.tsx
+- [ ] apps/web/src/app/(app)/connections/page.tsx
+- [ ] apps/web/src/app/(app)/studio/page.tsx
+- [ ] apps/web/src/app/(app)/studio/studio-client.tsx
+- [ ] apps/web/src/app/(app)/workspace/page.tsx
+- [ ] apps/web/src/app/(app)/workspace/workspace-client.tsx
+- [ ] apps/web/src/app/api/assets/[id]/derive/route.ts
+- [ ] apps/web/src/app/api/assets/[id]/download/route.ts
+- [ ] apps/web/src/app/api/assets/[id]/route.ts
+- [ ] apps/web/src/app/api/chat/route.ts
+- [ ] apps/web/src/app/api/connections/route.ts
+- [ ] apps/web/src/app/api/connections/test/route.ts
+- [ ] apps/web/src/app/api/library/assets/route.ts
+- [ ] apps/web/src/app/api/tools/content/music/route.ts
+- [ ] apps/web/src/app/api/tools/web/route.ts
+- [ ] apps/web/src/app/api/tools/web/screenshot/route.ts
+- [ ] apps/web/src/components/agent-chat.tsx
+- [ ] apps/web/src/components/ide/ide-shell.tsx
+- [ ] apps/web/src/components/ide/nav-items.ts
+- [ ] apps/web/src/components/studio/asset-actions.tsx
+- [ ] apps/web/src/components/studio/creations-grid.tsx
+- [ ] apps/web/src/components/studio/oss-lab.tsx
+- [ ] apps/web/src/components/studio/storyboard-player.tsx
+- [ ] apps/web/src/components/studio/types.ts
+- [ ] apps/web/src/lib/server/studio-assets.ts
+- [ ] packages/core/src/tools/geometry.test.ts
+- [ ] packages/core/src/tools/geometry.ts
+- [ ] packages/core/src/tools/index.ts
+- [ ] packages/core/src/tools/procvid.test.ts
+- [ ] packages/core/src/tools/procvid.ts
+- [ ] packages/core/src/tools/reporeview.test.ts
+- [ ] packages/core/src/tools/reporeview.ts
+- [ ] packages/core/src/tools/research.ts
+- [ ] packages/core/src/tools/studio-catalog.ts
+- [ ] packages/core/src/tools/studio.test.ts
+- [ ] packages/core/src/tools/studio.ts
+- [ ] packages/core/src/tools/studio.wiring.test.ts
+- [ ] scripts/reporeview-run.ts
+
+## 2026-08-25T22:10:43.463Z
+- [ ] packages/core/src/tools/research-firecrawl.test.ts
