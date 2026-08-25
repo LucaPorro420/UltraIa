@@ -331,3 +331,62 @@ body {
 .md-body th, .md-body td { border: 1px solid var(--color-border-subtle); padding: 0.35em 0.6em; text-align: left; }
 .md-body th { background: var(--color-panel-header); color: var(--color-neutral-200); }
 .md-body hr { border: none; border-top: 1px solid var(--color-border-subtle); margin: 0.8em 0; }
+
+/* ── IDE shell — separadores redimensionables (F1) ─────────────────────── */
+
+.ide-sep {
+  position: relative;
+  z-index: 20;
+  flex-shrink: 0;
+  background: transparent;
+}
+/* Separador vertical (entre columnas): overlay de 6px sin romper el flex. */
+.ide-sep-col {
+  width: 6px;
+  margin-left: -3px;
+  margin-right: -3px;
+  cursor: col-resize;
+}
+/* Separador horizontal (entre filas del dock). */
+.ide-sep-row {
+  height: 6px;
+  margin-top: -3px;
+  margin-bottom: -3px;
+  cursor: row-resize;
+}
+.ide-sep::after {
+  content: '';
+  position: absolute;
+  border-radius: 2px;
+  background: var(--color-border-subtle);
+  transition:
+    background-color 150ms ease,
+    box-shadow 150ms ease;
+}
+.ide-sep-col::after {
+  top: 50%;
+  left: 50%;
+  width: 2px;
+  height: 56px;
+  transform: translate(-50%, -50%);
+}
+.ide-sep-row::after {
+  top: 50%;
+  left: 50%;
+  width: 56px;
+  height: 2px;
+  transform: translate(-50%, -50%);
+}
+.ide-sep:hover::after,
+.ide-sep:focus-visible::after,
+.ide-sep[data-separator-state='drag']::after {
+  background: var(--color-primary);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--color-primary) 60%, transparent);
+  outline: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ide-sep::after {
+    transition: none;
+  }
+}
