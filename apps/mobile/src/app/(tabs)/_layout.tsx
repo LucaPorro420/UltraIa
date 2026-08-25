@@ -6,6 +6,7 @@ import { Colors } from '@/constants/theme';
 
 const ICONS: Record<string, keyof typeof Ionicons.glyphMap> = {
   index: 'stats-chart',
+  creaciones: 'images',
   publicaciones: 'paper-plane',
   cloud: 'cloud',
   blog: 'newspaper',
@@ -39,6 +40,10 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="index"
         options={{ title: 'Dashboard', tabBarIcon: ({ color, size }) => <Ionicons name={ICONS.index} size={size} color={color} /> }}
+      />
+      <Tabs.Screen
+        name="creaciones"
+        options={{ title: 'Creaciones', tabBarIcon: ({ color, size }) => <Ionicons name={ICONS.creaciones} size={size} color={color} /> }}
       />
       <Tabs.Screen
         name="publicaciones"

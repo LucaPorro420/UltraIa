@@ -73,3 +73,22 @@ export const api = {
   del: <T>(path: string, body?: unknown, token?: string | null) =>
     request<T>(path, { method: 'DELETE', body: body === undefined ? undefined : JSON.stringify(body) }, token),
 };
+
+/* --- Studio media hub (loop-108): URLs con sesión para abrir/descargar --- */
+
+/**
+ * URL servida del asset con `?session=<token>` — el navegador del sistema no
+ * puede mandar headers, así que el GET de /api/assets/[id] acepta la sesión
+ * por query (mismo token de SecureStore).
+ */
+export async function assetOpenUrl(id: string): Promise<string> {
+  const token = await getToken();
+  const q = token ? `?session=${encodeURIComponent(token)}` : '';
+  return `${resolveBaseUrl()}/api/assets/${id}${q}`;
+}
+
+/** Igual que assetOpenUrl pero fuerza Content-Disposition attachment. */
+export async function assetDownloadUrl(id: string): Promise<string> {
+  const open = await assetOpenUrl(id);
+  return open.replace(/\/api\/assets\/([^/?]+)\?/, '/api/assets/$1/download?');
+}
