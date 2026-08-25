@@ -12,10 +12,11 @@ const OK_JSON = {
 };
 
 function okFetch(json: unknown): FetchLike {
+  const body = JSON.stringify(json);
   return async (_url: string, _init?: RequestInit) => ({
     ok: true,
     status: 200,
-    text: async () => '',
+    text: async () => body,
     json: async () => json,
   });
 }
