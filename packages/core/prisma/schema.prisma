@@ -191,21 +191,31 @@ model FavoritePrompt {
   @@unique([userId, promptId])
 }
 
-//! Historial de generaciones de imagen del usuario (galeria "Mis creaciones").
+//! Historial de generaciones del Studio (galeria "Mis creaciones" multi-media).
 model GeneratedAsset {
   id             String   @id @default(cuid())
   userId         String
   user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   prompt         String
-  provider       String // pollinations | meigen | local | edge-tts | storyboard | composition
+  provider       String // pollinations | meigen | local | edge-tts | storyboard | composition | composition-synth | tunetank | stitch | web-reader
   model          String
   seed           Int?
-  mediaType      String   @default("image") // image | audio | video | music | tts
+  mediaType      String   @default("image") // image | audio | video | music | tts | design | text
   url            String
   width          Int      @default(1024)
   height         Int      @default(1024)
   sourcePromptId String? // si vino de "Usar idea" en la libreria
+  //! Studio v2 (loop-104): persistencia durable + derivados + metadata flexible.
+  storage        String   @default("external") // external (URL remota) | cloud (binario en CloudService)
+  cloudPath      String? // path canonico en el cloud cuando storage = "cloud" (media/images/..., media/audio/...)
+  parentId       String? // asset del que deriva (re-roll, resintesis, render) -> cadena de versiones
+  parent         GeneratedAsset? @relation("AssetDerivations", fields: [parentId], references: [id], onDelete: SetNull)
+  children       GeneratedAsset[] @relation("AssetDerivations")
+  metaJson       String? // JSON flexible: filters CSS, frames de storyboard, composicion musical, htmlUrl diseno...
   createdAt      DateTime @default(now())
+
+  @@index([userId, mediaType])
+  @@index([parentId])
 }
 
 //! Cola de publicaciones AutoPub (F4): un paquete por canal, con aprobacion humana

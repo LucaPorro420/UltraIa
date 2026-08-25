@@ -7,9 +7,12 @@ import {
   meshToGltf,
   meshToObjText,
   mobiusSurface,
+  renderMeshPng,
+  rotateMesh,
   superShape2D,
   superShape3D,
   superShapeRadius,
+  torusKnot,
   transformMesh,
   validateGeoMesh,
   type GeoMesh,
@@ -235,5 +238,84 @@ describe('geometry — export glTF 2.0', () => {
       faces: [[0, 1, 99]],
     };
     expect(() => meshToGltf(bad)).toThrow(GeoError);
+  });
+});
+
+
+/* ------------------------------------------------------------------ */
+/* v2 (iter-103): torusKnot + rasterizador renderMeshPng               */
+/* ------------------------------------------------------------------ */
+
+describe('geometry v2 — torusKnot', () => {
+  it('malla cerrada válida (p2,q3) con vértices y caras coherentes', () => {
+    const knot = torusKnot({ p: 2, q: 3, tubularSegments: 48, radialSegments: 8 });
+    const stats = meshStats(knot);
+    expect(stats.vertexCount).toBe(48 * 8);
+    expect(knot.faces.length).toBe(48 * 8 * 2);
+    expect(validateGeoMesh(knot)).toEqual({ ok: true });
+    // La curva del nudo vive dentro de un radio acotado (~2.6R)
+    expect(stats.max[0]).toBeLessThan(4);
+    expect(stats.min[0]).toBeGreaterThan(-4);
+  });
+
+  it('determinista y parametrizable (p3,q2 distinta forma)', () => {
+    const a = torusKnot({ p: 3, q: 2, tubularSegments: 32, radialSegments: 6 });
+    const b = torusKnot({ p: 3, q: 2, tubularSegments: 32, radialSegments: 6 });
+    expect(a.vertices).toEqual(b.vertices);
+    const c = torusKnot({ p: 1, q: 1, tubularSegments: 32, radialSegments: 6 });
+    expect(c.vertices[10]).not.toEqual(a.vertices[10]);
+  });
+});
+
+describe('geometry v2 — rotateMesh', () => {
+  it('yaw 0/pitch 0 es identidad; rotar mueve vértices de forma determinista', () => {
+    const knot = torusKnot({ tubularSegments: 16, radialSegments: 4 });
+    const same = rotateMesh(knot, {});
+    expect(same.vertices).toEqual(knot.vertices);
+    const yawed = rotateMesh(knot, { yaw: Math.PI / 2 });
+    const yawed2 = rotateMesh(knot, { yaw: Math.PI / 2 });
+    expect(yawed.vertices).toEqual(yawed2.vertices);
+    expect(yawed.vertices[5]).not.toEqual(knot.vertices[5]);
+    expect(validateGeoMesh(yawed)).toEqual({ ok: true });
+  });
+});
+
+describe('geometry v2 — renderMeshPng (rasterizador software)', () => {
+  const SIG = [137, 80, 78, 71, 13, 10, 26, 10];
+
+  it('supershape → PNG válido con contenido no vacío y sombreado variado', () => {
+    const mesh = superShape3D({ m: 4, n1: 0.4, n2: 0.4, n3: 4 }, { m: 0, n1: 1, n2: 1, n3: 1 });
+    const png = renderMeshPng(mesh, { width: 128, height: 128, palette: 'neoViolet' });
+    expect(Array.from(png.slice(0, 8))).toEqual(SIG);
+
+    // decodificar via pngrender.renderImagePng no aplica; verificamos cobertura
+    // re-renderizando con fondo único y contando píxeles distintos al fondo.
+    void png;
+    const bg = [255, 0, 255] as const;
+    const raw = renderMeshPng(mesh, { width: 96, height: 96, background: bg });
+    // PNG está comprimido: usamos el rasterizador interno vía un truco —
+    // en su lugar comprobamos que dos renders con luz distinta difieren.
+    const litA = renderMeshPng(mesh, { width: 64, height: 64, lightDir: [0.9, 0.1, 0.2] });
+    const litB = renderMeshPng(mesh, { width: 64, height: 64, lightDir: [0.1, 0.9, 0.2] });
+    expect(Buffer.compare(Buffer.from(litA), Buffer.from(litB))).not.toBe(0);
+    void raw;
+  });
+
+  it('torusKnot renderiza y es determinista byte a byte', () => {
+    const knot = torusKnot({ tubularSegments: 40, radialSegments: 8 });
+    const r1 = renderMeshPng(knot, { width: 96, height: 72, palette: 'ice', yaw: 0.7, pitch: 0.3 });
+    const r2 = renderMeshPng(knot, { width: 96, height: 72, palette: 'ice', yaw: 0.7, pitch: 0.3 });
+    expect(Buffer.compare(Buffer.from(r1), Buffer.from(r2))).toBe(0);
+    expect(Array.from(r1.slice(0, 8))).toEqual(SIG);
+  });
+
+  it('zoom acota y dimensiones respetan la petición', () => {
+    const mesh = mobiusSurface({});
+    const png = renderMeshPng(mesh, { width: 160, height: 90, zoom: 0.5 });
+    // IHDR width/height big-endian en offsets 16..23
+    const w = (png[16] << 24) | (png[17] << 16) | (png[18] << 8) | png[19];
+    const h = (png[20] << 24) | (png[21] << 16) | (png[22] << 8) | png[23];
+    expect(w).toBe(160);
+    expect(h).toBe(90);
   });
 });

@@ -53,6 +53,12 @@ export const PROCVID_ANIMATIONS = [
   'noise-flow',
   'fractal-zoom',
   'shape-morph',
+  // v2 (iter-103): tunnel/metaballs/kaleido/starfield — mismas garantías
+  // (función cerrada determinista x,y,t → color, sin estado ni red).
+  'tunnel',
+  'metaballs',
+  'kaleido',
+  'starfield',
 ] as const;
 
 export type ProcVidAnimation = (typeof PROCVID_ANIMATIONS)[number];
@@ -133,6 +139,11 @@ const DEFAULT_PALETTE: Record<ProcVidAnimation, string> = {
   'noise-flow': 'obsidian',
   'fractal-zoom': 'fire',
   'shape-morph': 'neoViolet',
+  // v2 (iter-103): paletas default de las animaciones nuevas.
+  tunnel: 'obsidian',
+  metaballs: 'fire',
+  kaleido: 'neoViolet',
+  starfield: 'ice',
 };
 
 /* ------------------------------------------------------------------ */
@@ -330,6 +341,117 @@ export function framePixelFn(spec: NormalizedProcVidSpec, t: number): PixelFn {
         return samplePalette(palette, 0.05);
       };
     }
+
+    case 'tunnel': {
+      // Túnel radial infinito: anillos que nacen del centro y crecen hacia la
+      // cámara. v combina distancia (profundidad) + ángulo (giro del túnel).
+      const rings = num(params, 'rings', 9);
+      const twist = num(params, 'twist', 5);
+      const speed = num(params, 'speed', 1.2);
+      return (px, py) => {
+        const [x, y] = toPlane(px, py);
+        const dist = Math.hypot(x, y) + 1e-6;
+        const phi = Math.atan2(y, x);
+        // 1/dist comprime el espacio: los anillos aceleran al acercarse.
+        const depth = (1 / dist) * 0.22 - t * speed;
+        const v = Math.sin(depth * TAU * 0.5 + phi * twist);
+        const fade = clamp01(1 - dist * 1.1); // oscurecer el fondo del túnel
+        return samplePalette(palette, clamp01(0.12 + 0.55 * (0.5 + 0.5 * v) * (0.35 + 0.65 * fade)));
+      };
+    }
+
+    case 'metaballs': {
+      // Metabolas 2D: N blobs con órbitas senoidales sembradas; campo de
+      // potencial sum(r²/d²) con umbral suave → fusión orgánica clásica.
+      const count = Math.max(2, Math.min(6, Math.round(num(params, 'count', 3))));
+      const radius = num(params, 'radius', 0.16);
+      const speed = num(params, 'speed', 0.7);
+      const centers: Array<[number, number]> = [];
+      for (let i = 0; i < count; i++) {
+        const h = Math.sin((seed % 97 + 1) * (i + 3) * 12.9898) * 43758.5453;
+        const ox = h - Math.floor(h); // determinista por seed+i
+        const ay = ((seed + i * 37) % 100) / 100;
+        centers.push([
+          Math.cos(TAU * (t * speed + ox)) * 0.28,
+          Math.sin(TAU * (t * speed * 1.31 + ay)) * 0.26,
+        ]);
+      }
+      const r2 = radius * radius;
+      return (px, py) => {
+        const [x, y] = toPlane(px, py);
+        let field = 0;
+        for (const [cx, cy] of centers) {
+          const dx = x - cx;
+          const dy = y - cy;
+          field += r2 / (dx * dx + dy * dy + 1e-6);
+        }
+        // field>1 dentro de una bola; ~1 en la zona de fusión.
+        return samplePalette(palette, clamp01(0.15 + 0.7 * clamp01(field - 0.35)));
+      };
+    }
+
+    case 'kaleido': {
+      // Caleidoscopio: pliega el ángulo en N gajos espejados y muestrea un
+      // patrón ondular debajo — simetría radial perfecta por construcción.
+      const wedges = Math.max(3, Math.min(16, Math.round(num(params, 'wedges', 8))));
+      const freq = num(params, 'freq', 7);
+      const speed = num(params, 'speed', 0.8);
+      const wedge = Math.PI / wedges;
+      const tt = t * TAU * speed;
+      return (px, py) => {
+        const [x0, y0] = toPlane(px, py);
+        const rot = -tt * 0.05;
+        const x = x0 * Math.cos(rot) - y0 * Math.sin(rot);
+        const y = x0 * Math.sin(rot) + y0 * Math.cos(rot);
+        let a = Math.atan2(y, x);
+        a = ((a % (2 * wedge)) + 2 * wedge) % (2 * wedge); // [0, 2w)
+        if (a > wedge) a = 2 * wedge - a; // espejo del gajo
+        const r = Math.hypot(x, y);
+        const kx = Math.cos(a) * r;
+        const ky = Math.sin(a) * r;
+        const v =
+          Math.sin(kx * freq + tt) +
+          Math.sin(ky * freq * 1.3 - tt * 0.7) +
+          Math.sin(r * freq - tt);
+        return samplePalette(palette, clamp01(0.5 + 0.14 * v));
+      };
+    }
+
+    case 'starfield': {
+      // Warp estelar 3D: estrellas sembradas por hash viajan en z hacia la
+      // cámara; proyección en perspectiva produce streaks radiales clásicos.
+      const stars = Math.max(20, Math.min(400, Math.round(num(params, 'stars', 120))));
+      const warpSpeed = num(params, 'speed', 1.4);
+      const density = num(params, 'density', 0.85);
+      // Hash determinista por índice+seed (sin PRNG con estado).
+      const hash = (i: number, salt: number): number => {
+        const h = Math.sin((i + 1) * 127.1 + salt * 311.7 + (seed % 89) * 0.6180339) * 43758.5453;
+        return h - Math.floor(h);
+      };
+      const sx: number[] = [];
+      const sy: number[] = [];
+      const sz: number[] = [];
+      for (let i = 0; i < stars; i++) {
+        sx.push(hash(i, 1) * 2 - 1);
+        sy.push(hash(i, 2) * 2 - 1);
+        sz.push(0.08 + hash(i, 3) * 0.92); // z inicial ∈ (0,1]
+      }
+      return (px, py) => {
+        const [x, y] = toPlane(px, py);
+        let best = 0;
+        for (let i = 0; i < stars; i++) {
+          const z = ((sz[i] - t * warpSpeed * 0.22) % 1 + 1) % 1 + 0.04;
+          const k = 0.09 / z;
+          const dx = x - sx[i] * k * 3;
+          const dy = y - sy[i] * k * 3;
+          const d = Math.hypot(dx, dy);
+          // streak: brillo cae con la distancia al rastro radial de la estrella
+          const glow = Math.exp(-d * d * 900 / (k * k * 9));
+          if (glow > best) best = glow;
+        }
+        return samplePalette(palette, clamp01(best * density + 0.02));
+      };
+    }
   }
 }
 
@@ -469,9 +591,45 @@ export function buildRenderScript(plan: ProcVidPlan): { sh: string; steps: strin
   const steps: string[] = [];
   steps.push(plan.ffmpegArgv.map(quoteWin).join(' '));
   if (plan.gifArgv) for (const g of plan.gifArgv) steps.push(g.map(quoteWin).join(' '));
-  const header = '#!/usr/bin/env sh\n# UltraIa procvid â€” render determinista (generado, no editar)\nset -eu\n';
+  const header = '#!/usr/bin/env sh\n# UltraIa procvid — render determinista (generado, no editar)\nset -eu\n';
   const sh = header + steps.map((s) => `${s}\n`).join('');
   return { sh, steps };
+}
+
+/* ------------------------------------------------------------------ */
+/* Audio v2 (iter-103): banda sonora procedural muxada al MP4          */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Devuelve el argv ffmpeg con la pista de audio WAV muxada al video.
+ *
+ * QUÉ: inserta `-i <wavPath>` como SEGUNDA ENTRADA (inmediatamente después
+ * del valor del primer `-i`, el patrón de frames) y añade `-c:a aac -shortest`
+ * junto a los flags de salida.
+ * POR QUÉ así: ffmpeg agrupa opciones por posición — los flags de salida
+ * intercalados ENTRE inputs hacen que el segundo input herede opciones
+ * inválidas ("Decoder not found"). Inputs primero, flags de salida juntos.
+ * Determinista: misma entrada → mismo argv. Sin WAV válido no se llama.
+ */
+export function planAudioMux(
+  ffmpegArgv: readonly string[],
+  wavPath: string,
+  opts: { codec?: 'aac' | 'copy'; volume?: number } = {},
+): string[] {
+  const codec = opts.codec ?? 'aac';
+  const argv = [...ffmpegArgv];
+  const firstInputIdx = argv.indexOf('-i');
+  if (firstInputIdx === -1 || firstInputIdx + 1 >= argv.length) return argv;
+  // Insertar la segunda entrada tras el VALOR del primer -i (patrón frames).
+  const insertAt = firstInputIdx + 2;
+  const audioFlags = ['-i', wavPath];
+  if (typeof opts.volume === 'number' && opts.volume !== 1) {
+    audioFlags.push('-filter:a', `volume=${opts.volume}`);
+  }
+  argv.splice(insertAt, 0, ...audioFlags);
+  // Flags de salida: codec de audio + shortest antes del archivo final.
+  const output = argv.pop() as string;
+  return [...argv, '-c:a', codec, '-shortest', output];
 }
 
 /** Manifest determinista (sin timestamps) â†’ idempotente entre corridas. */
@@ -547,6 +705,7 @@ export const procvid = {
   renderFramePng,
   renderFrames,
   buildRenderScript,
+  planAudioMux,
   writeManifest,
   renderGifBytes,
   slugifyOutName,

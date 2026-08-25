@@ -820,3 +820,80 @@ Cada commit agrega una sección con fecha y la lista de archivos `.ts/.tsx` toca
 
 ## 2026-08-24T20:41:00.967Z
 - [ ] Task/cerebro-cycle.ts
+
+## 2026-08-25T13:39:32.343Z
+- [ ] apps/web/src/app/(app)/layout.tsx
+- [ ] apps/web/src/components/app-shell/nav.tsx
+- [ ] apps/web/src/components/ide/ide-shell.tsx
+- [ ] apps/web/src/components/ide/nav-items.ts
+
+## 2026-08-25T14:16:48.699Z
+- [ ] packages/core/src/tools/index.ts
+- [ ] packages/core/src/tools/studio-catalog.ts
+- [ ] packages/core/src/tools/studio.test.ts
+- [ ] packages/core/src/tools/studio.ts
+- [ ] packages/core/src/tools/studio.wiring.test.ts
+
+## 2026-08-25T14:54:52.449Z
+- [ ] apps/web/src/app/(app)/studio/page.tsx
+- [ ] apps/web/src/app/(app)/studio/studio-client.tsx
+- [ ] apps/web/src/app/api/assets/[id]/derive/route.ts
+- [ ] apps/web/src/app/api/assets/[id]/download/route.ts
+- [ ] apps/web/src/app/api/assets/[id]/route.ts
+- [ ] apps/web/src/app/api/library/assets/route.ts
+- [ ] apps/web/src/app/api/tools/content/music/route.ts
+- [ ] apps/web/src/components/studio/asset-actions.tsx
+- [ ] apps/web/src/components/studio/creations-grid.tsx
+- [ ] apps/web/src/components/studio/oss-lab.tsx
+- [ ] apps/web/src/components/studio/storyboard-player.tsx
+- [ ] apps/web/src/components/studio/types.ts
+- [ ] apps/web/src/lib/server/studio-assets.ts
+
+## 2026-08-25T16:06:04.875Z
+- [ ] apps/web/src/app/(app)/workspace/page.tsx
+- [ ] apps/web/src/app/(app)/workspace/workspace-client.tsx
+- [ ] apps/web/src/app/api/chat/route.ts
+- [ ] apps/web/src/components/agent-chat.tsx
+- [ ] apps/web/src/components/ide/nav-items.ts
+
+## 2026-08-25T17:22:48.358Z
+- [ ] apps/web/src/app/(app)/studio/studio-client.tsx
+- [ ] apps/web/src/app/api/tools/web/route.ts
+- [ ] apps/web/src/components/studio/creations-grid.tsx
+- [ ] packages/core/src/tools/studio-catalog.ts
+- [ ] packages/core/src/tools/studio.test.ts
+- [ ] packages/core/src/tools/studio.ts
+
+## 2026-08-25T18:06:32.579Z
+- [ ] apps/web/src/app/(app)/connections/connections-client.tsx
+- [ ] apps/web/src/app/(app)/connections/page.tsx
+- [ ] apps/web/src/app/api/connections/route.ts
+- [ ] apps/web/src/app/api/connections/test/route.ts
+- [ ] apps/web/src/components/ide/ide-shell.tsx
+- [ ] apps/web/src/components/ide/nav-items.ts
+
+## 2026-08-25T18:49:53.398Z
+- [ ] packages/core/src/tools/reporeview.ts
+
+## 2026-08-25T19:03:56.344Z
+- [ ] apps/web/src/app/(app)/studio/studio-client.tsx
+- [ ] apps/web/src/app/api/tools/web/screenshot/route.ts
+- [ ] packages/core/src/tools/research-firecrawl.test.ts
+
+## 2026-08-25T19:07:52.709Z
+- [ ] packages/core/src/tools/reporeview.test.ts
+- [ ] scripts/reporeview-run.ts
+
+## 2026-08-25T19:15:53.795Z
+- [ ] packages/core/src/tools/research.ts
+
+## 2026-08-25T19:24:59.624Z
+- [ ] packages/core/src/tools/research.ts
+
+## 2026-08-25T19:25:25.709Z
+- [ ] Task/cerebro-cycle.ts
+- [ ] Task/media-v2-demo.ts
+- [ ] packages/core/src/tools/geometry.test.ts
+- [ ] packages/core/src/tools/geometry.ts
+- [ ] packages/core/src/tools/procvid.test.ts
+- [ ] packages/core/src/tools/procvid.ts

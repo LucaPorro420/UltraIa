@@ -24,7 +24,7 @@ import { searchWeb, searchGitHub } from './reach';
 /* Types                                                               */
 /* ------------------------------------------------------------------ */
 
-export type ResearchSource = 'arxiv' | 'web' | 'github' | 'pdf' | 'none';
+export type ResearchSource = 'arxiv' | 'web' | 'github' | 'pdf' | 'firecrawl' | 'none';
 
 export interface ResearchItem {
   title: string;
@@ -255,6 +255,59 @@ export async function researchGitHub(query: string, opts: GithubOptions = {}): P
     })),
     cached: false,
   };
+}
+
+/* Firecrawl (OSS vendoreado, MIT — iter-107): agentic search REST.        */
+
+export interface FirecrawlOptions {
+  maxResults?: number;
+  /** Override del env FIRECRAWL_API_KEY (free tier). Sin key → fail-soft 'none'. */
+  apiKey?: string;
+  fetchImpl?: FetchLike;
+}
+
+export interface FirecrawlSearchDoc {
+  title?: string;
+  url?: string;
+  description?: string;
+}
+
+/** Parser puro de la respuesta /v1/search → ResearchItem[] (determinista). */
+export function parseFirecrawlResponse(json: unknown, maxResults: number): ResearchItem[] {
+  const docs = (json as { data?: FirecrawlSearchDoc[] } | null)?.data;
+  if (!Array.isArray(docs)) return [];
+  return docs
+    .slice(0, maxResults)
+    .filter((d): d is FirecrawlSearchDoc & { url: string } => typeof d?.url === 'string' && d.url.length > 0)
+    .map((d) => ({
+      title: (d.title ?? d.url).slice(0, 200),
+      url: d.url,
+      snippet: (d.description ?? '').slice(0, 300),
+      source: 'firecrawl' as const,
+    }));
+}
+
+/**
+ * Búsqueda web vía Firecrawl (`/v1/search`). Requiere FIRECRAWL_API_KEY
+ * (free tier); sin key o ante cualquier fallo devuelve source:'none'
+ * (fail-soft, mismo contrato que arxiv/pdf).
+ */
+export async function researchFirecrawl(query: string, opts: FirecrawlOptions = {}): Promise<ResearchResult> {
+  const apiKey = opts.apiKey ?? process.env.FIRECRAWL_API_KEY;
+  if (!apiKey) return { query, source: 'none', items: [], cached: false };
+  try {
+    const f = opts.fetchImpl ?? (fetch as unknown as FetchLike);
+    const res = await f('https://api.firecrawl.dev/v1/search', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', authorization: `Bearer ${apiKey}` },
+      body: JSON.stringify({ query, limit: opts.maxResults ?? 5 }),
+    });
+    if (!res.ok) return { query, source: 'none', items: [], cached: false };
+    const json: unknown = JSON.parse(await res.text()) as unknown;
+    return { query, source: 'firecrawl', items: parseFirecrawlResponse(json, opts.maxResults ?? 5), cached: false };
+  } catch {
+    return { query, source: 'none', items: [], cached: false };
+  }
 }
 
 /** Extrae cualquier URL como texto limpio vía r.jina.ai (keyless). */

@@ -237,6 +237,65 @@ function IdeExplorer({ userName }: { userName: string }) {
   );
 }
 
+/* ── HUD de salud de conexiones (F4) ───────────────────────────────────── */
+
+interface ConnectionsSummary {
+  total: number;
+  conectados: number;
+}
+
+function useConnectionsHealth(): ConnectionsSummary | null {
+  const [summary, setSummary] = useState<ConnectionsSummary | null>(null);
+  useEffect(() => {
+    let alive = true;
+    const load = async () => {
+      try {
+        const res = await fetch('/api/connections');
+        if (!res.ok) return;
+        const data = (await res.json()) as {
+          connections: { conectado: boolean }[];
+        };
+        if (!alive) return;
+        setSummary({
+          total: data.connections.length,
+          conectados: data.connections.filter((c) => c.conectado).length,
+        });
+      } catch {
+        /* fail-soft: el HUD no bloquea el shell */
+      }
+    };
+    load();
+    const id = window.setInterval(load, 60_000);
+    return () => {
+      alive = false;
+      window.clearInterval(id);
+    };
+  }, []);
+  return summary;
+}
+
+function ConnectionsHud() {
+  const summary = useConnectionsHealth();
+  if (!summary || summary.total === 0) return null;
+  const allOk = summary.conectados === summary.total;
+  const someOk = summary.conectados > 0;
+  const dot = allOk
+    ? 'bg-emerald-400 shadow-[0_0_8px_rgba(74,222,128,0.7)]'
+    : someOk
+      ? 'bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.7)]'
+      : 'bg-red-400 shadow-[0_0_8px_rgba(248,113,113,0.7)]';
+  return (
+    <Link
+      href="/connections"
+      title={`Conexiones: ${summary.conectados} de ${summary.total} canales conectados`}
+      className="ml-auto flex items-center gap-1.5 rounded border border-border-subtle bg-input-active px-2 py-0.5 font-mono text-[10px] text-neutral-400 transition-colors duration-150 hover:text-neutral-200"
+    >
+      <span className={`h-1.5 w-1.5 rounded-full ${dot}`} />
+      {summary.conectados}/{summary.total} canales
+    </Link>
+  );
+}
+
 /* ── Panel inferior (dock) ─────────────────────────────────────────────── */
 
 function IdeDock() {
@@ -249,7 +308,8 @@ function IdeDock() {
           Actividad
         </span>
         <span className="font-mono text-[10px] uppercase tracking-widest text-neutral-600">Estado</span>
-        <span className="ml-auto font-mono text-[10px] text-neutral-600">
+        <ConnectionsHud />
+        <span className="hidden font-mono text-[10px] text-neutral-600 lg:inline">
           Ctrl+B explorador · Ctrl+J este panel
         </span>
       </div>

@@ -8,7 +8,14 @@ import { FeedbackControl } from './feedback-control';
 type ConversationMeta = { id: string; title: string; createdAt: string };
 type StoredMessage = { id: string; role: 'user' | 'assistant' | 'system'; content: string; sequence: number };
 
-export function AgentChat({ agentId }: { agentId: string }) {
+export function AgentChat({
+  agentId,
+  extraBody,
+}: {
+  agentId: string;
+  /** Campos adicionales enviados a /api/chat en cada turno (p. ej. { modo }). */
+  extraBody?: Record<string, unknown>;
+}) {
   const [conversations, setConversations] = useState<ConversationMeta[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [loadingHistory, setLoadingHistory] = useState(false);
@@ -67,7 +74,7 @@ export function AgentChat({ agentId }: { agentId: string }) {
     if (isLoading || !input.trim()) return;
     try {
       const id = await ensureConversation();
-      handleSubmit(e, { body: { agentId, conversationId: id } });
+      handleSubmit(e, { body: { agentId, conversationId: id, ...extraBody } });
     } catch {
       alert('Failed to start conversation. Please try again.');
     }

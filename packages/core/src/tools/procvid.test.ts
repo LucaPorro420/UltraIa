@@ -10,6 +10,7 @@ import {
   buildRenderScript,
   frameFileName,
   framePixelFn,
+  planAudioMux,
   planProcVid,
   renderFramePng,
   renderFrames,
@@ -227,5 +228,94 @@ describe('procvid — manifest determinista', () => {
     } finally {
       await rm(tmp, { recursive: true, force: true });
     }
+  });
+});
+
+
+/* ------------------------------------------------------------------ */
+/* v2 (iter-103): tunnel / metaballs / kaleido / starfield + audio mux */
+/* ------------------------------------------------------------------ */
+
+describe('procvid v2 — animaciones nuevas', () => {
+  const NUEVAS = ['tunnel', 'metaballs', 'kaleido', 'starfield'] as const;
+
+  it('catálogo: 10 animaciones con las 4 nuevas', () => {
+    expect(PROCVID_ANIMATIONS).toHaveLength(10);
+    for (const a of NUEVAS) expect(PROCVID_ANIMATIONS).toContain(a);
+  });
+
+  for (const anim of NUEVAS) {
+    it(`${anim}: determinista, no estática y dentro de RGB`, () => {
+      const spec = resolveSpec({ animation: anim, width: 64, height: 48, fps: 8, durationSec: 2, seed: 42 });
+      const f0 = framePixelFn(spec, 0);
+      const f0b = framePixelFn(spec, 0);
+      const fHalf = framePixelFn(spec, 0.5);
+
+      let cambia = 0;
+      let determinista = true;
+      for (let y = 0; y < 48; y += 6) {
+        for (let x = 0; x < 64; x += 6) {
+          const a = f0(x, y);
+          const b = f0b(x, y);
+          if (a[0] !== b[0] || a[1] !== b[1] || a[2] !== b[2]) determinista = false;
+          const c = fHalf(x, y);
+          if (a[0] !== c[0] || a[1] !== c[1] || a[2] !== c[2]) cambia++;
+          for (const ch of a) {
+            expect(ch).toBeGreaterThanOrEqual(0);
+            expect(ch).toBeLessThanOrEqual(255);
+            expect(Number.isFinite(ch)).toBe(true);
+          }
+        }
+      }
+      expect(determinista).toBe(true);   // misma spec+t ⇒ mismos píxeles
+      expect(cambia).toBeGreaterThan(0); // el tiempo mueve la imagen
+    });
+  }
+
+  it('starfield respeta el conteo de estrellas sin NaN en bordes', () => {
+    const spec = resolveSpec({ animation: 'starfield', width: 32, height: 32, fps: 4, durationSec: 2, params: { stars: 400 } });
+    const f = framePixelFn(spec, 0.999);
+    for (const [x, y] of [[0, 0], [31, 31], [15, 16]] as const) {
+      const [r, g, b] = f(x, y);
+      expect([r, g, b].every(Number.isFinite)).toBe(true);
+    }
+  });
+
+  it('metaballas fusiona blobs (campo continuo)', () => {
+    const spec = resolveSpec({ animation: 'metaballs', width: 48, height: 48, fps: 6, durationSec: 2, params: { count: 5 } });
+    const f = framePixelFn(spec, 0.3);
+    // Centro de la escena debe tener potencial (algún blob cerca en algún t)
+    let brilloMax = -Infinity;
+    for (const tt of [0, 0.25, 0.5, 0.75]) {
+      const g = framePixelFn(spec, tt)(24, 24)[0];
+      if (g > brilloMax) brilloMax = g;
+    }
+    void f;
+    expect(brilloMax).toBeGreaterThan(0);
+  });
+});
+
+describe('procvid v2 — planAudioMux', () => {
+  const base = ['ffmpeg', '-y', '-framerate', '30', '-i', 'frame_%06d.png', '-c:v', 'libx264', 'out.mp4'];
+
+  it('inserta WAV como segunda entrada (tras el primer -i) con aac + shortest', () => {
+    const argv = planAudioMux(base, 'sound.wav');
+    expect(argv).toEqual([
+      'ffmpeg', '-y', '-framerate', '30', '-i', 'frame_%06d.png', '-i', 'sound.wav',
+      '-c:v', 'libx264',
+      '-c:a', 'aac', '-shortest',
+      'out.mp4',
+    ]);
+  });
+
+  it('volumen opcional y codec copy', () => {
+    const argv = planAudioMux(base, 's.wav', { volume: 0.4, codec: 'copy' });
+    expect(argv).toContain('-filter:a');
+    expect(argv.join(' ')).toContain('volume=0.4');
+    expect(argv).toContain('copy');
+  });
+
+  it('argv degenerado queda intacto (fail-safe)', () => {
+    expect(planAudioMux(['ffmpeg'], 'x.wav')).toEqual(['ffmpeg']);
   });
 });

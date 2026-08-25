@@ -10,6 +10,8 @@ import {
   Map,
   Compass,
   BookOpen,
+  PanelsTopLeft,
+  PlugZap,
 } from 'lucide-react';
 
 /** Icono canónico de navegación (referencia tipada para no acoplar a LucideIcon). */
@@ -24,11 +26,13 @@ export interface NavItem {
 /** Sección Workspace del shell IDE (orden estable del sidebar histórico). */
 export const WORKSPACE_ITEMS: NavItem[] = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/workspace', label: 'Workspace', icon: PanelsTopLeft },
   { href: '/studio', label: 'Studio', icon: Sparkles },
   { href: '/agents/new', label: 'New agent', icon: Bot },
   { href: '/gallery', label: 'Gallery', icon: Images },
   { href: '/builder', label: 'Builder', icon: SquareDashedMousePointer },
   { href: '/cloud', label: 'Cloud', icon: Cloud },
+  { href: '/connections', label: 'Conexiones', icon: PlugZap },
   { href: '/metrics', label: 'Métricas', icon: BarChart3 },
   { href: '/lab', label: 'Lab', icon: FlaskConical },
   { href: '/roadmap', label: 'Roadmap', icon: Map },

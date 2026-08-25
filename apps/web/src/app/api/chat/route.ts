@@ -3,9 +3,27 @@ import { z } from 'zod';
 import { getBlueprintForUser, getActiveVersion } from '@ultraia/core';
 import { getCurrentUser } from '@/lib/server/context';
 
+const MODO_IDS = ['libre', 'plan', 'build', 'test', 'review', 'ship', 'simplify', 'p-p', 'p-b', 'l-t', 's-d'] as const;
+
+/** Directivas de modo inyectadas al system prompt (F2 workspace multi-modo). */
+const MODO_DIRECTIVES: Record<(typeof MODO_IDS)[number], string> = {
+  libre: '',
+  plan: 'MODO PLAN: antes de responder, desglosa la tarea en pasos numerados con criterios de verificacion; no implementes todavia.',
+  build: 'MODO BUILD: ejecuta/implementa de forma concreta y accionable; entrega artefactos o pasos exactos, sin re-planificar.',
+  test: 'MODO TEST: disena y ejecuta verificaciones; enumera casos, resultados esperados y como reproducirlos.',
+  review: 'MODO REVIEW: audita criticamente lo ultimo discutido; lista riesgos, errores y mejoras priorizadas.',
+  ship: 'MODO SHIP: prepara la entrega final; checklist de cierre, mensajes de commit y pasos de publicacion.',
+  simplify: 'MODO SIMPLIFY: reduce complejidad; propone la version mas simple que cumpla lo pedido y elimina exceso.',
+  'p-p': 'MODO P-P (Planificar): sensa el problema, investiga con herramientas disponibles y entrega un plan escrito con prediccion del resultado ANTES de actuar.',
+  'p-b': 'MODO P-B (Construir): implementa segun el plan acordado, verifica el proyecto completo y reporta evidencia.',
+  'l-t': 'MODO L-T (Aprender-Probar): consulta lecciones y verdades verificadas previas; define estrategia de prueba explicita.',
+  's-d': 'MODO S-D (Especificar-Disenar): produce especificacion y decisiones de disenio ANTES de escribir solucion.',
+};
+
 const bodySchema = z.object({
   agentId: z.string(),
   conversationId: z.string(),
+  modo: z.enum(MODO_IDS).optional(),
   messages: z
     .array(z.object({ role: z.enum(['user', 'assistant']), content: z.string().max(16000) }))
     .min(1)
@@ -23,7 +41,7 @@ export async function POST(req: Request) {
     return new Response('Invalid JSON', { status: 400 });
   }
   if (!parsed.success) return new Response('Invalid body', { status: 400 });
-  const { agentId, conversationId, messages } = parsed.data;
+  const { agentId, conversationId, messages, modo } = parsed.data;
 
   const blueprint = await getBlueprintForUser(prisma, user.id, agentId);
   if (!blueprint) return new Response('Agent not found', { status: 404 });
@@ -43,9 +61,13 @@ export async function POST(req: Request) {
 
   let result;
   try {
+    const modoDirective = modo ? (MODO_DIRECTIVES[modo] ?? '') : '';
     result = chatStream({
       model: version.model,
-      system: version.systemPrompt + guardrailsBlock(guardrails),
+      system:
+        version.systemPrompt +
+        guardrailsBlock(guardrails) +
+        (modoDirective ? `\n\n${modoDirective}` : ''),
       messages,
       tools,
       onFinish: async ({ text }) => {

@@ -31,6 +31,10 @@ export * from './pngrender';
 export * as recordly from './recordly';
 export * as cerebro from './cerebro';
 export * from './procvid';
+// studio (loop-104): media hub del Studio — save plans, WAV keyless, derive plans,
+// catálogo OSS. Símbolos prefijados Studio*/STUDIO_* + studio (namespace const): sin colisiones.
+export * from './studio';
+export * from './studio-catalog';
 // cadgeo/evo/evolution (loop-94 Motor Evolutivo): sin colisiones verificadas por grep.
 // physics2d NO va por export *: exporta `Vec2` que ya vive en geom/geometry -> se
 // expone como NAMESPACE (mismo tratamiento que geom) para evitar TS2308.
@@ -152,8 +156,9 @@ import * as creativo from './creativo';
 import { vaultTools } from './vault';
 import { pdfsearchTools } from './pdfsearch';
 import { qdrantMemory as qdrantMemoryTools } from './qdrant-memory';
+import { studio as studioTools } from './studio';
 
-export const tools = { web, image, video, music, stitch, reach, skills: { runSkill }, content, g0dm0d3, topics, present: presentTools, publish, enrutador, mediaScore, metrics, memoryFs: { createMemoryFs }, diagram, videoEdit, screenflow, cloud: cloudTools, harness, growth, vfx, codevfx, travel, generative, libros, sdf, videoqa, motion, replica, imaging, semanticMemory, autolearn, genesis, creativo, vault: vaultTools, pdfsearch: pdfsearchTools, qdrantMemory: qdrantMemoryTools, kgraph, brainpage, autopub, security, codequality, deps, geom, geometry, pngrender, procvid, physics2d, cadgeo, recordly, cerebro, evo: evoDomain, evolution: evolutionDomain };
+export const tools = { web, image, video, music, stitch, reach, skills: { runSkill }, content, g0dm0d3, topics, present: presentTools, publish, enrutador, mediaScore, metrics, memoryFs: { createMemoryFs }, diagram, videoEdit, screenflow, cloud: cloudTools, harness, growth, vfx, codevfx, travel, generative, libros, sdf, videoqa, motion, replica, imaging, semanticMemory, autolearn, genesis, creativo, vault: vaultTools, pdfsearch: pdfsearchTools, qdrantMemory: qdrantMemoryTools, kgraph, brainpage, autopub, security, codequality, deps, geom, geometry, pngrender, procvid, physics2d, cadgeo, recordly, cerebro, evo: evoDomain, evolution: evolutionDomain, studio: studioTools };
 
 export const TOOL_DESCRIPTIONS: Record<string, string> = {
   calculator: 'Safely evaluate a mathematical expression (math only).',
@@ -265,6 +270,8 @@ export const TOOL_DESCRIPTIONS: Record<string, string> = {
     'Deterministic genetic algorithm (Motor Evolutivo M3): xorshift32 PRNG reproducible across processes, tournament selection, uniform/arithmetic/blend crossover, gaussian mutation, elitism, population stats (best/mean/worst/diversity) and a sphere benchmark proving convergence in <50 generations. Pure functions over serializable individuals; same seed -> byte-exact evolution. Use to optimize numeric parameter vectors from code.',
   evolution:
     'Artifact evolution engine (Motor Evolutivo M4): runs the pipeline Observe->Measure->Analyze->Propose->Implement->Test->Evaluate->Learn over injectable generator/evaluator domains, with periodic resumable checkpoints (resume == full run byte-exact) and fail-soft IO to brainpage timeline (evolutionary memory) and vault. Composes the deterministic GA of evo. Use to evolve parameters/artifacts with persisted memory.',
+  studio:
+    'Studio media hub (loop-104): plan the save of any generated asset (image/audio/video/music/design/text) into the durable cloud-backed library, render a keyless WAV from a music composition (beat+pad+pentatonic motif, BPM/mood overrides), build derivation plans (image re-roll via img2img, music re-synthesis, video storyboard slideshow MP4 argv ffmpeg) and list the vendored open-source integrations catalog. Pure planning actions; execution lives in the web API. Use to persist, reproduce, modify or extend Studio assets programmatically.',
 };
 
 export type Capability =
@@ -325,4 +332,5 @@ export type Capability =
   | 'physics2d'
   | 'cadgeo'
   | 'evo'
-  | 'evolution';
+  | 'evolution'
+  | 'studio';

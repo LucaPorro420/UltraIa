@@ -23,7 +23,7 @@ export const AGENTS = [
     id: 'bp-investigador',
     name: 'Investigador',
     task: 'Investiga cualquier tema en la web, incluyendo GitHub global y buscadores, y entrega un informe con fuentes.',
-    caps: ['web', 'semantic_memory', 'chat'],
+    caps: ['web', 'semantic_memory', 'studio', 'chat'],
     base:
       'Eres el agente Investigador de UltraIa. Tu función es reunir información fiable de fuentes públicas.\n' +
       'Usa SIEMPRE la herramienta `web` para leer:\n' +
@@ -151,7 +151,7 @@ export const AGENTS = [
     id: 'bp-publicador',
     name: 'Publicador',
     task: 'Prepara y publica contenido en redes/blogs: formato, hashtags, imágenes y calendario.',
-    caps: ['web', 'image', 'branding', 'videoqa', 'chat'],
+    caps: ['web', 'image', 'branding', 'videoqa', 'studio', 'chat'],
     base:
       'Eres el agente Publicador de UltraIa. Preparas contenido para publicar en la web y redes.\n' +
       'Usa `image` y `branding` para piezas visuales y `web` para verificar tendencias/hashtags. Entrega: copy final, hashtags, sugerencia de imagen y horario.',
@@ -172,7 +172,7 @@ export const AGENTS = [
     name: 'Orquestador',
     task: 'Coordina los agentes especialistas para resolver tareas complejas de principio a fin.',
     isPublic: true,
-    caps: ['web', 'image', 'video', 'music', 'design', 'branding', 'sdf', 'videoqa', 'motion', 'replica', 'semantic_memory', 'cadgeo', 'evo', 'evolution', 'physics2d', 'chat'],
+    caps: ['web', 'image', 'video', 'music', 'design', 'branding', 'sdf', 'videoqa', 'motion', 'replica', 'semantic_memory', 'cadgeo', 'evo', 'evolution', 'physics2d', 'studio', 'chat'],
     base:
       'Eres el Orquestador de UltraIa: el conductor que coordina a los agentes especialistas\n' +
       '(Investigador, Redactor, Guionista, Diseñador, Analista, Gestor, Publicador, Matemático, Geómetra, Físico).\n' +

@@ -1,20 +1,20 @@
 // -----------------------------------------------------------------------------
-// Task/cerebro-cycle.ts — EJECUCIÓN REAL de un ciclo del Cerebro (iter-101)
+// Task/cerebro-cycle.ts â€” EJECUCIÃ“N REAL de un ciclo del Cerebro (iter-101)
 // -----------------------------------------------------------------------------
-// Un ciclo = LEARN → CREATE (objetos + videos REALES en disco) → PUBLISH
-// (encola en la cola Publication vía Prisma, fail-soft a outbox JSON) → REPORT.
+// Un ciclo = LEARN â†’ CREATE (objetos + videos REALES en disco) â†’ PUBLISH
+// (encola en la cola Publication vÃ­a Prisma, fail-soft a outbox JSON) â†’ REPORT.
 //
 // Salidas por ciclo en .ultraia/cerebro/<cycleId>/:
-//   objects/*.png|*.obj|*.gltf   — objetos matemáticos desde cero (Gielis)
-//   video/<slug>.mp4             — video procedural real (frames PNG + ffmpeg)
+//   objects/*.png|*.obj|*.gltf   â€” objetos matemÃ¡ticos desde cero (Gielis)
+//   video/<slug>.mp4             â€” video procedural real (frames PNG + ffmpeg)
 //   manifest.json | report.md | state.json
-// Outbox fail-safe si la BD no está disponible: .ultraia/cerebro/outbox/*.json
+// Outbox fail-safe si la BD no estÃ¡ disponible: .ultraia/cerebro/outbox/*.json
 //
 // Uso:
 //   node_modules\.bin\vite-node.cmd Task/cerebro-cycle.ts --run     (ciclo real)
 //   node_modules\.bin\vite-node.cmd Task/cerebro-cycle.ts --plan    (solo plan)
 //   node_modules\.bin\vite-node.cmd Task/cerebro-cycle.ts --schedule (schtasks+cron)
-// Programación: scripts/cerebro-schedule.ps1 (schtasks /Create).
+// ProgramaciÃ³n: scripts/cerebro-schedule.ps1 (schtasks /Create).
 // -----------------------------------------------------------------------------
 
 import * as fs from 'node:fs';
@@ -43,10 +43,13 @@ import {
 import { PALETTES, renderImagePng, writePngAtomic } from '../packages/core/src/tools/pngrender';
 import {
   buildRenderScript,
+  planAudioMux,
   planProcVid,
   renderFrames,
   resolveSpec,
 } from '../packages/core/src/tools/procvid';
+import { encodeWav } from '../packages/core/src/omag/sound';
+import { mixSynths, sequenceNotes, synthPinkNoise, type NoteStep } from '../packages/core/src/tools/generative';
 
 const ROOT = process.cwd();
 const CEREBRO_DIR = path.join(ROOT, '.ultraia', 'cerebro');
@@ -79,7 +82,7 @@ function writeState(next: unknown): void {
   fs.writeFileSync(path.join(CEREBRO_DIR, 'state.json'), JSON.stringify(next, null, 2));
 }
 
-/** Fase CREATE: objetos matemáticos reales (PNG + OBJ + glTF). */
+/** Fase CREATE: objetos matemÃ¡ticos reales (PNG + OBJ + glTF). */
 async function crearObjetos(
   dir: string,
   lote: Array<ReturnType<typeof planProceduralBatch>[number]>,
@@ -90,7 +93,7 @@ async function crearObjetos(
   let n = 0;
   for (const spec of lote) {
     if (spec.tipo !== 'object') continue;
-    // Malla supershape 3D (superfórmula de Gielis) desde cero.
+    // Malla supershape 3D (superfÃ³rmula de Gielis) desde cero.
     const shape = superShape3D(spec.shape, { m: 0, n1: 1, n2: 1, n3: 1 });
     const stats = meshStats(shape);
     fs.writeFileSync(path.join(objectsDir, `${spec.nombre}.obj`), meshToObjText(shape));
@@ -123,10 +126,39 @@ async function crearObjetos(
       return [8, 8, 10];
     });
     await writePngAtomic(path.join(objectsDir, `${spec.nombre}.png`), bytes);
-    console.log(`  objeto ${spec.nombre}: ${stats.vertexCount} vértices → obj/gltf/png`);
+    console.log(`  objeto ${spec.nombre}: ${stats.vertexCount} vÃ©rtices â†’ obj/gltf/png`);
     n += 3; // png + obj + gltf
   }
   return n;
+}
+
+/**
+ * Banda sonora procedural determinista para un video (semilla â†’ notas).
+ * PentatÃ³nica menor + bajo + ruido rosa suave: cero deps, cero red.
+ */
+function crearSoundtrack(seed: number, durationSec: number): Buffer {
+  const bpm = 96;
+  const bars = Math.max(1, Math.min(8, Math.ceil((durationSec * bpm) / 240)));
+  // Escala pentatÃ³nica menor en La (A C D E G) por octavas.
+  const escala = [220, 261.63, 293.66, 329.63, 392, 440, 523.25, 587.33];
+  const pattern: NoteStep[] = [];
+  for (let bar = 0; bar < bars; bar++) {
+    const base = bar * 16;
+    pattern.push({ step: base, freq: escala[0] / 2, type: 'triangle', gain: 0.42 }); // bajo
+    for (const s of [0, 3, 6, 10, 12]) {
+      const idx = (bar * 5 + s) % escala.length;
+      const salt = ((seed % 13) + s * 7 + bar * 3) % 2 === 0 ? 1 : 0;
+      pattern.push({
+        step: base + s + (s > 6 ? 2 : 0),
+        freq: escala[(idx + salt) % escala.length] * (salt ? 2 : 1),
+        type: 'sine',
+        gain: 0.22,
+      });
+    }
+  }
+  const seq = sequenceNotes({ bpm, bars, seed, pattern });
+  const air = synthPinkNoise({ durationSec: seq.durationSec });
+  return encodeWav(mixSynths([seq, air]));
 }
 
 /** Fase CREATE: videos procedurales reales (frames PNG + ffmpeg MP4). */
@@ -150,34 +182,29 @@ async function crearVideos(
       palette: spec.palette,
       outName: spec.outName,
     });
-    const plan = planProcVid(normalized);
-    const result = await renderFrames(normalized, { framesDir: videoDir });
+    // outDir explÃ­cito: el plan genera argv con rutas del MISMO directorio
+    // donde renderFrames escribe los frames (si no, ffmpeg leerÃ­a otra ruta).
+    const plan = planProcVid(normalized, { outDir: videoDir });
+    const result = await renderFrames(normalized, { framesDir: plan.framesDir });
     const script = buildRenderScript(plan);
     const shPath = path.join(videoDir, `${plan.outName}.sh`);
     fs.writeFileSync(shPath, script.sh);
     const mp4 = path.join(videoDir, `${plan.outName}.mp4`);
     if (has('ffmpeg')) {
       try {
-        execFileSync(
-          'ffmpeg',
-          [
-            '-y', '-loglevel', 'error',
-            '-framerate', String(plan.fps),
-            '-i', path.join(videoDir, 'frame_%06d.png'),
-            '-c:v', 'libx264', '-pix_fmt', 'yuv420p',
-            '-movflags', '+faststart',
-            mp4,
-          ],
-          { stdio: 'pipe' },
-        );
-        console.log(`  video ${plan.outName}.mp4 (${result.count} frames) OK`);
+        // Banda sonora procedural (semilla â†’ WAV) + mux aditivo.
+        const wavPath = path.join(videoDir, `${plan.outName}.wav`);
+        fs.writeFileSync(wavPath, crearSoundtrack(spec.seed, plan.durationSec));
+        const argv = planAudioMux(plan.ffmpegArgv, wavPath, { codec: 'aac', volume: 0.6 });
+        execFileSync('ffmpeg', argv.slice(1), { stdio: 'pipe' });
+        console.log(`  video ${plan.outName}.mp4 (${result.count} frames + soundtrack) OK`);
         count++;
         // limpiar frames para no acumular GB entre ciclos
-        for (const f of fs.readdirSync(videoDir)) {
-          if (/^frame_\d+\.png$/.test(f)) fs.unlinkSync(path.join(videoDir, f));
+        for (const f of fs.readdirSync(plan.framesDir)) {
+          if (/^frame_\d+\.png$/.test(f)) fs.unlinkSync(path.join(plan.framesDir, f));
         }
       } catch (err) {
-        errores.push(`ffmpeg falló para ${plan.outName} (frames en ${videoDir}): ${String(err).slice(0, 160)}`);
+        errores.push(`ffmpeg fallÃ³ para ${plan.outName} (frames en ${videoDir}): ${String(err).slice(0, 160)}`);
       }
     } else {
       errores.push('ffmpeg no encontrado: frames PNG generados, ensamble omitido (fail-soft)');
@@ -186,7 +213,7 @@ async function crearVideos(
   return count;
 }
 
-/** Fase PUBLISH: encola una publicación por cada video creado (fail-soft). */
+/** Fase PUBLISH: encola una publicaciÃ³n por cada video creado (fail-soft). */
 async function publicar(dir: string, videos: number, cfg: ReturnType<typeof resolveCerebroConfig>): Promise<{ ok: boolean; encoladas: number }> {
   if (videos === 0) return { ok: true, encoladas: 0 };
   try {
@@ -200,7 +227,7 @@ async function publicar(dir: string, videos: number, cfg: ReturnType<typeof reso
         paquete: {
           briefId: `cerebro-${cycleIdFor()}`,
           tema: `Generativo ${cycleIdFor()}`,
-          contenido: `Video procedural creado 100% por código en el ciclo ${cycleIdFor()} (sin assets ni modelos externos): frames matemáticos ensamblados con ffmpeg.`,
+          contenido: `Video procedural creado 100% por cÃ³digo en el ciclo ${cycleIdFor()} (sin assets ni modelos externos): frames matemÃ¡ticos ensamblados con ffmpeg.`,
           media: { tipo: 'video' },
           captionsByChannel: {},
           visualByChannel: {} as never,
@@ -256,7 +283,7 @@ async function main(): Promise<void> {
   const dir = path.join(CEREBRO_DIR, cycleId);
   fs.mkdirSync(dir, { recursive: true });
   const errores: string[] = [];
-  console.log(`[cerebro] ciclo ${cycleId} → ${path.relative(ROOT, dir)}`);
+  console.log(`[cerebro] ciclo ${cycleId} â†’ ${path.relative(ROOT, dir)}`);
 
   /* LEARN: gaps de autolearn (dominio puro sobre learning/truth) */
   let lecciones = 0;
@@ -290,7 +317,7 @@ async function main(): Promise<void> {
   if (!plan.pasos.find((p) => p.kind === 'publish')?.saltado) {
     const res = await publicar(dir, videos, config);
     encoladas = res.encoladas;
-    if (!res.ok) errores.push('PUBLISH fail-soft: BD no disponible → outbox JSON');
+    if (!res.ok) errores.push('PUBLISH fail-soft: BD no disponible â†’ outbox JSON');
   }
 
   /* REPORT + STATE */
@@ -307,7 +334,7 @@ async function main(): Promise<void> {
   fs.writeFileSync(path.join(dir, 'manifest.json'), JSON.stringify({ cycleId, ...resumen }, null, 2));
   fs.writeFileSync(path.join(dir, 'report.md'), buildBrainReport(plan, resumen));
   writeState(advanceBrainState(state, { artefactos, publicaciones: encoladas, lecciones }));
-  console.log(`[cerebro] ciclo listo: ${artefactos} artefactos, ${encoladas} publicación(es), ${(resumen.duracionMs / 1000).toFixed(1)}s`);
+  console.log(`[cerebro] ciclo listo: ${artefactos} artefactos, ${encoladas} publicaciÃ³n(es), ${(resumen.duracionMs / 1000).toFixed(1)}s`);
 }
 
 void main().catch((err) => {
