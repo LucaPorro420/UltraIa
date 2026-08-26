@@ -42,6 +42,15 @@ npm run mobile         # = expo start en apps/mobile  (o: cd apps/mobile && npx 
 4. **Cloud** — archivos personales (`GET /api/cloud/files`, `DELETE /api/cloud/files`),
    resumen de tamaño (unidades binarias).
 5. **Blog** — posts publicados del blog propio (`GET /api/publications?estado=PUBLISHED&canal=blog`).
+6. **Creaciones** (nueva, loop-108) — media hub del Studio en el móvil:
+   `GET /api/library/assets` con chips de filtro por tipo (imagen/música/vídeo/diseño/nota),
+   miniaturas inline de imágenes, y acciones **Abrir/Reproducir** + **Descargar** +
+   **Borrar** (`DELETE /api/assets/[id]`).
+   - Los assets durables se sirven desde el cloud local/R2 del web; las URLs
+     relativas se absolutizan contra `EXPO_PUBLIC_API_URL` (o host dev).
+   - **Auth por query**: abrir/descargar usa `?session=<token>` porque el
+     navegador del sistema no puede mandar headers — soportado en
+     `GET /api/assets/[id]` y `/download` (loop-108).
 
 ## API REST de auth (nueva en el web)
 

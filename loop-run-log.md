@@ -2838,4 +2838,14 @@ de código, sin commit.
 
 ```json
 {"pattern":"pivr","iter":108,"gates":{"typecheck":0,"lint":0,"test":1849,"build":0},"commits":["dac14cf","2e56e6c","cd63d22"],"incidente":"pull-rebase-descarto-15-commits-recuperado","qdrant_sync":"pendiente-docker-caido","next":"IDE-F3-F5-o-sync-nube"}
+``
+
+### [P]/[I]/[V]/[R] Iteracion 109 — Mobile Creaciones: media hub en el bolsillo (25/08/2026)
+
+- **[P] Sensado**: "Sigue" tras iter-107 -> Watchlist "movil tipos assets". Recon: expo-router tabs + api/client con SecureStore; RN Image acepta uri absoluta; navegador del sistema NO manda headers -> se necesita auth por query para abrir/descargar medios. Sin deps RN nuevas (cero expo-audio/video: reproducir = Linking al navegador). Numeracion: su sesion tomo 108 en bitacora -> esta es 109.
+- **[I]** web: GET /api/assets/[id] y /download aceptan `?session=<token>` ademas de header/cookie (getUserForRead local; PATCH/DELETE intactos) · mobile types.ts += AssetRecord/AssetsResponse/parseAssetMeta/assetTypeLabel · client.ts += assetOpenUrl/assetDownloadUrl (session-query) · tab `creaciones.tsx` NUEVA: chips filtro por tipo, miniaturas inline (URLs relativas absolutizadas con sesion), acciones Ampliar|Reproducir·Descargar·Borrar con confirmacion, RefreshControl · _layout registra tab 'images' · docs/MOBILE.md seccion Creaciones. Fix propio: Add-Content PS5.1 corrompio acentos en types.ts (mojibake Mǧsica) -> reescritura completa con tool Write (leccion 108 re-aplicada en carne propia).
+- **[V]** tsc mobile **0**. FULL CI order arbol vivo: typecheck **0** / lint **0** / test **1656+193 TODO PASS** (incl. reporeview ya reparado por su autor) / build **0**. Commit pathspec `68fed90` (3 archivos directos; types+routes ya estaban en HEAD via su restore cd63d22 que absorbio mi worktree).
+- **[R]** iter-109 DONE. Studio v2 completo end-to-end en las 3 superficies: web (crear/guardar/reproducir/descargar/modificar), agentes (capability studio), movil (ver/abrir/descargar/borrar). Pendiente menor: reproduccion audio/video nativa in-app requiere expo-audio/expo-video (decision de deps diferida). Push requiere aprobacion humana.
+``json
+{"pattern":"pivr","iter":109,"gates":{"typecheck":0,"lint":0,"test":"1849","build":0},"scoped":{"tsc_mobile":0},"commits":["68fed90"],"incidente":"colision-numeracion-108","next":"expo-audio-video-nativo-o-sync-qdrant"}
 ```
