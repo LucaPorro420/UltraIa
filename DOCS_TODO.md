@@ -962,3 +962,7 @@ Cada commit agrega una sección con fecha y la lista de archivos `.ts/.tsx` toca
 
 ## 2026-08-26T06:10:36.414Z
 - [ ] packages/core/src/omag/audiolibrary.test.ts
+
+## 2026-08-26T06:11:04.018Z
+- [ ] apps/web/src/app/(app)/workspace/workspace-client.tsx
+- [ ] apps/web/src/components/ide/ide-shell.tsx
