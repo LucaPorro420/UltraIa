@@ -58,7 +58,10 @@ describe('AudioLibrary', () => {
     expect(await lib.saveSample('https://cdn/x.mp3', 'x')).toBeNull();
   });
 
-  it('extractAudioFromVideo degrades with an actionable message', { timeout: 15_000 }, async () => {
+  // 30s: el camino ffmpeg-instalado encadena hasta 3 procesos reales (probe del
+  // test + probes ffmpeg/yt-dlp internos de 5s c/u); 15s era flaky bajo la carga
+  // paralela del suite completo (precedente: flake autolearn fb0f836).
+  it('extractAudioFromVideo degrades with an actionable message', { timeout: 30_000 }, async () => {
     const lib = sampleLib();
     // Use a local nonexistent path so the test stays hermetic (no network / yt-dlp).
     // With ffmpeg installed the extraction fails with the yt-dlp guide; without it,
