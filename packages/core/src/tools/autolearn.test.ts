@@ -78,12 +78,16 @@ describe('autolearn / parseLearnings', () => {
   });
 
   it('cuenta lecciones del ultimo periodo (7 dias)', () => {
-    const entries = parseLearnings([
-      '- A (2026-08-20): hoy',
-      '- B (2026-08-19): ayer',
-      '- C (2026-08-01): vieja',
-      '- D: sin fecha',
-    ].join('\n'));
+    // Fechas RELATIVAS al reloj: un fixture con fechas fijas envejece y rompe
+    // el gate justo al cruzar la medianoche del límite (flake real 26/08).
+    const d = (offsetDays: number): string => {
+      const t = new Date(Date.now() - offsetDays * 86_400_000);
+      const p = (n: number): string => String(n).padStart(2, '0');
+      return `${t.getFullYear()}-${p(t.getMonth() + 1)}-${p(t.getDate())}`;
+    };
+    const entries = parseLearnings(
+      [`- A (${d(0)}): hoy`, `- B (${d(1)}): ayer`, `- C (${d(30)}): vieja`, '- D: sin fecha'].join('\n'),
+    );
     expect(autolearn.countRecentLearnings(entries, 7)).toBe(2);
   });
 
