@@ -94,7 +94,7 @@ function IdeRail({
               key={it.href}
               href={it.href}
               title={it.label}
-              className={`group relative flex h-9 w-9 items-center justify-center rounded-md transition-colors duration-150 ${
+              className={`group relative flex h-10 w-10 items-center justify-center rounded-md transition-colors duration-200 ${
                 active
                   ? 'bg-panel-hover text-white shadow-[0_0_18px_-10px_rgba(139,92,246,0.5)]'
                   : 'text-neutral-500 hover:bg-panel-hover/60 hover:text-neutral-100'
@@ -141,7 +141,7 @@ function RailButton({
       title={title}
       aria-label={title}
       onClick={onClick}
-      className={`flex h-9 w-9 items-center justify-center rounded-md transition-colors duration-150 ${
+      className={`flex h-10 w-10 items-center justify-center rounded-md transition-colors duration-200 ${
         active
           ? 'bg-panel-hover text-neutral-100'
           : 'text-neutral-500 hover:bg-panel-hover/60 hover:text-neutral-100'
@@ -296,6 +296,67 @@ function ConnectionsHud() {
   );
 }
 
+/* ── Feed de actividad viva: cola de publicaciones (F4/F3) ─────────────── */
+
+interface PublicationRow {
+  id: string;
+  canal: string;
+  estado: string;
+  tema?: string;
+}
+
+const ESTADO_DOT: Record<string, string> = {
+  PUBLISHED: 'bg-emerald-400',
+  APPROVED: 'bg-sky-400',
+  DRAFT: 'bg-amber-400',
+  FAILED: 'bg-red-400',
+  REJECTED: 'bg-neutral-500',
+};
+
+function useRecentPublications(): PublicationRow[] {
+  const [rows, setRows] = useState<PublicationRow[]>([]);
+  useEffect(() => {
+    let alive = true;
+    const load = async () => {
+      try {
+        const res = await fetch('/api/publications');
+        if (!res.ok) return;
+        const data = (await res.json()) as { items?: PublicationRow[] } | PublicationRow[];
+        const list = Array.isArray(data) ? data : (data.items ?? []);
+        if (alive) setRows(list.slice(0, 6));
+      } catch {
+        /* fail-soft */
+      }
+    };
+    load();
+    const id = window.setInterval(load, 90_000);
+    return () => {
+      alive = false;
+      window.clearInterval(id);
+    };
+  }, []);
+  return rows;
+}
+
+function DockActivity() {
+  const rows = useRecentPublications();
+  if (rows.length === 0) return null;
+  return (
+    <div className="flex min-w-0 flex-1 items-center gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      {rows.map((p) => (
+        <span
+          key={p.id}
+          title={`${p.canal} · ${p.estado}${p.tema ? ` · ${p.tema}` : ''}`}
+          className="flex shrink-0 items-center gap-1.5 rounded border border-border-subtle bg-input-active px-2 py-0.5 font-mono text-[10px] text-neutral-400"
+        >
+          <span className={`h-1.5 w-1.5 rounded-full ${ESTADO_DOT[p.estado] ?? 'bg-neutral-500'}`} />
+          {p.canal}
+        </span>
+      ))}
+    </div>
+  );
+}
+
 /* ── Panel inferior (dock) ─────────────────────────────────────────────── */
 
 function IdeDock() {
@@ -308,6 +369,7 @@ function IdeDock() {
           Actividad
         </span>
         <span className="font-mono text-[10px] uppercase tracking-widest text-neutral-600">Estado</span>
+        <DockActivity />
         <ConnectionsHud />
         <span className="hidden font-mono text-[10px] text-neutral-600 lg:inline">
           Ctrl+B explorador · Ctrl+J este panel
@@ -326,7 +388,7 @@ function IdeDock() {
           </span>
         )}
         <span className="text-neutral-600">
-          El feed de actividad en vivo llegará con la fase F4 (conexiones + HUD).
+          Feed de publicaciones en vivo arriba · HUD de conexiones activo.
         </span>
       </div>
     </div>

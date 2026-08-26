@@ -205,7 +205,7 @@ function PaneFrame({
   const meta = VIEW_META[pane.view];
   const Icon = meta.icon;
   return (
-    <div className="flex h-full flex-col overflow-hidden rounded-lg border border-border-subtle bg-panel/70">
+    <div className="flex h-full flex-col overflow-hidden rounded-lg border border-border-subtle bg-panel/70 transition-shadow duration-200 focus-within:border-primary/60 focus-within:shadow-[0_0_0_1px_rgba(139,92,246,0.45),0_0_24px_-12px_rgba(139,92,246,0.5)]">
       <header className="flex h-[34px] shrink-0 items-center gap-2 border-b border-border-subtle bg-panel-header px-2.5">
         <Icon className="h-3.5 w-3.5 shrink-0 text-primary" />
         <span className="truncate font-mono text-[11px] font-semibold uppercase tracking-widest text-neutral-300">
@@ -262,6 +262,19 @@ function newPaneId(): string {
   return `p-${Date.now().toString(36)}-${paneSeq}`;
 }
 
+/** <768px: apila los paneles en columna (el Group horizontal no cabe). */
+function useIsNarrow(): boolean | null {
+  const [narrow, setNarrow] = useState<boolean | null>(null);
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 767px)');
+    const update = () => setNarrow(mq.matches);
+    update();
+    mq.addEventListener('change', update);
+    return () => mq.removeEventListener('change', update);
+  }, []);
+  return narrow;
+}
+
 export function WorkspaceClient({
   userName,
   agents,
@@ -272,6 +285,7 @@ export function WorkspaceClient({
   const [panes, setPanes] = useState<Pane[] | null>(null); // null = pre-hidratación
   const [addOpen, setAddOpen] = useState(false);
   const addMenuRef = useRef<HTMLDivElement>(null);
+  const narrow = useIsNarrow();
 
   useEffect(() => {
     const stored = loadPanes();
@@ -409,13 +423,30 @@ export function WorkspaceClient({
         </p>
       )}
 
-      <Group
-        orientation="horizontal"
-        id="ultraia-workspace"
-        className="h-[calc(100vh-13rem)] min-h-[420px]"
-      >
-        {groupChildren}
-      </Group>
+      {narrow ? (
+        // Móvil/tablet angosta: columna apilada, cada panel con altura útil.
+        <div className="flex flex-col gap-3">
+          {panes.map((pane) => (
+            <div key={pane.id} className="h-[520px]">
+              <PaneFrame
+                pane={pane}
+                agents={agents}
+                onAgentChange={(agentId) => updatePane(pane.id, { agentId })}
+                onModoChange={(modo) => updatePane(pane.id, { modo })}
+                onClose={() => closePane(pane.id)}
+              />
+            </div>
+          ))}
+        </div>
+      ) : (
+        <Group
+          orientation="horizontal"
+          id="ultraia-workspace"
+          className="h-[calc(100vh-13rem)] min-h-[420px]"
+        >
+          {groupChildren}
+        </Group>
+      )}
     </div>
   );
 }

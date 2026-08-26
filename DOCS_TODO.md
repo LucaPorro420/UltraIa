@@ -942,3 +942,23 @@ Cada commit agrega una sección con fecha y la lista de archivos `.ts/.tsx` toca
 
 ## 2026-08-25T22:10:43.463Z
 - [ ] packages/core/src/tools/research-firecrawl.test.ts
+
+## 2026-08-25T23:31:35.421Z
+- [ ] apps/mobile/src/api/types.ts
+- [ ] apps/web/src/app/api/assets/[id]/download/route.ts
+- [ ] apps/web/src/app/api/assets/[id]/route.ts
+- [ ] packages/core/src/tools/reporeview.ts
+
+## 2026-08-25T23:42:48.038Z
+- [ ] apps/mobile/src/api/client.ts
+- [ ] apps/mobile/src/app/(tabs)/_layout.tsx
+- [ ] apps/mobile/src/app/(tabs)/creaciones.tsx
+
+## 2026-08-26T04:20:22.576Z
+- [ ] apps/mobile/src/app/(tabs)/creaciones.tsx
+
+## 2026-08-26T04:52:24.626Z
+- [ ] packages/core/src/tools/autolearn.test.ts
+
+## 2026-08-26T06:10:36.414Z
+- [ ] packages/core/src/omag/audiolibrary.test.ts
