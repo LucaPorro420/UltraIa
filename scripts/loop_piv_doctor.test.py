@@ -67,6 +67,25 @@ class KillSwitchTests(unittest.TestCase):
         self.runlog_path.write_text("x\n", encoding="utf-8")
         self.assertTrue(loop_piv.kill_switch_active())
 
+    def test_diagnostic_meta_mention_ignored(self) -> None:
+        # Falso positivo real L2294 (26/08/2026): reporte diagnostico que CUENTA
+        # menciones del token ("8 menciones de `loop-pause-all`...") no es una orden.
+        self.state_path.write_text("# Estado\n\nBanner normal.\n", encoding="utf-8")
+        self.runlog_path.write_text(
+            "- **[P] Sensado**: Kill switch: 8 menciones de `loop-pause-all` en STATE.md,"
+            " TODAS en prosa negada. Proceder.\n",
+            encoding="utf-8",
+        )
+        self.assertFalse(loop_piv.kill_switch_active())
+
+    def test_english_without_negation_ignored(self) -> None:
+        # "without loop-pause-all" en prosa inglesa tampoco activa.
+        self.state_path.write_text("ok\n", encoding="utf-8")
+        self.runlog_path.write_text(
+            "prosa: without loop-pause-all nothing happens\n", encoding="utf-8"
+        )
+        self.assertFalse(loop_piv.kill_switch_active())
+
 
 class DoctorTests(unittest.TestCase):
     def setUp(self) -> None:

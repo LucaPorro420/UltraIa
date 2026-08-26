@@ -53,7 +53,7 @@ PLANS_DIR = ROOT / ".opencode" / "plans"
 LEARNINGS = ROOT / "learning" / "LEARNINGS.md"
 
 KILL_SWITCH = "loop-pause-all"
-KILL_SWITCH_NEGATIONS = ("sin ", "sin`", "sin '", "sin \"", "ausente", "no activo")
+KILL_SWITCH_NEGATIONS = ("sin ", "sin`", "sin '", "sin \"", "ausente", "no activo", "without ")
 TASK_RE = re.compile(
     r"^\|\s*(\d+)\s*\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|\s*"
     r"pendiente(?:\s*—\s*SIGUIENTE)?\s*\|",
@@ -134,15 +134,25 @@ def kill_switch_active() -> bool:
     un falso positivo que detendria el bucle para siempre. Ahora cada ocurrencia
     se valida contra negaciones en los ~24 caracteres previos: si TODAS las
     ocurrencias estan negadas (sin/ausente/no activo), el kill switch NO esta activo.
+
+    FIX 2026-08-26 (iter-112 genesis): la prosa diagnostica de L2294 ("8 menciones
+    de `loop-pause-all` ... TODAS [negadas]") volvia a disparar el detector.
+    Se amplian las negaciones con marcadores de mencion-meta que aparecen justo
+    antes del token (mencione/ocurrencia/falso positivo/matches). La ventana
+    permanece en 24 chars para NO ensombecer una orden real en la misma linea
+    (regresion cubierta por loop_piv_doctor.test.py::KillSwitchTests).
     """
+    extra_negations = ("mencione", "ocurrencia", "falso positivo", "matches")
     for path in (STATE, RUN_LOG):
         if not path.exists():
             continue
         text = path.read_text(encoding="utf-8", errors="replace")
         for m in re.finditer(re.escape(KILL_SWITCH), text):
             prefix = text[max(0, m.start() - 24):m.start()].lower()
-            if any(neg in prefix for neg in KILL_SWITCH_NEGATIONS):
-                continue  # mencion en prosa negada (documentacion, no kill switch)
+            if any(neg in prefix for neg in KILL_SWITCH_NEGATIONS) or any(
+                neg in prefix for neg in extra_negations
+            ):
+                continue  # mencion en prosa negada / reporte diagnostico (no kill switch)
             return True
     return False
 
