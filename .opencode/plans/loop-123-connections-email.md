@@ -78,3 +78,16 @@ directo al proyecto con una capa de seguridad por código.
   atómica.
 - Conclusión de sesión concurrente #25: su WIP quedó en `stash@{0}` (autostash del rebase). No
   integrar. Recuperable con `git stash pop` por esa sesión.
+
+## Estado (26/08/2026)
+- inc1 (fundación emailCode.ts + tests 15/15 + export): DONE, commit 3ad2b1a (pusheado).
+- inc3 (2FA en Conexiones) — ELEGIDO POR EL USUARIO: DONE.
+  - `apps/web/src/lib/server/emailCodeStore.ts` (store singleton en memoria).
+  - `apps/web/src/app/api/connections/send-code/route.ts` (POST envía código al email del admin).
+  - `apps/web/src/app/api/connections/route.ts` (POST exige + verifica `code` 2FA antes de guardar).
+  - `apps/web/src/app/(app)/connections/connections-client.tsx` (UI: banner + "Enviar código" + input).
+  - Gates web GREEN: typecheck / lint / build. (inc2 registro queda pendiente; el full-suite
+    sigue rojo solo por el WIP netwatch de la sesión #25, no por este cambio.)
+- Limitación conocida: store en memoria = válido para una instancia de servidor. Para
+  multi-instancia, migrar a Prisma (tabla EmailCode). Sin SMTP configurado, el código se
+  imprime en consola del servidor (dev-log); con `SMTP_*` se envía real.

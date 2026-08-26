@@ -1,7 +1,8 @@
-import { deleteConnection, listConnections, saveConnection } from '@ultraia/core';
+import { deleteConnection, listConnections, saveConnection, verifyEmailCode } from '@ultraia/core';
 import { prisma } from '@ultraia/core';
 import { z } from 'zod';
 import { getCurrentUser } from '@/lib/server/context';
+import { connection2faStore } from '@/lib/server/emailCodeStore';
 
 /**
  * F4 del IDE V0.1 — Gestión de conexiones de canales desde la interfaz.
@@ -30,6 +31,9 @@ const postSchema = z.object({
   canal: z.enum(CANALES),
   token: z.string().min(8).max(4096),
   meta: z.record(z.unknown()).optional(),
+  // Método de seguridad "código vía mail": el alta de una conexión exige un
+  // código de 6 dígitos enviado al email del admin (purpose: 'connection_2fa').
+  code: z.string().min(4).max(10),
 });
 
 export async function GET(req: Request) {
@@ -59,10 +63,25 @@ export async function POST(req: Request) {
   }
   if (!parsed.success) return new Response('Invalid body', { status: 400 });
 
-  const { canal, token, meta } = parsed.data;
+  const { canal, token, meta, code } = parsed.data;
+
+  // Puerta 2FA por email antes de persistir cualquier token de red social.
+  const verified = await verifyEmailCode({
+    email: user.email,
+    purpose: 'connection_2fa',
+    code,
+    store: connection2faStore,
+  });
+  if (!verified.ok) {
+    return Response.json(
+      { ok: false, verified: false, reason: verified.reason ?? 'invalid' },
+      { status: 401 },
+    );
+  }
+
   try {
     await saveConnection(prisma, canal, { token, meta });
-    return Response.json({ ok: true, canal });
+    return Response.json({ ok: true, canal, verified: true });
   } catch (e) {
     return Response.json({ ok: false, error: (e as Error).message }, { status: 500 });
   }

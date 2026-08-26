@@ -5,6 +5,7 @@ import {
   CheckCircle2,
   KeyRound,
   Loader2,
+  Mail,
   PlugZap,
   RefreshCcw,
   Trash2,
@@ -62,6 +63,8 @@ export function ConnectionsClient({
 }) {
   const [connections, setConnections] = useState<ConnectionStatusDTO[]>(initialConnections);
   const [tokenDrafts, setTokenDrafts] = useState<Record<string, string>>({});
+  const [codeDrafts, setCodeDrafts] = useState<Record<string, string>>({});
+  const [codeSent, setCodeSent] = useState<Record<string, boolean>>({});
   const [busyCanal, setBusyCanal] = useState<string | null>(null);
   const [notice, setNotice] = useState<{ canal: string; kind: 'ok' | 'err'; text: string } | null>(
     null,
@@ -94,25 +97,77 @@ export function ConnectionsClient({
       setNotice({ canal, kind: 'err', text: 'El token parece demasiado corto.' });
       return;
     }
+    const code = (codeDrafts[canal] ?? '').trim();
+    if (code.length < 4) {
+      setNotice({ canal, kind: 'err', text: 'Introduce el código de 6 dígitos enviado a tu email.' });
+      return;
+    }
     setBusyCanal(canal);
     try {
       const res = await fetch('/api/connections', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ canal, token }),
+        body: JSON.stringify({ canal, token, code }),
       });
       if (res.ok) {
-        setNotice({ canal, kind: 'ok', text: 'Token guardado (cifrado). Pulsa Probar para verificarlo.' });
+        setNotice({
+          canal,
+          kind: 'ok',
+          text: 'Token guardado (cifrado) tras verificar el código. Pulsa Probar para verificarlo.',
+        });
         setTokenDrafts((d) => ({ ...d, [canal]: '' }));
+        setCodeDrafts((d) => ({ ...d, [canal]: '' }));
+        setCodeSent((d) => ({ ...d, [canal]: false }));
         await refresh();
       } else {
-        const text = await res.text();
-        setNotice({ canal, kind: 'err', text: `No se pudo guardar (${res.status}): ${text}` });
+        const data = (await res.json().catch(() => null)) as {
+          reason?: string;
+          error?: string;
+        } | null;
+        const reason = data?.reason;
+        const detail = reason
+          ? reason === 'expired'
+            ? 'expirado'
+            : reason === 'invalid'
+              ? 'incorrecto'
+              : reason === 'not_found'
+                ? 'no solicitado (pulsa "Enviar código")'
+                : 'rechazado'
+          : data?.error ?? (await res.text());
+        setNotice({ canal, kind: 'err', text: `No se pudo guardar (${res.status}): ${detail}` });
       }
     } finally {
       setBusyCanal(null);
     }
-  }, [tokenDrafts, refresh]);
+  }, [tokenDrafts, codeDrafts, refresh]);
+
+  const enviarCodigo = useCallback(async (canal: string) => {
+    setBusyCanal(canal);
+    try {
+      const res = await fetch('/api/connections/send-code', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ canal }),
+      });
+      if (res.ok) {
+        setCodeSent((d) => ({ ...d, [canal]: true }));
+        setNotice({
+          canal,
+          kind: 'ok',
+          text: 'Código enviado a tu email. Introdúcelo (6 dígitos) y pulsa Guardar.',
+        });
+      } else {
+        const data = (await res.json().catch(() => null)) as { error?: string } | null;
+        setNotice({
+          canal,
+          kind: 'err',
+          text: `No se pudo enviar el código (${res.status}): ${data?.error ?? ''}`,
+        });
+      }
+    } finally {
+      setBusyCanal(null);
+    }
+  }, []);
 
   const probar = useCallback(async (canal: string) => {
     setBusyCanal(canal);
@@ -174,6 +229,12 @@ export function ConnectionsClient({
         </button>
       </div>
 
+      <p className="rounded-lg border border-border-subtle bg-panel/60 px-4 py-2 text-[11px] text-neutral-400">
+        Seguridad: guardar una conexión exige un código de 6 dígitos enviado a tu email
+        (método &ldquo;código vía mail&rdquo;). Pulsa &ldquo;Enviar código&rdquo;, introdúcelo y
+        luego Guardar.
+      </p>
+
       {!isAdmin && (
         <p className="rounded-lg border border-amber-900/50 bg-amber-950/30 px-4 py-3 text-xs text-amber-300">
           Modo solo lectura: gestionar claves requiere cuenta de administrador.
@@ -231,7 +292,8 @@ export function ConnectionsClient({
               </p>
 
               {isAdmin && (
-                <div className="mt-auto flex flex-wrap items-center gap-2">
+                <>
+                  <div className="mt-auto flex flex-wrap items-center gap-2">
                   <input
                     type="password"
                     value={tokenDrafts[canal] ?? ''}
@@ -273,6 +335,30 @@ export function ConnectionsClient({
                     </button>
                   )}
                 </div>
+
+                <div className="mt-2 flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    disabled={busy}
+                    onClick={() => enviarCodigo(canal)}
+                    className="flex items-center gap-1 rounded-md border border-border-subtle bg-panel px-2.5 py-1.5 text-[11px] font-semibold text-neutral-200 transition-colors duration-150 hover:bg-panel-hover disabled:opacity-40"
+                  >
+                    <Mail className="h-3.5 w-3.5" /> Enviar código
+                  </button>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    value={codeDrafts[canal] ?? ''}
+                    onChange={(e) => setCodeDrafts((d) => ({ ...d, [canal]: e.target.value }))}
+                    placeholder="Código (6 dígitos)"
+                    autoComplete="one-time-code"
+                    className="w-40 rounded-md border border-border-muted bg-input-active px-2.5 py-1.5 font-mono text-[11px] text-neutral-100 outline-none transition-colors duration-150 placeholder:text-neutral-600 focus:border-border-active"
+                  />
+                  {codeSent[canal] && (
+                    <span className="text-[10px] text-emerald-400">código enviado</span>
+                  )}
+                </div>
+                </>
               )}
 
               {notice?.canal === canal && (
