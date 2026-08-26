@@ -1,11 +1,14 @@
 /**
- * Tab "Creaciones" (loop-108): el media hub del Studio en el bolsillo.
- * Lista multi-media con filtro por tipo; imágenes inline y audio/vídeo/notas
- * abiertas en el navegador del sistema vía `?session=` (sin headers posible ahí).
+ * Tab "Creaciones" (loop-108/111): el media hub del Studio en el bolsillo.
+ * Lista multi-media con filtro por tipo; imágenes inline; audio (expo-audio) y
+ * vídeo (expo-video) con reproducción NATIVA in-app; notas/diseño abren en el
+ * navegador del sistema vía `?session=` (sin headers posible ahí).
  */
 import { useCallback, useState } from 'react';
 import { Alert, Image, Linking, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useFocusEffect } from 'expo-router';
+import { useAudioPlayer, useAudioPlayerStatus } from 'expo-audio';
+import { useVideoPlayer, VideoView } from 'expo-video';
 import { api, assetDownloadUrl, assetOpenUrl } from '@/api/client';
 import { assetTypeLabel, parseAssetMeta, type AssetRecord } from '@/api/types';
 import { Card, EmptyState, ErrorBanner, Loading, Screen } from '@/components/ui';
@@ -23,12 +26,48 @@ const FILTER_LABEL: Record<Filter, string> = {
   text: 'Nota',
 };
 
+function mmss(sec: number): string {
+  const s = Math.max(0, Math.floor(sec || 0));
+  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+}
+
+/** Player de audio nativo in-app (expo-audio, loop-111). */
+function InlineAudio({ uri }: { uri: string }) {
+  const player = useAudioPlayer(uri);
+  const status = useAudioPlayerStatus(player);
+  return (
+    <View style={styles.playerBox}>
+      <Pressable
+        style={styles.playBtn}
+        onPress={() => (status.playing ? player.pause() : player.play())}>
+        <Text style={styles.playBtnText}>{status.playing ? '❚❚' : '▶'}</Text>
+      </Pressable>
+      <Text style={styles.playerTime}>
+        {mmss(status.currentTime)} / {mmss(status.duration)}
+      </Text>
+      <Pressable style={styles.replayBtn} onPress={() => player.seekTo(0)}>
+        <Text style={styles.replayBtnText}>↺</Text>
+      </Pressable>
+    </View>
+  );
+}
+
+/** Player de vídeo nativo in-app (expo-video, loop-111). */
+function InlineVideo({ uri }: { uri: string }) {
+  const player = useVideoPlayer(uri, (p) => {
+    p.loop = false;
+  });
+  return <VideoView player={player} style={styles.video} contentFit="contain" nativeControls />;
+}
+
 export default function CreacionesScreen() {
   const [assets, setAssets] = useState<AssetRecord[]>([]);
   const [filter, setFilter] = useState<Filter>('todos');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  // Reproductor nativo expandido (uno a la vez; null = ninguno).
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setError(null);
@@ -112,6 +151,8 @@ export default function CreacionesScreen() {
           <AssetCard
             key={a.id}
             asset={a}
+            expanded={expandedId === a.id}
+            onTogglePlay={() => setExpandedId((cur) => (cur === a.id ? null : a.id))}
             onOpen={() => void open(a)}
             onDownload={() => void download(a)}
             onRemove={() => remove(a)}
@@ -125,29 +166,37 @@ export default function CreacionesScreen() {
 
 function AssetCard({
   asset,
+  expanded,
+  onTogglePlay,
   onOpen,
   onDownload,
   onRemove,
 }: {
   asset: AssetRecord;
+  expanded: boolean;
+  onTogglePlay: () => void;
   onOpen: () => void;
   onDownload: () => void;
   onRemove: () => void;
 }) {
   const meta = parseAssetMeta(asset);
   const isImage = asset.mediaType === 'image' || asset.mediaType === 'design';
+  const isAudio = asset.mediaType === 'music' || asset.mediaType === 'audio' || asset.mediaType === 'tts';
+  const isVideo = asset.mediaType === 'video';
 
   return (
     <Card style={styles.card}>
       {isImage ? (
         <Image source={{ uri: asset.url }} style={styles.thumb} resizeMode="cover" />
+      ) : isVideo && expanded ? (
+        <InlineVideo uri={asset.url} />
       ) : (
         <View style={[styles.thumb, styles.thumbPlaceholder]}>
-          <Text style={styles.placeholderGlyph}>
-            {asset.mediaType === 'music' || asset.mediaType === 'audio' ? '♪' : asset.mediaType === 'video' ? '▶' : '≡'}
-          </Text>
+          <Text style={styles.placeholderGlyph}>{isAudio ? '♪' : isVideo ? '▶' : '≡'}</Text>
         </View>
       )}
+
+      {isAudio && expanded ? <InlineAudio uri={asset.url} /> : null}
 
       <Text style={styles.prompt} numberOfLines={2}>
         {asset.prompt}
@@ -159,9 +208,21 @@ function AssetCard({
       </Text>
 
       <View style={styles.actions}>
-        <Pressable style={styles.btn} onPress={onOpen}>
-          <Text style={styles.btnText}>{isImage ? 'Ampliar' : 'Reproducir'}</Text>
-        </Pressable>
+        {(isAudio || isVideo) && (
+          <Pressable style={[styles.btn, styles.btnPrimary]} onPress={onTogglePlay}>
+            <Text style={[styles.btnText, styles.btnPrimaryText]}>{expanded ? 'Cerrar player' : 'Reproducir'}</Text>
+          </Pressable>
+        )}
+        {isImage ? (
+          <Pressable style={styles.btn} onPress={onOpen}>
+            <Text style={styles.btnText}>Ampliar</Text>
+          </Pressable>
+        ) : null}
+        {!isImage && !isAudio && !isVideo ? (
+          <Pressable style={styles.btn} onPress={onOpen}>
+            <Text style={styles.btnText}>Abrir</Text>
+          </Pressable>
+        ) : null}
         {asset.storage === 'cloud' ? (
           <Pressable style={styles.btn} onPress={onDownload}>
             <Text style={styles.btnText}>Descargar</Text>
@@ -209,7 +270,44 @@ const styles = StyleSheet.create({
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: Colors.dark.border,
   },
+  btnPrimary: { borderColor: Colors.dark.primary, backgroundColor: `${Colors.dark.primary}22` },
+  btnPrimaryText: { color: Colors.dark.text },
   btnDanger: { borderColor: '#b91c1c66' },
   btnText: { color: Colors.dark.text, fontSize: 12 },
   btnDangerText: { color: '#fca5a5' },
+  playerBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    paddingVertical: 6,
+    marginBottom: 4,
+  },
+  playBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: Colors.dark.primary,
+  },
+  playBtnText: { color: '#fff', fontSize: 14 },
+  playerTime: { color: Colors.dark.textSecondary, fontSize: 12, fontFamily: Fonts.mono },
+  replayBtn: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: Colors.dark.border,
+    marginLeft: 'auto',
+  },
+  replayBtnText: { color: Colors.dark.textSecondary, fontSize: 14 },
+  video: {
+    width: '100%',
+    aspectRatio: 16 / 9,
+    borderRadius: 10,
+    marginBottom: 8,
+    backgroundColor: '#00000088',
+  },
 });
