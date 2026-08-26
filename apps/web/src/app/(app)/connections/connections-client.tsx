@@ -29,16 +29,28 @@ interface ConnectionStatusDTO {
 }
 
 const CANAL_META: Record<string, { label: string; hint: string }> = {
-  youtube_shorts: { label: 'YouTube Shorts', hint: 'OAuth del canal (access token)' },
-  tiktok: { label: 'TikTok', hint: 'Content Posting API (access token)' },
-  x: { label: 'X', hint: 'OAuth 2.0 user token' },
-  instagram: { label: 'Instagram Reels', hint: 'Graph API token + IG_USER_ID en meta' },
-  threads: { label: 'Threads', hint: 'Graph API token + THREADS_USER_ID en meta' },
-  facebook: { label: 'Facebook Pages', hint: 'Page access token' },
-  linkedin: { label: 'LinkedIn', hint: 'Access token de organización o miembro' },
-  telegram: { label: 'Telegram', hint: 'Bot token (@BotFather)' },
-  discord: { label: 'Discord', hint: 'Webhook URL completa' },
+  youtube_shorts: { label: 'YouTube Shorts', hint: 'OAuth: refresh_token o access_token de la API de YouTube' },
+  youtube: { label: 'YouTube (canal)', hint: 'Canal completo. Monetiza: AdSense, membresías y affiliates' },
+  tiktok: { label: 'TikTok', hint: 'Access token de la Content Posting API' },
+  x: { label: 'X (Twitter)', hint: 'Bearer token de la API v2' },
+  instagram: { label: 'Instagram', hint: 'Access token de la Graph API (cuenta IG Business)' },
+  threads: { label: 'Threads', hint: 'Access token de la Graph API (Threads)' },
+  facebook: { label: 'Facebook', hint: 'Access token de la Graph API (página)' },
+  linkedin: { label: 'LinkedIn', hint: 'Access token de la API v2' },
+  pinterest: { label: 'Pinterest', hint: 'Access token. Monetiza: affiliate/ecommerce; alcance visual' },
+  reddit: { label: 'Reddit', hint: 'OAuth app. Alcance masivo vía comunidades y tráfico' },
+  medium: { label: 'Medium', hint: 'Token de integración. Monetiza: Partner Program por lectura' },
+  substack: { label: 'Substack', hint: 'API/pub. Monetiza: newsletter de pago; alcance directo' },
+  patreon: { label: 'Patreon', hint: 'Access token. Monetiza: membresías recurrentes' },
+  twitch: { label: 'Twitch', hint: 'OAuth. Monetiza: subs/bits; alcance en streaming' },
+  whatsapp: { label: 'WhatsApp Business', hint: 'Token de la Cloud API (pago). Alcance directo vía mensajería' },
+  telegram: { label: 'Telegram', hint: 'Bot token (enviar a un chat/channel)' },
+  discord: { label: 'Discord', hint: 'Webhook URL del canal' },
   slack: { label: 'Slack', hint: 'Bot token (xoxb-)' },
+  email: { label: 'Email / Newsletter', hint: 'SMTP o proveedor (Substack/Beehiiv). Monetiza: suscripciones y affiliate' },
+  outlook: { label: 'Microsoft 365 / Outlook', hint: 'Token Graph API. Alcance B2B y corporativo' },
+  github: { label: 'GitHub', hint: 'PAT. Monetiza: Sponsors; alcance en dev/open-source' },
+  gitlab: { label: 'GitLab', hint: 'PAT. Alcance dev/enterprise y CI' },
 };
 
 const TODOS_LOS_CANALES = Object.keys(CANAL_META);

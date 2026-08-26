@@ -91,3 +91,17 @@ directo al proyecto con una capa de seguridad por código.
 - Limitación conocida: store en memoria = válido para una instancia de servidor. Para
   multi-instancia, migrar a Prisma (tabla EmailCode). Sin SMTP configurado, el código se
   imprime en consola del servidor (dev-log); con `SMTP_*` se envía real.
+
+## Expansión de canales (26/08/2026)
+- El usuario pidió "más apps/web/redes que generen dinero y repercusión". Se amplió el registro
+  de `CANALES` (route.ts) y `CANAL_META` (client) de 10 → 22 plataformas, priorizando
+  monetización + alcance:
+  - Nuevos: `youtube` (canal completo), `pinterest`, `reddit`, `medium`, `substack`, `patreon`,
+    `twitch`, `whatsapp`, `email` (newsletter), `outlook` (MS Graph), `github` (Sponsors), `gitlab`.
+  - Existentes conservadas: `youtube_shorts`, `tiktok`, `x`, `instagram`, `threads`, `facebook`,
+    `linkedin`, `telegram`, `discord`, `slack`.
+- La puerta 2FA por email (inc3) es genérica y cubre TODOS los canales nuevos automáticamente
+  (keyFor ignora el canal; el código se verifica por `connection_2fa`).
+- Pendiente (fuera de este incremento): adapters de publicación AutoPub para los nuevos canales
+  sociales (pinterest/reddit/medium/etc.) y uso real de `email`/`outlook`/`github` como canales de
+  envío/automatización. El registro ya permite conectarlos y guardar sus tokens de forma segura.

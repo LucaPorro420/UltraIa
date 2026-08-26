@@ -16,15 +16,27 @@ import { connection2faStore } from '@/lib/server/emailCodeStore';
 
 const CANALES = [
   'youtube_shorts',
+  'youtube',
   'tiktok',
   'x',
   'instagram',
   'threads',
   'facebook',
   'linkedin',
+  'pinterest',
+  'reddit',
+  'medium',
+  'substack',
+  'patreon',
+  'twitch',
+  'whatsapp',
   'telegram',
   'discord',
   'slack',
+  'email',
+  'outlook',
+  'github',
+  'gitlab',
 ] as const;
 
 const postSchema = z.object({
