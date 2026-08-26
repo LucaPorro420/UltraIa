@@ -19,7 +19,7 @@ export default async function LandingPage() {
             UltraIa · AI creates AI, humans approve.
           </p>
           <p className="font-mono text-[11px] text-neutral-600">
-            v0.1 — agent generation · scoped API keys · eval-gated improvement pipeline
+            v1.0 — agent generation · scoped API keys · eval-gated improvement pipeline
           </p>
           <nav className="mt-3 flex flex-wrap items-center justify-center gap-5 font-mono text-[11px] uppercase tracking-widest text-neutral-500">
             <Link href="/explore" className="transition-colors duration-200 hover:text-neutral-200">

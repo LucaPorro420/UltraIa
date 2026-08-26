@@ -105,7 +105,7 @@ export function LandingHero({ user }: { user: { name?: string | null; email: str
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
             <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400" />
           </span>
-          v0.1 · eval-gated improvements · human approval
+          v1.0 · eval-gated improvements · human approval
         </span>
 
         <h1 className="hero-anim hero-title mx-auto mt-8 max-w-3xl font-display text-5xl font-bold leading-[1.05] tracking-tight sm:text-6xl">

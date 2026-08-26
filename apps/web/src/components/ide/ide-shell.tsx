@@ -214,7 +214,7 @@ function IdeExplorer({ userName }: { userName: string }) {
           Ultra<span className="gradient-neo-text">Ia</span>
         </span>
         <span className="ml-auto rounded border border-border-subtle bg-input-active px-1.5 py-0.5 font-mono text-[10px] text-neutral-500">
-          v0.1
+          v1.0
         </span>
       </div>
       <div className="flex-1 overflow-y-auto px-2.5 py-3">
@@ -377,7 +377,7 @@ function IdeDock() {
       </div>
       <div className="flex flex-1 flex-wrap content-start items-center gap-2 overflow-y-auto p-3 text-[11px] text-neutral-400">
         <span className="rounded border border-border-subtle bg-input-active px-2 py-0.5 font-mono">
-          UltraIa v0.1
+          UltraIa v1.0
         </span>
         <span className="rounded border border-border-subtle bg-input-active px-2 py-0.5 font-mono">
           Shell IDE activo
@@ -407,7 +407,7 @@ function MobileShell({ userName, children }: { userName: string; children: React
           Ultra<span className="gradient-neo-text">Ia</span>
         </span>
         <span className="rounded border border-border-subtle bg-input-active px-1.5 py-0.5 font-mono text-[10px] text-neutral-500">
-          v0.1
+          v1.0
         </span>
         <UserAvatar userName={userName} compact />
       </header>
