@@ -273,7 +273,7 @@ export function generateReactTailwind(elements: BuilderElement[], projectName: s
   const inner = elements.map((el) => indent(reactBlock(el), 1)).join('\n\n');
   return `// Componente React + Tailwind generado con UltraIa Builder
 // Proyecto: ${projectName}
-// Requisitos: React 18+, Tailwind CSS v3 o v4. Añade este componente
+// Requisitos: React 19+, Tailwind CSS v3 o v4. Añade este componente
 // a tu proyecto y exporta \`App\` donde lo necesites.
 
 export default function App() {
