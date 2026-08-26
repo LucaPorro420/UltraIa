@@ -334,3 +334,5 @@ export type Capability =
   | 'evo'
   | 'evolution'
   | 'studio';
+
+export * from './emailCode';
