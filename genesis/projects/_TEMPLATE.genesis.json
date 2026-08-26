@@ -1,0 +1,32 @@
+{
+  "genesis": { "version": "1.0", "manifest_version": "1.0" },
+  "project": {
+    "id": "REPLACE_SLUG",
+    "name": "REPLACE_NAME",
+    "description": "Describe the project in one sentence.",
+    "type": "app|service|library|content",
+    "stage": "idea",
+    "repository": ""
+  },
+  "objective": {
+    "primary": "One measurable objective.",
+    "success_criteria": ["Criterion 1", "Criterion 2"]
+  },
+  "pipeline": {
+    "mode": "analyze-first",
+    "steps": ["observe", "understand", "research", "plan", "implement", "test", "review", "fix", "document", "commit", "learn", "reassess"]
+  },
+  "quality_gates": {
+    "typecheck": { "required": true, "command": "npm run typecheck" },
+    "test": { "required": true, "command": "npm run test" }
+  },
+  "autonomy": {
+    "level": 1,
+    "automatic_actions": ["discover", "prioritize", "plan"],
+    "approval_required": ["commit", "push"],
+    "repair_attempts": 3,
+    "max_iterations": 40
+  },
+  "agents": { "dynamic_creation": false, "enabled": ["genesis"] },
+  "memory": { "semantic": ".ultraia/genesis/state.json" }
+}

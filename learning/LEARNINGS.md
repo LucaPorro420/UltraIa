@@ -366,3 +366,20 @@ Implementacion: capability vfx (tools/vfx.ts: planReframe / planUpscale / planLu
 - **Fail-soft REST**: un FetchLike que solo declara text() NO tiene json() - usar text()+JSON.parse
   tambien en los stubs de test (devolver body string), o el parser fail-soft engulle el error y el
   test ve source:'none' sin saber que fue el stub.
+
+## Leccion 117 (26/08/2026, genesis-v01-operador)
+
+- **Consolidar > duplicar**: antes de construir un sistema pedido, auditar commits
+  existentes (`git log --grep`) — el motor Genesis ya estaba commiteado
+  (d4640e6..bd5a967); la iteracion valido en agregar capa de operacion, no motor.
+- **Archivo hibrido por sesion concurrente**: si Edit falla con "oldString not found"
+  o un test flakea sin causa, OTRO proceso reescribio el archivo a mitad de camino.
+  Protocolo: releer disco completo, re-ejecutar tests, integrarse al hibrido sin
+  pisar (netwatch mejoro mi genesis.py; yo aporte wifi-ES sobre su version).
+- **Locks escritos por PowerShell llevan BOM UTF-8**: `json.load` estandar falla con
+  JSONDecodeError confuso — leer con `utf-8-sig` todo lo que viva bajo `.ultraia/**`.
+- **Numeracion first-wins en bitacora compartida**: el id de iteracion se GANA al
+  escribir en loop-run-log/STATE, no al crear el plan file (mi plan decia 112,
+  netwatch publico 112 y fila 116 primero -> genesis renombro a 117 sin drama).
+- **Add-Content PS5.1 solo con ASCII puro + verificacion de costura inmediata**
+  (la leccion anti-Get-Content se mantiene para contenido no-ASCII: usar tool Write).

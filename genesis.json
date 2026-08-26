@@ -1,0 +1,137 @@
+{
+  "genesis": { "version": "1.0", "manifest_version": "1.0" },
+  "project": {
+    "id": "ultraia",
+    "name": "UltraIa — Genesis Autonomous Engineering",
+    "description": "AI that creates AI and learns from AI. This manifest is the executable operating contract: it does NOT replace the living systems below — it binds them into one autonomous loop.",
+    "type": "monorepo",
+    "stage": "active",
+    "repository": "github.com/LucaPorro420/UltraIa"
+  },
+  "objective": {
+    "primary": "Keep the project green and reduce known gaps: investigate → plan → implement → test → review → document → version → repeat.",
+    "success_criteria": [
+      "All quality gates passing on every commit (evidence in loop-run-log.md)",
+      "Backlog STATE.md trending to zero pendientes",
+      "Every studied repository recorded in genesis/research-registry.json",
+      "Lessons persisted in learning/LEARNINGS.md after every iteration"
+    ]
+  },
+  "technology": {
+    "runtime": ["node >= 20", "python >= 3.10"],
+    "frameworks": ["Next.js 15 App Router", "Tailwind v4", "Vercel AI SDK", "Expo SDK 57"],
+    "packages": ["@ultraia/core", "@ultraia/runtime", "@ultraia/web", "@ultraia/mobile"],
+    "testing": ["vitest", "patchright e2e", "standalone *.test.py"]
+  },
+  "pipeline": {
+    "mode": "analyze-first",
+    "steps": ["observe", "understand", "research", "plan", "implement", "test", "review", "fix", "document", "commit", "learn", "reassess"],
+    "maps_to": {
+      "observe_understand": "PIVR fase P pasos 1-3 (STATE.md + LEARNINGS + run-log + git status; NUNCA inventar estado)",
+      "research": "enlaces.txt protocolo + reach tools + pdfsearch + learning/sources/",
+      "plan": "plan file .opencode/plans/loop-<id>-<slug>.md + [P] en run-log + PREDICCION",
+      "implement": "piv-build: staging explicito, commit pathspec",
+      "test_review": "gates FULL CI order + loop-verifier opcional (APPROVE/REJECT)",
+      "document_learn": "LEARNINGS.md + STATE.md DONE + run-log evidencia"
+    }
+  },
+  "quality_gates": {
+    "typecheck": { "required": true, "command": "npm run typecheck" },
+    "lint": { "required": true, "command": "npm run lint" },
+    "test": { "required": true, "command": "npm run test" },
+    "build": { "required": true, "command": "npm run build" },
+    "python": { "required": false, "command": "py -3.12 scripts/genesis.test.py" }
+  },
+  "autonomy": {
+    "level": 1,
+    "automatic_actions": ["discover", "prioritize", "plan", "implement", "test", "fix", "document", "registry"],
+    "approval_required": ["push", "merge", "destructive_actions", "new_mcp_install", "wifi_ensure_without_double_guard"],
+    "repair_attempts": 3,
+    "max_iterations": 40,
+    "stop_when": [
+      "todas las tareas del backlog estan completadas",
+      "kill switch loop-pause-all activo en STATE.md o loop-run-log.md",
+      "bloqueo externo clasificado (credencial/dependencia/informacion faltante)",
+      "presupuesto loop-budget excedido (80% report-only, 100% stop)"
+    ]
+  },
+  "agents": {
+    "dynamic_creation": false,
+    "enabled": ["autolearn", "genesis", "blueprint", "improve", "eval"],
+    "opencode_map": {
+      "director": "agente piv-plan (read-only, decide que y quien, nunca edita)",
+      "coder": "agente piv-build (ejecuta + commitea con gates)",
+      "reviewer": "subagent verifier / agente loop-verifier (APPROVE|REJECT)",
+      "tester": "gates npm + scripts/*.test.py standalone",
+      "explorer": "built-in explore (fast codebase search)",
+      "triage": "agente loop-triage + state-integrity-check paso 0",
+      "security": "skill gstack-cso (OWASP Top 10 + STRIDE)",
+      "debugger": "skill gstack-investigate (root cause, Iron Law)"
+    }
+  },
+  "skills": {
+    "core_loop": ["loop-piv", "loop-constraints", "loop-concurrency-guard", "loop-budget", "loop-triage", "loop-verifier", "state-integrity-check"],
+    "request": ["ultraia-request", "modos-operacion"],
+    "genesis_console": "py -3.12 scripts/genesis.py --help",
+    "inventory": "docs/SKILLS-INVENTARIO.md (recomendadas/condicionales/evitadas)"
+  },
+  "mcp_registry": {
+    "policy": "maximo 5-10 MCP reales; preferir tools nativas ya integradas; instalar solo con capacidad que no exista localmente",
+    "approved": [],
+    "candidates_evaluated": "docs/GENESIS.md §MCP-registry",
+    "native_replacements": {
+      "web_search_fetch": "tools websearch/webfetch + capability reach (r.jina.ai, DDG, Exa)",
+      "github": "gh CLI + exportVaultToGitHub Contents API",
+      "filesystem": "workspace tools nativas",
+      "sqlite_postgres": "Prisma directo (packages/core)"
+    }
+  },
+  "repositories": {
+    "registry": "genesis/research-registry.json",
+    "rule": "todo repo externo estudiado queda registrado con decision integrate|adapt|study|reject + evidence; nunca reinvestigar lo mismo"
+  },
+  "memory": {
+    "short_term": ".ultraia/genesis/state.json (estado del ciclo genesis-run)",
+    "project_memory": ["learning/LEARNINGS.md", "loop-run-log.md", "STATE.md", "learning/truth/", ".ultraia/vault/"],
+    "knowledge_base": ["learning/sources/", "docs/RAZONAMIENTO-*.md", "genesis/research-registry.json", "docs/design-dna.json"],
+    "semantic_runtime": "@ultraia/runtime MemoryManager (dedup sha256, half-life 7 dias) + qdrant memoria_experiencial_v2"
+  },
+  "projects": {
+    "layout": "genesis/projects/<slug>/genesis.json",
+    "template": "genesis/projects/_TEMPLATE.genesis.json",
+    "instantiate": "py -3.12 scripts/genesis.py project new <slug>"
+  },
+  "execution": {
+    "engine_cli": "npm run genesis (vite-node scripts/genesis-run.ts: ciclo autonomo con gates reales)",
+    "operator_console": "py -3.12 scripts/genesis.py (doctor|inspect|gates|run|triage|manifest|registry|project|wifi)",
+    "driver": "python scripts/loop_piv.py (--cycles|--gate-only|--plan-only|--triage|--doctor|--no-commit|--dry-run)",
+    "scheduler_local": "schtasks UltraIa-Cerebro cada 120 min (scripts/cerebro-schedule.ps1)",
+    "scheduler_cloud": ".github/workflows/cerebro.yml cron cada 4h (corre con PC apagado, $0)",
+    "wifi_keepalive": "scripts/genesis.py wifi status|ensure (ensure requiere --ensure + GENESIS_WIFI_SSID)"
+  },
+  "observability": {
+    "bitacora": "loop-run-log.md ([P]/[I]/[V]/[R] + JSON presupuesto por ciclo)",
+    "health": "start.py health-checks + @ultraia/runtime HealthManager",
+    "artifacts": "resultTask/ (demos verificables) + .ultraia/genesis/state.json"
+  },
+  "security_rules": [
+    "nunca editar .env/.env.*/auth/payments/secrets/credentials",
+    "staging explicito: git add <archivos>, NUNCA git add . ni -A",
+    "no acciones destructivas sin autorizacion humana explicita",
+    "no exponer secretos; secrets enmascarados en disco (@ultraia/runtime UltraConfig)",
+    "push/merge SIEMPRE con aprobacion humana",
+    "verificar licencia antes de portar codigo externo (attribution header, implementacion ORIGINAL)"
+  ],
+  "recovery_strategy": "fail-soft por defecto; max 3 intentos de fix por item luego escalar a High Priority en STATE.md; cuarentena byte-exacta de WIP ajeno antes de gates FULL; restore-empty-tracked.ps1 ante mass-wipe",
+  "learning_strategy": "bucle IA 4 fases (Sensado/Razonamiento/Accion/Ajuste); lecciones obligatorias en learning/LEARNINGS.md; verdad verificada separada de respuestas crudas (learning/truth vs learning/responses); autolearn detectGaps alimenta el siguiente ciclo",
+  "versioning": {
+    "scheme": "conventional commits feat|fix|chore(scope): desc, un commit por iteracion con pathspec",
+    "release": "manual con aprobacion humana (sin semantica semver rigida todavia; package.json 0.1.0)"
+  },
+  "completion_conditions": [
+    "backlog STATE.md sin filas pendientes ejecutables",
+    "gates FULL verdes en HEAD",
+    "research-registry sin entradas decision=study sin revisar hace >30 dias",
+    "criterios de exito de objective.primary medibles en run-log"
+  ]
+}

@@ -35,9 +35,15 @@ const { values } = parseArgs({
 const ROOT = process.cwd();
 const STATE_DIR = resolve(ROOT, '.ultraia', 'genesis');
 const STATE_FILE = resolve(STATE_DIR, 'state.json');
+// Manifest resolution order (loop-112): explicit --manifest > root genesis.json
+// (the canonical operating contract) > legacy .ultraia/genesis/manifest.json.
+const ROOT_MANIFEST_FILE = resolve(ROOT, 'genesis.json');
+const LEGACY_MANIFEST_FILE = resolve(STATE_DIR, 'manifest.json');
 const MANIFEST_FILE = values.manifest
   ? resolve(ROOT, values.manifest)
-  : resolve(STATE_DIR, 'manifest.json');
+  : existsSync(ROOT_MANIFEST_FILE)
+    ? ROOT_MANIFEST_FILE
+    : LEGACY_MANIFEST_FILE;
 const MAX_ITER = Number(values['max-iter'] ?? '20');
 
 const DEFAULT_MANIFEST = {
