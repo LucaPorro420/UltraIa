@@ -58,6 +58,7 @@ export * from './autolearn';
 export * from './genesis';
 export * from './vault';
 export * from './pdfsearch';
+export * from './netwatch';
 // kgraph: `export *` seguro Ã¢â‚¬â€ no re-exporta simbolos de otros modulos (sin colision TS2308).
 export * from './kgraph';
 // brainpage: `export *` seguro Ã¢â‚¬â€ modulo nuevo (port de brain.md); simbolos unicos (normalizeId, initBrain, ...).
@@ -272,6 +273,8 @@ export const TOOL_DESCRIPTIONS: Record<string, string> = {
     'Artifact evolution engine (Motor Evolutivo M4): runs the pipeline Observe->Measure->Analyze->Propose->Implement->Test->Evaluate->Learn over injectable generator/evaluator domains, with periodic resumable checkpoints (resume == full run byte-exact) and fail-soft IO to brainpage timeline (evolutionary memory) and vault. Composes the deterministic GA of evo. Use to evolve parameters/artifacts with persisted memory.',
   studio:
     'Studio media hub (loop-104): plan the save of any generated asset (image/audio/video/music/design/text) into the durable cloud-backed library, render a keyless WAV from a music composition (beat+pad+pentatonic motif, BPM/mood overrides), build derivation plans (image re-roll via img2img, music re-synthesis, video storyboard slideshow MP4 argv ffmpeg) and list the vendored open-source integrations catalog. Pure planning actions; execution lives in the web API. Use to persist, reproduce, modify or extend Studio assets programmatically.',
+  netwatch:
+    'WiFi/network watchdog (netsh-driven): monitor connection health, scan available WLAN interfaces, auto-reconnect on drop, or run in report_only mode. Deterministic, keyless. Use to keep the agent connection self-healing and diagnose WiFi drops.',
 };
 
 export type Capability =
@@ -333,6 +336,8 @@ export type Capability =
   | 'cadgeo'
   | 'evo'
   | 'evolution'
-  | 'studio';
+  | 'studio'
+  | 'netwatch';
 
 export * from './emailCode';
+export * from './smtp';

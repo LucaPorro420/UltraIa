@@ -15,6 +15,8 @@
 
 import { createHash, timingSafeEqual } from 'node:crypto';
 import { z } from 'zod';
+import { createSmtpEmailSender } from './smtp';
+import type { SmtpTransportFactory } from './smtp';
 
 export const EmailPurposeSchema = z.enum([
   'email_verify',
@@ -199,13 +201,14 @@ export interface SmtpOptions {
   user?: string;
   pass?: string;
   from?: string;
+  /** Transporte SMTP inyectable (solo para tests). */
+  transportFactory?: SmtpTransportFactory;
 }
 
 /**
- * Sender SMTP real. Como el repo es keyless-first y no incluye nodemailer, este
- * factory usa SMTP_* del entorno si están presentes y deja el envío real como
- * responsabilidad del transporte (ver createEnvEmailSender). Sin transporte
- * disponible degrada a console con advertencia (fail-soft).
+ * Sender que usa SMTP real si hay configuración (SMTP_* o `opts`), y degrada a
+ * console (dev-log) si no. El envío real es fail-soft: cualquier error de SMTP
+ * devuelve `{ ok: false, error }` sin lanzar.
  */
 export function createEnvEmailSender(opts: SmtpOptions = {}): EmailSender {
   const host = opts.host ?? process.env.SMTP_HOST;
@@ -213,13 +216,19 @@ export function createEnvEmailSender(opts: SmtpOptions = {}): EmailSender {
   const pass = opts.pass ?? process.env.SMTP_PASS;
   const from = opts.from ?? process.env.SMTP_FROM ?? 'no-reply@ultraia.local';
   if (host && user && pass) {
-    // Transporte real delegado: aquí se integraría nodemailer/Resend. Por ahora
-    // registramos la intención y degradamos a console para no romper el build.
-    // eslint-disable-next-line no-console
-    console.warn(
-      `[email-code] SMTP configurado (${host}) pero no hay transporte instalado; ` +
-        `usando console sender. Instala un transporte SMTP para envío real.`,
-    );
+    return {
+      async send(msg) {
+        const sender = await createSmtpEmailSender({
+          host,
+          port: opts.port,
+          user,
+          pass,
+          from,
+          transportFactory: opts.transportFactory,
+        });
+        return sender.send(msg);
+      },
+    };
   }
   const consoleSender = createConsoleEmailSender();
   return {

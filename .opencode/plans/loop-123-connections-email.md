@@ -103,5 +103,18 @@ directo al proyecto con una capa de seguridad por código.
 - La puerta 2FA por email (inc3) es genérica y cubre TODOS los canales nuevos automáticamente
   (keyFor ignora el canal; el código se verifica por `connection_2fa`).
 - Pendiente (fuera de este incremento): adapters de publicación AutoPub para los nuevos canales
-  sociales (pinterest/reddit/medium/etc.) y uso real de `email`/`outlook`/`github` como canales de
+  sociales (pinterest/reddit/medium/etc.) y uso real de `email`/`outlook` como canales de
   envío/automatización. El registro ya permite conectarlos y guardar sus tokens de forma segura.
+
+## SMTP real (26/08/2026)
+- `packages/core/src/tools/smtp.ts`: transporte SMTP real, SIN dependencias externas
+  (node:net + node:tls con import dinámico para no inflar el bundle browser/edge). Diálogo
+  EHLO / STARTTLS / AUTH LOGIN (base64) / MAIL / RCPT / DATA / QUIT. Transporte inyectable
+  (`SmtpTransportFactory`) → 100% testeable sin red.
+- `emailCode.ts` `createEnvEmailSender`: ahora usa `createSmtpEmailSender` cuando hay
+  `SMTP_HOST/USER/PASS` (o opts); degrada a console dev-log si no. Fail-soft (`{ok:false,error}`).
+- `smtp.test.ts`: 6 tests (TLS implícito 465, STARTTLS 587, fallo auth 535, sin host, env
+  real, env fallback). Core email: 21/21 GREEN.
+- Efecto: el código 2FA y cualquier mail de `email`/`outlook` se envía por SMTP real si se
+  configura; si no, se imprime en consola del servidor (dev). Variables: `SMTP_HOST`,
+  `SMTP_PORT` (def 587), `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM`.
