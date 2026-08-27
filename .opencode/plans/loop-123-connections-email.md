@@ -152,3 +152,32 @@ directo al proyecto con una capa de seguridad por código.
   directo) y uso real de `email`/`outlook` como envío SMTP (ya cableado vía smtp.ts). El hub los
   registra y guarda tokens; el faltante es el adapter de posting, no la conexión.
 - Commit: feat(publish): conectar reddit, pinterest y whatsapp como canales AutoPub postables.
+
+## Paso 12 — Connections Center (26/08/2026)
+- Usuario: "quiero un apartado estilo github ... con todas las conexiones necesarias o posibles
+  para el proyecto en general." → la página `/connections` ya no es solo una lista plana de 22
+  canales: es un **Centro de integraciones** categorizado y con estado.
+- `packages/core/src/tools/connections-catalog.ts` (módulo PURO, determinista, sin I/O):
+  - `CATEGORY_META` + `CATEGORY_ORDER` (11 categorías: social, community, monetization, email,
+    devops, ai, media, search, cloud, analytics, automation).
+  - `CatalogEntry` (id, categoría, label, descripción, authType, status, channel?, envVars?,
+    docsUrl?, keyless?, planned?) + `buildConnectionCatalog({connectedChannels, env})` que calcula
+    `status` = connected | keyless | available | planned, y `groupCatalogByCategory()`.
+  - 47 entradas: las 22 redes sociales (channel) + proveedores de IA (openai/google/deepseek/
+    ollama/lmstudio/gen-engine + anthropic/xai previstos), media (pollinations/meigen/tunetank +
+    suno/capcut/veo previstos), búsqueda (ddg/r.jina/arxiv keyless + exa/brave/firecrawl),
+    nube (local/vercel keyless + r2/supabase), analítica y automatización (previstas).
+- `apps/web/.../connections/page.tsx`: calcula el catálogo + grupos en servidor (usa process.env
+  y las conexiones DB) y pasa `groups` al cliente.
+- `apps/web/.../connections/connections-client.tsx`: render por categoría (icono lucide + badge de
+  estado por entrada). Para `channel` mantiene el flujo completo 2FA (enviar código / guardar /
+  probar / eliminar). Para el resto muestra StatusCard (badge + pista de env vars / "sin clave" /
+  "próximamente" + enlace a dónde obtener la clave). El cliente solo importa TIPOS de
+  `@ultraia/core` (`import type`) para no arrastrar node:net/smtp al bundle del browser.
+- `tools/index.ts`: `export * from './connections-catalog'`.
+- Tests: `connections-catalog.test.ts` (7) — unicidad de ids, keyless/env/canal/planned status,
+  agrupado respeta CATEGORY_ORDER. Core: 7/7 GREEN.
+- Gates: web typecheck ✅ lint ✅ build ✅ (57 páginas). Nota: el typecheck global de core queda
+  rojo SOLO por archivos untracked de la sesión concurrente #25 (design-generator.ts, netwatch*) —
+  no son míos ni se commitean.
+- Commit: feat(connections): centro de integraciones categorizado con estado para todo el proyecto.

@@ -61,6 +61,7 @@ export * from './vault';
 export * from './pdfsearch';
 export * from './netwatch';
 export * from './designcompose';
+export * from './learn-models';
 // kgraph: `export *` seguro Ã¢â‚¬â€ no re-exporta simbolos de otros modulos (sin colision TS2308).
 export * from './kgraph';
 // brainpage: `export *` seguro Ã¢â‚¬â€ modulo nuevo (port de brain.md); simbolos unicos (normalizeId, initBrain, ...).
@@ -160,8 +161,9 @@ import { vaultTools } from './vault';
 import { pdfsearchTools } from './pdfsearch';
 import { qdrantMemory as qdrantMemoryTools } from './qdrant-memory';
 import { studio as studioTools } from './studio';
+import * as learnModels from './learn-models';
 
-export const tools = { web, image, video, music, stitch, reach, skills: { runSkill }, content, g0dm0d3, topics, present: presentTools, publish, enrutador, mediaScore, metrics, memoryFs: { createMemoryFs }, diagram, videoEdit, screenflow, cloud: cloudTools, harness, growth, vfx, codevfx, travel, generative, libros, sdf, videoqa, motion, replica, imaging, semanticMemory, autolearn, genesis, creativo, vault: vaultTools, pdfsearch: pdfsearchTools, qdrantMemory: qdrantMemoryTools, kgraph, brainpage, autopub, security, codequality, deps, geom, geometry, pngrender, procvid, physics2d, cadgeo, recordly, cerebro, evo: evoDomain, evolution: evolutionDomain, studio: studioTools };
+export const tools = { web, image, video, music, stitch, reach, skills: { runSkill }, content, g0dm0d3, topics, present: presentTools, publish, enrutador, mediaScore, metrics, memoryFs: { createMemoryFs }, diagram, videoEdit, screenflow, cloud: cloudTools, harness, growth, vfx, codevfx, travel, generative, libros, sdf, videoqa, motion, replica, imaging, semanticMemory,   autolearn, learnModels, genesis, creativo, vault: vaultTools, pdfsearch: pdfsearchTools, qdrantMemory: qdrantMemoryTools, kgraph, brainpage, autopub, security, codequality, deps, geom, geometry, pngrender, procvid, physics2d, cadgeo, recordly, cerebro, evo: evoDomain, evolution: evolutionDomain, studio: studioTools };
 
 export const TOOL_DESCRIPTIONS: Record<string, string> = {
   calculator: 'Safely evaluate a mathematical expression (math only).',
@@ -279,6 +281,8 @@ export const TOOL_DESCRIPTIONS: Record<string, string> = {
     'WiFi/network watchdog (netsh-driven): monitor connection health, scan available WLAN interfaces, auto-reconnect on drop, or run in report_only mode. Deterministic, keyless. Use to keep the agent connection self-healing and diagnose WiFi drops.',
   designcompose:
     'Modelo de diseño 2D/3D determinista y keyless: compone campos escalares (mandelbrot/flowField/anillos) y mallas (superShape3D/Möbius) en PNG vía pngrender. Misma semilla ⇒ mismos bytes. Usa para generar artefactos visuales reproducibles desde matemáticas/geometría.',
+  learnModels:
+    'Modelos de aprendizaje programado (deterministas, keyless): integran "pensamientos" (observation/hypothesis/error/resolution/learning), comprimen la memoria al superar capacidad (colapsan duplicados por kind+tag, conservan los de mayor importancia) y derivan modelos avanzados de meta-razonamiento que calculan diferencias entre conjuntos de pensamientos (contrastThoughts) y resuelven errores (resolveErrors → estrategia + confianza por solapamiento de tags; spawnAdvancedModel consolida contrastes y resoluciones). Determinista, keyless. Usa para que el agente aprenda, comprima y razone sobre sus propios pensamientos.',
 };
 
 export type Capability =
@@ -342,7 +346,8 @@ export type Capability =
   | 'evolution'
   | 'studio'
   | 'netwatch'
-  | 'designcompose';
+  | 'designcompose'
+  | 'learnModels';
 
 export * from './emailCode';
 export * from './smtp';
