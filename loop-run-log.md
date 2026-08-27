@@ -2946,3 +2946,11 @@ de código, sin commit.
 ```json
 {"pattern":"pivr","iter":128,"gates":{"typecheck":0,"lint":0,"test":193,"build":"ENV-OOM-RED"},"commits":["loop-128 + restore"],"note":"build rojo por RAM/env y ruta ajena restaurada; usuario autorizo commit"}
 ```
+
+## [P] iter-129/130/133 lab-client (27/08) - planes `loop-129-lab-upload-preview.md`, `loop-130-lab-cloud-persist.md`, `loop-133-lab-share-link.md`. Sensado: YA IMPLEMENTADO en `apps/web/src/components/lab-client.tsx` (sesion previa). Prediccion: 0 cambios.
+- **[I]** NO ejecutado por mi: `PrototypesSection` ya tiene tab 'mine' (drop-zone + file-picker + `URL.createObjectURL` preview instantaneo = loop-129), `persistFile`->`POST /api/cloud/upload` dir 'prototypes' + `refreshCloud` (= loop-130), `copyLink`->`/share/...` + clipboard (= loop-133).
+- **[V]** typecheck 0 (web) / lint 0 verificados en iter-128. Build env-bloqueado (OOM) pero los cambios son client-side puros (no afectan build de server). WIP ajeno intacto.
+- **[R]** iter-129/130/133 SATISFECHOS (ya implementados en lab-client.tsx). NO hubo cambios de codigo; solo registro en STATE. NO push (humano).
+```json
+{"pattern":"pivr","iter":["129","130","133"],"gates":{"typecheck":0,"lint":0,"build":"ENV-OOM-RED"},"commits":[],"note":"ya implementado en lab-client.tsx; solo registro"}
+```
