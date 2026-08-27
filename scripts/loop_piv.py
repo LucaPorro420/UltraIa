@@ -516,6 +516,31 @@ def run_gate(args: argparse.Namespace) -> int:
     return 0 if report["passed"] else 1
 
 
+def run_v_gates(args: argparse.Namespace) -> bool:
+    """Fase V de un ciclo: corre los 4 gates CI (kill de dev servers antes de build).
+
+    En dry-run solo lista los comandos (sin ejecutar, sin matar dev servers reales).
+    En modo real delega en loop_gate.run_gates(kill_dev=True) para cumplir la regla
+    de AGENTS.md (el build se corrompe si un `next dev` compila en caliente).
+    """
+    sys.path.insert(0, str(SCRIPTS))
+    import loop_gate  # noqa: E402  (import diferido)
+
+    if args.dry_run:
+        print("[dry-run] matar dev servers (kill_dev=True) antes de build")
+        for _name, cmd in loop_gate.GATES:
+            print("[dry-run]", cmd)
+        return True
+    report = loop_gate.run_gates(
+        kill_dev=True, continue_on_failure=False, timeout=args.timeout
+    )
+    for r in report["results"]:
+        status = "PASS" if r["returncode"] == 0 else "FAIL"
+        print(f"[gate] {r['name']}: {status} ({r['duration_s']:.1f}s)")
+    print("[V] gates:", "GREEN" if report["passed"] else "RED")
+    return report["passed"]
+
+
 def run_cycles(args: argparse.Namespace, our_sid: str | None) -> int:
     """Ejecuta hasta --cycles ciclos PIVR con lock, retry y resume."""
     oc = opencode_exec()
@@ -565,7 +590,7 @@ def run_cycles(args: argparse.Namespace, our_sid: str | None) -> int:
             if not ok_build:
                 print(f"[I] build FAIL (intento {attempt}/{args.retries})")
                 continue
-            if gates(dry=args.dry_run, timeout=args.timeout):
+            if run_v_gates(args):
                 ok = True
                 break
             print(f"[V] gates RED (intento {attempt}/{args.retries})")
