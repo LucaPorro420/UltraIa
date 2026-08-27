@@ -50,10 +50,14 @@ class MarkDoneTests(unittest.TestCase):
         self.tmp = tempfile.TemporaryDirectory()
         self.state_path = Path(self.tmp.name) / "STATE.md"
         self._orig_state = loop_piv.STATE
+        self._orig_runlog = loop_piv.RUN_LOG
         loop_piv.STATE = self.state_path
+        # Aislar el log real para que mark_done() no contamine loop-run-log.md.
+        loop_piv.RUN_LOG = Path(self.tmp.name) / "loop-run-log.md"
 
     def tearDown(self) -> None:
         loop_piv.STATE = self._orig_state
+        loop_piv.RUN_LOG = self._orig_runlog
         self.tmp.cleanup()
 
     def _lines(self) -> list[str]:

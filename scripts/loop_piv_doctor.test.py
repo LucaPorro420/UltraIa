@@ -1,9 +1,9 @@
 """Test de regresion para scripts/loop_piv.py --doctor (pre-flight state-doctor).
 
 Asegura que:
-- `--doctor` solo corre el agente state-doctor (state-integrity-check) y termina;
-- `--doctor --triage` corre state-doctor ANTES de loop-triage;
-- `--doctor --gate-only` corre state-doctor ANTES de los gates;
+- `--doctor` solo corre scripts/state_doctor.py (13 checks deterministas) y termina;
+- `--doctor --triage` corre state_doctor ANTES de loop_triage.py;
+- `--doctor --gate-only` corre state_doctor ANTES de los 4 gates npm;
 - parse_args acepta el flag.
 
 Standalone, stdlib puro (patron scripts/loop_piv_mark_done.test.py).
@@ -55,7 +55,7 @@ class KillSwitchTests(unittest.TestCase):
         self.state_path.write_text(
             "# Estado\n\nloop-pause-all\n", encoding="utf-8"
         )
-        self.runlog_path.write_text("## 2026-08-19 — Iteracion\n", encoding="utf-8")
+        self.runlog_path.write_text("## 2026-08-19 - Iteracion\n", encoding="utf-8")
         self.assertTrue(loop_piv.kill_switch_active())
 
     def test_negation_window_does_not_shadow_real_switch(self) -> None:
@@ -88,22 +88,30 @@ class KillSwitchTests(unittest.TestCase):
 
 
 class DoctorTests(unittest.TestCase):
+    """Regresion: --doctor invoca scripts/state_doctor.py (no opencode --agent)."""
+
     def setUp(self) -> None:
         self.calls: list[list[str]] = []
-
         self._orig_run = loop_piv.run
-        self._orig_exec = loop_piv.opencode_exec
+        self._orig_state = loop_piv.STATE
+        self._orig_runlog = loop_piv.RUN_LOG
+        # Aislar del STATE.md real para que el kill switch no cortocircuite.
+        self.tmp = tempfile.TemporaryDirectory()
+        loop_piv.STATE = Path(self.tmp.name) / "STATE.md"
+        loop_piv.RUN_LOG = Path(self.tmp.name) / "loop-run-log.md"
+        loop_piv.STATE.write_text("# Estado\n\nBanner normal.\n", encoding="utf-8")
+        loop_piv.RUN_LOG.write_text("x\n", encoding="utf-8")
 
-        def fake_run(argv: list[str], dry: bool, timeout: int = 3600):
+        def fake_run(argv, dry=False, timeout=3600):
             self.calls.append(list(argv))
             return 0, ""
-
         loop_piv.run = fake_run  # type: ignore[assignment]
-        loop_piv.opencode_exec = lambda: ["opencode"]  # type: ignore[assignment]
 
     def tearDown(self) -> None:
         loop_piv.run = self._orig_run  # type: ignore[assignment]
-        loop_piv.opencode_exec = self._orig_exec  # type: ignore[assignment]
+        loop_piv.STATE = self._orig_state
+        loop_piv.RUN_LOG = self._orig_runlog
+        self.tmp.cleanup()
 
     def _args(self, **kwargs):  # -> argparse.Namespace
         import argparse
@@ -125,42 +133,37 @@ class DoctorTests(unittest.TestCase):
         self.assertEqual(rc, 0)
         self.assertEqual(len(self.calls), 1)
         argv = self.calls[0]
-        self.assertIn("--agent", argv)
-        self.assertEqual(argv[argv.index("--agent") + 1], "state-doctor")
+        self.assertIn(str(loop_piv.SCRIPTS / "state_doctor.py"), argv)
+        self.assertNotIn("--agent", argv)
+        self.assertNotIn("opencode", argv)
 
     def test_doctor_before_triage_order(self) -> None:
         rc = loop_piv.run_singletons(self._args(doctor=True, triage=True))
         self.assertEqual(rc, 0)
         self.assertEqual(len(self.calls), 2)
-        agents = [
-            argv[argv.index("--agent") + 1]
-            for argv in self.calls
-            if "--agent" in argv
-        ]
-        self.assertEqual(agents, ["state-doctor", "loop-triage"])
+        self.assertIn(str(loop_piv.SCRIPTS / "state_doctor.py"), self.calls[0])
+        self.assertIn(str(loop_piv.SCRIPTS / "loop_triage.py"), self.calls[1])
+        for argv in self.calls:
+            self.assertNotIn("--agent", argv)
 
     def test_doctor_before_gate_only(self) -> None:
-        # gates() en dry-run tambien pasa por run() -> 4 gates despues del doctor.
+        # doctor (1) + 4 gates npm en dry-run (run() se registra) = 5 llamadas.
         rc = loop_piv.run_singletons(self._args(doctor=True, gate_only=True))
         self.assertEqual(rc, 0)
         self.assertEqual(len(self.calls), 5)
         first = self.calls[0]
-        self.assertEqual(first[first.index("--agent") + 1], "state-doctor")
+        self.assertIn(str(loop_piv.SCRIPTS / "state_doctor.py"), first)
+        # Los 4 gates siguen al doctor (npm_cmd() es "npm" o "npm.cmd" en win).
+        self.assertTrue(all("run" in c for c in self.calls[1:]))
 
     def test_no_doctor_no_extra_calls(self) -> None:
         rc = loop_piv.run_singletons(self._args(triage=True))
         self.assertEqual(rc, 0)
         self.assertEqual(len(self.calls), 1)
-        agents = [
-            argv[argv.index("--agent") + 1]
-            for argv in self.calls
-            if "--agent" in argv
-        ]
-        self.assertEqual(agents, ["loop-triage"])
+        self.assertIn(str(loop_piv.SCRIPTS / "loop_triage.py"), self.calls[0])
+        self.assertNotIn("--agent", self.calls[0])
 
     def test_parse_args_accepts_doctor(self) -> None:
-        import sys
-
         original = sys.argv
         sys.argv = ["loop_piv.py", "--doctor", "--dry-run"]
         try:
@@ -171,8 +174,6 @@ class DoctorTests(unittest.TestCase):
         self.assertTrue(args.dry_run)
 
     def test_parse_args_defaults_doctor_false(self) -> None:
-        import sys
-
         original = sys.argv
         sys.argv = ["loop_piv.py"]
         try:
