@@ -2922,3 +2922,11 @@ de código, sin commit.
 ```json
 {"pattern":"pivr","iter":124,"gates":{"typecheck":0,"lint":0,"test":"1809-incl-designcompose-8","build":0},"commits":[],"note":"ya implementado por sesion previa; solo verificacion"}
 ```
+
+## [P] iter-125 learn-models-e2e (27/08) - plan `.opencode/plans/loop-125-advanced-learning-e2e.md` (peticion usuario: modelos aprendizaje programado + E2E tipo Antigravity). Sensado: YA IMPLEMENTADO por sesion previa. Prediccion: 0 cambios, FULL GREEN.
+- **[I]** NO ejecutado por mi: `tools/learn-models.ts` + `.test.ts` (11 tests) existen; `.opencode/skills/ultraia-e2e/SKILL.md` + `.mcp.json` + `scripts/e2e-analyze.mjs` existen; `tools/index.ts` wired (export/import/tools/TOOL_DESCRIPTIONS/Capability 'learnModels'). llm.ts diferido (WIP ajeno).
+- **[V]** read-only: `npx vitest run learn-models` -> 11/11 OK. typecheck 0 (core). Gates FULL vigentes GREEN. WIP ajeno intacto.
+- **[R]** iter-125 SATISFECHO (ya implementado). learnModels: modelos programados associative/causal/contrastive/compression + integracion de pensamientos + compresion + resolveErrors + spawnAdvancedModel. E2E skill/mcp/runner cableados (no se ejecuta navegador real). NO push (humano).
+```json
+{"pattern":"pivr","iter":125,"gates":{"typecheck":0,"lint":0,"test":"learn-models-11","build":0},"commits":[],"note":"ya implementado por sesion previa; solo verificacion"}
+```
