@@ -51,6 +51,7 @@ import {
 } from '../packages/core/src/tools/procvid';
 import { encodeWav } from '../packages/core/src/omag/sound';
 import { mixSynths, sequenceNotes, synthPinkNoise, type NoteStep } from '../packages/core/src/tools/generative';
+import { runAgentLoop, type AgentGoalRun, type AgentLoopStepContext } from '../packages/core/src/tools/agent-loop';
 
 const ROOT = process.cwd();
 const CEREBRO_DIR = path.join(ROOT, '.ultraia', 'cerebro');
@@ -271,6 +272,153 @@ async function publicar(dir: string, videos: number, cfg: ReturnType<typeof reso
   }
 }
 
+/**
+ * Fases del ciclo (LEARN -> CREATE -> PUBLISH) sin orquestación de loop.
+ * Extraídas para poder ser invocadas tanto en modo lineal como dentro de
+ * runAgentLoop (orquestador del bucle).
+ */
+async function ejecutarFasesCiclo(opts: {
+  dir: string;
+  config: ReturnType<typeof resolveCerebroConfig>;
+  state: ReturnType<typeof parseBrainState>;
+  errores: string[];
+  plan: ReturnType<typeof planBrainCycle>;
+  semilla: number;
+  lote: ReturnType<typeof planProceduralBatch>;
+  cycleId: string;
+}): Promise<{ artefactos: number; videos: number; encoladas: number; lecciones: number }> {
+  const { dir, config, errores, plan, semilla, lote } = opts;
+  let lecciones = 0;
+  if (!plan.pasos.find((p) => p.kind === 'learn')?.saltado) {
+    try {
+      const learnPath = path.join(ROOT, 'learning', 'LEARNINGS.md');
+      lecciones = fs.existsSync(learnPath)
+        ? fs.readFileSync(learnPath, 'utf8').split('\n').filter((l) => /^#{2,3}\s/.test(l)).length
+        : 0;
+      console.log(`  LEARN: ${lecciones} secciones de aprendizaje detectadas en LEARNINGS.md`);
+    } catch (e) {
+      errores.push(`LEARN fail-soft: ${String(e)}`);
+    }
+  }
+  let artefactos = 0;
+  let videos = 0;
+  try {
+    artefactos += await crearObjetos(dir, lote, errores);
+    artefactos += await crearDisenos(dir, semilla, errores);
+    videos = await crearVideos(dir, lote, errores);
+    artefactos += videos;
+  } catch (e) {
+    errores.push(`CREATE fail-soft: ${String(e)}`);
+  }
+  let encoladas = 0;
+  if (!plan.pasos.find((p) => p.kind === 'publish')?.saltado) {
+    const res = await publicar(dir, videos, config);
+    encoladas = res.encoladas;
+    if (!res.ok) errores.push('PUBLISH fail-soft: BD no disponible → outbox JSON');
+  }
+  return { artefactos, videos, encoladas, lecciones };
+}
+
+/**
+ * Fases del ciclo envueltas en runAgentLoop: conecta memory (recall/learn),
+ * planner (planBrainCycle ya produjo tasks), orchestrator/agents (execute =
+ * ejecuta las fases reales), verifier (verify) y tester (test) en un bucle con
+ * presupuesto de iteraciones. Fail-soft: cualquier fallo queda en errores.
+ */
+async function ejecutarAgentLoop(opts: {
+  dir: string;
+  config: ReturnType<typeof resolveCerebroConfig>;
+  state: ReturnType<typeof parseBrainState>;
+  errores: string[];
+  plan: ReturnType<typeof planBrainCycle>;
+  semilla: number;
+  lote: ReturnType<typeof planProceduralBatch>;
+  cycleId: string;
+}): Promise<{ artefactos: number; videos: number; encoladas: number; lecciones: number }> {
+  const { dir, config, errores, plan, semilla, lote, cycleId } = opts;
+  const objective = typeof (plan as Record<string, unknown>).objetivo === 'string'
+    ? String((plan as Record<string, unknown>).objetivo)
+    : `Ciclo de cerebro ${cycleId}: crear y publicar contenido generativo`;
+  const tasks = (plan.pasos ?? []).map((p) => p.kind);
+  const memoryPath = path.join(CEREBRO_DIR, 'memory.json');
+  const maxIter = Math.max(1, Number(process.env.CEREBRO_AGENT_LOOP_MAX ?? '1'));
+
+  const recall: AgentLoopStep = async (ctx) => {
+    try {
+      ctx.memory.prev = fs.existsSync(memoryPath) ? JSON.parse(fs.readFileSync(memoryPath, 'utf8')) : {};
+    } catch {
+      /* sin memoria previa */
+    }
+  };
+  const learn: AgentLoopStep = async (ctx) => {
+    try {
+      fs.writeFileSync(
+        memoryPath,
+        JSON.stringify(
+          { lastCycle: cycleId, objective: ctx.objective, lecciones: ctx.memory.lecciones ?? 0 },
+          null,
+          2,
+        ),
+      );
+    } catch {
+      /* fail-soft */
+    }
+  };
+  const verify: AgentLoopStep = async (ctx) => {
+    if (ctx.lastResult && !ctx.lastResult.done) return { shouldStop: true };
+  };
+  const testStep: AgentLoopStep = async (ctx) => {
+    try {
+      const hay = fs.existsSync(path.join(dir, 'objects')) || fs.existsSync(path.join(dir, 'video'));
+      if (!hay && ctx.iteration > 0) return { shouldStop: true, notes: [...ctx.notes, 'tester: sin artefactos en disco'] };
+    } catch {
+      /* fail-soft */
+    }
+  };
+  const execute = async (ctx: AgentLoopStepContext): Promise<AgentGoalRun> => {
+    const antes = errores.length;
+    const f = await ejecutarFasesCiclo({ dir, config, state: opts.state, errores, plan, semilla, lote, cycleId });
+    const nuevos = errores.slice(antes);
+    const ok = nuevos.length === 0;
+    // Memoria compartida para el resumen y el paso learn.
+    ctx.memory.artefactos = f.artefactos;
+    ctx.memory.videos = f.videos;
+    ctx.memory.encoladas = f.encoladas;
+    ctx.memory.lecciones = f.lecciones;
+    return {
+      goal: ctx.objective,
+      results: [
+        {
+          taskId: 'ciclo',
+          task: 'ciclo',
+          status: ok ? 'done' : 'error',
+          output: `artefactos=${f.artefactos} videos=${f.videos} encoladas=${f.encoladas} lecciones=${f.lecciones}`,
+          error: ok ? undefined : nuevos.join(' | '),
+        },
+      ],
+      done: ok,
+    };
+  };
+
+  const loop = await runAgentLoop({
+    objective,
+    tasks,
+    maxIterations: maxIter,
+    recall,
+    execute,
+    verify,
+    test: testStep,
+    learn,
+    shouldStop: (c) => c.iteration >= maxIter - 1,
+  });
+  return {
+    artefactos: Number(loop.memory.artefactos ?? 0),
+    videos: Number(loop.memory.videos ?? 0),
+    encoladas: Number(loop.memory.encoladas ?? 0),
+    lecciones: Number(loop.memory.lecciones ?? 0),
+  };
+}
+
 async function main(): Promise<void> {
   fs.mkdirSync(CEREBRO_DIR, { recursive: true });
   const configPath = path.join(CEREBRO_DIR, 'config.json');
@@ -303,41 +451,22 @@ async function main(): Promise<void> {
   const errores: string[] = [];
   console.log(`[cerebro] ciclo ${cycleId} â†’ ${path.relative(ROOT, dir)}`);
 
-  /* LEARN: gaps de autolearn (dominio puro sobre learning/truth) */
-  let lecciones = 0;
-  if (!plan.pasos.find((p) => p.kind === 'learn')?.saltado) {
-    try {
-      const learnPath = path.join(ROOT, 'learning', 'LEARNINGS.md');
-      lecciones = fs.existsSync(learnPath)
-        ? fs.readFileSync(learnPath, 'utf8').split('\n').filter((l) => /^#{2,3}\s/.test(l)).length
-        : 0;
-      console.log(`  LEARN: ${lecciones} secciones de aprendizaje detectadas en LEARNINGS.md`);
-    } catch (e) {
-      errores.push(`LEARN fail-soft: ${String(e)}`);
-    }
-  }
-
-  /* CREATE */
+  /* CREATE input */
   const semilla = Number(cycleId.replaceAll('-', '').slice(2, 10)) % 100000;
   const lote = planProceduralBatch(config, semilla);
-  let artefactos = 0;
-  let videos = 0;
-  try {
-    artefactos += await crearObjetos(dir, lote, errores);
-    artefactos += await crearDisenos(dir, semilla, errores);
-    videos = await crearVideos(dir, lote, errores);
-    artefactos += videos;
-  } catch (e) {
-    errores.push(`CREATE fail-soft: ${String(e)}`);
-  }
 
-  /* PUBLISH */
-  let encoladas = 0;
-  if (!plan.pasos.find((p) => p.kind === 'publish')?.saltado) {
-    const res = await publicar(dir, videos, config);
-    encoladas = res.encoladas;
-    if (!res.ok) errores.push('PUBLISH fail-soft: BD no disponible â†’ outbox JSON');
+  /* Orquestación: por defecto fases lineales; si agenteLoop está activo,
+     envuelve el ciclo en runAgentLoop (memory/plan/orchestrator/verify/test/learn). */
+  const usarAgentLoop =
+    Boolean((config as Record<string, unknown>).agenteLoop) || process.env.CEREBRO_AGENT_LOOP === '1';
+  let fases: { artefactos: number; videos: number; encoladas: number; lecciones: number };
+  if (usarAgentLoop) {
+    console.log('[cerebro] orquestación vía runAgentLoop (memory/plan/orchestrator/verify/test/learn)');
+    fases = await ejecutarAgentLoop({ dir, config, state, errores, plan, semilla, lote, cycleId });
+  } else {
+    fases = await ejecutarFasesCiclo({ dir, config, state, errores, plan, semilla, lote, cycleId });
   }
+  const { artefactos, videos, encoladas, lecciones } = fases;
 
   /* REPORT + STATE */
   const resumen: CycleResultSummary = {

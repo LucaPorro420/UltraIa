@@ -41,6 +41,9 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DATABASE_URL: file:./dev.db
+      # Orquesta el ciclo del Cerebro con runAgentLoop (memory/plan/orchestrator/verify/test/learn).
+      CEREBRO_AGENT_LOOP: '1'
+      CEREBRO_AGENT_LOOP_MAX: '1'
     steps:
       - uses: actions/checkout@v4
 
