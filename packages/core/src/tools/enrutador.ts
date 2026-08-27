@@ -83,6 +83,9 @@ const CTA_BY_CANAL: Record<Idioma, Record<TopicBrief['canal'], string>> = {
     discord: 'Entra a la comunidad y comenta este tema.',
     slack: 'Comparte este resumen con tu equipo.',
     facebook: 'Síguenos para más contenido de IA en Reels.',
+    reddit: 'Comenta y vota en la comunidad de Reddit.',
+    pinterest: 'Guarda este pin en tu tablero de ideas.',
+    whatsapp: 'Compártelo por tu estado de WhatsApp.',
   },
   ar: {
     youtube_shorts: 'تابعني لمزيد من اختصارات الذكاء الاصطناعي في 60 ثانية.',
@@ -93,6 +96,9 @@ const CTA_BY_CANAL: Record<Idioma, Record<TopicBrief['canal'], string>> = {
     discord: 'ادخل إلى المجتمع وعلّق على هذا الموضوع.',
     slack: 'شارك هذا الملخص مع فريقك.',
     facebook: 'تابعنا لمزيد من محتوى الذكاء الاصطناعي في Reels.',
+    reddit: 'علّق وصوّت في مجتمع ريديت.',
+    pinterest: 'احفظ هذا المنشور في لوح أفكارك.',
+    whatsapp: 'شاركه عبر حالتك في واتساب.',
   },
 };
 

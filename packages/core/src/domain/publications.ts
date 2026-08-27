@@ -24,8 +24,8 @@ import { resolverTokensPorCanal } from './connections'; // F6: resuelve tokens D
 
 export type PublicationEstado = 'DRAFT' | 'APPROVED' | 'REJECTED' | 'PUBLISHED' | 'FAILED';
 
-/** Canales con media que requieren aprobación humana (video/imagen). Telegram/Discord/Slack/Facebook envían video → aprobación. */
-export const CANALES_CON_APROBACION: PresentChannel[] = ['youtube_shorts', 'tiktok', 'instagram', 'telegram', 'discord', 'slack', 'facebook'];
+/** Canales con media que requieren aprobación humana (video/imagen). Telegram/Discord/Slack/Facebook envían video → aprobación. Reddit/Pinterest/WhatsApp = alcance directo → aprobación. */
+export const CANALES_CON_APROBACION: PresentChannel[] = ['youtube_shorts', 'tiktok', 'instagram', 'telegram', 'discord', 'slack', 'facebook', 'reddit', 'pinterest', 'whatsapp'];
 
 /** Un canal requiere aprobación si produce video/imagen (no blog/texto). */
 export function canalRequiereAprobacion(canal: PresentChannel): boolean {

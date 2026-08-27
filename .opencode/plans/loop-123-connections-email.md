@@ -118,3 +118,37 @@ directo al proyecto con una capa de seguridad por código.
 - Efecto: el código 2FA y cualquier mail de `email`/`outlook` se envía por SMTP real si se
   configura; si no, se imprime en consola del servidor (dev). Variables: `SMTP_HOST`,
   `SMTP_PORT` (def 587), `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM`.
+
+## Paso 11 — AutoPub: adapters reddit / pinterest / whatsapp (26/08/2026)
+- Usuario: "Continuar y conectar todo. Deja todo pronto." → se completa la publicación directa
+  en las 3 redes sociales de alcance/monetización del hub que faltaban como canales postables.
+- Nuevos adapters (fetch inyectable, fail-soft, patrón telegram/discord/slack):
+  - `packages/core/src/tools/reddit.ts` `createRedditAdapter` → `oauth.reddit.com/api/submit`
+    (link o self-post; `REDDIT_ACCESS_TOKEN` + `REDDIT_SUBREDDIT`).
+  - `packages/core/src/tools/pinterest.ts` `createPinterestAdapter` → `api.pinterest.com/v5/pins`
+    (pin de video por link; `PINTEREST_ACCESS_TOKEN` + `PINTEREST_BOARD_ID`).
+  - `packages/core/src/tools/whatsapp.ts` `createWhatsAppAdapter` → `graph.facebook.com/v21.0/{phone}/messages`
+    (video o texto; `WHATSAPP_ACCESS_TOKEN` + `WHATSAPP_PHONE_NUMBER_ID` + `WHATSAPP_TO`).
+- Wiring central:
+  - `publish.ts`: `PublishPlatform` gana `'reddit'|'pinterest'|'whatsapp'`; adapters en el objeto
+    `publish` + `createDefaultPublishers({ includeReddit/includePinterest/includeWhatsApp })`.
+  - `topics.ts`: `TopicChannel` gana las 3; `CHANNEL_KEYWORDS` + `FORMAT_BY_CHANNEL` actualizados.
+  - `present.ts`: `FORMAT_BY_CHANNEL`, `HORARIO_SUGERIDO`, `hashtagsFor` (base), `captionFor`,
+    `visualFor` actualizados para las 3 (video 9:16 reddit/whatsapp, imagen 1:1 pinterest).
+  - `enrutador.ts`: `CTA_BY_CANAL` (es/ar) gana las 3 entradas (`Record<TopicChannel,...>`).
+  - `domain/publications.ts`: `CANALES_CON_APROBACION` gana las 3 (video/imagen → DRAFT humano).
+  - `apps/web/.../api/publications/route.ts`: enum `CANALES` ampliado a 15 (todas las postables:
+    + facebook, youtube, x, threads, linkedin, reddit, pinterest, whatsapp).
+  - `ai/llm.ts`: `publish_submit` gana `toReddit/toPinterest/toWhatsApp` + `toFacebook` (ya existía
+    el adapter) y los habilita en `createDefaultPublishers` (todos `!== false` por defecto).
+  - `.env.example`: añadidas `FB_*`, `LINKEDIN_*`, `REDDIT_*`, `PINTEREST_*`, `WHATSAPP_*`.
+- Tests: `reddit.test.ts` (8), `pinterest.test.ts` (7), `whatsapp.test.ts` (8) — 23 tests,
+  fetch inyectado, fail-soft verificado (sin token → validate false; HTTP/red → ok:false).
+- Gates: core tests de los archivos afectados 57 + autopub 24 = GREEN. Web typecheck ✅ lint ✅
+  build ✅ (57 páginas). Nota: `core` typecheck global queda rojo SOLO por archivos untracked de
+  la sesión concurrente #25 (`omag/design-generator.ts`, `netwatch*`) — no son míos ni se commitean.
+- Pendiente (fuera de este incremento, "conectar todo" restante): adapters de publicación para
+  `medium`/`substack`/`patreon`/`twitch`/`github`/`gitlab` (no son canales de video postable
+  directo) y uso real de `email`/`outlook` como envío SMTP (ya cableado vía smtp.ts). El hub los
+  registra y guarda tokens; el faltante es el adapter de posting, no la conexión.
+- Commit: feat(publish): conectar reddit, pinterest y whatsapp como canales AutoPub postables.

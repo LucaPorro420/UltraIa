@@ -13,6 +13,9 @@
 import { createTelegramAdapter } from './telegram';
 import { createDiscordAdapter } from './discord';
 import { createSlackAdapter } from './slack';
+import { createRedditAdapter } from './reddit';
+import { createPinterestAdapter } from './pinterest';
+import { createWhatsAppAdapter } from './whatsapp';
 
 export interface PublishMetadata {
   title: string;
@@ -21,7 +24,7 @@ export interface PublishMetadata {
   privacyStatus: 'public' | 'private' | 'unlisted';
 }
 
-export type PublishPlatform = 'youtube' | 'tiktok' | 'x' | 'instagram' | 'threads' | 'facebook' | 'linkedin' | 'telegram' | 'discord' | 'slack';
+export type PublishPlatform = 'youtube' | 'tiktok' | 'x' | 'instagram' | 'threads' | 'facebook' | 'linkedin' | 'telegram' | 'discord' | 'slack' | 'reddit' | 'pinterest' | 'whatsapp';
 
 export interface PublishInput {
   /** Ruta del MP4 final (9:16, <60s). */
@@ -755,8 +758,8 @@ export async function publishToAll(adapters: PublisherAdapter[], input: PublishI
   return results;
 }
 
-/** Crea los adaptadores por defecto (YT + TikTok; opcionalmente X — canal F4 paso 4 — y Meta IG/Threads — paso 5 — y Facebook — paso 6 — y Telegram — paso 7 — y Discord/Slack — paso 8 — y LinkedIn — paso 9).
-// includeX/includeMeta/includeFacebook/includeTelegram/includeDiscord/includeSlack/includeLinkedIn=false por defecto para no cambiar el comportamiento de las colas existentes. */
+/** Crea los adaptadores por defecto (YT + TikTok; opcionalmente X — canal F4 paso 4 — y Meta IG/Threads — paso 5 — y Facebook — paso 6 — y Telegram — paso 7 — y Discord/Slack — paso 8 — y LinkedIn — paso 9 — y Reddit/Pinterest/WhatsApp — paso 10 —).
+// includeX/includeMeta/includeFacebook/includeTelegram/includeDiscord/includeSlack/includeLinkedIn/includeReddit/includePinterest/includeWhatsApp=false por defecto para no cambiar el comportamiento de las colas existentes. */
 export function createDefaultPublishers(opts: {
   includeX?: boolean;
   includeMeta?: boolean;
@@ -765,6 +768,9 @@ export function createDefaultPublishers(opts: {
   includeDiscord?: boolean;
   includeSlack?: boolean;
   includeLinkedIn?: boolean;
+  includeReddit?: boolean;
+  includePinterest?: boolean;
+  includeWhatsApp?: boolean;
 } = {}): PublisherAdapter[] {
   const base = [createYouTubeAdapter(), createTikTokAdapter()];
   if (opts.includeX) base.push(createXAdapter());
@@ -774,7 +780,10 @@ export function createDefaultPublishers(opts: {
   if (opts.includeDiscord) base.push(createDiscordAdapter());
   if (opts.includeSlack) base.push(createSlackAdapter());
   if (opts.includeLinkedIn) base.push(createLinkedInAdapter());
+  if (opts.includeReddit) base.push(createRedditAdapter());
+  if (opts.includePinterest) base.push(createPinterestAdapter());
+  if (opts.includeWhatsApp) base.push(createWhatsAppAdapter());
   return base;
 }
 
-export const publish = { createYouTubeAdapter, createTikTokAdapter, createXAdapter, createInstagramAdapter, createThreadsAdapter, createFacebookAdapter, createTelegramAdapter, createDiscordAdapter, createSlackAdapter, createLinkedInAdapter, createDefaultPublishers, publishToAll, buildBilingualMetadata, buildXPostText, xAppendMultipartBody, formBody, IG_MEDIA_URL, THREADS_MEDIA_URL, LINKEDIN_ASSETS_URL, LINKEDIN_UGCP_URL, LINKEDIN_VIDEO_RECIPE, FB_GRAPH_URL };
+export const publish = { createYouTubeAdapter, createTikTokAdapter, createXAdapter, createInstagramAdapter, createThreadsAdapter, createFacebookAdapter, createTelegramAdapter, createDiscordAdapter, createSlackAdapter, createLinkedInAdapter, createRedditAdapter, createPinterestAdapter, createWhatsAppAdapter, createDefaultPublishers, publishToAll, buildBilingualMetadata, buildXPostText, xAppendMultipartBody, formBody, IG_MEDIA_URL, THREADS_MEDIA_URL, LINKEDIN_ASSETS_URL, LINKEDIN_UGCP_URL, LINKEDIN_VIDEO_RECIPE, FB_GRAPH_URL };

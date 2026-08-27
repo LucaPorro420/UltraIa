@@ -86,6 +86,9 @@ export const FORMAT_BY_CHANNEL: Record<PresentChannel, TopicFormat> = {
   discord: '9:16 video',
   slack: '9:16 video',
   facebook: '9:16 video',
+  reddit: '9:16 video',
+  pinterest: '1:1 imagen',
+  whatsapp: '9:16 video',
 };
 
 /** Horario sugerido por canal (D2: video 2-3/sem; texto 1/día; blog 1/sem). */
@@ -98,6 +101,9 @@ export const HORARIO_SUGERIDO: Record<PresentChannel, string> = {
   discord: 'lun/mie/vie 19:00',
   slack: 'mar/jue 09:00',
   facebook: 'mar/jue/sab 18:00',
+  reddit: 'lun/mie/vie 10:00',
+  pinterest: 'mar/jue 12:00',
+  whatsapp: 'lun/vie 12:00',
 };
 
 /** Kits de marca por defecto. Dark Obsidian = sistema de diseño de UltraIa. */
@@ -152,6 +158,9 @@ export function hashtagsFor(tema: string, canal: PresentChannel): string[] {
     discord: ['#comunidad', '#anuncio', '#IA', '#canal'],
     slack: ['#equipo', '#actualizacion', '#IA', '#resumen'],
     facebook: ['#reels', '#facebook', '#viral', '#tendencia'],
+    reddit: ['#reddit', '#ia', '#tecnologia', '#comunidad'],
+    pinterest: ['#pinterest', '#ideas', '#diseno', '#inspiracion'],
+    whatsapp: ['#ia', '#novedades', '#canal', '#whatsapp'],
   };
   const tags = [...topicTags, ...base[canal]];
   // IG admite hasta 30 hashtags; el resto 5-10.
@@ -181,6 +190,15 @@ export function captionFor(tema: string, contenido: string, canal: PresentChanne
     case 'facebook':
       // Facebook Reels: caption tipo Instagram (cap 2200 en adapter).
       return `${tema}\n\n${contenido.slice(0, 1800)}\n\n${tags}`.slice(0, 2200);
+    case 'reddit':
+      // Reddit: self-post o link con título + contexto (cap generoso).
+      return `${tema}\n\n${contenido.slice(0, 300)}\n\n${tags}`;
+    case 'pinterest':
+      // Pinterest: descripción de pin (cap 500 en adapter).
+      return `${tema}\n\n${firstLine}\n\n${tags}`.slice(0, 500);
+    case 'whatsapp':
+      // WhatsApp: caption corto (tipo mensaje de estado/canal).
+      return `${tema}\n\n${firstLine}\n\n${tags}`.slice(0, 1000);
     case 'blog':
     default:
       return `${tema}\n\n${contenido.slice(0, 300)}\n\n${tags}`;
@@ -275,6 +293,30 @@ export function visualFor(tema: string, canal: PresentChannel): VisualSpec {
         estilo: 'imagen de portada con titulo y marca',
         textoOverlay: overlay,
         thumbnail: `https://pollinations.ai/p/${encodeURIComponent(overlay)}?width=1600&height=900&nologo=true`,
+      };
+    case 'reddit':
+      return {
+        dimensiones: '1080x1920 (9:16)',
+        formato: '9:16 video',
+        estilo: 'video vertical corto, titulo claro, comunidad',
+        textoOverlay: overlay,
+        thumbnail: `https://pollinations.ai/p/${encodeURIComponent(overlay)}?width=1080&height=1920&nologo=true`,
+      };
+    case 'pinterest':
+      return {
+        dimensiones: '1080x1080 (1:1)',
+        formato: '1:1 imagen',
+        estilo: 'pin cuadrado con tipografia display y acento de marca',
+        textoOverlay: overlay,
+        thumbnail: `https://pollinations.ai/p/${encodeURIComponent(overlay)}?width=1080&height=1080&nologo=true`,
+      };
+    case 'whatsapp':
+      return {
+        dimensiones: '1080x1920 (9:16)',
+        formato: '9:16 video',
+        estilo: 'video vertical corto, mensaje directo al canal',
+        textoOverlay: overlay,
+        thumbnail: `https://pollinations.ai/p/${encodeURIComponent(overlay)}?width=1080&height=1920&nologo=true`,
       };
   }
 }

@@ -12,7 +12,23 @@ import {
 import { present, type PresentChannel } from '@ultraia/core';
 import { getCurrentUser } from '@/lib/server/context';
 
-const CANALES = ['youtube_shorts', 'tiktok', 'instagram', 'blog', 'telegram', 'discord', 'slack'] as const;
+const CANALES = [
+  'youtube_shorts',
+  'tiktok',
+  'instagram',
+  'blog',
+  'telegram',
+  'discord',
+  'slack',
+  'facebook',
+  'youtube',
+  'x',
+  'threads',
+  'linkedin',
+  'reddit',
+  'pinterest',
+  'whatsapp',
+] as const;
 
 // QUÉ ES: resuelve el CloudService en runtime: R2 (Worker) si está configurado, si no local.
 // PARA QUÉ: cada Publication creada se respalda automáticamente en la nube personal.

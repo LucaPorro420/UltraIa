@@ -636,7 +636,7 @@ export function chatStream(opts: {
   if (opts.tools?.includes('publish')) {
     tools.publish_submit = tool({
       description:
-        'Publish a finished MP4 (9:16, <60s) to the configured channels (AutoPub F4): YouTube Shorts, TikTok, X, Meta (Instagram Reels / Threads), Telegram, Discord and Slack, with bilingual es/ar metadata. Validates tokens first â€” fails soft with a clear reason when a platform is not configured. Returns one result per platform (ok/id/url or error).',
+        'Publish a finished MP4 (9:16, <60s) to the configured channels (AutoPub F4): YouTube Shorts, TikTok, X, Meta (Instagram Reels / Threads), Facebook, LinkedIn, Telegram, Discord, Slack, Reddit, Pinterest and WhatsApp, with bilingual es/ar metadata. Validates tokens first — fails soft with a clear reason when a platform is not configured. Returns one result per platform (ok/id/url or error).',
       parameters: z.object({
         videoPath: z.string().min(1).max(500),
         title: z.string().min(1).max(200),
@@ -647,14 +647,18 @@ export function chatStream(opts: {
         toX: z.boolean().optional(),
         toInstagram: z.boolean().optional(),
         toThreads: z.boolean().optional(),
+        toFacebook: z.boolean().optional(),
+        toLinkedIn: z.boolean().optional(),
         toTelegram: z.boolean().optional(),
         toDiscord: z.boolean().optional(),
         toSlack: z.boolean().optional(),
-        toLinkedIn: z.boolean().optional(),
+        toReddit: z.boolean().optional(),
+        toPinterest: z.boolean().optional(),
+        toWhatsApp: z.boolean().optional(),
       }),
-      execute: async ({ videoPath, title, plainScript, privacyStatus, toYoutube, toTiktok, toX, toInstagram, toThreads, toTelegram, toDiscord, toSlack, toLinkedIn }) => {
+      execute: async ({ videoPath, title, plainScript, privacyStatus, toYoutube, toTiktok, toX, toInstagram, toThreads, toFacebook, toLinkedIn, toTelegram, toDiscord, toSlack, toReddit, toPinterest, toWhatsApp }) => {
         const metadata = { ...buildBilingualMetadata(title, plainScript), ...(privacyStatus ? { privacyStatus } : {}) };
-        const adapters = createDefaultPublishers({ includeX: true, includeMeta: true, includeTelegram: true, includeDiscord: true, includeSlack: true });
+        const adapters = createDefaultPublishers({ includeX: true, includeMeta: true, includeFacebook: true, includeTelegram: true, includeDiscord: true, includeSlack: true, includeLinkedIn: true, includeReddit: true, includePinterest: true, includeWhatsApp: true });
         const selected = adapters.filter((a) => {
           switch (a.platform) {
             case 'youtube':
@@ -667,6 +671,8 @@ export function chatStream(opts: {
               return toInstagram !== false;
             case 'threads':
               return toThreads !== false;
+            case 'facebook':
+              return toFacebook !== false;
             case 'telegram':
               return toTelegram !== false;
             case 'discord':
@@ -675,6 +681,12 @@ export function chatStream(opts: {
               return toSlack !== false;
             case 'linkedin':
               return toLinkedIn !== false;
+            case 'reddit':
+              return toReddit !== false;
+            case 'pinterest':
+              return toPinterest !== false;
+            case 'whatsapp':
+              return toWhatsApp !== false;
             default:
               return true;
           }
