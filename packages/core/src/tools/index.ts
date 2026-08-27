@@ -58,6 +58,8 @@ export * from './semantic-memory';
 export * from './autolearn';
 export * from './genesis';
 export * from './vault';
+// goal: meta-agente /goal (motor puro runGoal + parseIntent + goalSystemPrompt); sin colisiones.
+export * from './goal';
 export * from './pdfsearch';
 export * from './netwatch';
 export * from './designcompose';
