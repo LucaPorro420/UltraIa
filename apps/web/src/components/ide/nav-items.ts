@@ -13,6 +13,7 @@ import {
   PanelsTopLeft,
   PlugZap,
   Boxes,
+  Target,
 } from 'lucide-react';
 
 /** Icono canonico de navegacion (referencia tipada para no acoplar a LucideIcon). */
@@ -33,6 +34,7 @@ export const WORKSPACE_ITEMS: NavItem[] = [
   { href: '/gallery', label: 'Gallery', icon: Images },
   { href: '/builder', label: 'Builder', icon: SquareDashedMousePointer },
   { href: '/herramientas', label: 'Herramientas', icon: Boxes },
+  { href: '/goal', label: 'Goal', icon: Target },
   { href: '/cloud', label: 'Cloud', icon: Cloud },
   { href: '/connections', label: 'Conexiones', icon: PlugZap },
   { href: '/metrics', label: 'Metricas', icon: BarChart3 },

@@ -137,7 +137,9 @@ describe('runGoal', () => {
   it('error de un tool aísla la tarea pero el goal continúa', async () => {
     const { dispatch } = makeDispatch({ failTools: ['boom'] });
     const { complete } = makeCompleteQueue([
-      '{"tool":"boom","args":{}}', // tarea 1 falla
+      '{"tool":"boom","args":{}}', // tarea 1, intento 1 -> falla
+      '{"tool":"boom","args":{}}', // tarea 1, intento 2 -> falla
+      '{"tool":"boom","args":{}}', // tarea 1, intento 3 -> falla (agota maxSteps)
       'Recuperado con texto.', // tarea 2 ok
     ]);
     const res = await runGoal({
@@ -146,9 +148,11 @@ describe('runGoal', () => {
       complete,
       dispatch,
       toolNames: ['boom'],
+      maxStepsPerTask: 3,
     });
     expect(res.results[0].status).toBe('error');
     expect(res.results[0].output).toContain('fallo simulado');
+    expect(dispatch).toHaveBeenCalledTimes(3);
     expect(res.results[1].status).toBe('done');
     expect(res.results[1].output).toBe('Recuperado con texto.');
     expect(res.done).toBe(false);

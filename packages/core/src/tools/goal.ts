@@ -36,6 +36,7 @@ export interface GoalResult {
   status: 'done' | 'error';
   output: string;
   tool?: string;
+  error?: string;
 }
 
 export interface GoalIntent {
@@ -56,6 +57,8 @@ export interface RunGoalOpts {
   toolNames?: string[];
   /** Pasos máximos por tarea (encadenado de tool-calls). Default 5. */
   maxStepsPerTask?: number;
+  /** Presupuesto global de pasos (modelo + tool) para TODO el goal. Default 25. Evita bucles infinitos. */
+  maxTotalSteps?: number;
   onTaskStart?: (task: string) => void;
   onTaskEnd?: (result: GoalResult) => void;
 }
@@ -147,12 +150,14 @@ export async function runGoal(opts: RunGoalOpts): Promise<{
     dispatch,
     toolNames = [],
     maxStepsPerTask = DEFAULT_MAX_STEPS,
+    maxTotalSteps = 25,
     onTaskStart,
     onTaskEnd,
   } = opts;
 
   const results: GoalResult[] = [];
   const memory: string[] = [];
+  let totalSteps = 0;
 
   for (let i = 0; i < tasks.length; i++) {
     const task = tasks[i];
@@ -160,9 +165,12 @@ export async function runGoal(opts: RunGoalOpts): Promise<{
     onTaskStart?.(task);
 
     let finalOutput = '';
-    let finalStatus: GoalResult['status'] = 'done';
     let finalTool: string | undefined;
     let lastResult: string | undefined;
+    let errored = false;
+    let lastError: string | undefined;
+    let gotAnswer = false;
+    let modelError = false;
 
     const context = memory.length
       ? `\n\nCONTEXTO DE TAREAS ANTERIORES (memoria):\n${memory.join('\n')}`
@@ -170,7 +178,13 @@ export async function runGoal(opts: RunGoalOpts): Promise<{
 
     let step = 0;
     while (step < maxStepsPerTask) {
+      if (totalSteps >= maxTotalSteps) {
+        if (!finalOutput) finalOutput = errored ? lastError ?? '(sin salida)' : '(presupuesto de pasos agotado)';
+        break;
+      }
       step++;
+      totalSteps++;
+
       const system = goalSystemPrompt(goal, toolNames);
       const toolContext = lastResult
         ? `\n\nRESULTADO DE LA HERRAMIENTA ANTERIOR:\n${lastResult}`
@@ -181,7 +195,7 @@ export async function runGoal(opts: RunGoalOpts): Promise<{
       try {
         raw = await complete(system, user);
       } catch (e) {
-        finalStatus = 'error';
+        modelError = true;
         finalOutput = `Error llamando al modelo: ${(e as Error).message}`;
         break;
       }
@@ -190,7 +204,7 @@ export async function runGoal(opts: RunGoalOpts): Promise<{
 
       if (intent.type === 'answer') {
         finalOutput = intent.text ?? '';
-        finalStatus = 'done';
+        gotAnswer = true;
         break;
       }
 
@@ -203,16 +217,21 @@ export async function runGoal(opts: RunGoalOpts): Promise<{
         // El bucle continúa: el resultado se inyecta en el siguiente paso para
         // permitir encadenar tools (ej. investigar -> crear -> publicar).
       } catch (e) {
-        finalStatus = 'error';
-        finalOutput = `Error en tool "${intent.tool}": ${(e as Error).message}`;
-        memory.push(`[${intent.tool}] ${task}: ERROR ${(e as Error).message}`);
-        break;
+        errored = true;
+        lastError = `Error en tool "${intent.tool}": ${(e as Error).message}`;
+        memory.push(`[${intent.tool}] ${task}: ERROR ${lastError}`);
+        // No abortamos: dejamos que el modelo reaccione al error (reintentar con
+        // otros args, invocar otra herramienta o responder con texto explicando el fallo).
       }
     }
 
-    // Si agotó los pasos tras tool-calls (sin respuesta textual), cerramos con el último resultado.
-    if (finalStatus === 'done' && !finalOutput) {
-      finalOutput = lastResult ?? '(sin salida)';
+    const finalStatus: GoalResult['status'] = gotAnswer
+      ? 'done'
+      : errored || modelError
+        ? 'error'
+        : 'done';
+    if (!finalOutput) {
+      finalOutput = errored || modelError ? (lastError ?? finalOutput ?? '(sin salida)') : lastResult ?? '(sin salida)';
     }
 
     const result: GoalResult = {
@@ -221,6 +240,7 @@ export async function runGoal(opts: RunGoalOpts): Promise<{
       status: finalStatus,
       output: finalOutput || '(sin salida)',
       tool: finalTool,
+      error: errored ? lastError : undefined,
     };
     results.push(result);
     onTaskEnd?.(result);
