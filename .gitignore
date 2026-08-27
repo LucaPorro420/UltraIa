@@ -90,3 +90,8 @@ repomix.config.json
 # Datos del usuario (videos descargados para la capability travel)
 VideoTask&Memory/
 .ultraia/procedural/
+
+# UltraIa Desktop Shell (WebView2): artefactos de build de .NET
+desktop/bin/
+desktop/obj/
+desktop/dist/
