@@ -234,3 +234,10 @@ enderGifBytes({palette})\ passthrough + demo comparativa: **4394B vs 6157B (-29%
 - Nav: entrada `Herramientas` (`/herramientas`, icono `Boxes`) en `apps/web/src/components/ide/nav-items.ts`.
 - Commits: `2dd1d66` (hub + catalog + i18n, 10 archivos) + `916a605` (loop plan file).
 - NOTA: la sesion concurrente #25 borro repetidamente `catalog.ts`/`catalog.test.ts` e revertio el export en `index.ts` durante el ciclo; recuperado via quarantine byte-exacto + commit inmediato. Recomendado pausar #25 para evitar borrados en cadena.
+
+## Lab publish con credenciales de sesion (loop-136) - DONE 2026-08-27
+- `POST /api/lab/publish` acepta `creds` opcional en el body y construye el adapter por canal (telegram/discord/slack) con precedencia sobre env via `??` (sin persistir, sin tocar el backend cifrado del Connections Center).
+- Lab client (`/lab` tab "Tuyos"): panel colapsable "Credenciales de sesion" + boton `slack`. Las credenciales son efimeras (solo la peticion).
+- Archivos: `apps/web/src/app/api/lab/publish/route.ts`, `apps/web/src/components/lab-client.tsx`, plan `loop-136-lab-session-creds.md`.
+- Gates FULL verdes: typecheck OK, lint OK (0 warnings), test 193 OK, build EXIT=0.
+- Commit: (ver hash en push). Mejora de "Sigue y mejora": publicar a redes sin `.env`.

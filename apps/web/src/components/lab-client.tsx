@@ -304,6 +304,8 @@ function PrototypesSection() {
     if (next.length) setUploads((u) => [...next, ...u]);
   }
 
+  const [creds, setCreds] = useState<Record<string, string>>({});
+
   async function publishTo(channel: string, path: string) {
     const key = `${channel}:${path}`;
     setPublishing(key);
@@ -312,7 +314,7 @@ function PrototypesSection() {
       const res = await fetch('/api/lab/publish', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ channel, path }),
+        body: JSON.stringify({ channel, path, creds }),
       });
       const d = await res.json();
       setPublishStatus((s) => ({
@@ -480,6 +482,59 @@ function PrototypesSection() {
             </>
           )}
 
+          <details className="mb-3 rounded-lg border border-border-subtle bg-input-active p-2">
+            <summary className="cursor-pointer font-mono text-[10px] text-neutral-400">
+              Credenciales de sesión (opcional, solo este navegador)
+            </summary>
+            <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-3">
+              <div>
+                <Label className="text-[10px] text-neutral-500">Telegram botToken</Label>
+                <Input
+                  value={creds.botToken ?? ''}
+                  onChange={(e) => setCreds((c) => ({ ...c, botToken: e.target.value }))}
+                  placeholder="123:ABC"
+                  className="h-7 text-[11px]"
+                />
+                <Label className="mt-1 text-[10px] text-neutral-500">chatId</Label>
+                <Input
+                  value={creds.chatId ?? ''}
+                  onChange={(e) => setCreds((c) => ({ ...c, chatId: e.target.value }))}
+                  placeholder="@canal"
+                  className="h-7 text-[11px]"
+                />
+              </div>
+              <div>
+                <Label className="text-[10px] text-neutral-500">Discord webhook</Label>
+                <Input
+                  value={creds.webhookUrl ?? ''}
+                  onChange={(e) => setCreds((c) => ({ ...c, webhookUrl: e.target.value }))}
+                  placeholder="https://discord.com/api/webhooks/…"
+                  className="h-7 text-[11px]"
+                />
+              </div>
+              <div>
+                <Label className="text-[10px] text-neutral-500">Slack token</Label>
+                <Input
+                  value={creds.token ?? ''}
+                  onChange={(e) => setCreds((c) => ({ ...c, token: e.target.value }))}
+                  placeholder="xoxb-…"
+                  className="h-7 text-[11px]"
+                />
+                <Label className="mt-1 text-[10px] text-neutral-500">canal</Label>
+                <Input
+                  value={creds.channel ?? ''}
+                  onChange={(e) => setCreds((c) => ({ ...c, channel: e.target.value }))}
+                  placeholder="#general"
+                  className="h-7 text-[11px]"
+                />
+              </div>
+            </div>
+            <p className="mt-1 font-mono text-[9px] text-neutral-600">
+              No se guardan: se usan solo al publicar. Si las dejas vacías se usan las variables de
+              entorno del servidor.
+            </p>
+          </details>
+
           <p className="mb-1 font-mono text-[10px] text-neutral-500">Guardados en Cloud</p>
           {cloudFiles.length === 0 ? (
             <p className="font-mono text-[11px] text-neutral-500">
@@ -510,6 +565,14 @@ function PrototypesSection() {
                         className="rounded border border-border-subtle px-1.5 py-0.5 font-mono text-[9px] text-neutral-300 hover:border-primary hover:text-primary disabled:opacity-40"
                       >
                         discord
+                      </button>
+                      <button
+                        type="button"
+                        disabled={publishing !== null}
+                        onClick={() => publishTo('slack', c.path)}
+                        className="rounded border border-border-subtle px-1.5 py-0.5 font-mono text-[9px] text-neutral-300 hover:border-primary hover:text-primary disabled:opacity-40"
+                      >
+                        slack
                       </button>
                       <button
                         type="button"
