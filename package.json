@@ -22,7 +22,13 @@
     "autopub": "vite-node Task/run-autopub.ts",
     "reporeview": "vite-node scripts/reporeview-run.ts",
     "cerebro": "vite-node Task/cerebro-cycle.ts --run",
-    "cerebro:plan": "vite-node Task/cerebro-cycle.ts --plan"
+    "cerebro:plan": "vite-node Task/cerebro-cycle.ts --plan",
+    "doctor": "python scripts/state_doctor.py",
+    "triage": "python scripts/loop_triage.py",
+    "test:cov": "npm run test:cov -w @ultraia/core && npm run test:cov -w @ultraia/runtime",
+    "test:ci": "npm run test:ci -w @ultraia/core && npm run test:ci -w @ultraia/runtime",
+    "test:clean": "node scripts/clean-vitest-cache.js",
+    "harness:test": "py -3.12 scripts/loop_piv_doctor.test.py && py -3.12 scripts/loop_piv_mark_done.test.py && py -3.12 scripts/state_doctor.test.py && py -3.12 scripts/loop_triage.test.py && py -3.12 scripts/sync_skill_mirrors.test.py"
   },
   "devDependencies": {
     "prisma": "^6.7.0",
