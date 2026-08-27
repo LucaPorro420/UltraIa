@@ -2930,3 +2930,11 @@ de código, sin commit.
 ```json
 {"pattern":"pivr","iter":125,"gates":{"typecheck":0,"lint":0,"test":"learn-models-11","build":0},"commits":[],"note":"ya implementado por sesion previa; solo verificacion"}
 ```
+
+## [P] iter-triage planes 126-142 (27/08) - usuario pidio "triage de planes colisionados 125-137". Sensado: 5 IDs (121/122/123/126/127) tenian 2 planes cada uno (tareas distintas mal renumeradas). Prediccion: renombrar strays a 138-142 + estado backlog.
+- **[I]** `git mv` de 4 planes tracked strays -> 138-142 (harness-gate-runner era untracked/gitignored -> Move-Item en disco). Verificacion de artifacts: goal.ts+/goal (DONE), emailCode.ts (DONE), /herramientas (DONE), loop_gate.py (DONE), qwen.ts MISSING (PENDIENTE), /lab sin subrutas (128-133/141 PENDIENTE), desktop/ sin bin (134 PENDIENTE).
+- **[V]** `Get-ChildItem` confirma 0 colisiones restantes (cada ID 120-142 -> 1 plan). Estado reflejado en STATE.md seccion "Backlog reconciliado 126-142".
+- **[R]** Triage COMPLETO: colisiones resueltas; backlog 120-142 mapea 1:1 a planes; pendientes identificados (128/129/130/133/134/141/142). NO push (humano). NO se toco WIP ajeno.
+```json
+{"pattern":"pivr","iter":"triage-126-142","accion":"renombrar planes strays 138-142 + estado","gates":"n/a (solo estado/renombres)","commits":["renames+state"],"note":"colisiones 0; pendientes 128/129/130/133/134/141/142"}
+```

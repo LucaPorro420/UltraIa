@@ -254,3 +254,27 @@ enderGifBytes({palette})\ passthrough + demo comparativa: **4394B vs 6157B (-29%
 - Archivo: `apps/web/src/app/api/lab/publish/route.ts` + plan `loop-137-lab-bridge-connections.md`.
 - Cierra el lazo "conexiones → publicar" del Connections Center. Gates FULL verdes: typecheck OK, lint OK, test 193 OK, build EXIT=0.
 - Commit: (ver hash en push).
+
+## Backlog reconciliado 126-142 (triage 27/08/2026)
+
+Triage de planes colisionados: los IDs 121/122/123/126/127 tenian DOS planes cada uno (mismo numero, slugs distintos = tareas distintas mal renumeradas). Resuelto con `git mv` renombrando el plan stray a IDs libres 138-142. Ahora cada ID 120-142 mapea a UN solo plan. (El plan `loop-121-harness-gate-runner.md` era untracked/gitignored; renombrado a `loop-138-...` en disco.)
+
+| ID | Tarea (plan) | Alcance | Gates | Estado |
+|----|--------------|---------|-------|--------|
+| 126 | **Hub de Herramientas (/herramientas) + export itsfree.dev** - `loop-126-tools-hub.md` (self DONE `2dd1d66`); `/herramientas` + nav Boxes existen | apps/web | FULL | DONE |
+| 127 | **Meta-agente `/goal`** - `loop-127-goal-runner.md`; `tools/goal.ts` + `/goal` route + wiring index.ts | core+web | FULL | DONE |
+| 128 | **Prototype browser** - `loop-128-prototype-browser.md`; falta `Task/prototype-browser.ts`; `/lab` sin subrutas | Task | - | PENDIENTE |
+| 129 | **Lab upload preview** - `loop-129-lab-upload-preview.md`; `/lab` sin subruta upload | apps/web | - | PENDIENTE |
+| 130 | **Lab cloud persist** - `loop-130-lab-cloud-persist.md`; sin seccion Archivos; `/lab` sin subruta cloud | apps/web | - | PENDIENTE/VERIFY |
+| 131 | **Lab publish channel** - `loop-131-lab-publish-channel.md`; `api/lab/publish/route.ts` existe (DONE) | apps/web | FULL | DONE |
+| 132 | (sin plan file) | - | - | - |
+| 133 | **Lab share link** - `loop-133-lab-share-link.md`; `/lab` sin subruta share | apps/web | - | PENDIENTE/VERIFY |
+| 134 | **Desktop WebView2** - `loop-134-desktop-webview2.md`; `desktop/` existe pero bin/dist/obj no (Fase D shell no construida) | desktop | - | PENDIENTE |
+| 135 | (sin plan file) | - | - | - |
+| 136 | **Lab session creds** - `loop-136-lab-session-creds.md`; `api/connections/route.ts` + `emailCode.ts` existen (Connections Center) | web+core | FULL | DONE |
+| 137 | **Lab bridge -> connections** - `loop-137-lab-bridge-connections.md`; cierra lazo conexiones->publicar; gates verdes (commit previo) | apps/web | FULL | DONE |
+| 138 | **Harness gate runner (`loop_gate.py`)** - renombrado desde `loop-121-harness-gate-runner.md`; `scripts/loop_gate.py` existe | scripts | FULL | DONE |
+| 139 | **React 19 docs** - renombrado desde `loop-122-react19-docs.md`; React 19 ya en web+mobile; docs OK | docs | - | DONE |
+| 140 | **Conexiones codigo via mail** - renombrado desde `loop-123-connections-email.md`; `tools/emailCode.ts` wired | core+web | FULL | DONE |
+| 141 | **Design Lab (/lab extension)** - renombrado desde `loop-126-design-lab.md`; `/lab` existe pero sin tokens/galeria interactiva | apps/web | - | PENDIENTE |
+| 142 | **Proveedor Qwen** - renombrado desde `loop-127-qwen-provider.md`; `tools/qwen.ts` NO existe -> no integrado | core | - | PENDIENTE |
