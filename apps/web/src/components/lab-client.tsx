@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
@@ -209,11 +209,29 @@ function UiGallery() {
 }
 
 type ProtoItem = { id: string; name: string; category: string; ext: string };
+type UploadItem = { id: string; name: string; ext: string; url: string };
+
+const UPLOAD_EXTS = ['.html', '.svg', '.png', '.jpg', '.jpeg', '.webp', '.gif'];
+
+function extOf(name: string): string {
+  const m = /\.[a-z0-9]+$/i.exec(name);
+  return m ? m[0].toLowerCase() : '';
+}
+
+function tabClass(active: boolean): string {
+  return `rounded border px-2 py-1 font-mono text-[10px] ${
+    active ? 'border-primary bg-panel-hover text-white' : 'border-border-subtle text-neutral-400'
+  }`;
+}
 
 function PrototypesSection() {
   const [items, setItems] = useState<ProtoItem[]>([]);
   const [query, setQuery] = useState('');
   const [cat, setCat] = useState('all');
+  const [tab, setTab] = useState<'fab' | 'mine'>('fab');
+  const [uploads, setUploads] = useState<UploadItem[]>([]);
+  const [dragOver, setDragOver] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     fetch('/api/prototypes')
@@ -221,6 +239,17 @@ function PrototypesSection() {
       .then((d) => setItems(d.items ?? []))
       .catch(() => setItems([]));
   }, []);
+
+  function addFiles(files: FileList | null) {
+    if (!files) return;
+    const next: UploadItem[] = [];
+    for (const f of Array.from(files)) {
+      const ext = extOf(f.name);
+      if (!UPLOAD_EXTS.includes(ext)) continue;
+      next.push({ id: `up-${Date.now()}-${f.name}`, name: f.name, ext, url: URL.createObjectURL(f) });
+    }
+    if (next.length) setUploads((u) => [...next, ...u]);
+  }
 
   const categories = ['all', ...Array.from(new Set(items.map((i) => i.category)))];
   const q = query.trim().toLowerCase();
@@ -230,88 +259,134 @@ function PrototypesSection() {
       (q === '' || i.name.toLowerCase().includes(q) || i.category.toLowerCase().includes(q)),
   );
 
-  return (
-    <Section title="Prototipos prefabricados" badge="resultTask/">
-      <div className="mb-3 flex flex-wrap items-center gap-2">
-        <input
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Buscar prototipo…"
-          className="w-56 rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-1.5 text-sm text-white outline-none focus:border-violet-500"
-        />
-        <div className="flex flex-wrap gap-1.5">
-          {categories.map((c) => (
-            <button
-              key={c}
-              type="button"
-              onClick={() => setCat(c)}
-              className={`rounded border px-2 py-1 font-mono text-[10px] ${
-                cat === c
-                  ? 'border-primary bg-panel-hover text-white'
-                  : 'border-border-subtle text-neutral-400'
-              }`}
-            >
-              {c}
-            </button>
-          ))}
+  function renderTile(name: string, ext: string, embedSrc: string | undefined, rawHref: string | undefined) {
+    const isEmbed = ext === '.html' || ext === '.svg';
+    const isImg = ['.png', '.jpg', '.jpeg', '.webp', '.gif'].includes(ext);
+    return (
+      <div className="overflow-hidden rounded-lg border border-border-subtle bg-input-active">
+        <div className="h-40 bg-black/40">
+          {isEmbed ? (
+            <iframe title={name} src={embedSrc} sandbox="allow-scripts" className="h-full w-full" />
+          ) : isImg ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={embedSrc} alt={name} className="h-full w-full object-contain" />
+          ) : (
+            <div className="flex h-full items-center justify-center font-mono text-[11px] text-neutral-500">
+              {ext}
+            </div>
+          )}
+        </div>
+        <div className="flex items-center justify-between gap-2 px-2 py-1.5">
+          <span className="truncate font-mono text-[10px] text-neutral-300" title={name}>
+            {name}
+          </span>
+          {!isEmbed && !isImg && rawHref && (
+            <a href={rawHref} target="_blank" rel="noreferrer" className="text-[10px] text-primary hover:underline">
+              abrir
+            </a>
+          )}
         </div>
       </div>
+    );
+  }
 
-      {filtered.length === 0 ? (
-        <p className="font-mono text-[11px] text-neutral-500">
-          Sin coincidencias. Genera con{' '}
-          <code className="text-neutral-300">node_modules/.bin/vite-node Task/*.ts</code>.
-        </p>
+  return (
+    <Section title="Prototipos" badge="resultTask/ + tuyos">
+      <div className="mb-3 flex flex-wrap items-center gap-2">
+        <button type="button" onClick={() => setTab('fab')} className={tabClass(tab === 'fab')}>
+          Fabricados
+        </button>
+        <button type="button" onClick={() => setTab('mine')} className={tabClass(tab === 'mine')}>
+          Tuyos ({uploads.length})
+        </button>
+      </div>
+
+      {tab === 'fab' ? (
+        <>
+          <div className="mb-3 flex flex-wrap items-center gap-2">
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Buscar prototipo…"
+              className="w-56 rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-1.5 text-sm text-white outline-none focus:border-violet-500"
+            />
+            <div className="flex flex-wrap gap-1.5">
+              {categories.map((c) => (
+                <button
+                  key={c}
+                  type="button"
+                  onClick={() => setCat(c)}
+                  className={`rounded border px-2 py-1 font-mono text-[10px] ${
+                    cat === c
+                      ? 'border-primary bg-panel-hover text-white'
+                      : 'border-border-subtle text-neutral-400'
+                  }`}
+                >
+                  {c}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {filtered.length === 0 ? (
+            <p className="font-mono text-[11px] text-neutral-500">
+              Sin coincidencias. Genera con{' '}
+              <code className="text-neutral-300">node_modules/.bin/vite-node Task/*.ts</code>.
+            </p>
+          ) : (
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {filtered.map((it) => renderTile(it.name, it.ext, `/api/prototypes/${it.id}`, undefined))}
+            </div>
+          )}
+        </>
       ) : (
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {filtered.map((it) => {
-            const isEmbed = it.ext === '.html' || it.ext === '.svg';
-            const isImg = it.ext === '.png' || it.ext === '.jpg' || it.ext === '.jpeg';
-            return (
-              <div
-                key={it.id}
-                className="overflow-hidden rounded-lg border border-border-subtle bg-input-active"
-              >
-                <div className="h-40 bg-black/40">
-                  {isEmbed ? (
-                    <iframe
-                      title={it.name}
-                      src={`/api/prototypes/${it.id}`}
-                      sandbox="allow-scripts"
-                      className="h-full w-full"
-                    />
-                  ) : isImg ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={`/api/prototypes/${it.id}`}
-                      alt={it.name}
-                      className="h-full w-full object-contain"
-                    />
-                  ) : (
-                    <div className="flex h-full items-center justify-center font-mono text-[11px] text-neutral-500">
-                      {it.ext}
-                    </div>
-                  )}
-                </div>
-                <div className="flex items-center justify-between gap-2 px-2 py-1.5">
-                  <span className="truncate font-mono text-[10px] text-neutral-300" title={it.id}>
-                    {it.name}
-                  </span>
-                  {!isEmbed && !isImg && (
-                    <a
-                      href={`/api/prototypes/${it.id}`}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="text-[10px] text-primary hover:underline"
-                    >
-                      abrir
-                    </a>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
+        <>
+          <div
+            onDragOver={(e) => {
+              e.preventDefault();
+              setDragOver(true);
+            }}
+            onDragLeave={() => setDragOver(false)}
+            onDrop={(e) => {
+              e.preventDefault();
+              setDragOver(false);
+              addFiles(e.dataTransfer.files);
+            }}
+            className={`mb-3 rounded-lg border border-dashed px-4 py-6 text-center transition-colors ${
+              dragOver ? 'border-primary bg-panel-hover' : 'border-border-subtle'
+            }`}
+          >
+            <p className="font-mono text-[11px] text-neutral-400">
+              Arrastra un archivo (HTML, SVG, PNG, JPG, WEBP, GIF) o
+            </p>
+            <button
+              type="button"
+              onClick={() => fileRef.current?.click()}
+              className="mt-2 rounded border border-primary px-3 py-1 text-[11px] text-primary hover:bg-panel-hover"
+            >
+              elegir archivo
+            </button>
+            <input
+              ref={fileRef}
+              type="file"
+              accept=".html,.svg,.png,.jpg,.jpeg,.webp,.gif"
+              multiple
+              className="hidden"
+              onChange={(e) => addFiles(e.target.files)}
+            />
+            <p className="mt-2 font-mono text-[10px] text-neutral-600">previsualización instantánea, solo en tu navegador</p>
+          </div>
+
+          {uploads.length === 0 ? (
+            <p className="font-mono text-[11px] text-neutral-500">
+              Aún no subiste nada. Arrastra un diseño para previsualizarlo al instante.
+            </p>
+          ) : (
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {uploads.map((u) => renderTile(u.name, u.ext, u.url, u.url))}
+            </div>
+          )}
+        </>
       )}
     </Section>
   );
