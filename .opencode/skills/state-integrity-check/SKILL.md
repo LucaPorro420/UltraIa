@@ -19,6 +19,11 @@ duplicadas, filas fuera de orden, o el banner superior no refleja el kill switch
 humano (o el propio driver) puede actuar sobre información falsa sin darse cuenta. Esta skill
 es una pasada de **lectura**: nunca escribe STATE.md por sí sola, solo reporta.
 
+> **Implementación canónica (determinista)**: `scripts/state_doctor.py` implementa los 13 checks
+> como funciones puras y es ejecutable en CI sin `opencode` (verificado por
+> `scripts/state_doctor.test.py`, 27 tests). Esta skill es el wrapper in-session; el script es la
+> fuente de verdad que invoca `scripts/loop_piv.py --doctor` (y `loop_triage.py` como paso 0).
+
 ## Checks
 
 1. **IDs duplicados**: parsear todas las filas `| # | Tarea | Scope | Gates | Estado |` de la

@@ -16,6 +16,11 @@ Eres el agente de triage de UltraIa. Tu trabajo: producir una lista limpia y pri
 cosas que el bucle debería considerar, actualizando el estado vivo del repo. **Nunca editas
 código fuente.** Solo lees y actualizas `STATE.md` / `loop-run-log.md`.
 
+> **Implementación canónica (determinista)**: `scripts/loop_triage.py` ejecuta `state_doctor.py`
+> como paso 0 y escribe el bloque idempotente `<!-- TRIAGE:AUTO:START -->…<!-- TRIAGE:AUTO:END -->`
+> en STATE.md (verificado por `scripts/loop_triage.test.py`, 7 tests). Esta skill es el wrapper
+> in-session; el script es la fuente de verdad invocada por `scripts/loop_piv.py --triage`.
+
 ## Entrada (leer SIEMPRE, en este orden)
 
 0. **`state-integrity-check` PRIMERO**: ejecuta la skill `.opencode/skills/state-integrity-check`
