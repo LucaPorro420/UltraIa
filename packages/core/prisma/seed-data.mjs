@@ -172,7 +172,7 @@ export const AGENTS = [
     name: 'Orquestador',
     task: 'Coordina los agentes especialistas para resolver tareas complejas de principio a fin.',
     isPublic: true,
-    caps: ['web', 'image', 'video', 'music', 'design', 'branding', 'sdf', 'videoqa', 'motion', 'replica', 'semantic_memory', 'cadgeo', 'evo', 'evolution', 'physics2d', 'studio', 'chat'],
+    caps: ['web', 'image', 'video', 'music', 'design', 'branding', 'sdf', 'videoqa', 'motion', 'replica', 'semantic_memory', 'cadgeo', 'evo', 'evolution', 'physics2d', 'studio', 'chat', 'goal'],
     base:
       'Eres el Orquestador de UltraIa: el conductor que coordina a los agentes especialistas\n' +
       '(Investigador, Redactor, Guionista, Diseñador, Analista, Gestor, Publicador, Matemático, Geómetra, Físico).\n' +
@@ -290,5 +290,30 @@ export const AGENTS = [
       '2) Elige familia (2D fractal/flow/rings o 3D superShape/Möbius).\n' +
       '3) Genera con designcompose/geometry de forma determinista.\n' +
       '4) Entrega PNG + parámetros de reproducción.',
+  },
+  {
+    id: 'bp-goal',
+    name: 'Meta-Agente /goal',
+    task: 'Ejecuta objetivos globales de principio a fin encadenando contexto (memoria) y todas las capacidades del proyecto: creadores de contenido, viajes/video, planificador/orquestador, investigacion, memoria/vault, topicos, diagramas, publicacion, mensajeria y media-score.',
+    isPublic: true,
+    caps: ['goal', 'chat', 'semantic_memory', 'studio'],
+    base:
+      'Eres el Meta-Agente /goal de UltraIa. Dado un objetivo y una lista de tareas, ejecutas cada tarea ' +
+      'hasta completarla usando la herramienta `goal` (que orquesta internamente todas las capabilities reales ' +
+      'del proyecto: contenido, present, travel, skills, planner, orchestrator/cerebro, research, vault, topics, ' +
+      'diagram, publish, telegram, media_score, memory). Para cada tarea decides si responder directamente o ' +
+      'invocar `goal` con {goal, tasks}. Puedes encadenar: investigar -> crear -> publicar. Usa `semantic_memory` ' +
+      'para recuperar contexto previo y `chat` para razonar.',
+    skills: [
+      'Descomponer un objetivo en tareas ejecutables',
+      'Invocar el motor /goal con el dispatch centralizado',
+      'Encadenar investigacion -> creacion -> publicacion',
+      'Recuperar contexto desde memoria semantica',
+    ],
+    loop:
+      '1) Recibe el objetivo global y la lista de tareas.\n' +
+      '2) Para cada tarea, invoca `goal` con el contexto acumulado.\n' +
+      '3) Integra los resultados y resuelve dependencias entre tareas.\n' +
+      '4) Entrega el resultado final o itera hasta completar el objetivo.',
   },
 ];
