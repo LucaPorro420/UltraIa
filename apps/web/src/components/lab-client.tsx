@@ -210,12 +210,17 @@ function UiGallery() {
 
 type ProtoItem = { id: string; name: string; category: string; ext: string };
 type UploadItem = { id: string; name: string; ext: string; url: string };
+type CloudItem = { id: string; path: string; name: string; ext: string; mime: string };
 
 const UPLOAD_EXTS = ['.html', '.svg', '.png', '.jpg', '.jpeg', '.webp', '.gif'];
 
 function extOf(name: string): string {
   const m = /\.[a-z0-9]+$/i.exec(name);
   return m ? m[0].toLowerCase() : '';
+}
+
+function cloudFileUrl(path: string): string {
+  return '/api/cloud/file/' + path.split('/').map(encodeURIComponent).join('/');
 }
 
 function tabClass(active: boolean): string {
@@ -230,6 +235,8 @@ function PrototypesSection() {
   const [cat, setCat] = useState('all');
   const [tab, setTab] = useState<'fab' | 'mine'>('fab');
   const [uploads, setUploads] = useState<UploadItem[]>([]);
+  const [cloudFiles, setCloudFiles] = useState<CloudItem[]>([]);
+  const [uploadError, setUploadError] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -240,13 +247,56 @@ function PrototypesSection() {
       .catch(() => setItems([]));
   }, []);
 
+  useEffect(() => {
+    if (tab !== 'mine') return;
+    void refreshCloud();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tab]);
+
+  async function refreshCloud() {
+    try {
+      const res = await fetch('/api/cloud/files?base=prototypes');
+      if (!res.ok) return;
+      const d = await res.json();
+      const files: Array<{ path: string; name: string; mime?: string }> = d.files ?? [];
+      setCloudFiles(
+        files
+          .filter((f) => UPLOAD_EXTS.includes(extOf(f.name)))
+          .map((f) => ({
+            id: f.path,
+            path: f.path,
+            name: f.name,
+            ext: extOf(f.name),
+            mime: f.mime ?? '',
+          })),
+      );
+    } catch {
+      /* ignore */
+    }
+  }
+
+  async function persistFile(f: File): Promise<void> {
+    const fd = new FormData();
+    fd.append('file', f);
+    fd.append('dir', 'prototypes');
+    const res = await fetch('/api/cloud/upload', { method: 'POST', body: fd });
+    if (!res.ok) {
+      const msg = await res.json().catch(() => ({}));
+      setUploadError(msg?.error ?? `error ${res.status}`);
+      return;
+    }
+    await refreshCloud();
+  }
+
   function addFiles(files: FileList | null) {
     if (!files) return;
+    setUploadError(null);
     const next: UploadItem[] = [];
     for (const f of Array.from(files)) {
       const ext = extOf(f.name);
       if (!UPLOAD_EXTS.includes(ext)) continue;
       next.push({ id: `up-${Date.now()}-${f.name}`, name: f.name, ext, url: URL.createObjectURL(f) });
+      void persistFile(f);
     }
     if (next.length) setUploads((u) => [...next, ...u]);
   }
@@ -297,7 +347,7 @@ function PrototypesSection() {
           Fabricados
         </button>
         <button type="button" onClick={() => setTab('mine')} className={tabClass(tab === 'mine')}>
-          Tuyos ({uploads.length})
+          Tuyos ({uploads.length + cloudFiles.length})
         </button>
       </div>
 
@@ -374,16 +424,34 @@ function PrototypesSection() {
               className="hidden"
               onChange={(e) => addFiles(e.target.files)}
             />
-            <p className="mt-2 font-mono text-[10px] text-neutral-600">previsualización instantánea, solo en tu navegador</p>
+            <p className="mt-2 font-mono text-[10px] text-neutral-600">
+              preview instantáneo + se guarda en Cloud (.ultraia/cloud)
+            </p>
           </div>
 
-          {uploads.length === 0 ? (
+          {uploadError && (
+            <p className="mb-2 rounded border border-red-500/40 bg-red-500/10 px-2 py-1 font-mono text-[10px] text-red-300">
+              {uploadError}
+            </p>
+          )}
+
+          {uploads.length > 0 && (
+            <>
+              <p className="mb-1 font-mono text-[10px] text-neutral-500">En este navegador</p>
+              <div className="mb-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {uploads.map((u) => renderTile(u.name, u.ext, u.url, u.url))}
+              </div>
+            </>
+          )}
+
+          <p className="mb-1 font-mono text-[10px] text-neutral-500">Guardados en Cloud</p>
+          {cloudFiles.length === 0 ? (
             <p className="font-mono text-[11px] text-neutral-500">
-              Aún no subiste nada. Arrastra un diseño para previsualizarlo al instante.
+              Aún no hay diseños guardados. Sube uno y quedará disponible después de refrescar.
             </p>
           ) : (
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {uploads.map((u) => renderTile(u.name, u.ext, u.url, u.url))}
+              {cloudFiles.map((c) => renderTile(c.name, c.ext, cloudFileUrl(c.path), cloudFileUrl(c.path)))}
             </div>
           )}
         </>
