@@ -2882,3 +2882,11 @@ de código, sin commit.
 ```json
 {"pattern":"pivr","iter":117,"gates":{"typecheck":0,"lint":0,"test":"1883","build":0,"python_suite":"27/27"},"commits":["este"],"colision":"3x-id112->117","next":"proyecto-externo-o-dashboard-genesis"}
 ```
+
+## [P] iter-120 editor-visual (27/08) - plan `.opencode/plans/loop-120-editor-visual.md` (peticion usuario: editor no-code notas/peticiones + barrido errores). Sensado: HEAD fbfd325; WIP ajeno netwatch en arbol (NO tocar); sin dev servers. Prediccion: feature B (editor) FULL verde, Part A (QA navegador) diferida.
+- **[I]** `PageAnnotation` Prisma + migracion `add_page_annotations` (relacion `PageAnnotationAuthor` en User) - `domain/page-editor.ts` (10 tests fake-db: create nota/peticion/texto reglas, list filtros, buildOverrides, resolve/reopen/visible/delete auth, uniqueSelectorPath) - barrel `index.ts` export - API `GET|POST /api/editor/annotations` y `PATCH|DELETE /api/editor/annotations/[id]` (getCurrentUser/requireUser, admin|autor) - `AnnotationLayer` client montada en `(app)/layout.tsx` (aplica overrides texto por selector + panel notas, modo ?editar=1) - `/editor` admin `EditorAdminClient` - nav `Editor` (PenTool tras Builder).
+- **[V]** FULL CI order arbol vivo: typecheck 0 / lint 0 / test 2002 (core 1809 + runtime 193) / build 0 con `/editor` en manifest (1.5 kB).
+- **[R]** iter-120 DONE (feature B). Editor Visual no-code OPERATIVO: anotar/modificar paginas como wordpress/figma (notas/peticiones + reemplazo de texto por selector, visibilidad, resolve/reopen, delete). Part A (barrido de errores con navegador headless) diferida a ciclo siguiente (no bloquea). Commit `659a515` (12 archivos, 794 inserciones).
+```json
+{"pattern":"pivr","iter":120,"gates":{"typecheck":0,"lint":0,"test":"2002","build":0,"paginas":50},"commits":["659a515"],"parte":"B-feature DONE / A-QA diferida"}
+```
