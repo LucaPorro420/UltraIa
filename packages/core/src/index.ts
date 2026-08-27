@@ -13,6 +13,7 @@ export * from './domain/feedback';
 export * from './domain/improve';
 export * from './domain/connections';
 export * from './domain/publications';
+export * from './domain/page-editor';
 export * from './domain/versions';
 export * from './domain/workspace';
 export * from './omag';

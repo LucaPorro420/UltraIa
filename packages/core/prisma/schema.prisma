@@ -20,6 +20,7 @@ model User {
   generated     GeneratedAsset[]
   prompts       PromptLibrary[]    @relation("SubmittedPrompts")
   publications  Publication[]      @relation("CreatedPublications")
+  annotations   PageAnnotation[]   @relation("PageAnnotationAuthor")
 }
 
 model Session {
@@ -276,4 +277,25 @@ model TopicBrief {
   procesadoEn DateTime?
 
   @@index([estado, score])
+}
+
+// Editor Visual no-code (loop-120): anotaciones/notas/peticiones sobre paginas del shell (app),
+// mas reemplazo de texto por selector (kind=texto, solo ADMIN) para editar la UI como un CMS ligero.
+model PageAnnotation {
+  id           String    @id @default(cuid())
+  page         String // ruta de la pagina, p.ej. '/dashboard'
+  selector     String? // selector CSS deterministico (uniqueSelectorPath) para anclar el nodo
+  anchorText   String? // texto ancla como pista si el selector falla
+  kind         String    @default("nota") // nota | peticion | texto
+  body         String // contenido de la nota/peticion, o descripcion del cambio
+  nuevoTexto   String? // para kind=texto: texto que reemplaza el del selector
+  estado       String    @default("abierta") // abierta | resuelta
+  visible      Boolean   @default(true)
+  creadoPorId  String?
+  creadoPor    User?     @relation("PageAnnotationAuthor", fields: [creadoPorId], references: [id], onDelete: SetNull)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([page, estado])
+  @@index([page, visible])
 }
