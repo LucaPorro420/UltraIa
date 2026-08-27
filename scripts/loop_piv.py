@@ -473,20 +473,47 @@ def run_singletons(args: argparse.Namespace) -> int | None:
     if kill_switch_active():
         print(f"[stop] kill switch '{KILL_SWITCH}' activo ? bucle detenido")
         return 0
-    doctor_only = args.doctor and not (args.triage or args.gate_only or args.plan_only)
+    doctor_only = args.doctor and not (
+        args.triage or args.gate_only or args.plan_only or getattr(args, "gate", False)
+    )
     if doctor_only:
         # Modo doctor-only: pre-flight de integridad y termina (gate real).
         return run_doctor(args.dry_run, args.timeout, as_gate=True)
     if args.doctor:
-        # Pre-flight advisory ANTES de triage/gate-only/plan-only/ciclos.
+        # Pre-flight advisory ANTES de triage/gate-only/gate/ciclos.
         run_doctor(args.dry_run, args.timeout, as_gate=False)
     if args.triage:
         return run_triage(args.dry_run, args.timeout)
+    if getattr(args, "gate", False):
+        # Gate runner determinista (loop_gate.py): kill de dev servers + 4 gates.
+        return run_gate(args)
     if args.gate_only:
         ok = gates(dry=args.dry_run, timeout=args.timeout)
         print("[gate-only] FULL:", "GREEN" if ok else "RED")
         return 0 if ok else 1
     return None
+
+
+def run_gate(args: argparse.Namespace) -> int:
+    """Fase V: corre el gate runner determinista (loop_gate.py) con kill de dev."""
+    sys.path.insert(0, str(SCRIPTS))
+    import loop_gate  # noqa: E402  (import diferido: evita coste si no se usa)
+
+    if args.dry_run:
+        # Dry-run: solo lista los gates, NO mata dev servers ni ejecuta nada real.
+        print("[dry-run] matar dev servers (kill_dev=True) antes de build")
+        for _name, cmd in loop_gate.GATES:
+            print("[dry-run]", cmd)
+        return 0
+
+    report = loop_gate.run_gates(
+        kill_dev=True, continue_on_failure=False, timeout=args.timeout
+    )
+    for r in report["results"]:
+        status = "PASS" if r["returncode"] == 0 else "FAIL"
+        print(f"[gate] {r['name']}: {status} ({r['duration_s']:.1f}s)")
+    print("[gate] FULL:", "GREEN" if report["passed"] else "RED")
+    return 0 if report["passed"] else 1
 
 
 def run_cycles(args: argparse.Namespace, our_sid: str | None) -> int:
@@ -563,6 +590,11 @@ def parse_args() -> argparse.Namespace:
     ap.add_argument("--plan-only", action="store_true", help="solo fase P (escribe el plan file)")
     ap.add_argument(
         "--triage", action="store_true", help="ejecuta loop_triage.py (report-only) y termina"
+    )
+    ap.add_argument(
+        "--gate", action="store_true",
+        help="corre el gate runner determinista (loop_gate.py): mata dev servers "
+        "antes de build y ejecuta typecheck->lint->test->build",
     )
     ap.add_argument(
         "--doctor",
