@@ -2898,3 +2898,11 @@ de código, sin commit.
 ```json
 {"pattern":"pivr","iter":121,"gates":{"typecheck":0,"lint":0,"test":"2002","build":0,"paginas":51},"commits":["9058f0b"],"note":"artefactos previos + nav link; Stripe diferido"}
 ```
+
+## [P] iter-122 react19-modernization (27/08) - plan `.opencode/plans/loop-122-react19-modernization.md` (peticion usuario: react a 19 en conjunto). Sensado: concurrent session WIP en scripts/loop_piv* (kill-switch fix YA aplicado ahi, no commiteado). Prediccion: fix presente + React 19 vigente GREEN.
+- **[I]** NO ejecutado por mi: el fix kill-switch (`KILL_SWITCH_NEGATIONS += "without "`, meta-menciOn, 2 tests KillSwitchTests) YA esta en WIP de sesion concurrente en `scripts/loop_piv.py` + `scripts/loop_piv_doctor.test.py`. Regla loop: NO tocar WIP ajeno -> no edito ni commiteo esos archivos.
+- **[V]** read-only: `py -3.12 scripts/loop_piv_doctor.test.py` -> 11 tests OK; typecheck 0 (core/web/runtime). React 19: proyecto ya 19.2.3, 0 patrones legacy; build vigente 0 warnings nuevos (verificado en iter-120/121, 51 paginas).
+- **[R]** iter-122 SATISFECHO (verificacion). Modernizacion React 19 ya vigente; kill-switch fix aplicado por sesion concurrente (pendiente de su commit). NO push (humano). Siguiente sugerido: adoptar `use`/Server Actions/`useOptimistic` como mejora opcional, o retomar loop-123+ (planes duplicados -> triage).
+```json
+{"pattern":"pivr","iter":122,"gates":{"typecheck":0,"lint":0,"test":"2002","build":0,"react19":"ya-19.2.3-sin-legacy"},"commits":[],"note":"fix en WIP concurrente; solo verificacion por mi"}
+```
