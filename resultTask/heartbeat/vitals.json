@@ -1,5 +1,5 @@
 {
-  "fecha": "2026-08-26",
+  "fecha": "2026-08-27",
   "entorno": "github-actions",
   "vitals": {
     "puntuacion": 40,
@@ -24,7 +24,7 @@
         "valor": 0.98,
         "peso": 0.15,
         "ok": false,
-        "nota": "101/103 accionables cerradas, 2 pendientes, 1 bloqueadas"
+        "nota": "110/112 accionables cerradas, 2 pendientes, 1 bloqueadas"
       },
       {
         "nombre": "gaps",
@@ -45,13 +45,13 @@
         "valor": 1,
         "peso": 0.05,
         "ok": true,
-        "nota": "100 commits + 16 lecciones"
+        "nota": "139 commits + 15 lecciones"
       }
     ],
     "razones": [
       "gates: 2/4 verdes (ROJO: test, build)",
       "tests: 0/0 tests",
-      "backlog: 101/103 accionables cerradas, 2 pendientes, 1 bloqueadas",
+      "backlog: 110/112 accionables cerradas, 2 pendientes, 1 bloqueadas",
       "gaps: 16 gaps abiertos"
     ]
   },
@@ -115,14 +115,14 @@
       "fuentes": 8
     },
     "backlog": {
-      "total": 104,
-      "done": 101,
+      "total": 113,
+      "done": 110,
       "bloqueadas": 1,
       "pendientes": 2
     },
     "actividad": {
-      "commits": 100,
-      "lecciones": 16
+      "commits": 139,
+      "lecciones": 15
     },
     "gates": {
       "typecheck": true,
