@@ -239,6 +239,7 @@ function PrototypesSection() {
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [publishing, setPublishing] = useState<string | null>(null);
   const [publishStatus, setPublishStatus] = useState<Record<string, string>>({});
+  const [copied, setCopied] = useState<string>('');
   const [dragOver, setDragOver] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -323,6 +324,17 @@ function PrototypesSection() {
     } finally {
       setPublishing(null);
     }
+  }
+
+  function copyLink(path: string) {
+    const url = `${typeof window !== 'undefined' ? window.location.origin : ''}/share/${path.split('/').map(encodeURIComponent).join('/')}`;
+    navigator.clipboard?.writeText(url).then(
+      () => {
+        setCopied(path);
+        setTimeout(() => setCopied((c) => (c === path ? '' : c)), 1500);
+      },
+      () => undefined,
+    );
   }
 
   const categories = ['all', ...Array.from(new Set(items.map((i) => i.category)))];
@@ -499,8 +511,15 @@ function PrototypesSection() {
                       >
                         discord
                       </button>
+                      <button
+                        type="button"
+                        onClick={() => copyLink(c.path)}
+                        className="rounded border border-border-subtle px-1.5 py-0.5 font-mono text-[9px] text-neutral-300 hover:border-primary hover:text-primary"
+                      >
+                        link
+                      </button>
                       <span className="font-mono text-[9px] text-neutral-500">
-                        {publishStatus[key] ?? publishStatus[keyD] ?? ''}
+                        {copied === c.path ? '✓' : publishStatus[key] ?? publishStatus[keyD] ?? ''}
                       </span>
                     </div>
                   </div>
