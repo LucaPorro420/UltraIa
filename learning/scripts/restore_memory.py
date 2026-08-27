@@ -36,7 +36,10 @@ def summary():
         for name in z.namelist():
             if "/truth/" in name and name.endswith(".json"):
                 d = json.loads(z.read(name))
-                for c in d["cases"]:
+                cases = d.get("cases") if isinstance(d, dict) else None
+                if not cases:
+                    continue
+                for c in cases:
                     if "prompt" in c and "answer" in c:
                         truth[c["id"]] = {"prompt": c["prompt"], "answer": c["answer"], "kind": c.get("type", "exact")}
                     elif c.get("verified"):

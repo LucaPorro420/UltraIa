@@ -18,7 +18,7 @@ MEM_DIR = ROOT / "memory"
 BUNDLE = MEM_DIR / "ultraia_memory.zip"
 
 INCLUDE_DIRS = ["truth", "responses", "scripts"]
-INCLUDE_FILES = ["LEARNINGS.md", "verdicts.jsonl"]
+INCLUDE_FILES = ["LEARNINGS.md", "CODEMAP.md", "verdicts.jsonl"]
 
 def build():
     MEM_DIR.mkdir(exist_ok=True)

@@ -382,4 +382,33 @@ Implementacion: capability vfx (tools/vfx.ts: planReframe / planUpscale / planLu
   escribir en loop-run-log/STATE, no al crear el plan file (mi plan decia 112,
   netwatch publico 112 y fila 116 primero -> genesis renombro a 117 sin drama).
 - **Add-Content PS5.1 solo con ASCII puro + verificacion de costura inmediata**
-  (la leccion anti-Get-Content se mantiene para contenido no-ASCII: usar tool Write).
+   (la leccion anti-Get-Content se mantiene para contenido no-ASCII: usar tool Write).
+
+## Leccion 130-134 (26/08/2026): Lab persiste en Cloud + publica a redes + link publico + shell desktop
+
+- **Lab "Tuyos" persiste en Cloud (loop-130, `f69016b`)**: `apps/web/src/app/api/cloud/file/[...path]/route.ts`
+  sirve bytes (auth, `isSafePath`, `Content-Type` desde `CloudFile.mime`). `lab-client.tsx` sube el diseño
+  a `dir=prototypes` y lo lista; NO depende de object-URL del navegador (sobrevive al refresh). Leccion:
+  el `Uint8Array` que devuelve core NO es `BodyInit`/`BlobPart` en web (lib DOM) -> envolver en
+  `new Uint8Array(data)` (copia) + `new Blob([...])` antes de devolver la Response.
+- **Publicar diseño a Telegram/Discord (loop-131, `c98e650`)**: `api/lab/publish` lee bytes de Cloud y llama
+  `createDefaultPublishers({includeTelegram/includeDiscord})`; `publish.ts` gano `imageBuffer/imageName`;
+  `telegram.ts`/`discord.ts` publican imagen (`sendPhoto`/`sendDocument`; webhook `file` multipart). Fail-soft
+  (nunca lanza). El publish pipeline usa tokens de ENTORNO; el Connections Center guarda credenciales cifradas
+  aparte (seccion 3 de CODEMAP). Pendiente: bridar credenciales guardadas al publicador del Lab.
+- **Link publico (loop-133, `c2f74fc`)**: `api/share/[...path]/route.ts` GET SIN auth sirve el archivo de
+  Cloud con `Content-Disposition: inline`; `lab-client.tsx` copia `${origin}/share/<encoded path>`. El import
+  del adapter local en una route anidada necesita `../../api/cloud/providers` (NO `../../cloud/providers`).
+- **Conexiones OAuth reales YA EXISTEN (loop-132)**: el backend `/api/connections` (GET/POST/DELETE +
+  `send-code`/`test`) ya hace guardado cifrado + 2FA por mail + verificar/eliminar via Prisma. NO reimplementar
+  ni sobrescribir: una ruta simplificada lo habria roto (se revirtio). Para usar credenciales guardadas en el
+  publicador, leer desde ese backend (mejora futura, no critica).
+- **Shell desktop WebView2 (loop-134, `6ac3d4c`)**: `desktop/UltraIa.Desktop.csproj` + `Program.cs` (C# net8.0-windows
+  + WinForms + WebView2 SDK). Evergreen (se actualiza con Edge), arranca `python start.py` si `localhost:3000`
+  no responde, abre enlaces externos en el navegador del sistema. `desktop/README.md` documenta build/publish.
+  `.gitignore` ignora `desktop/bin|obj|dist`. Es aditivo: NO afecta gates npm (typecheck/lint/test/build).
+- **Base de conocimiento local (loop-135)**: `learning/CODEMAP.md` mapea el repo entero (layout, capabilities,
+  rutas web, runtime Fase A/B, gotchas) para que un agente comente CUALQUIER codigo SIN internet, cargando
+  `learning/memory/ultraia_memory.zip` (skill `learning-memory`). El zip se regenera con
+  `python learning/scripts/bundle_memory.py build` e incluye ahora `CODEMAP.md` + `LEARNINGS.md` (hasta loop-134)
+  + `truth/` + `responses/` + `scripts/` + `verdicts.jsonl`.
