@@ -351,3 +351,4 @@ export type Capability =
 
 export * from './emailCode';
 export * from './smtp';
+export * from './catalog';
