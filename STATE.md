@@ -241,3 +241,10 @@ enderGifBytes({palette})\ passthrough + demo comparativa: **4394B vs 6157B (-29%
 - Archivos: `apps/web/src/app/api/lab/publish/route.ts`, `apps/web/src/components/lab-client.tsx`, plan `loop-136-lab-session-creds.md`.
 - Gates FULL verdes: typecheck OK, lint OK (0 warnings), test 193 OK, build EXIT=0.
 - Commit: (ver hash en push). Mejora de "Sigue y mejora": publicar a redes sin `.env`.
+
+## Lab publish usa conexiones guardadas (loop-137) - DONE 2026-08-27
+- `POST /api/lab/publish` resuelve el token vía `getConnection(prisma, canal)` (dominio existente, cifrado AES-256-GCM reutilizado — NO se reimplementa). Precedencia: credenciales de sesión > conexión guardada en DB > env (vía `??` en cada adapter).
+- Seguridad: leer el token crudo de la DB exige `user.role === 'ADMIN` (igual que administrar conexiones); sesión explícita funciona para cualquier logueado. El token NUNCA se expone al cliente. `chatId`/`channel` se toman de `creds` de sesión o de `meta` de la conexión.
+- Archivo: `apps/web/src/app/api/lab/publish/route.ts` + plan `loop-137-lab-bridge-connections.md`.
+- Cierra el lazo "conexiones → publicar" del Connections Center. Gates FULL verdes: typecheck OK, lint OK, test 193 OK, build EXIT=0.
+- Commit: (ver hash en push).

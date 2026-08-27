@@ -1,6 +1,6 @@
 import { getCurrentUser } from '@/lib/server/context';
 import { CloudService, isSafePath } from '@ultraia/cloud';
-import { publish } from '@ultraia/core';
+import { publish, getConnection, prisma } from '@ultraia/core';
 import { localCloudAdapter } from '../../cloud/providers';
 import { Buffer } from 'node:buffer';
 
@@ -43,14 +43,39 @@ export async function POST(req: Request) {
   const name = meta?.name ?? path.split('/').pop() ?? 'design';
   const buf = Buffer.from(data);
 
-  // Credenciales explícitas (sesión) tienen precedencia sobre env vía `??` en cada adapter.
+  // Resolver token: credenciales de sesión > conexión guardada (DB) > env (vía `??` en el adapter).
+  const dbConn = await getConnection(prisma, channel).catch(() => null);
+  const reliesOnDb = !creds.botToken && !creds.webhookUrl && !creds.token;
+  if (reliesOnDb) {
+    if (!dbConn) {
+      return new Response('no hay credenciales (peca el token en el panel o guarda la conexión)', {
+        status: 400,
+      });
+    }
+    // Las conexiones guardadas solo las administra ADMIN; leer el token crudo requiere ADMIN.
+    if (user.role !== 'ADMIN') {
+      return new Response('Forbidden: se requiere ADMIN para usar conexiones guardadas', { status: 403 });
+    }
+  }
+
+  const metaChat = (dbConn?.meta?.chatId as string | undefined) ?? undefined;
+  const metaSlackChannel = (dbConn?.meta?.channel as string | undefined) ?? undefined;
+
   let adapter;
   if (channel === 'telegram') {
-    adapter = publish.createTelegramAdapter({ botToken: creds.botToken, chatId: creds.chatId });
+    adapter = publish.createTelegramAdapter({
+      botToken: creds.botToken || dbConn?.accessToken,
+      chatId: creds.chatId || metaChat,
+    });
   } else if (channel === 'discord') {
-    adapter = publish.createDiscordAdapter({ webhookUrl: creds.webhookUrl });
+    adapter = publish.createDiscordAdapter({
+      webhookUrl: creds.webhookUrl || dbConn?.accessToken,
+    });
   } else if (channel === 'slack') {
-    adapter = publish.createSlackAdapter({ botToken: creds.token, channel: creds.channel });
+    adapter = publish.createSlackAdapter({
+      botToken: creds.token || dbConn?.accessToken,
+      channel: creds.channel || metaSlackChannel,
+    });
   } else {
     return new Response('adapter no disponible', { status: 500 });
   }
