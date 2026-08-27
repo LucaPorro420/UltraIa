@@ -2914,3 +2914,11 @@ de código, sin commit.
 ```json
 {"pattern":"pivr","iter":123,"gates":{"typecheck":0,"lint":0,"test":"2002","build":0,"react19":"use() en tabs ya vigente"},"commits":[],"note":"ya migrado por sesion previa; solo verificacion"}
 ```
+
+## [P] iter-124 designcompose-4pillars (27/08) - plan `.opencode/plans/loop-124-4pillars-design.md` (peticion usuario: orquestador/cerebro/agentes/modelo diseno 2D/3D). Sensado: YA IMPLEMENTADO por sesion previa. Prediccion: 0 cambios, FULL GREEN.
+- **[I]** NO ejecutado por mi: `tools/designcompose.ts` + `.test.ts` (8 tests) existen y pasan; `omag/design-generator.ts` (`DesignGeneratorAdapter`) existe; `generators.ts:defaultGenerators()` lo incluye; `mediafield.ts` Modality 'design'; `cerebro.ts` CerebroStepKind 'create_design' (planBrainCycle L201); `tools/index.ts` export/TOOL_DESCRIPTIONS/Capability 'designcompose'; `seed-data.mjs` agente `bp-disenador`; `Task/cerebro-cycle.ts` importa composeDesign2D/3D y llama `crearDisenos`.
+- **[V]** read-only: `npx vitest run designcompose` -> 8/8 OK. typecheck 0 (core). Gates FULL vigentes GREEN (core 1809 / lint 0 / build 0). WIP ajeno (connections/*, _diag.ts, llm.ts, scripts/loop_piv*) intacto.
+- **[R]** iter-124 SATISFECHO (ya implementado). Modelo de diseno 2D/3D determinista keyless compone generative+geometry+pngrender y esta cableado en los 4 pilares (orquestador OMAG / cerebro / agentes / 2D-3D). NO push (humano).
+```json
+{"pattern":"pivr","iter":124,"gates":{"typecheck":0,"lint":0,"test":"1809-incl-designcompose-8","build":0},"commits":[],"note":"ya implementado por sesion previa; solo verificacion"}
+```
