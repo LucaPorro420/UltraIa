@@ -33,6 +33,12 @@ export interface PublishInput {
   videoBuffer?: Buffer;
   /** URL pública del video (requerida por IG Reels y Threads — container flow). */
   videoUrl?: string;
+  /** Buffer de imagen (para publicar diseños/imágenes a canales que lo soportan). */
+  imageBuffer?: Buffer;
+  /** Nombre de archivo de la imagen (con extensión) para decidir photo vs document. */
+  imageName?: string;
+  /** URL pública de la imagen (alternativa a imageBuffer). */
+  imageUrl?: string;
   metadata?: Partial<PublishMetadata>;
 }
 

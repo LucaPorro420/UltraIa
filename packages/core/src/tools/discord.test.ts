@@ -130,6 +130,26 @@ describe('createDiscordAdapter — publish', () => {
   it('platform del adapter es discord', () => {
     expect(createDiscordAdapter({ webhookUrl: GOOD_WEBHOOK }).platform).toBe(DISCORD_PLATFORM);
   });
+
+  it('imagen png → POST webhook con multipart file image/png (loop-131)', async () => {
+    let captured: { url: string; body?: unknown } | undefined;
+    const fetchFn = vi.fn().mockImplementation(async (url: string | URL, init?: { body?: unknown }) => {
+      captured = { url: String(url), body: init?.body };
+      return new Response(null, { status: 204 });
+    });
+    const adapter = createDiscordAdapter({ webhookUrl: GOOD_WEBHOOK, fetch: fetchFn as unknown as typeof fetch });
+    const res = await adapter.publish({ imageBuffer: Buffer.from('IMGDATA'), imageName: 'd.png', metadata: { title: 'T', description: 'D' } });
+    expect(res.ok).toBe(true);
+    const text = Buffer.from(captured!.body as Buffer).toString('utf8');
+    expect(text).toContain('name="file"; filename="d.png"');
+    expect(text).toContain('Content-Type: image/png');
+  });
+  it('sin video ni imagen → ok:false', async () => {
+    const adapter = createDiscordAdapter({ webhookUrl: GOOD_WEBHOOK });
+    const res = await adapter.publish({});
+    expect(res.ok).toBe(false);
+    expect(res.error).toContain('imagen');
+  });
 });
 
 describe('buildMultipartBody compartido (discord usa el de telegram.js)', () => {

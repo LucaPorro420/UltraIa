@@ -59,6 +59,21 @@ async function discordVideoBytes(input: PublishInput): Promise<Buffer | null> {
   return null;
 }
 
+/** Resuelve la imagen: buffer directo o URL pública (para diseños del Lab). */
+async function discordImageBytes(input: PublishInput): Promise<Buffer | null> {
+  if (input.imageBuffer) return input.imageBuffer;
+  if (input.imageUrl) {
+    try {
+      const res = await fetch(input.imageUrl);
+      if (!res.ok) return null;
+      return Buffer.from(await res.arrayBuffer());
+    } catch {
+      return null;
+    }
+  }
+  return null;
+}
+
 /**
  * Adapter Discord para la cola Publication. publica: webhook con video + caption;
  * fail-soft: sin webhook válido → ok:false con razón; video >10 MiB → ok:false; errores
@@ -77,7 +92,42 @@ export function createDiscordAdapter(options: DiscordAdapterOptions = {}): Publi
       const valid = createDiscordAdapter.__validate(webhookUrl);
       if (!valid.ok) return { platform, ok: false, error: valid.reason };
       const video = await discordVideoBytes(input);
-      if (!video) return { platform, ok: false, error: 'No hay video disponible (videoPath/videoBuffer vacío o ilegible)' };
+      if (!video) {
+        const img = await discordImageBytes(input);
+        if (!img) return { platform, ok: false, error: 'No hay video ni imagen disponible (videoPath/videoBuffer/imageBuffer)' };
+        const caption = buildDiscordCaption(input.metadata);
+        const payloadJson = JSON.stringify({ content: caption });
+        const name = input.imageName ?? 'design';
+        const e = name.toLowerCase();
+        const contentType = e.endsWith('.png')
+          ? 'image/png'
+          : e.endsWith('.jpg') || e.endsWith('.jpeg')
+            ? 'image/jpeg'
+            : e.endsWith('.webp')
+              ? 'image/webp'
+              : e.endsWith('.gif')
+                ? 'image/gif'
+                : 'application/octet-stream';
+        const boundary = `----ultraia-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 12)}`;
+        const { body, contentType: ct } = buildMultipartBody(
+          [
+            { name: 'file', filename: name, contentType, data: img },
+            { name: 'payload_json', value: payloadJson },
+          ],
+          boundary,
+        );
+        try {
+          const res = await fetchImpl(webhookUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': ct },
+            body: body as unknown as NonNullable<RequestInit['body']>,
+          });
+          if (!res.ok) return { platform, ok: false, error: `Discord HTTP ${res.status}: ${res.statusText}` };
+          return { platform, ok: true, url: webhookUrl.replace('/api/webhooks/', '/channels/') };
+        } catch (err) {
+          return { platform, ok: false, error: `Red: ${err instanceof Error ? err.message : String(err)}` };
+        }
+      }
       if (video.length > DISCORD_MAX_VIDEO_BYTES) {
         return { platform, ok: false, error: `Video supera el límite gratis de Discord (${Math.round(video.length / 1024 / 1024)}MB > 10MB; boost Nivel 1 sube a 25MB)` };
       }

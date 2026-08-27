@@ -207,3 +207,44 @@ describe('createTelegramAdapter — publish', () => {
     expect(createTelegramAdapter({ botToken: 't', chatId: 'c' }).platform).toBe('telegram');
   });
 });
+
+describe('publish imagen (loop-131)', () => {
+  it('imagen png → sendPhoto con multipart y content-type image/png', async () => {
+    let captured: { url: string; body?: unknown } | undefined;
+    const adapter = createTelegramAdapter({
+      botToken: 'tok:abc',
+      chatId: '@canal',
+      fetch: (async (url: string | URL, init?: { body?: unknown }) => {
+        captured = { url: String(url), body: init?.body };
+        return new Response(JSON.stringify({ ok: true, result: { message_id: 7 } }), { status: 200 });
+      }) as typeof fetch,
+    });
+    const r = await adapter.publish({ imageBuffer: Buffer.from('PNGDATA'), imageName: 'd.png', metadata: { title: 'T', description: 'D' } });
+    expect(r.ok).toBe(true);
+    expect(r.id).toBe('7');
+    expect(captured?.url).toBe(`${TELEGRAM_API_BASE}/bottok:abc/sendPhoto`);
+    const text = Buffer.from(captured!.body as Buffer).toString('utf8');
+    expect(text).toContain('name="photo"; filename="d.png"');
+    expect(text).toContain('Content-Type: image/png');
+  });
+  it('svg → sendDocument (no renderiza como foto)', async () => {
+    let captured: { url: string } | undefined;
+    const adapter = createTelegramAdapter({
+      botToken: 't',
+      chatId: 'c',
+      fetch: (async (url: string | URL) => {
+        captured = { url: String(url) };
+        return new Response(JSON.stringify({ ok: true, result: { message_id: 1 } }), { status: 200 });
+      }) as typeof fetch,
+    });
+    const r = await adapter.publish({ imageBuffer: Buffer.from('<svg/>'), imageName: 'd.svg' });
+    expect(r.ok).toBe(true);
+    expect(captured?.url?.endsWith('/sendDocument')).toBe(true);
+  });
+  it('sin video ni imagen → ok:false con razón', async () => {
+    const adapter = createTelegramAdapter({ botToken: 't', chatId: 'c' });
+    const r = await adapter.publish({});
+    expect(r.ok).toBe(false);
+    expect(r.error).toContain('imagen');
+  });
+});

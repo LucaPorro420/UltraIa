@@ -237,6 +237,8 @@ function PrototypesSection() {
   const [uploads, setUploads] = useState<UploadItem[]>([]);
   const [cloudFiles, setCloudFiles] = useState<CloudItem[]>([]);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [publishing, setPublishing] = useState<string | null>(null);
+  const [publishStatus, setPublishStatus] = useState<Record<string, string>>({});
   const [dragOver, setDragOver] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -299,6 +301,28 @@ function PrototypesSection() {
       void persistFile(f);
     }
     if (next.length) setUploads((u) => [...next, ...u]);
+  }
+
+  async function publishTo(channel: string, path: string) {
+    const key = `${channel}:${path}`;
+    setPublishing(key);
+    setPublishStatus((s) => ({ ...s, [key]: 'enviando…' }));
+    try {
+      const res = await fetch('/api/lab/publish', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ channel, path }),
+      });
+      const d = await res.json();
+      setPublishStatus((s) => ({
+        ...s,
+        [key]: d.ok ? `✓ publicado${d.url ? ` · ${d.url}` : ''}` : `✗ ${d.error ?? `HTTP ${res.status}`}`,
+      }));
+    } catch {
+      setPublishStatus((s) => ({ ...s, [key]: '✗ red' }));
+    } finally {
+      setPublishing(null);
+    }
   }
 
   const categories = ['all', ...Array.from(new Set(items.map((i) => i.category)))];
@@ -451,7 +475,37 @@ function PrototypesSection() {
             </p>
           ) : (
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {cloudFiles.map((c) => renderTile(c.name, c.ext, cloudFileUrl(c.path), cloudFileUrl(c.path)))}
+              {cloudFiles.map((c) => {
+                const key = `telegram:${c.path}`;
+                const keyD = `discord:${c.path}`;
+                return (
+                  <div key={c.id}>
+                    {renderTile(c.name, c.ext, cloudFileUrl(c.path), cloudFileUrl(c.path))}
+                    <div className="mt-1 flex flex-wrap items-center gap-1">
+                      <span className="font-mono text-[9px] text-neutral-500">Publicar:</span>
+                      <button
+                        type="button"
+                        disabled={publishing !== null}
+                        onClick={() => publishTo('telegram', c.path)}
+                        className="rounded border border-border-subtle px-1.5 py-0.5 font-mono text-[9px] text-neutral-300 hover:border-primary hover:text-primary disabled:opacity-40"
+                      >
+                        telegram
+                      </button>
+                      <button
+                        type="button"
+                        disabled={publishing !== null}
+                        onClick={() => publishTo('discord', c.path)}
+                        className="rounded border border-border-subtle px-1.5 py-0.5 font-mono text-[9px] text-neutral-300 hover:border-primary hover:text-primary disabled:opacity-40"
+                      >
+                        discord
+                      </button>
+                      <span className="font-mono text-[9px] text-neutral-500">
+                        {publishStatus[key] ?? publishStatus[keyD] ?? ''}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           )}
         </>

@@ -104,6 +104,21 @@ async function telegramVideoBytes(input: PublishInput): Promise<Buffer | null> {
   return null;
 }
 
+/** Resuelve la imagen: buffer directo o URL pública (para diseños del Lab). */
+async function telegramImageBytes(input: PublishInput): Promise<Buffer | null> {
+  if (input.imageBuffer) return input.imageBuffer;
+  if (input.imageUrl) {
+    try {
+      const res = await fetch(input.imageUrl);
+      if (!res.ok) return null;
+      return Buffer.from(await res.arrayBuffer());
+    } catch {
+      return null;
+    }
+  }
+  return null;
+}
+
 /**
  * Adapter Telegram para la cola Publication. publica: sendVideo con caption bilingüe;
  * fail-soft: sin token/chat → ok:false con razón; video >50MB → ok:false; errores HTTP y
@@ -123,7 +138,49 @@ export function createTelegramAdapter(options: TelegramAdapterOptions = {}): Pub
       const valid = createTelegramAdapter.__validate(botToken, chatId);
       if (!valid.ok) return { platform, ok: false, error: valid.reason };
       const video = await telegramVideoBytes(input);
-      if (!video) return { platform, ok: false, error: 'No hay video disponible (videoPath/videoBuffer vacío o ilegible)' };
+      if (!video) {
+        const img = await telegramImageBytes(input);
+        if (!img) return { platform, ok: false, error: 'No hay video ni imagen disponible (videoPath/videoBuffer/imageBuffer)' };
+        const name = input.imageName ?? 'design';
+        const ext = name.toLowerCase();
+        const isPhoto = /\.(png|jpe?g|webp|gif)$/.test(ext);
+        const endpoint = isPhoto ? 'sendPhoto' : 'sendDocument';
+        const field = isPhoto ? 'photo' : 'document';
+        const ctype = isPhoto
+          ? ext.endsWith('.webp')
+            ? 'image/webp'
+            : ext.endsWith('.gif')
+              ? 'image/gif'
+              : ext.endsWith('.jpg') || ext.endsWith('.jpeg')
+                ? 'image/jpeg'
+                : 'image/png'
+          : 'application/octet-stream';
+        const boundary = randomBoundary();
+        const { body: ibody, contentType: ict } = buildMultipartBody(
+          [
+            { name: 'chat_id', value: chatId },
+            { name: field, filename: name, contentType: ctype, data: img },
+            { name: 'caption', value: buildTelegramCaption(input.metadata) },
+          ],
+          boundary,
+        );
+        try {
+          const res = await fetchImpl(`${TELEGRAM_API_BASE}/bot${botToken}/${endpoint}`, {
+            method: 'POST',
+            headers: { 'Content-Type': ict },
+            body: ibody as unknown as NonNullable<RequestInit['body']>,
+          });
+          const json = (await res.json().catch(() => null)) as TelegramSendResponse | null;
+          if (!res.ok || !json?.ok) {
+            const code = json?.error_code ?? res.status;
+            return { platform, ok: false, error: `Telegram API ${code}: ${json?.description || res.statusText}` };
+          }
+          const mid = String(json.result?.message_id ?? '');
+          return { platform, ok: true, id: mid, url: `https://t.me/c/${chatId.replace('@', '')}/${mid}` };
+        } catch (err) {
+          return { platform, ok: false, error: `Red: ${err instanceof Error ? err.message : String(err)}` };
+        }
+      }
       if (video.length > TELEGRAM_MAX_VIDEO_BYTES) {
         return { platform, ok: false, error: `Video supera el límite de Telegram (${Math.round(video.length / 1024 / 1024)}MB > 50MB)` };
       }
