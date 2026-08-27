@@ -28,6 +28,7 @@ const CATALOG_META: Record<Capability, { category: ToolCategory; route: string; 
   skills: { category: 'ia-ml', route: '/dashboard', related: ['g0dm0d3', 'genesis'], consolidates: [] },
   content: { category: 'video-audio', route: '/studio', related: ['music', 'video', 'studio'], consolidates: [] },
   g0dm0d3: { category: 'ia-ml', route: '/studio', related: ['skills'], consolidates: [] },
+  goal: { category: 'automatizacion', route: '/dashboard', related: ['skills', 'cerebro', 'genesis', 'autopub'], consolidates: [] },
   topics: { category: 'contenido-cms', route: '/dashboard', related: ['contenido', 'autopub', 'metrics'], consolidates: [] },
   present: { category: 'contenido-cms', route: '/dashboard', related: ['publications', 'contenido', 'autopub'], consolidates: [] },
   publish: { category: 'contenido-cms', route: '/dashboard', related: ['publications', 'autopub'], consolidates: [] },

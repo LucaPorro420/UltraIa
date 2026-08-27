@@ -106,6 +106,7 @@ import * as genesisRunner from '../tools/genesis-runner';
 import type { GenesisState, GenesisTask } from '../tools/genesis';
 import * as autopub from '../tools/autopub';
 import { runVaultTool, planVaultEntry, buildVaultManifest, vaultSearch, summarizeVault, planVaultSync, exportVaultToGitHub, VAULT_LAYOUT, VAULT_ROOT } from '../tools/vault';
+import { runGoal, buildGoalDispatch } from '../tools/goal';
 import { runPdfsearchTool, searchOpenAlex, searchPdfWeb, planPdfHarvest, indexPdfEntry } from '../tools/pdfsearch';
 import * as qdrantMemory from '../tools/qdrant-memory';
 import * as kgraph from '../tools/kgraph';
@@ -685,6 +686,29 @@ export function chatStream(opts: {
       }),
       execute: async ({ tema, contenido, media, canales, briefId, marca, branding }) =>
         present({ tema, contenido, media, canales, briefId, marca, branding }),
+    });
+  }
+  if (opts.tools?.includes('goal')) {
+    tools.goal_run = tool({
+      description:
+        'Meta-agente autonomo (/goal): dado un objetivo + lista de tareas, ejecuta cada tarea encadenando contexto (memoria) y despachando a las capabilities reales del proyecto (creadores de contenido, viajes/video, planificador/orquestador, investigacion, memoria/vault, topicos, diagramas, publicacion, mensajeria, media-score). El modelo decide por tarea si responder o invocar una herramienta via JSON {"tool","args"}; soporta encadenado (investigar -> crear -> publicar). Parametros: goal (objetivo global) y tasks (lista de tareas en orden).',
+      parameters: z.object({
+        goal: z.string().min(1).max(2000),
+        tasks: z.array(z.string().min(1).max(2000)).min(1).max(20),
+      }),
+      execute: async ({ goal, tasks }) => {
+        const complete = async (system: string, user: string): Promise<string> => {
+          const r = await generateText({ model: resolveModel(opts.model), system, prompt: user });
+          return r.text;
+        };
+        const dispatchMap = buildGoalDispatch();
+        const dispatch = async (tool: string, toolArgs: Record<string, unknown>): Promise<unknown> => {
+          const fn = dispatchMap[tool];
+          if (!fn) throw new Error(`Herramienta no mapeada en goal_run: ${tool}`);
+          return fn(toolArgs);
+        };
+        return await runGoal({ goal, tasks, complete, dispatch, toolNames: Object.keys(dispatchMap), maxStepsPerTask: 5 });
+      },
     });
   }
   if (opts.tools?.includes('publish')) {

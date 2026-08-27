@@ -10,6 +10,21 @@
  * mensajeros, planificador, investigación).
  */
 
+import { generarContenido, redactar, guionizar } from './enrutador';
+import { present } from './present';
+import { planTravelVideo, buildTakeManifest, travelLeadImage } from './travel';
+import { runSkill } from './skills';
+import { generateTopicBriefs } from './topics';
+import { renderEditorialDiagram, timelineFromScenes } from './diagram';
+import { readWeb, searchWeb, searchGitHub, parseRss, videoInfo } from './reach';
+import { runVaultTool } from './vault';
+import { buildImprovementPlan } from './autolearn';
+import { planBrainCycle } from './cerebro';
+import { publishToAll, createDefaultPublishers } from './publish';
+import { createTelegramAdapter } from './telegram';
+import { puntuarMedia } from './media-score';
+import { searchTruth, loadTruthAuto } from './semantic-memory';
+
 export interface GoalTask {
   id: string;
   description: string;
@@ -212,4 +227,56 @@ export async function runGoal(opts: RunGoalOpts): Promise<{
   }
 
   return { goal, results, done: results.every((r) => r.status === 'done') };
+}
+
+/** Mapa curado de intents -> funciones reales de las capabilities del proyecto.
+ * Cubre: creadores de contenido, viajes/video, planificador/orquestador, investigacion,
+ * memoria/vault, topicos, diagramas, publicacion, mensajeria y media-score.
+ * Lo usan tanto el comando /goal del chat como la tool de agente goal_run. */
+export function buildGoalDispatch(): Record<string, (args: Record<string, unknown>) => Promise<unknown>> {
+  return {
+    content_generate: (a) => Promise.resolve(generarContenido(a as never)),
+    content_redact: (a) => Promise.resolve(redactar(a as never, a as never)),
+    content_script: (a) => Promise.resolve(guionizar(a as never, a as never)),
+    present_package: (a) => Promise.resolve(present(a as never)),
+    travel_plan: (a) => Promise.resolve(planTravelVideo(a as never, a as never)),
+    travel_take: (a) => Promise.resolve(buildTakeManifest(a as never, a as never)),
+    travel_lead: (a) => Promise.resolve(travelLeadImage(a as never, a as never)),
+    skill_run: (a) => Promise.resolve(runSkill(a as never, a as never)),
+    planner_improve: (a) => Promise.resolve(buildImprovementPlan(a as never)),
+    orchestrator_cycle: (a) => Promise.resolve(planBrainCycle(a as never)),
+    research_read: (a) => Promise.resolve(readWeb(a as never)),
+    research_search: (a) => Promise.resolve(searchWeb(a as never)),
+    research_github: (a) => Promise.resolve(searchGitHub(a as never)),
+    research_rss: (a) => Promise.resolve(parseRss(a as never)),
+    research_video: (a) => Promise.resolve(videoInfo(a as never)),
+    vault_manage: (a) => Promise.resolve(runVaultTool(a as never, {})),
+    topic_briefs: (a) => Promise.resolve(generateTopicBriefs(a as never)),
+    diagram_render: (a) => Promise.resolve(renderEditorialDiagram(a as never, a as never)),
+    diagram_timeline: (a) => Promise.resolve(timelineFromScenes(a as never, a as never)),
+    publish_submit: (a) =>
+      Promise.resolve(
+        publishToAll(
+          createDefaultPublishers({
+            includeX: true,
+            includeMeta: true,
+            includeFacebook: true,
+            includeTelegram: true,
+            includeDiscord: true,
+            includeSlack: true,
+            includeLinkedIn: true,
+            includeReddit: true,
+            includePinterest: true,
+            includeWhatsApp: true,
+          }),
+          a as never,
+        ),
+      ),
+    telegram_send: (a) => Promise.resolve(createTelegramAdapter(a as never).publish(a as never)),
+    media_score: (a) => Promise.resolve(puntuarMedia(a as never)),
+    memory_recall: async (a) => {
+      const { docs } = await loadTruthAuto();
+      return searchTruth(docs, String(a['query'] ?? ''), 5);
+    },
+  };
 }

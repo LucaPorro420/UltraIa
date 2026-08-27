@@ -5,25 +5,7 @@ import {
   AiUnavailableError,
   runGoal,
   resolveModel,
-  generarContenido,
-  redactar,
-  guionizar,
-  present,
-  planTravelVideo,
-  buildTakeManifest,
-  travelLeadImage,
-  runSkill,
-  generateTopicBriefs,
-  renderEditorialDiagram,
-  timelineFromScenes,
-  readWeb,
-  searchWeb,
-  searchGitHub,
-  parseRss,
-  videoInfo,
-  runVaultTool,
-  buildImprovementPlan,
-  cerebro,
+  buildGoalDispatch,
 } from '@ultraia/core';
 import { z } from 'zod';
 import { getBlueprintForUser, getActiveVersion } from '@ultraia/core';
@@ -129,33 +111,7 @@ export async function POST(req: Request) {
   return result.toDataStreamResponse();
 }
 
-// --- /goal: meta-agente autonomo que orquesta los subsystems de UltraIa ---
-type GoalDispatchFn = (args: Record<string, unknown>) => Promise<unknown>;
-
-// Mapa curado de intents -> funciones reales de las capabilities del proyecto.
-// Cubre: creadores de contenido, viajes/video, planificador/orquestador, investigacion,
-// memoria/vault, topicos y diagramas. Ampliable sin tocar llm.ts (zona de la sesion #25).
-const GOAL_DISPATCH: Record<string, GoalDispatchFn> = {
-  content_generate: (a) => Promise.resolve(generarContenido(a as never)),
-  content_redact: (a) => Promise.resolve(redactar(a as never)),
-  content_script: (a) => Promise.resolve(guionizar(a as never)),
-  present_package: (a) => Promise.resolve(present(a as never)),
-  travel_plan: (a) => Promise.resolve(planTravelVideo(a as never)),
-  travel_take: (a) => Promise.resolve(buildTakeManifest(a as never)),
-  travel_lead: (a) => Promise.resolve(travelLeadImage(a as never)),
-  skill_run: (a) => Promise.resolve(runSkill(a as never, a as never)),
-  planner_improve: (a) => Promise.resolve(buildImprovementPlan(a as never)),
-  orchestrator_cycle: (a) => Promise.resolve(cerebro.planBrainCycle(a as never)),
-  research_read: (a) => Promise.resolve(readWeb(a as never)),
-  research_search: (a) => Promise.resolve(searchWeb(a as never)),
-  research_github: (a) => Promise.resolve(searchGitHub(a as never)),
-  research_rss: (a) => Promise.resolve(parseRss(a as never)),
-  research_video: (a) => Promise.resolve(videoInfo(a as never)),
-  vault_manage: (a) => Promise.resolve(runVaultTool(a as never)),
-  topic_briefs: (a) => Promise.resolve(generateTopicBriefs(a as never)),
-  diagram_render: (a) => Promise.resolve(renderEditorialDiagram(a as never, a as never)),
-  diagram_timeline: (a) => Promise.resolve(timelineFromScenes(a as never, a as never)),
-};
+// --- /goal: el dispatch de tools se centraliza en buildGoalDispatch() (packages/core/src/tools/goal.ts) ---
 
 async function handleGoalCommand(args: {
   version: { model: string; systemPrompt: string };
@@ -176,10 +132,11 @@ async function handleGoalCommand(args: {
     return r.text;
   };
 
-  const dispatch = async (tool: string, toolArgs: Record<string, unknown>): Promise<unknown> => {
-    const fn = GOAL_DISPATCH[tool];
+  const dispatchMap = buildGoalDispatch();
+  const dispatch = async (tool: string, args: Record<string, unknown>): Promise<unknown> => {
+    const fn = dispatchMap[tool];
     if (!fn) throw new Error(`Herramienta no mapeada en /goal: ${tool}`);
-    return fn(toolArgs);
+    return fn(args);
   };
 
   const { results, done } = await runGoal({
@@ -187,7 +144,7 @@ async function handleGoalCommand(args: {
     tasks,
     complete,
     dispatch,
-    toolNames: Object.keys(GOAL_DISPATCH),
+    toolNames: Object.keys(dispatchMap),
     maxStepsPerTask: 5,
   });
 
