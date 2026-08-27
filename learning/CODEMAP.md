@@ -63,7 +63,7 @@ al lado (`<x>.test.ts`). Agrupados por dominio:
 - `connections` (+`send-code`,`test`) — **guardado cifrado de claves + código por mail + verificar** (NO tocar: backend completo existente).
 - `conversations/[id]/{messages}` — historial de chat.
 - `goal` — objetivos del usuario.
-- `lab/publish` — publica un diseño guardado en Cloud a Telegram/Discord como imagen.
+- `lab/publish` — publica un diseño guardado en Cloud a Telegram/Discord/Slack como imagen. Resuelve el token con precedencia: credenciales de sesión (panel) > conexión guardada en DB (`getConnection` del dominio `connections`) > env. Leer el token crudo de la DB exige rol ADMIN; el token NUNCA se expone al cliente.
 - `library/{assets,favorites,prompts}` — biblioteca de prompts/activos.
 - `omag` — orquestador audiovisual.
 - `prototypes/[...slug]` — sirve prototipos del Lab (objeto URL local).
