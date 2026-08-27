@@ -44,6 +44,24 @@ Sensado/Razonamiento/Acción/Ajuste) mapeado en sus puntos:
 Ciclo completo: `Sensado → Razonamiento → Acción → Ajuste` por cada tarea, 3 pasadas
 (C1 base / C2 ajuste / C3 consolidación) para tareas grandes — decisión usuario 18/08/2026.
 
+## Herramientas deterministas (CI)
+
+Para que el harness corra en CI sin un runtime de agente, los subsistemas tienen un script
+Python determinista como fuente de verdad (los skills de agente son wrappers in-session):
+
+| Subsistema | Script canónico | Tests | Skill (wrapper) |
+|---|---|---|---|
+| Doctor (integridad STATE.md) | `scripts/state_doctor.py` | `scripts/state_doctor.test.py` (27) | `state-integrity-check` |
+| Triage (priorización) | `scripts/loop_triage.py` | `scripts/loop_triage.test.py` (7) | `loop-triage` |
+| Driver PIVR | `scripts/loop_piv.py` | `scripts/loop_piv_doctor.test.py` (11), `scripts/loop_piv_mark_done.test.py` (4) | `loop-piv` |
+| Sync espejos de skills | `scripts/sync_skill_mirrors.py` | `scripts/sync_skill_mirrors.test.py` (5) | (mantenimiento) |
+
+- El driver invoca `state_doctor.py` y `loop_triage.py` vía `subprocess` (advisory en ciclos;
+  `as_gate=True` solo en `--doctor` aislado). NO usa `opencode run --agent` para doctor/triage.
+- Verificación global: `npm run harness:test` corre los 5 harness tests y debe quedar en verde.
+- Check-9 (espejos): `sync_skill_mirrors.py` sincroniza solo los ESPEJOS (skills con contraparte en
+  ambos lados), omitiendo los *source-only*; `state_doctor.py` compara SHA-1 de los espejos reales.
+
 ## Human Gates
 
 - Push/merge: SIEMPRE requieren aprobación humana (nunca push automático).

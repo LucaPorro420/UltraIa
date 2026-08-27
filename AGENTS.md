@@ -329,8 +329,17 @@ Harness de desarrollo continuo del proyecto, orquestado por loop-engineering
 - `opencode.json` — agents: `piv-plan` (primary, read-only), `piv-build` (primary, ejecuta+commitea),
   `loop-triage` (primary), `implementer`/`verifier` (subagents); built-ins `plan`/`build` override
   loop-aware.
-- `scripts/loop_piv.py` — driver híbrido: ejecuta ciclos vía `opencode run --agent piv-plan|piv-build`
-  + gates npm; usable por cualquier modelo/agente.
+- `scripts/loop_piv.py` — driver PIVR: ejecuta ciclos (lock + gates npm + last-run) y orquesta los
+  subsistemas deterministas vía `subprocess`: `state_doctor.py` (pre-flight, *advisory* salvo
+  `--doctor` aislado) y `loop_triage.py` (paso 0). Para los agentes P/B usa `opencode run
+  --agent piv-plan|piv-build` cuando hay runtime de agente; en CI corre solo los scripts Python.
+- `scripts/state_doctor.py` — 13 checks de integridad como funciones puras (determinista, CI-ready;
+  27 tests en `scripts/state_doctor.test.py`).
+- `scripts/loop_triage.py` — triage determinista (state-doctor paso 0 + bloque STATE.md idempotente;
+  7 tests en `scripts/loop_triage.test.py`).
+- `scripts/sync_skill_mirrors.py` — sincroniza espejos `.opencode/skills/<n>` ↔ `skills/<n>` (solo
+  espejos reales; 5 tests en `scripts/sync_skill_mirrors.test.py`).
+- Verificación global del harness: `npm run harness:test` (5 harness tests en verde).
 - `skills/loop-*` (raíz, referencia del scaffold) y `.opencode/skills/loop-*` (cargables) —
   `loop-piv` es el protocolo en-sesión, `loop-verifier` el checker APPROVE/REJECT.
 - `.opencode/plans/loop-<taskid>-<slug>.md` — plan file por tarea (plantilla en skill loop-piv);
