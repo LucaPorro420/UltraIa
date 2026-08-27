@@ -52,6 +52,7 @@ import {
 import { encodeWav } from '../packages/core/src/omag/sound';
 import { mixSynths, sequenceNotes, synthPinkNoise, type NoteStep } from '../packages/core/src/tools/generative';
 import { runAgentLoop, type AgentGoalRun, type AgentLoopStepContext } from '../packages/core/src/tools/agent-loop';
+import { SemanticMemoryIndex, loadTruthAuto, type TruthDoc } from '../packages/core/src/tools/semantic-memory';
 
 const ROOT = process.cwd();
 const CEREBRO_DIR = path.join(ROOT, '.ultraia', 'cerebro');
@@ -343,19 +344,61 @@ async function ejecutarAgentLoop(opts: {
   const memoryPath = path.join(CEREBRO_DIR, 'memory.json');
   const maxIter = Math.max(1, Number(process.env.CEREBRO_AGENT_LOOP_MAX ?? '1'));
 
+  const MEM_FILE = path.join(CEREBRO_DIR, 'semantic-memory.json');
+  const cargarIndice = async (): Promise<SemanticMemoryIndex> => {
+    const idx = new SemanticMemoryIndex();
+    try {
+      const { docs } = await loadTruthAuto();
+      for (const d of docs) idx.add(d);
+    } catch {
+      /* sin corpus de verdad */
+    }
+    try {
+      const raw = JSON.parse(fs.readFileSync(MEM_FILE, 'utf8'));
+      for (const d of (raw.docs ?? []) as TruthDoc[]) idx.add(d);
+    } catch {
+      /* sin memoria aprendida previa */
+    }
+    return idx;
+  };
+
+  // memory (recall): recupera verdades/learnings verificados relevantes al objetivo.
   const recall: AgentLoopStep = async (ctx) => {
     try {
+      const idx = await cargarIndice();
+      const hits = idx.query(ctx.objective, 5);
+      ctx.memory.semanticHits = hits.map((h) => ({ id: h.id, score: h.score }));
+      ctx.memory.semanticCount = idx.size;
       ctx.memory.prev = fs.existsSync(memoryPath) ? JSON.parse(fs.readFileSync(memoryPath, 'utf8')) : {};
     } catch {
-      /* sin memoria previa */
+      /* fail-soft */
     }
   };
+
+  // memory (learn): persiste un aprendizaje del ciclo en el indice semantic-memory.
   const learn: AgentLoopStep = async (ctx) => {
     try {
+      const idx = await cargarIndice();
+      const nuevo: TruthDoc = {
+        id: `cerebro-${cycleId}-${ctx.iteration}`,
+        texto: ctx.objective,
+        respuesta: `ciclo ${cycleId}: artefactos=${Number(ctx.memory.artefactos ?? 0)} videos=${Number(ctx.memory.videos ?? 0)} lecciones=${Number(ctx.memory.lecciones ?? 0)}`,
+        tipo: 'cerebro',
+        fuente: 'cerebro-cycle',
+      };
+      idx.add(nuevo);
+      const prev: { docs: TruthDoc[] } = { docs: [] };
+      try {
+        prev.docs = (JSON.parse(fs.readFileSync(MEM_FILE, 'utf8')).docs ?? []) as TruthDoc[];
+      } catch {
+        /* sin memoria previa */
+      }
+      prev.docs.push(nuevo);
+      fs.writeFileSync(MEM_FILE, JSON.stringify({ docs: prev.docs }, null, 2));
       fs.writeFileSync(
         memoryPath,
         JSON.stringify(
-          { lastCycle: cycleId, objective: ctx.objective, lecciones: ctx.memory.lecciones ?? 0 },
+          { lastCycle: cycleId, objective: ctx.objective, lecciones: ctx.memory.lecciones ?? 0, semanticCount: idx.size },
           null,
           2,
         ),
@@ -364,13 +407,47 @@ async function ejecutarAgentLoop(opts: {
       /* fail-soft */
     }
   };
+
+  // verifier: corta si la ejecucion no cumplio (done:false).
   const verify: AgentLoopStep = async (ctx) => {
     if (ctx.lastResult && !ctx.lastResult.done) return { shouldStop: true };
   };
+
+  // tester: valida artefactos reales (MP4 via ffprobe, PNG via magic bytes).
   const testStep: AgentLoopStep = async (ctx) => {
     try {
-      const hay = fs.existsSync(path.join(dir, 'objects')) || fs.existsSync(path.join(dir, 'video'));
-      if (!hay && ctx.iteration > 0) return { shouldStop: true, notes: [...ctx.notes, 'tester: sin artefactos en disco'] };
+      let fallos = 0;
+      const videoDir = path.join(dir, 'video');
+      const objDir = path.join(dir, 'objects');
+      if (fs.existsSync(videoDir)) {
+        for (const f of fs.readdirSync(videoDir)) {
+          if (!/\.mp4$/.test(f)) continue;
+          const p = path.join(videoDir, f);
+          if (has('ffprobe')) {
+            try {
+              execFileSync('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'default=nw=1:nk=1', p], { stdio: 'pipe' });
+            } catch {
+              fallos++;
+              errores.push(`tester: ffprobe falló para ${f}`);
+            }
+          } else if (fs.statSync(p).size < 1024) {
+            fallos++;
+          }
+        }
+      }
+      if (fs.existsSync(objDir)) {
+        for (const f of fs.readdirSync(objDir)) {
+          if (!/\.png$/.test(f)) continue;
+          const buf = fs.readFileSync(path.join(objDir, f));
+          if (!(buf[0] === 0x89 && buf[1] === 0x50 && buf[2] === 0x4e && buf[3] === 0x47)) {
+            fallos++;
+            errores.push(`tester: PNG inválido ${f}`);
+          }
+        }
+      }
+      if (fallos > 0 && ctx.iteration > 0) {
+        return { shouldStop: true, notes: [...ctx.notes, `tester: ${fallos} artefacto(s) inválido(s)`] };
+      }
     } catch {
       /* fail-soft */
     }
