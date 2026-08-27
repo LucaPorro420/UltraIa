@@ -165,6 +165,25 @@ export const modelFetch: typeof fetch = (input, init) => {
   return fetch(input, { ...init, signal });
 };
 
+// Qwen (Alibaba DashScope) OpenAI-compatible endpoint. Thinking mode is enabled by injecting
+// `enable_thinking` into the request body for chat completions, keeping the gateway provider-agnostic.
+const qwenFetch: typeof fetch = (input, init) => {
+  if (
+    process.env.QWEN_ENABLE_THINKING === 'true' &&
+    typeof input === 'string' &&
+    input.includes('/chat/completions')
+  ) {
+    try {
+      const body = JSON.parse((init?.body as string) ?? '{}');
+      body.enable_thinking = true;
+      init = { ...init, body: JSON.stringify(body) };
+    } catch {
+      /* keep original body */
+    }
+  }
+  return modelFetch(input, init);
+};
+
 function googleModel(name: string): LanguageModel {
   if (!process.env.GOOGLE_API_KEY) {
     throw new AiUnavailableError(
@@ -213,6 +232,39 @@ function deepseekModel(name: string): LanguageModel {
   return provider(name);
 }
 
+// Qwen via Alibaba DashScope — OpenAI-compatible (text + vision input, 1M context, thinking + tools).
+// Front-tier model as of 2026-08 is `qwen3.8-max-preview` (2.4T MoE, 95B active, 1M context).
+function qwenModel(name: string): LanguageModel {
+  if (!process.env.DASHSCOPE_API_KEY) {
+    throw new AiUnavailableError(
+      'DASHSCOPE_API_KEY is not set (ULTRAIA_PROVIDER=qwen). Get a key at https://dashscope.aliyuncs.com (Model Studio).',
+    );
+  }
+  const baseURL =
+    process.env.QWEN_BASE_URL || 'https://dashscope-intl.aliyuncs.com/compatible-mode/v1';
+  const provider = createOpenAI({
+    baseURL,
+    apiKey: process.env.DASHSCOPE_API_KEY,
+    compatibility: 'compatible',
+    fetch: qwenFetch,
+  });
+  return provider(name);
+}
+
+/** Qwen model family on DashScope — selectable via ULTRAIA_MODEL / QWEN_MODEL. */
+export const QWEN_MODELS = [
+  'qwen3.8-max-preview',
+  'qwen3.7-max',
+  'qwen3.6-max-preview',
+  'qwen3-max',
+  'qwen-plus',
+  'qwen-turbo',
+  'qwen-long',
+] as const;
+
+/** Front-tier Qwen model used when ULTRAIA_PROVIDER=qwen and no explicit model is given. */
+export const QWEN_DEFAULT_MODEL = 'qwen3.8-max-preview';
+
 /**
  * Resolve a LanguageModel by provider. Controlled by ULTRAIA_PROVIDER
  * (openai | google | ollama | lmstudio). Keeps the user's existing OpenAI path
@@ -224,6 +276,7 @@ function defaultNameFor(provider: ProviderName): string {
     case 'ollama': return 'llama3.1';
     case 'lmstudio': return 'qwen2.5-7b-instruct';
     case 'deepseek': return 'deepseek-chat';
+    case 'qwen': return QWEN_DEFAULT_MODEL;
     default: return 'gpt-4o-mini';
   }
 }
@@ -234,6 +287,7 @@ function buildProvider(p: ProviderName, name: string): LanguageModel {
     case 'ollama': return ollamaModel(name);
     case 'lmstudio': return lmstudioModel(name);
     case 'deepseek': return deepseekModel(name);
+    case 'qwen': return qwenModel(name);
     case 'openai': return openaiModel(name);
   }
 }
@@ -273,7 +327,7 @@ function tryResolve(name: string, primary: ProviderName): LanguageModel {
   throw lastErr ?? new AiUnavailableError('No local model provider available (Ollama/LMStudio).');
 }
 
-export type ProviderName = 'openai' | 'google' | 'ollama' | 'lmstudio' | 'deepseek';
+export type ProviderName = 'openai' | 'google' | 'ollama' | 'lmstudio' | 'deepseek' | 'qwen';
 
 export class OpenAICompatibleGateway implements AiGateway {
   async generateStructured<T>(input: StructuredGenInput): Promise<T> {
