@@ -269,12 +269,12 @@ Triage de planes colisionados: los IDs 121/122/123/126/127 tenian DOS planes cad
 | 131 | **Lab publish channel** - `loop-131-lab-publish-channel.md`; `api/lab/publish/route.ts` existe (DONE) | apps/web | FULL | DONE |
 | 132 | (sin plan file) | - | - | - |
 | 133 | **Lab share link** - `loop-133-lab-share-link.md`. YA IMPLEMENTADO en `lab-client.tsx` (`copyLink` -> `${origin}/share/${path}` + clipboard; render de `cloudFiles`). typecheck/lint OK. | apps/web | FULL(typecheck/lint) | DONE (ya implementado) |
-| 134 | **Desktop WebView2** - `loop-134-desktop-webview2.md`; `desktop/` existe pero bin/dist/obj no (Fase D shell no construida) | desktop | - | PENDIENTE |
+| 134 | **Desktop WebView2 (shell C# + WebView2)** - `loop-134-desktop-webview2.md`. YA IMPLEMENTADO: `desktop/Program.cs` (ShellForm: boot + espera servidor + navigate + NewWindowRequested) + `desktop/UltraIa.Desktop.csproj` (net8.0-windows + WebView2) + `desktop/README.md`. `bin/dist/obj` son artefactos de build (gitignored), no fuente. | desktop | FULL | DONE (ya implementado) |
 | 135 | (sin plan file) | - | - | - |
 | 136 | **Lab session creds** - `loop-136-lab-session-creds.md`; `api/connections/route.ts` + `emailCode.ts` existen (Connections Center) | web+core | FULL | DONE |
 | 137 | **Lab bridge -> connections** - `loop-137-lab-bridge-connections.md`; cierra lazo conexiones->publicar; gates verdes (commit previo) | apps/web | FULL | DONE |
 | 138 | **Harness gate runner (`loop_gate.py`)** - renombrado desde `loop-121-harness-gate-runner.md`; `scripts/loop_gate.py` existe | scripts | FULL | DONE |
 | 139 | **React 19 docs** - renombrado desde `loop-122-react19-docs.md`; React 19 ya en web+mobile; docs OK | docs | - | DONE |
 | 140 | **Conexiones codigo via mail** - renombrado desde `loop-123-connections-email.md`; `tools/emailCode.ts` wired | core+web | FULL | DONE |
-| 141 | **Design Lab (/lab extension)** - renombrado desde `loop-126-design-lab.md`; `/lab` existe pero sin tokens/galeria interactiva | apps/web | - | PENDIENTE |
-| 142 | **Proveedor Qwen** - renombrado desde `loop-127-qwen-provider.md`; `tools/qwen.ts` NO existe -> no integrado | core | - | PENDIENTE |
+| 141 | **Design Lab (/lab extension)** - YA IMPLEMENTADO en `lab-client.tsx`: `TokensSection` (lee CSS vars globals.css) + `UiGallery` (UI Kit Gallery) + `PrototypesSection`. Las 3 zonas del plan presentes. typecheck/lint OK. | apps/web | FULL(typecheck/lint) | DONE (ya implementado) |
+| 142 | **Proveedor Qwen** - renombrado desde `loop-127-qwen-provider.md`. BLOQUEADO: requiere editar `packages/core/src/ai/llm.ts` (`qwenModel()` + `qwenFetch`, `ULTRAIA_PROVIDER=qwen`) y crear `tools/qwen.ts`; `llm.ts` es WIP de la sesion concurrente (no tocar). `tools/qwen.ts` NO existe. | core | - | BLOQUEADO (WIP ajeno llm.ts) |

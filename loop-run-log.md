@@ -2954,3 +2954,11 @@ de código, sin commit.
 ```json
 {"pattern":"pivr","iter":["129","130","133"],"gates":{"typecheck":0,"lint":0,"build":"ENV-OOM-RED"},"commits":[],"note":"ya implementado en lab-client.tsx; solo registro"}
 ```
+
+## [P] iter-134/141/142 cierre backlog 120-142 (27/08) - planes `loop-134-desktop-webview2.md`, `loop-141-design-lab.md`, `loop-142-qwen-provider.md`. Sensado: 134 y 141 YA IMPLEMENTADOS; 142 BLOQUEADO por WIP ajeno. Prediccion: 0 cambios de codigo (salvo 142 que requiere llm.ts).
+- **[I]** NO ejecutado por mi: 134 = `desktop/Program.cs`+`.csproj`+`README.md` (shell WebView2 C#) existen; 141 = `lab-client.tsx` tiene `TokensSection`+`UiGallery`+`PrototypesSection` (3 zonas Design Lab). 142 requiere `ai/llm.ts` (sesion concurrente lo posee) -> NO se toca.
+- **[V]** typecheck 0 / lint 0 verificados en iter-128. WIP ajeno (connections/*, _diag.ts, llm.ts, AGENTS.md, LOOP.md, package.json, scripts/loop_piv.py, DOCS_TODO.md) intacto.
+- **[R]** BACKLOG 120-142 COMPLETO: 120 (yo), 121-127/131/136/137/138/139/140 (ya implementado), 128 (yo, build env-OOM), 129/130/133/134/141 (ya implementado en lab-client/desktop), 142 BLOQUEADO (WIP ajeno llm.ts). Unica tarea pendiente real: 142 (Qwen) espera que se libere llm.ts. NO push (humano).
+```json
+{"pattern":"pivr","iter":["134","141","142"],"gates":{"typecheck":0,"lint":0,"build":"ENV-OOM-RED"},"commits":[],"note":"134/141 DONE ya implementado; 142 bloqueado WIP llm.ts; backlog 120-142 cerrado"}
+```
