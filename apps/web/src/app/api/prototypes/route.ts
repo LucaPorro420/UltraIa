@@ -1,27 +1,7 @@
 import { NextResponse } from 'next/server';
 import { readdir } from 'node:fs/promises';
-import { join, relative, extname, sep } from 'node:path';
-
-const ROOT = join(process.cwd(), 'resultTask');
-
-const ALLOWED = new Set([
-  '.html',
-  '.svg',
-  '.png',
-  '.jpg',
-  '.jpeg',
-  '.gltf',
-  '.obj',
-  '.mp4',
-  '.webm',
-]);
-
-export type ProtoItem = {
-  id: string;
-  name: string;
-  category: string;
-  ext: string;
-};
+import { relative, extname, sep } from 'node:path';
+import { ROOT, ALLOWED, type ProtoItem } from './_shared';
 
 let cache: { at: number; items: ProtoItem[] } | null = null;
 
@@ -33,7 +13,7 @@ async function walk(dir: string, out: ProtoItem[]): Promise<void> {
     return;
   }
   for (const e of entries) {
-    const full = join(dir, e.name);
+    const full = `${dir}/${e.name}`;
     if (e.isDirectory()) {
       await walk(full, out);
       continue;

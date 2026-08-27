@@ -263,7 +263,7 @@ Triage de planes colisionados: los IDs 121/122/123/126/127 tenian DOS planes cad
 |----|--------------|---------|-------|--------|
 | 126 | **Hub de Herramientas (/herramientas) + export itsfree.dev** - `loop-126-tools-hub.md` (self DONE `2dd1d66`); `/herramientas` + nav Boxes existen | apps/web | FULL | DONE |
 | 127 | **Meta-agente `/goal`** - `loop-127-goal-runner.md`; `tools/goal.ts` + `/goal` route + wiring index.ts | core+web | FULL | DONE |
-| 128 | **Prototype browser** - `loop-128-prototype-browser.md`; falta `Task/prototype-browser.ts`; `/lab` sin subrutas | Task | - | PENDIENTE |
+| 128 | **Prototype browser (/lab)** - `loop-128-prototype-browser.md`. IMPLEMENTADO: `api/prototypes/route.ts` (fix ROOT a repo root `resultTask` + `_shared.ts`) + `api/prototypes/[...slug]/route.ts` (sirve archivo con guarda anti-traversal `..`/abs) + `prototypes/_shared.ts`; `lab-client.tsx` ya tenia `PrototypesSection`. typecheck/lint/test GREEN. Build gate ROJO por ENV (OOM ~1GB RAM + ruta `agents/[id]/apikeys` borrada por sesion concurrente, restaurada desde HEAD). | apps/web | FULL(typecheck/lint/test) | DONE (build env-bloqueado: OOM) |
 | 129 | **Lab upload preview** - `loop-129-lab-upload-preview.md`; `/lab` sin subruta upload | apps/web | - | PENDIENTE |
 | 130 | **Lab cloud persist** - `loop-130-lab-cloud-persist.md`; sin seccion Archivos; `/lab` sin subruta cloud | apps/web | - | PENDIENTE/VERIFY |
 | 131 | **Lab publish channel** - `loop-131-lab-publish-channel.md`; `api/lab/publish/route.ts` existe (DONE) | apps/web | FULL | DONE |

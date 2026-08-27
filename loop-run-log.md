@@ -2938,3 +2938,11 @@ de código, sin commit.
 ```json
 {"pattern":"pivr","iter":"triage-126-142","accion":"renombrar planes strays 138-142 + estado","gates":"n/a (solo estado/renombres)","commits":["renames+state"],"note":"colisiones 0; pendientes 128/129/130/133/134/141/142"}
 ```
+
+## [P] iter-128 prototype-browser (27/08) - plan `loop-128-prototype-browser.md` (usuario: navegador de prototipos en /lab). Sensado: `prototypes/route.ts` (list) ya existia pero ROOT apuntaba a `apps/web/resultTask` (inexistente); faltaba el serve route; `lab-client.tsx` ya tenia `PrototypesSection`.
+- **[I]** Cree `prototypes/_shared.ts` (resolveRoot robusto a repo root + ALLOWED + CONTENT_TYPE + ProtoItem). Fix `route.ts` para usar `_shared` (Next prohible exportar valores no-ruta de `route.ts`). Cree `[...slug]/route.ts` (GET async params, guarda anti-traversal, content-type, Uint8Array para BodyInit). Restaure `agents/[id]/apikeys/route.ts` desde HEAD (borrada por sesion concurrente, causaba ENOENT en build).
+- **[V]** typecheck 0 (web) / lint 0 / test runtime 193 OK. Build ROJO por ENV: OOM (~1GB RAM, worker Next aborta 134) + ruta ajena. NO es regresion del cambio (error en ruta `agents/[id]/apikeys` ajena). Usuario aprueba "Restaurar + commit (build env-bloqueado)".
+- **[R]** iter-128 IMPLEMENTADO y commiteado (typecheck/lint/test GREEN; build env-bloqueado OOM, se construira en CI/maquina con mas RAM). WIP ajeno (connections/*, _diag.ts, llm.ts) intacto. NO push.
+```json
+{"pattern":"pivr","iter":128,"gates":{"typecheck":0,"lint":0,"test":193,"build":"ENV-OOM-RED"},"commits":["loop-128 + restore"],"note":"build rojo por RAM/env y ruta ajena restaurada; usuario autorizo commit"}
+```
