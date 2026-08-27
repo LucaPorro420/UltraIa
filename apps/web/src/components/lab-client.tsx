@@ -208,6 +208,115 @@ function UiGallery() {
   );
 }
 
+type ProtoItem = { id: string; name: string; category: string; ext: string };
+
+function PrototypesSection() {
+  const [items, setItems] = useState<ProtoItem[]>([]);
+  const [query, setQuery] = useState('');
+  const [cat, setCat] = useState('all');
+
+  useEffect(() => {
+    fetch('/api/prototypes')
+      .then((r) => r.json())
+      .then((d) => setItems(d.items ?? []))
+      .catch(() => setItems([]));
+  }, []);
+
+  const categories = ['all', ...Array.from(new Set(items.map((i) => i.category)))];
+  const q = query.trim().toLowerCase();
+  const filtered = items.filter(
+    (i) =>
+      (cat === 'all' || i.category === cat) &&
+      (q === '' || i.name.toLowerCase().includes(q) || i.category.toLowerCase().includes(q)),
+  );
+
+  return (
+    <Section title="Prototipos prefabricados" badge="resultTask/">
+      <div className="mb-3 flex flex-wrap items-center gap-2">
+        <input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Buscar prototipo…"
+          className="w-56 rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-1.5 text-sm text-white outline-none focus:border-violet-500"
+        />
+        <div className="flex flex-wrap gap-1.5">
+          {categories.map((c) => (
+            <button
+              key={c}
+              type="button"
+              onClick={() => setCat(c)}
+              className={`rounded border px-2 py-1 font-mono text-[10px] ${
+                cat === c
+                  ? 'border-primary bg-panel-hover text-white'
+                  : 'border-border-subtle text-neutral-400'
+              }`}
+            >
+              {c}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {filtered.length === 0 ? (
+        <p className="font-mono text-[11px] text-neutral-500">
+          Sin coincidencias. Genera con{' '}
+          <code className="text-neutral-300">node_modules/.bin/vite-node Task/*.ts</code>.
+        </p>
+      ) : (
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {filtered.map((it) => {
+            const isEmbed = it.ext === '.html' || it.ext === '.svg';
+            const isImg = it.ext === '.png' || it.ext === '.jpg' || it.ext === '.jpeg';
+            return (
+              <div
+                key={it.id}
+                className="overflow-hidden rounded-lg border border-border-subtle bg-input-active"
+              >
+                <div className="h-40 bg-black/40">
+                  {isEmbed ? (
+                    <iframe
+                      title={it.name}
+                      src={`/api/prototypes/${it.id}`}
+                      sandbox="allow-scripts"
+                      className="h-full w-full"
+                    />
+                  ) : isImg ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={`/api/prototypes/${it.id}`}
+                      alt={it.name}
+                      className="h-full w-full object-contain"
+                    />
+                  ) : (
+                    <div className="flex h-full items-center justify-center font-mono text-[11px] text-neutral-500">
+                      {it.ext}
+                    </div>
+                  )}
+                </div>
+                <div className="flex items-center justify-between gap-2 px-2 py-1.5">
+                  <span className="truncate font-mono text-[10px] text-neutral-300" title={it.id}>
+                    {it.name}
+                  </span>
+                  {!isEmbed && !isImg && (
+                    <a
+                      href={`/api/prototypes/${it.id}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-[10px] text-primary hover:underline"
+                    >
+                      abrir
+                    </a>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </Section>
+  );
+}
+
 export function LabClient(props: LabProps) {
   const { sdfHtml, vfxHtml, sdfFormula, vfxName, imaging, growth } = props;
 
@@ -307,6 +416,8 @@ export function LabClient(props: LabProps) {
           )}
         </Section>
       </div>
+
+      <PrototypesSection />
     </div>
   );
 }
