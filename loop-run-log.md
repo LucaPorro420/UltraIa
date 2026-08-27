@@ -2890,3 +2890,11 @@ de código, sin commit.
 ```json
 {"pattern":"pivr","iter":120,"gates":{"typecheck":0,"lint":0,"test":"2002","build":0,"paginas":50},"commits":["659a515"],"parte":"B-feature DONE / A-QA diferida"}
 ```
+
+## [P] iter-121 ebook-web (27/08) - plan `.opencode/plans/loop-121-ebook-web.md` (peticion usuario: ebook 3D + mejorar react/diseno). Sensado: artefactos YA commiteados por sesion previa (build 51 paginas incluye /ebooks). Prediccion: solo falta nav link; FULL verde.
+- **[I]** nav `/ebooks` (icon Library) agregado a WORKSPACE_ITEMS en `components/ide/nav-items.ts` (`9058f0b`). El resto (data/ebooks.ts, components/ebooks/*, rutas /ebooks*) ya commiteado por sesion previa; Stripe/Purchase y Express diferidos.
+- **[V]** FULL CI order arbol vivo: typecheck 0 / lint 0 / test 2002 (core 1809 + runtime 193) / build 0 (51 paginas, /ebooks presente).
+- **[R]** iter-121 DONE. Plataforma Ebook 3D navegable desde el shell IDE (catalogo/detalle/playground three.js/biblioteca localStorage). Cierre de gap de alcance del plan (nav). Siguiente: tareas 122+ (hay planes duplicados/colisionados y WIP ajeno activo en scripts/loop_piv* -> requiere triage antes de continuar).
+```json
+{"pattern":"pivr","iter":121,"gates":{"typecheck":0,"lint":0,"test":"2002","build":0,"paginas":51},"commits":["9058f0b"],"note":"artefactos previos + nav link; Stripe diferido"}
+```
