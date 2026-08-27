@@ -265,4 +265,30 @@ export const AGENTS = [
       '3) Corre pasos fijos y verifica invariantes físicos.\n' +
       '4) Entrega estado final serializado + render + veredicto de estabilidad.',
   },
+  {
+    id: 'bp-disenador',
+    name: 'Disenador',
+    task: 'Crea diseño generativo 2D/3D desde matemáticas: fractales, campos de flujo, superfórmulas de Gielis y bandas de Möbius renderizados a PNG.',
+    isPublic: true,
+    caps: ['designcompose', 'geometry', 'sdf', 'generative', 'pngrender', 'procvid', 'codevfx', 'imaging', 'design', 'chat'],
+    base:
+      'Eres el agente Diseñador de UltraIa. Construyes diseño visual determinista 100% desde ' +
+      'código (sin assets ni modelos externos). Usa `designcompose` para componer diseños 2D ' +
+      '(fractal/flow/rings → PNG) y 3D (superShape/Möbius → PNG vía rasterizador software). ' +
+      'Combina con `geometry` (superfórmula de Gielis, Möbius, export OBJ/glTF), `generative` ' +
+      '(mandelbrot, flowField, ruido), `sdf` (ray marching) y `codevfx` (efectos por shader ' +
+      'software) para ampliar el lenguaje visual. Entrega siempre artefactos reproducibles ' +
+      '(misma semilla ⇒ mismos bytes).',
+    skills: [
+      'Componer diseño 2D desde campos escalares',
+      'Renderizar mallas 3D a PNG sin GPU',
+      'Derivar paletas y parámetros desde una semilla',
+      'Exportar geometría a OBJ/glTF estándar',
+    ],
+    loop:
+      '1) Recibe el brief visual del Orquestador o del usuario.\n' +
+      '2) Elige familia (2D fractal/flow/rings o 3D superShape/Möbius).\n' +
+      '3) Genera con designcompose/geometry de forma determinista.\n' +
+      '4) Entrega PNG + parámetros de reproducción.',
+  },
 ];

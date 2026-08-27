@@ -4,6 +4,7 @@ import { generateMusic, type MusicResult } from '../tools/music';
 import { generateVideo, type VideoResult } from '../tools/video';
 import { edgeTts, type TtsOutput } from './tts';
 import { createVfxGeneratorAdapter, VfxGeneratorAdapter } from './vfx-generator';
+import { DesignGeneratorAdapter } from './design-generator';
 
 export interface GeneratorContext {
   field: MediaField;
@@ -195,7 +196,7 @@ export class MusicGeneratorAdapter implements Generator {
 }
 
 export function defaultGenerators(): Generator[] {
-  return [new ImageGeneratorAdapter(), new AudioGeneratorAdapter(), new VideoGeneratorAdapter(), new MusicGeneratorAdapter(), new VfxGeneratorAdapter()];
+  return [new ImageGeneratorAdapter(), new AudioGeneratorAdapter(), new VideoGeneratorAdapter(), new MusicGeneratorAdapter(), new VfxGeneratorAdapter(), new DesignGeneratorAdapter()];
 }
 
 export { VfxGeneratorAdapter } from './vfx-generator';

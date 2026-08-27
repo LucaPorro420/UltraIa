@@ -41,6 +41,7 @@ import {
   superShapeRadius,
 } from '../packages/core/src/tools/geometry';
 import { PALETTES, renderImagePng, writePngAtomic } from '../packages/core/src/tools/pngrender';
+import { composeDesign2D, composeDesign3D } from '../packages/core/src/tools/designcompose';
 import {
   buildRenderScript,
   planAudioMux,
@@ -214,6 +215,23 @@ async function crearVideos(
 }
 
 /** Fase PUBLISH: encola una publicaciÃ³n por cada video creado (fail-soft). */
+/** Fase CREATE: diseño 2D/3D desde el modelo de diseño (PNG determinista). */
+async function crearDisenos(dir: string, semilla: number, errores: string[] = []): Promise<number> {
+  const designDir = path.join(dir, 'design');
+  fs.mkdirSync(designDir, { recursive: true });
+  try {
+    const d2 = composeDesign2D({ width: 512, height: 512, seed: semilla, palette: 'neoViolet', style: 'fractal' });
+    await writePngAtomic(path.join(designDir, 'design-2d.png'), d2);
+    const d3 = composeDesign3D({ seed: semilla + 1, palette: 'ice', kind: 'supershape' });
+    await writePngAtomic(path.join(designDir, 'design-3d.png'), d3);
+    console.log('  diseño: design-2d.png + design-3d.png (modelo de diseño 2D/3D)');
+    return 2;
+  } catch (err) {
+    errores.push(`DESIGN fail-soft: ${String(err)}`);
+    return 0;
+  }
+}
+
 async function publicar(dir: string, videos: number, cfg: ReturnType<typeof resolveCerebroConfig>): Promise<{ ok: boolean; encoladas: number }> {
   if (videos === 0) return { ok: true, encoladas: 0 };
   try {
@@ -306,6 +324,7 @@ async function main(): Promise<void> {
   let videos = 0;
   try {
     artefactos += await crearObjetos(dir, lote, errores);
+    artefactos += await crearDisenos(dir, semilla, errores);
     videos = await crearVideos(dir, lote, errores);
     artefactos += videos;
   } catch (e) {

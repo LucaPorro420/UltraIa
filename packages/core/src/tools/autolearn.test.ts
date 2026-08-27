@@ -285,6 +285,7 @@ describe('autolearn / learningMetrics', () => {
       gaps: [ { kind: 'backlog_pendiente', descripcion: 'x', evidencia: 'y' } ],
       sourcesCount: 3,
       days: 7,
+      now: new Date('2026-08-26T00:00:00Z').getTime(),
     });
     expect(metrics.leccionesTotales).toBe(2);
     expect(metrics.leccionesUltimoPeriodo).toBe(1);

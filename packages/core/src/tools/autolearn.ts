@@ -219,8 +219,8 @@ export function parseLearnings(text: string): LearningEntry[] {
 }
 
 /** Cuenta cuántas lecciones cayeron en el periodo reciente (últimos N días). */
-export function countRecentLearnings(entries: LearningEntry[], days = 7): number {
-  const cutoff = Date.now() - days * 86_400_000;
+export function countRecentLearnings(entries: LearningEntry[], days = 7, now: number = Date.now()): number {
+  const cutoff = now - days * 86_400_000;
   return entries.filter((e) => {
     if (!e.fecha) return false;
     const t = new Date(e.fecha + 'T00:00:00Z').getTime();
@@ -429,12 +429,15 @@ export interface MetricsInput {
   gaps: Gap[];
   sourcesCount: number;
   days?: number;
+  /** Reloj inyectable (ms) para recencia determinista en tests; default Date.now(). */
+  now?: number;
 }
 
 /** KPIs del ciclo de autoaprendizaje (deterministas, sin estado). */
 export function learningMetrics(input: MetricsInput): LearningMetrics {
   const days = input.days ?? 7;
-  const leccionesUltimoPeriodo = countRecentLearnings(input.entries, days);
+  const now = input.now ?? Date.now();
+  const leccionesUltimoPeriodo = countRecentLearnings(input.entries, days, now);
   const leccionesTotales = input.entries.length;
   const truthVerificada = input.truthCount;
   const gapsAbiertos = input.gaps.length;

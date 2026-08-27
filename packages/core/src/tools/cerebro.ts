@@ -141,7 +141,7 @@ export function advanceBrainState(
 
 /* Planificación del ciclo -------------------------------------------------- */
 
-export type CerebroStepKind = 'learn' | 'create_objects' | 'create_video' | 'publish' | 'report';
+export type CerebroStepKind = 'learn' | 'create_objects' | 'create_video' | 'create_design' | 'publish' | 'report';
 
 export interface CerebroStep {
   kind: CerebroStepKind;
@@ -196,6 +196,12 @@ export function planBrainCycle(
     detalle: `${config.objetosPorCiclo} objeto(s): supershape/Möbius → malla → PNG + OBJ + glTF 2.0.`,
     saltado: config.objetosPorCiclo === 0,
     motivoSalto: config.objetosPorCiclo === 0 ? 'objetosPorCiclo=0' : undefined,
+  });
+  pasos.push({
+    kind: 'create_design',
+    titulo: 'Modelo de diseño 2D/3D',
+    detalle: 'composeDesign2D (fractal/flow/rings) + composeDesign3D (superShape/Möbius) → PNG determinista keyless.',
+    saltado: false,
   });
   pasos.push({
     kind: 'create_video',

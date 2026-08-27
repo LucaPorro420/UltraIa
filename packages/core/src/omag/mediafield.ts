@@ -69,9 +69,9 @@ export type MediaField = z.infer<typeof mediaFieldSchema>;
 export type MediaFieldInput = z.input<typeof mediaFieldSchema>;
 export type OmagEventInput = z.input<typeof omagEventSchema>;
 
-export type Modality = 'image' | 'audio' | 'video' | 'music' | 'vfx';
+export type Modality = 'image' | 'audio' | 'video' | 'music' | 'vfx' | 'design';
 
-export const MODALITIES: readonly Modality[] = ['image', 'audio', 'video', 'music', 'vfx'];
+export const MODALITIES: readonly Modality[] = ['image', 'audio', 'video', 'music', 'vfx', 'design'];
 
 let worldCounter = 0;
 export function createMediaField(overrides?: Partial<MediaFieldInput>): MediaField {

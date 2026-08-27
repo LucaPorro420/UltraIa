@@ -90,7 +90,7 @@ describe('AudioGeneratorAdapter', () => {
 describe('defaultGenerators', () => {
   it('exposes image, audio, video, music and vfx adapters', () => {
     const gens = defaultGenerators();
-    expect(gens.map((g) => g.modality)).toEqual(['image', 'audio', 'video', 'music', 'vfx']);
+    expect(gens.map((g) => g.modality)).toEqual(['image', 'audio', 'video', 'music', 'vfx', 'design']);
     expect(gens.find((g) => g.name === 'vfx-code')).toBeInstanceOf(VfxGeneratorAdapter);
   });
 });

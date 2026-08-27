@@ -13,6 +13,7 @@ export * from './g0dm0d3';
 export * from './topics';
 export * from './present';
 export * from './publish';
+export * from './connections-catalog';
 export * from './enrutador';
 export * from './media-score';
 export * from './metrics';
@@ -59,6 +60,7 @@ export * from './genesis';
 export * from './vault';
 export * from './pdfsearch';
 export * from './netwatch';
+export * from './designcompose';
 // kgraph: `export *` seguro Ã¢â‚¬â€ no re-exporta simbolos de otros modulos (sin colision TS2308).
 export * from './kgraph';
 // brainpage: `export *` seguro Ã¢â‚¬â€ modulo nuevo (port de brain.md); simbolos unicos (normalizeId, initBrain, ...).
@@ -275,6 +277,8 @@ export const TOOL_DESCRIPTIONS: Record<string, string> = {
     'Studio media hub (loop-104): plan the save of any generated asset (image/audio/video/music/design/text) into the durable cloud-backed library, render a keyless WAV from a music composition (beat+pad+pentatonic motif, BPM/mood overrides), build derivation plans (image re-roll via img2img, music re-synthesis, video storyboard slideshow MP4 argv ffmpeg) and list the vendored open-source integrations catalog. Pure planning actions; execution lives in the web API. Use to persist, reproduce, modify or extend Studio assets programmatically.',
   netwatch:
     'WiFi/network watchdog (netsh-driven): monitor connection health, scan available WLAN interfaces, auto-reconnect on drop, or run in report_only mode. Deterministic, keyless. Use to keep the agent connection self-healing and diagnose WiFi drops.',
+  designcompose:
+    'Modelo de diseño 2D/3D determinista y keyless: compone campos escalares (mandelbrot/flowField/anillos) y mallas (superShape3D/Möbius) en PNG vía pngrender. Misma semilla ⇒ mismos bytes. Usa para generar artefactos visuales reproducibles desde matemáticas/geometría.',
 };
 
 export type Capability =
@@ -337,7 +341,8 @@ export type Capability =
   | 'evo'
   | 'evolution'
   | 'studio'
-  | 'netwatch';
+  | 'netwatch'
+  | 'designcompose';
 
 export * from './emailCode';
 export * from './smtp';

@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useState, ReactNode } from 'react';
+import { createContext, use, useState, ReactNode } from 'react';
 
 const TabsCtx = createContext<{ value: string; onChange: (v: string) => void }>({ value: '', onChange: () => {} });
 
@@ -45,7 +45,7 @@ export function TabsTrigger({
   children: ReactNode;
   className?: string;
 }) {
-  const { value: active, onChange } = useContext(TabsCtx);
+  const { value: active, onChange } = use(TabsCtx);
   const isActive = active === value;
   return (
     <button
@@ -71,7 +71,7 @@ export function TabsContent({
   children: ReactNode;
   className?: string;
 }) {
-  const { value: active } = useContext(TabsCtx);
+  const { value: active } = use(TabsCtx);
   if (active !== value) return null;
   return <div className={className}>{children}</div>;
 }

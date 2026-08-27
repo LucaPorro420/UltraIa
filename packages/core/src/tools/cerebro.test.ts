@@ -37,6 +37,7 @@ describe('cerebro — plan del ciclo', () => {
     expect(plan.pasos.map((p) => p.kind)).toEqual([
       'learn',
       'create_objects',
+      'create_design',
       'create_video',
       'publish',
       'report',
