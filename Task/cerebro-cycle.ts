@@ -408,9 +408,14 @@ async function ejecutarAgentLoop(opts: {
     }
   };
 
-  // verifier: corta si la ejecucion no cumplio (done:false).
+  // verifier: corta si la ejecucion no cumplio (done:false) o no produjo artefactos.
   const verify: AgentLoopStep = async (ctx) => {
-    if (ctx.lastResult && !ctx.lastResult.done) return { shouldStop: true };
+    if (!ctx.lastResult) return;
+    if (!ctx.lastResult.done) return { shouldStop: true };
+    if (Number(ctx.memory.artefactos ?? 0) === 0) {
+      errores.push('verifier: ciclo terminó sin artefactos');
+      return { shouldStop: true };
+    }
   };
 
   // tester: valida artefactos reales (MP4 via ffprobe, PNG via magic bytes).
