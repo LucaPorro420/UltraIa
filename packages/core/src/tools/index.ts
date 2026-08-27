@@ -60,6 +60,8 @@ export * from './genesis';
 export * from './vault';
 // goal: meta-agente /goal (motor puro runGoal + parseIntent + goalSystemPrompt); sin colisiones.
 export * from './goal';
+// agent-loop: bucle de agente que conecta memoria/plan/orquestador/verificador/tester.
+export * from './agent-loop';
 export * from './pdfsearch';
 export * from './netwatch';
 export * from './designcompose';
