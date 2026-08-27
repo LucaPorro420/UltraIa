@@ -2906,3 +2906,11 @@ de código, sin commit.
 ```json
 {"pattern":"pivr","iter":122,"gates":{"typecheck":0,"lint":0,"test":"2002","build":0,"react19":"ya-19.2.3-sin-legacy"},"commits":[],"note":"fix en WIP concurrente; solo verificacion por mi"}
 ```
+
+## [P] iter-123 react19-idioms (27/08) - plan `.opencode/plans/loop-123-react19-idioms.md` (peticion usuario: continua con todo + react 19). Sensado: tabs.tsx YA usa `use(TabsCtx)` (migracion hecha por sesion previa). Prediccion: 0 cambios, FULL GREEN.
+- **[I]** NO ejecutado por mi: `components/ui/tabs.tsx` ya importa `use` de 'react' (L3) y usa `use(TabsCtx)` en TabsTrigger (L48) + TabsContent (L74); 0 `useContext` restante. Objetivo del plan ya cumplido.
+- **[V]** read-only: grep `useContext` en tabs.tsx = 0 ocurrencias. Gates FULL vigentes GREEN (typecheck 0 / lint 0 / test 2002 / build 0, verificado iter-120-122). WIP ajeno (connections/*, _diag.ts, DOCS_TODO.md) intacto.
+- **[R]** iter-123 SATISFECHO (ya migrado). React 19 idiom `use(Context)` activo en tabs. Seguimiento: migrar otros `useContext` del repo a `use()` de forma sistematica. NO push (humano).
+```json
+{"pattern":"pivr","iter":123,"gates":{"typecheck":0,"lint":0,"test":"2002","build":0,"react19":"use() en tabs ya vigente"},"commits":[],"note":"ya migrado por sesion previa; solo verificacion"}
+```
