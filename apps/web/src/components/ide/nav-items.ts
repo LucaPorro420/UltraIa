@@ -16,6 +16,7 @@ import {
   PlugZap,
   Boxes,
   Target,
+  ListOrdered,
 } from 'lucide-react';
 
 /** Icono canonico de navegacion (referencia tipada para no acoplar a LucideIcon). */
@@ -42,6 +43,7 @@ export const WORKSPACE_ITEMS: NavItem[] = [
   { href: '/cloud', label: 'Cloud', icon: Cloud },
   { href: '/connections', label: 'Conexiones', icon: PlugZap },
   { href: '/metrics', label: 'Metricas', icon: BarChart3 },
+  { href: '/prioritize', label: 'Priorizar', icon: ListOrdered },
   { href: '/lab', label: 'Lab', icon: FlaskConical },
   { href: '/roadmap', label: 'Roadmap', icon: Map },
 ];
