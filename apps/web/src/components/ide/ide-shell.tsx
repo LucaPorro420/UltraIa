@@ -50,6 +50,31 @@ function useActivePath() {
   return usePathname();
 }
 
+/**
+ * Barra de progreso de navegación: parpadea en cada cambio de ruta para dar
+ * feedback inmediato de que la app respondió (combate la sensación de "trabado"
+ * durante la transición de cliente). Se apaga sola tras ~450ms.
+ */
+function NavProgressBar() {
+  const pathname = usePathname();
+  const [active, setActive] = useState(false);
+  useEffect(() => {
+    setActive(true);
+    const t = window.setTimeout(() => setActive(false), 450);
+    return () => window.clearTimeout(t);
+  }, [pathname]);
+  return (
+    <div className="pointer-events-none absolute inset-x-0 top-0 z-50 h-[2px] overflow-hidden">
+      <div
+        className={`h-full bg-primary shadow-[0_0_8px_rgba(139,92,246,0.8)] transition-[width,opacity] ${
+          active ? 'w-full opacity-100' : 'w-0 opacity-0'
+        }`}
+        style={{ transitionDuration: active ? '400ms' : '150ms' }}
+      />
+    </div>
+  );
+}
+
 /* ── Rail de iconos (fijo, no redimensionable) ─────────────────────────── */
 
 function IdeRail({
@@ -401,6 +426,7 @@ function MobileShell({ userName, children }: { userName: string; children: React
   const pathname = useActivePath();
   return (
     <div className="relative flex h-screen flex-col overflow-hidden bg-canvas text-neutral-100">
+      <NavProgressBar />
       <div aria-hidden className="aurora-bg pointer-events-none absolute inset-0 opacity-60" />
       <header className="relative z-10 flex h-[44px] shrink-0 items-center gap-2 border-b border-border-subtle bg-panel px-3">
         <span className="font-mono text-[11px] font-semibold uppercase tracking-widest text-neutral-400">
@@ -507,6 +533,7 @@ export function IdeShell({ userName, children }: { userName: string; children: R
 
   return (
     <div className="relative flex h-screen overflow-hidden bg-canvas text-neutral-100">
+      <NavProgressBar />
       <div aria-hidden className="aurora-bg pointer-events-none absolute inset-0 opacity-60" />
       <IdeRail
         userName={userName}
