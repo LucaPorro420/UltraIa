@@ -11,6 +11,7 @@
 // Fail-soft: si no hay navegador, imprime guia y sale 0.
 
 import { chromium } from "playwright";
+import { execSync } from "node:child_process";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -39,12 +40,61 @@ const AUTH_ROUTES = [
   "/goal",
 ];
 
+// Preflight: detecta >1 PROCESO (PID) escuchando en el puerto (server duplicado que
+// corrompe .next => chunks 404 => React no hidrata). No fatals; solo advierte.
+// Se deduplica por PID (un mismo server aparece como listener IPv4 + IPv6).
+function preflightPortConflict(base) {
+  try {
+    const u = new URL(base);
+    const port = u.port || (u.protocol === "https:" ? "443" : "80");
+    const out = execSync("netstat -ano", { windowsHide: true, timeout: 8000 }).toString();
+    const lines = out.split("\n").filter((l) => l.includes(`:${port}`) && l.includes("LISTENING"));
+    const pids = new Set(
+      lines.map((l) => (l.match(/LISTENING\s+(\d+)\s*$/) || [])[1]).filter(Boolean)
+    );
+    if (pids.size > 1) {
+      console.log(`[preflight] ADVERTENCIA: ${pids.size} servers (PIDs ${[...pids].join(",")}) en :${port}.`);
+      console.log("[preflight] Posible .next corrupto por server duplicado. Ejecuta: npm run dev:clean");
+    } else {
+      console.log(`[preflight] puerto :${port} -> ${pids.size} server (ok)`);
+    }
+  } catch {
+    /* netstat no disponible: ignora */
+  }
+}
+
+// Pre-calentamiento: en un dev server frio los chunks globales del app-router
+// (main-app.js / app-pages-internals.js / app/layout.css) no existen hasta que la
+// primera ruta compila. Si el navegador los pide antes, devuelven 404 (MIME html)
+// y React no hidrata. Calentamos /login y esperamos a que esos chunks den 200.
+async function prewarm(base) {
+  const get = async (p) => {
+    try { return (await fetch(base + p)).status; } catch { return 0; }
+  };
+  await get("/login"); // dispara el compile de la ruta
+  const chunks = [
+    "/_next/static/chunks/main-app.js",
+    "/_next/static/chunks/app-pages-internals.js",
+    "/_next/static/css/app/layout.css",
+  ];
+  for (let i = 0; i < 40; i++) {
+    const states = await Promise.all(chunks.map(get));
+    if (states.every((s) => s === 200)) { console.log("[prewarm] chunks globales 200 (ok)"); return; }
+    await new Promise((r) => setTimeout(r, 2000));
+  }
+  console.log("[prewarm] chunks globales no todos 200 tras calentar (continuo igual)");
+}
+
 async function collect(page) {
   const errors = [];
   const failed = [];
   const onConsole = (m) => { if (m.type() === "error") errors.push(m.text()); };
   const onPageError = (e) => errors.push("PAGEERROR: " + (e?.message || String(e)));
-  const onReqFail = (r) => failed.push(`${r.method?.() || "?"} ${r.url()} :: ${r.failure()?.errorText || "reqfail"}`);
+  const onReqFail = (r) => {
+    const t = r.failure()?.errorText || "";
+    if (t.includes("ERR_ABORTED")) return; // abort benigno por navegacion post-submit
+    failed.push(`${r.method?.() || "?"} ${r.url()} :: ${t || "reqfail"}`);
+  };
   const onResp = (r) => { const s = r.status(); if (s >= 400 && s < 600) failed.push(`${s} ${r.request().method()} ${r.url()}`); };
   page.on("console", onConsole);
   page.on("pageerror", onPageError);
@@ -79,7 +129,9 @@ async function main() {
   const ctx = await browser.newContext({ baseURL: BASE, viewport: { width: 1366, height: 900 } });
   const page = await ctx.newPage();
 
-  // --- Login ---
+  // --- Preflight + Prewarm + Login ---
+  preflightPortConflict(BASE);
+  await prewarm(BASE);
   const login = await collect(page);
   let loginOk = false;
   try {
@@ -87,7 +139,7 @@ async function main() {
     await page.waitForTimeout(SETTLE_MS);
     await page.fill('input[name="email"]', USER);
     await page.fill('input[name="password"]', PASS);
-    await page.click('button[type="submit"]');
+    await page.click('button[type="submit"]', { timeout: NAV_TIMEOUT });
     await page.waitForURL("**/dashboard**", { timeout: NAV_TIMEOUT }).catch(() => {});
     await page.waitForTimeout(SETTLE_MS);
     const url = page.url();

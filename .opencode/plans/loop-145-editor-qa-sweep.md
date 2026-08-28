@@ -49,6 +49,30 @@ figma u otro editor de ui/ux no code". El "apartado" (Part B) ya existe; este ci
 - Errores reproducibles encontrados en app/web se corrigen; barrido posterior muestra la baja.
 - FULL gates GREEN (el script es Node, fuera del grafo npm; pero el fix de app/web requiere build).
 
+## Hallazgo: "error de runtime React en el navegador" (root cause)
+Al ejecutar el barrido autenticado (`scripts/editor-qa-auth.mjs`) se reprodujo el sintoma que el
+usuario reporto: las rutas del shell `(app)` servian `app-pages-internals.js`, `app/layout.css` y
+`app/layout.js` con **404 + MIME text/html** -> "Refused to execute script / apply style" -> React
+nunca hidrata. La causa NO fue de codigo ni de dependencias (web+mobile ambos `react@19.2.3`, 0
+conflictos peer): fue **dos `next dev` compartiendo el mismo `.next`** (un server zombies de otra
+sesion arrancado con `next dev -H 127.0.0.1` que se enganchaba en `127.0.0.1:3000` mientras el
+server bueno escuchaba en `0.0.0.0:3000`). Ambos escribian `.next` a la vez y se corrompian los
+chunks entre si -> 404 intermitentes.
+
+### Fix aplicado
+- Matar TODOS los `next dev` / `start-server.js` en el arbol y eliminar `.next`.
+- Arrancar UN solo `npm run dev` limpio; pre-calentar `/login` y esperar a que su chunk
+  `app/(auth)/login/page.js` de 200.
+- Barrido autenticado completo (12 rutas protegidas) -> **0 errores / 0 fallos**.
+
+### Prevencion de recurrencia (plan para el futuro)
+- `scripts/dev-clean.ps1` + script npm `dev:clean`: libera el puerto 3000 (matando SOLO listeners
+  LISTENING, no clientes) y borra `.next` antes de arrancar `npm run dev`. Uso: `npm run dev:clean`.
+- `scripts/editor-qa-auth.mjs` ahora hace un **preflight de puerto** que avisa si hay >1 listener
+  en el puerto (server duplicado) antes de intentar login, para diagnosticar rapido.
+- Regla de oro: **nunca correr dos `next dev` sobre el mismo `.next`**. Si ves 404 de chunks de
+  React, corre `npm run dev:clean` antes que debuggear codigo.
+
 ## Prediccion
 Barrido operativo y errores reproducibles corregidos; reporte como evidencia. Commit unico
 `feat(editor): barrido QA headless (Part A de loop-120) + fixes`.
