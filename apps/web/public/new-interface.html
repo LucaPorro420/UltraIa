@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>UltraIa · Nueva Interfaz (prototipo)</title>
+<style>
+  :root{
+    --canvas:#08080a; --panel:#111115; --panel-2:#16161c; --panel-hover:#1c1c24;
+    --border-subtle:#1f1f2a; --border-muted:#2a2a36;
+    --text:#e5e7eb; --text-dim:#9ca3af; --text-faint:#6b7280;
+    --primary:#8b5cf6; --primary-soft:rgba(139,92,246,.16);
+    --neo-500:#a855f7; --neo-600:#9333ea; --neo-700:#7c3aed;
+    --emerald:#34d399; --amber:#fbbf24; --sky:#38bdf8;
+    --r-lg:14px; --r-md:10px; --r-sm:8px;
+    --ease:cubic-bezier(.22,.61,.36,1);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+    background:var(--canvas); color:var(--text); overflow-x:hidden; line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  .display{font-family:'Plus Jakarta Sans','Inter',sans-serif;font-weight:700;letter-spacing:-.02em}
+  .mono{font-family:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace}
+  .gradient-neo-text{
+    background:linear-gradient(90deg,var(--primary),var(--neo-500) 55%,var(--sky));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  a{color:inherit;text-decoration:none}
+
+  /* ── Aurora fondo animado (solo transform/opacity) ── */
+  .aurora{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+  .aurora span{
+    position:absolute;width:46vw;height:46vw;border-radius:50%;
+    filter:blur(90px);opacity:.35;mix-blend-mode:screen;
+    animation:float 18s var(--ease) infinite alternate;
+  }
+  .aurora .b1{background:radial-gradient(circle,#7c3aed,transparent 60%);top:-12vw;left:-8vw}
+  .aurora .b2{background:radial-gradient(circle,#38bdf8,transparent 60%);bottom:-14vw;right:-6vw;animation-delay:-6s}
+  .aurora .b3{background:radial-gradient(circle,#a855f7,transparent 60%);top:30vh;left:40vw;animation-delay:-11s;opacity:.22}
+  @keyframes float{from{transform:translate3d(0,0,0) scale(1)}to{transform:translate3d(4vw,3vh,0) scale(1.15)}}
+
+  .wrap{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:0 24px}
+
+  /* ── Top nav ── */
+  header.nav{
+    position:sticky;top:0;z-index:20;backdrop-filter:blur(12px);
+    background:rgba(8,8,10,.6);border-bottom:1px solid var(--border-subtle);
+  }
+  .nav-in{display:flex;align-items:center;gap:18px;height:60px}
+  .logo{
+    display:flex;align-items:center;gap:9px;font-weight:700;
+  }
+  .logo .mark{
+    width:30px;height:30px;border-radius:9px;display:grid;place-items:center;
+    font-family:'JetBrains Mono';font-size:12px;color:#fff;font-weight:700;
+    background:linear-gradient(135deg,var(--neo-600),var(--neo-700));
+    box-shadow:0 0 18px -4px rgba(139,92,246,.7);border:1px solid rgba(255,255,255,.12);
+  }
+  .nav a.link{color:var(--text-dim);font-size:13px;transition:color .2s var(--ease)}
+  .nav a.link:hover{color:var(--text)}
+  .nav .spacer{flex:1}
+  .btn{
+    display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:600;
+    padding:9px 16px;border-radius:var(--r-md);cursor:pointer;border:1px solid transparent;
+    transition:transform .18s var(--ease),background .2s var(--ease),box-shadow .2s var(--ease);
+  }
+  .btn:active{transform:scale(.97)}
+  .btn-primary{background:var(--primary);color:#fff;box-shadow:0 0 22px -6px rgba(139,92,246,.7)}
+  .btn-primary:hover{background:#9d77f7;box-shadow:0 0 30px -4px rgba(139,92,246,.9)}
+  .btn-ghost{border-color:var(--border-subtle);color:var(--text-dim);background:rgba(255,255,255,.02)}
+  .btn-ghost:hover{color:var(--text);border-color:var(--border-muted);background:var(--panel-hover)}
+
+  /* ── Hero ── */
+  .hero{padding:84px 0 56px;text-align:center}
+  .pill{
+    display:inline-flex;align-items:center;gap:8px;font-family:'JetBrains Mono';font-size:11px;
+    text-transform:uppercase;letter-spacing:.18em;color:var(--text-dim);
+    border:1px solid var(--border-subtle);background:var(--panel);padding:6px 12px;border-radius:999px;
+  }
+  .pill .dot{width:7px;height:7px;border-radius:50%;background:var(--emerald);box-shadow:0 0 8px var(--emerald)}
+  .hero h1{font-size:clamp(34px,6vw,62px);line-height:1.02;margin:22px 0 14px}
+  .hero p.lead{max-width:620px;margin:0 auto;color:var(--text-dim);font-size:16px}
+  .hero .cta{display:flex;gap:12px;justify-content:center;margin-top:30px}
+
+  /* ── Skill pipeline ── */
+  .section{padding:46px 0}
+  .section h2{font-size:22px;margin-bottom:6px}
+  .section p.sub{color:var(--text-faint);font-size:13px;margin-bottom:22px}
+  .pipeline{
+    display:flex;flex-wrap:wrap;gap:10px;align-items:stretch;
+  }
+  .step{
+    flex:1 1 150px;position:relative;border:1px solid var(--border-subtle);background:var(--panel);
+    border-radius:var(--r-md);padding:16px;overflow:hidden;
+    transition:transform .25s var(--ease),border-color .25s var(--ease),box-shadow .25s var(--ease);
+  }
+  .step::before{
+    content:"";position:absolute;inset:0;background:linear-gradient(135deg,var(--primary-soft),transparent 55%);
+    opacity:0;transition:opacity .3s var(--ease);
+  }
+  .step.active{border-color:rgba(139,92,246,.5);box-shadow:0 0 30px -8px rgba(139,92,246,.55)}
+  .step.active::before{opacity:1}
+  .step .num{font-family:'JetBrains Mono';font-size:10px;color:var(--text-faint);letter-spacing:.1em}
+  .step .nm{font-weight:600;margin-top:4px;position:relative}
+  .step .bar{height:3px;border-radius:3px;background:var(--border-subtle);margin-top:12px;overflow:hidden}
+  .step .bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--primary),var(--sky));border-radius:3px;transition:width .6s var(--ease)}
+
+  /* ── Cards grid ── */
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
+  .card{
+    border:1px solid var(--border-subtle);background:var(--panel);border-radius:var(--r-lg);
+    padding:20px;transition:transform .25s var(--ease),border-color .25s var(--ease),box-shadow .25s var(--ease),background .25s var(--ease);
+  }
+  .card:hover{transform:translateY(-4px);border-color:var(--border-muted);background:var(--panel-hover);
+    box-shadow:0 18px 40px -22px rgba(139,92,246,.6)}
+  .card .top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .card .ic{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;
+    background:linear-gradient(135deg,var(--neo-600),var(--neo-700));color:#fff;font-size:18px;
+    box-shadow:0 0 16px -5px rgba(139,92,246,.7)}
+  .badge{font-family:'JetBrains Mono';font-size:10px;text-transform:uppercase;letter-spacing:.12em;
+    border:1px solid var(--border-subtle);background:var(--panel-2);padding:3px 8px;border-radius:6px;color:var(--text-dim)}
+  .badge.ok{color:var(--emerald);border-color:rgba(52,211,153,.3)}
+  .card h3{font-size:15px;margin:14px 0 6px}
+  .card p{font-size:13px;color:var(--text-dim)}
+
+  /* ── Chat preview ── */
+  .chat{border:1px solid var(--border-subtle);background:var(--panel);border-radius:var(--r-lg);
+    max-width:560px;padding:18px;display:flex;flex-direction:column;gap:12px}
+  .msg{display:flex;gap:10px;align-items:flex-start}
+  .msg .av{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,var(--neo-600),var(--neo-700));flex:none}
+  .msg .bubble{background:var(--panel-2);border:1px solid var(--border-subtle);border-radius:12px;padding:10px 13px;font-size:13px;max-width:80%}
+  .msg.me .bubble{background:var(--primary-soft);border-color:rgba(139,92,246,.3)}
+  .typing{display:inline-flex;gap:4px;padding:4px 2px}
+  .typing i{width:6px;height:6px;border-radius:50%;background:var(--text-faint);animation:blink 1.2s infinite}
+  .typing i:nth-child(2){animation-delay:.2s}.typing i:nth-child(3){animation-delay:.4s}
+  @keyframes blink{0%,60%,100%{opacity:.25;transform:translateY(0)}30%{opacity:1;transform:translateY(-3px)}}
+
+  /* ── Reveal on scroll ── */
+  .reveal{opacity:0;transform:translateY(18px);transition:opacity .6s var(--ease),transform .6s var(--ease)}
+  .reveal.in{opacity:1;transform:none}
+
+  footer{border-top:1px solid var(--border-subtle);margin-top:40px;padding:30px 0;color:var(--text-faint);font-size:12px;text-align:center}
+
+  @media (prefers-reduced-motion:reduce){
+    *{animation:none!important;transition:none!important}
+    .reveal{opacity:1;transform:none}
+  }
+</style>
+</head>
+<body>
+  <div class="aurora" aria-hidden="true"><span class="b1"></span><span class="b2"></span><span class="b3"></span></div>
+
+  <header class="nav">
+    <div class="wrap nav-in">
+      <div class="logo"><span class="mark">UI</span><span class="display">Ultra<span class="gradient-neo-text">Ia</span></span></div>
+      <a class="link" href="#">Agentes</a>
+      <a class="link" href="#">Studio</a>
+      <a class="link" href="#">Galería</a>
+      <a class="link" href="#">Builder</a>
+      <div class="spacer"></div>
+      <a class="btn btn-ghost" href="#">Entrar</a>
+      <a class="btn btn-primary" href="#">Empezar</a>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="hero">
+      <div class="pill reveal"><span class="dot"></span> AI creates AI · humans approve</div>
+      <h1 class="display reveal">Diseña agentes que <span class="gradient-neo-text">se construyen solos</span>.</h1>
+      <p class="lead reveal">UltraIa planea, construye, prueba, revisa y simplifica cada agente por ti.
+        Esta es la nueva interfaz: más fluida, más claro, con motion que responde.</p>
+      <div class="cta reveal">
+        <a class="btn btn-primary" href="#">Crear agente →</a>
+        <a class="btn btn-ghost" href="#">Ver galería</a>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="display reveal">Agent pipeline</h2>
+      <p class="sub reveal">Cada agente recorre el loop completo. Observa el progreso en vivo.</p>
+      <div class="pipeline reveal" id="pipeline">
+        <div class="step active"><div class="num">01</div><div class="nm">Plan</div><div class="bar"><i style="width:100%"></i></div></div>
+        <div class="step active"><div class="num">02</div><div class="nm">Build</div><div class="bar"><i style="width:100%"></i></div></div>
+        <div class="step active"><div class="num">03</div><div class="nm">Test</div><div class="bar"><i style="width:70%"></i></div></div>
+        <div class="step"><div class="num">04</div><div class="nm">Review</div><div class="bar"><i style="width:0%"></i></div></div>
+        <div class="step"><div class="num">05</div><div class="nm">Ship</div><div class="bar"><i style="width:0%"></i></div></div>
+        <div class="step"><div class="num">06</div><div class="nm">Simplify</div><div class="bar"><i style="width:0%"></i></div></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="display reveal">Tus agentes</h2>
+      <p class="sub reveal">Tarjetas con glow al hover y entrada escalonada.</p>
+      <div class="grid">
+        <div class="card reveal"><div class="top"><div class="ic">✦</div><span class="badge ok">v3 · eval .82</span></div>
+          <h3>Guionista Ultra</h3><p>Genera guiones y storyboards para video corto, bilingüe es/ar.</p></div>
+        <div class="card reveal"><div class="top"><div class="ic">⚡</div><span class="badge ok">v2 · eval .77</span></div>
+          <h3>Publicador</h3><p>Empaqueta y publica en YouTube, TikTok, IG, Threads y más.</p></div>
+        <div class="card reveal"><div class="top"><div class="ic">◈</div><span class="badge">v1 · draft</span></div>
+          <h3>Orquestador</h3><p>Coordina los demás agentes y evalúa la calidad de cada entrega.</p></div>
+        <div class="card reveal"><div class="top"><div class="ic">✸</div><span class="badge ok">v5 · eval .91</span></div>
+          <h3>Analista</h3><p>Mide métricas por canal y propone el playbook ganador.</p></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="display reveal">Asistente</h2>
+      <p class="sub reveal">Chat general estilo Claude/ChatGPT, integrado en el espacio.</p>
+      <div class="chat reveal">
+        <div class="msg"><div class="av"></div><div class="bubble">Diseña un agente que resuma mis publicaciones y sugiera el próximo tema.</div></div>
+        <div class="msg me"><div class="av"></div><div class="bubble">Listo. Lo llamo <b>Editora</b> y lo pongo en Plan…</div></div>
+        <div class="msg"><div class="av"></div><div class="bubble"><span class="typing"><i></i><i></i><i></i></span></div></div>
+      </div>
+    </section>
+  </main>
+
+  <footer>UltraIa v1.0 · prototipo de nueva interfaz · Dark Obsidian + Neo Violet · motion reducible</footer>
+
+<script>
+  // Reveal on scroll (IntersectionObserver)
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach((e,i)=>{ if(e.isIntersecting){ e.target.style.transitionDelay=(i%6*60)+'ms'; e.target.classList.add('in'); io.unobserve(e.target);} });
+  },{threshold:.12});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+  // Pipeline: anima el progreso cíclico para demo
+  const steps=[...document.querySelectorAll('#pipeline .step')];
+  let cur=2;
+  setInterval(()=>{
+    steps.forEach((s,i)=>{
+      const bar=s.querySelector('.bar i');
+      s.classList.toggle('active', i<=cur);
+      bar.style.width = i<cur ? '100%' : (i===cur ? '70%' : '0%');
+    });
+    cur=(cur+1)%steps.length;
+  },2200);
+</script>
+</body>
+</html>
