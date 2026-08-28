@@ -3,6 +3,7 @@ import { CalendarDays } from 'lucide-react';
 import { prisma, listBlogPosts } from '@ultraia/core';
 import { optionalUser } from '@/lib/server/context';
 import { MarketingHeader } from '@/components/marketing-header';
+import { SiteFooter } from '@/components/site-footer';
 
 export const metadata: Metadata = {
   title: 'Blog · UltraIa',
@@ -82,6 +83,8 @@ export default async function BlogPage() {
           </div>
         )}
       </section>
+
+      <SiteFooter />
     </main>
   );
 }
