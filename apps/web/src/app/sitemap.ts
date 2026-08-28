@@ -10,8 +10,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     take: 1000,
   });
   return [
-    { url: `${base}/`, lastModified: now },
-    { url: `${base}/explore`, lastModified: now },
+    { url: `${base}/`, lastModified: now, changeFrequency: 'weekly', priority: 1 },
+    { url: `${base}/explore`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
+    { url: `${base}/recursos`, lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
+    { url: `${base}/gallery`, lastModified: now, changeFrequency: 'weekly', priority: 0.6 },
+    { url: `${base}/roadmap`, lastModified: now, changeFrequency: 'monthly', priority: 0.5 },
     ...publicAgents.map((a) => ({
       url: `${base}/a/${a.id}`,
       lastModified: a.createdAt,
