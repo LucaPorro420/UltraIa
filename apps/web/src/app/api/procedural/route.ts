@@ -11,6 +11,7 @@ import {
   PALETTE_NAMES,
   resolveSpec,
   renderFramePng,
+  renderGifBytes,
 } from '@ultraia/core';
 
 export const runtime = 'nodejs';
@@ -24,6 +25,7 @@ type Req = {
   width?: number;
   height?: number;
   frames?: number;
+  format?: string;
 };
 
 function clampDim(n: number | undefined, dflt: number, max: number): number {
@@ -80,6 +82,17 @@ export async function POST(req: Request) {
         fps: 24,
         durationSec: Math.max(0.3, Math.min(1.2, (body.frames ?? 12) / 24)),
       });
+      if ((body.format ?? 'frames') === 'gif') {
+        const gif = await renderGifBytes(spec);
+        return NextResponse.json({
+          type: 'gif',
+          dataUrl: 'data:image/gif;base64,' + Buffer.from(gif).toString('base64'),
+          width,
+          height,
+          palette,
+          seed,
+        });
+      }
       const frames: string[] = [];
       for (let i = 0; i < spec.frameCount; i++) {
         frames.push(toDataUrl(renderFramePng(spec, i)));
