@@ -41,6 +41,21 @@ Skills de capability (en `.opencode/skills/` de terceros/derivados usados por el
 | `learning-memory` (raíz) | Restaurar memoria verificada |
 | `loop-budget` / `loop-concurrency-guard` / `loop-constraints` / `loop-piv` / `loop-triage` / `loop-verifier` / `state-integrity-check` (raíz) | Espejos del harness |
 
+### Skills vetted de terceros (28/08/2026, find-skills)
+
+Instalados vía `npx skills` desde fuentes oficiales (Vercel / Anthropic / mizchi), auditados
+Safe / Low Risk. Se usan on-demand (no siempre):
+
+| Skill | Categoría | Trigger |
+|---|---|---|
+| `vercel-react-best-practices` | Web / Perf | Al escribir/optimizar componentes React/Next.js |
+| `web-design-guidelines` | Web / Perf | Al crear UI/landing (reglas de diseño web) |
+| `frontend-design` | Design | Al maquetar interfaces frontend |
+| `webapp-testing` | Testing | Al QA de features web (Playwright) |
+| `deploy-to-vercel` | Deploy | Al desplegar apps/web a Vercel |
+| `docx` | Docs | Al generar documentos .docx / artefactos |
+| `conventional-changelog` | Docs / Changelog | Al generar CHANGELOG / release notes |
+
 ## Condicionales (usar solo cuando aplique el contexto)
 
 | Skill | Condición |
