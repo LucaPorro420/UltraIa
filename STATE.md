@@ -280,3 +280,14 @@ Triage de planes colisionados: los IDs 121/122/123/126/127 tenian DOS planes cad
 | 140 | **Conexiones codigo via mail** - renombrado desde `loop-123-connections-email.md`; `tools/emailCode.ts` wired | core+web | FULL | DONE |
 | 141 | **Design Lab (/lab extension)** - YA IMPLEMENTADO en `lab-client.tsx`: `TokensSection` (lee CSS vars globals.css) + `UiGallery` (UI Kit Gallery) + `PrototypesSection`. Las 3 zonas del plan presentes. typecheck/lint OK. | apps/web | FULL(typecheck/lint) | DONE (ya implementado) |
 | 142 | **Proveedor Qwen** - renombrado desde `loop-127-qwen-provider.md`. BLOQUEADO: requiere editar `packages/core/src/ai/llm.ts` (`qwenModel()` + `qwenFetch`, `ULTRAIA_PROVIDER=qwen`) y crear `tools/qwen.ts`; `llm.ts` es WIP de la sesion concurrente (no tocar). `tools/qwen.ts` NO existe. | core | - | BLOQUEADO (WIP ajeno llm.ts) |
+
+## Librerías procedurales (loop-146→149, 28/08/2026) - DONE
+
+Ciclo de generadores deterministas (sin dependencias, sin red) sobre `packages/core/src/tools/` + `Task/`. Sin tocar WIP concurrente (geom.ts, llm.ts, recorderly, publications). Build omitido (dev server :3000 vivo; no app-code). Gates FULL verdes (typecheck 0, lint 0, core test 1823 PASS).
+
+| ID | Tarea (plan) | Alcance | Gates | Estado |
+|----|--------------|---------|-------|--------|
+| 146 | **Generative: ruido value/fbm/worley** - `loop-146-generative-noise.md`; `generative.ts` gana `valueNoise2D/Field`, `fbm2D/Field`, `worleyNoise2D/Field` + `hash2` export; 12 tests | packages/core | FULL(typecheck/lint/test) | DONE (da19d02) |
+| 147 | **Demo ruido procedural real** - `loop-147-procedural-noise-demo.md`; `Task/procedural-noise.ts` -> 5 PNG/GIF reales + manifest (fnv1a determinista idéntico en 2 runs) | Task | FULL(typecheck/lint/test) | DONE (0b3feb4) |
+| 148 | **procvid: animación `fbm-flow`** - `loop-148-procvid-fbm-flow.md`; `procvid.ts` case 'fbm-flow' (import fbm2D, paleta neoViolet); test 10->11 | packages/core | FULL(typecheck/lint/test) | DONE (892227b) |
+| 149 | **Video capstone fbm-flow (GIF real)** - `loop-149-procedural-fbm-video.md`; `Task/procedural-fbm-video.ts` -> fbm-flow.gif real (158027 B, fnv ff2a30c7 idéntico) + poster + manifest | Task | FULL(typecheck/lint/test) | DONE (9065986) |

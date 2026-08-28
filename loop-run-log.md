@@ -2977,4 +2977,12 @@ de código, sin commit.
 - **[R]** PROGRAMA VERIFICADO PARA USO LOCAL: build CI green, web app funciona, gateway LLM local (Ollama + modelos ultraia-*) opera, keyless tools presentes. Unica limitacion es RAM de la maquina para cargar modelos 8B; con RAM normal el chat de agentes genera. Backlog 120-142 cerrado; loop-142 (qwen) sigue bloqueado por WIP ajeno llm.ts. NO push (ya estaban en origin/master).
 ```json
 {"pattern":"pivr","iter":["verif-local"],"gates":{"typecheck":0,"lint":0,"test":0,"build":0,"env":"CI-ubuntu GREEN + app local sirve + ollama genera"},"commits":[],"note":"verificacion local: app+build CI green+gateway ollama opera; no cambio conexion (ya ollama)"}
+
+## [P] iter-146/147/148/149 librerías procedurales (28/08) - planes `loop-146-generative-noise.md`, `loop-147-procedural-noise-demo.md`, `loop-148-procvid-fbm-flow.md`, `loop-149-procedural-fbm-video.md`. Sensado: `generative.ts` tiene perlin/simplex/mandelbrot pero falta ruido value/fbm/worley; `procvid.ts` no tiene animación fbm-flow. Predicción: agregar generadores deterministas + demo + video capstone, sin tocar WIP concurrente (geom.ts, llm.ts, recorderly, publications).
+- **[I]** 146: `generative.ts` + `valueNoise2D/Field`, `fbm2D/Field`, `worleyNoise2D/Field` + `hash2` export + 12 tests (da19d02). 147: `Task/procedural-noise.ts` -> resultTask/procedural-noise/ (value-noise.png, fbm.png, worley.png, fbm-ridged.png, fbm-animated.gif) + manifest; fnv1a idéntico en 2 runs (0b3feb4). 148: `procvid.ts` case 'fbm-flow' (import fbm2D, paleta neoViolet) + test 10->11 (892227b). 149: `Task/procedural-fbm-video.ts` -> resultTask/procedural-fbm-video/fbm-flow.gif real (158027 B, fnv ff2a30c7 idéntico) + poster + manifest (9065986).
+- **[V]** Gates FULL verdes: typecheck 0, lint 0, core test 1823 PASS (121 test files). Build omitido (dev server :3000 vivo; no app-code). WIP ajeno intacto. Determinismo verificado re-ejecutando demos (fnv idéntico).
+- **[R]** Ciclo procedural COMPLETO: 4 planes DONE y commiteados. Generadores deterministas listos para usar en OMAG/codevfx/travel. NO push (humano).
+```json
+{"pattern":"pivr","iter":["146","147","148","149"],"gates":{"typecheck":0,"lint":0,"test":1823,"build":"OMITIDO-dev-server-:3000"},"commits":["da19d02","0b3feb4","892227b","9065986"],"note":"librerías procedurales ruido+fbm-flow; deterministas; WIP ajeno intacto; no push"}
+```
 ```
