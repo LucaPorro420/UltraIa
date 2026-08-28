@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { requireUser } from '@/lib/server/context';
 import { LabClient } from '@/components/lab-client';
 import { planSdfScene, renderSdfHtml, createImage, gaussianBlur, cannyEdges, imageStats, tools } from '@ultraia/core';
@@ -50,7 +51,13 @@ export default async function LabPage() {
   const avoid = tools.growth.buildAvoidanceFromCritiques('canal-demo', critiques);
 
   return (
-    <LabClient
+    <>
+      <div className="mx-auto max-w-6xl p-6 pb-0">
+        <Link href="/lab/procedural" className="text-sm text-[#8b5cf6] hover:underline">
+          → Lab · Procedural (ruido / fractales animados)
+        </Link>
+      </div>
+      <LabClient
       sdfHtml={sdfHtml}
       vfxHtml={vfxHtml}
       sdfFormula={sdfPlan.formula}
@@ -58,5 +65,6 @@ export default async function LabPage() {
       imaging={{ stats, edgeDensity: canny.density, thresholds: canny.thresholds }}
       growth={{ kpis, exps, avoid, critiques }}
     />
+    </>
   );
 }
