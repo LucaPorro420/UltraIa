@@ -209,5 +209,20 @@ class ReportTests(unittest.TestCase):
         self.assertIn("- x: d", sd.format_report(r))
 
 
+class BannerDesyncTests(unittest.TestCase):
+    def test_live_banner_without_kill_switch_flags(self):
+        state = "# Loop State\n- ITERACION 99 PAUSADA (28/08/2026) - esperando confirmacion\n"
+        self.assertIsNotNone(sd.check_banner_desync(state, ""))
+
+    def test_historical_prose_is_ignored(self):
+        state = ('> Banner "ITERACION 46 PAUSADA" OBSOLETO eliminado por state-doctor.\n'
+                 '> banner "ITERACION 46 PAUSADA" reemplazado por estado real.\n')
+        self.assertIsNone(sd.check_banner_desync(state, ""))
+
+    def test_kill_switch_suppresses(self):
+        state = "loop-pause-all\n- ITERACION 99 PAUSADA\n"
+        self.assertIsNone(sd.check_banner_desync(state, "loop-pause-all"))
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

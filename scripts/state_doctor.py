@@ -135,12 +135,25 @@ def check_encoding(text: str) -> list[int]:
 
 
 def check_banner_desync(state_text: str, runlog_text: str) -> str | None:
-    banner = re.search(r"PAUSADA|DETENIDA|esperando confirmaci", state_text, re.IGNORECASE)
-    if not banner:
-        return None
-    if kill_switch_active(state_text, runlog_text):
-        return None
-    return "banner dice pausado/deteniendo pero loop-pause-all esta AUSENTE"
+    """Detect a LIVE pause banner in STATE.md.
+
+    The kill-switch is token-based: a real pause requires the literal token
+    `loop-pause-all` present in STATE.md/loop-run-log.md. A mere mention of
+    PAUSADA/DETENIDA in historical prose (e.g. "Banner ITERACION 46 PAUSADA
+    OBSOLETO eliminado...") must NOT be treated as a live pause, so we ignore
+    any line that explicitly marks the banner as obsolete/removed/replaced.
+    """
+    pause = re.compile(r"PAUSADA|DETENIDA|esperando confirmaci", re.IGNORECASE)
+    negation = re.compile(
+        r"obsoleto|obsolete|eliminado|eliminada|reemplazado|reemplazada"
+        r"|removido|removida|ya no|no vigente|cedi[óo]",
+        re.IGNORECASE,
+    )
+    for line in state_text.splitlines():
+        if pause.search(line) and not negation.search(line):
+            if not kill_switch_active(state_text, runlog_text):
+                return "banner dice pausado/deteniendo pero loop-pause-all esta AUSENTE"
+    return None
 
 
 def check_root_empty(root: Path) -> list[str]:
