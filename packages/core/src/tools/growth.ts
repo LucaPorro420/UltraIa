@@ -266,4 +266,21 @@ function round2(x: number): number {
   return Math.round(x * 100) / 100;
 }
 
-export const growth = { analyzeChannel, planExperiments, buildPlaybook, clasifyCritique, critiquesToKpis, buildAvoidanceFromCritiques, HIPOTESIS };
+/** QUÉ ES: cierre F5 AutoPub completo a nivel de dominio — conecta las critiques de
+// publicationSignals con el growth loop en un solo paso.
+// PARA QUÉ: el caller (cola de publicaciones / agente) pasa las critiques BAD de un canal
+// y obtiene los KPIs por variable (para planExperiments) y las recomendaciones a EVITAR
+// (espejo del playbook). Listo para exponer como acción `growth_plan` (kpis_from_critiques)
+// cuando llm.ts quede libre de la sesión concurrente.
+// POR QUÉ: determinista — reusa critiquesToKpis + buildAvoidanceFromCritiques. */
+export function growthPlanFromCritiques(canal: string, critiques: string[]): {
+  kpis: ChannelKpis;
+  evitar: PlaybookEntry[];
+} {
+  return {
+    kpis: critiquesToKpis(critiques),
+    evitar: buildAvoidanceFromCritiques(canal, critiques),
+  };
+}
+
+export const growth = { analyzeChannel, planExperiments, buildPlaybook, clasifyCritique, critiquesToKpis, buildAvoidanceFromCritiques, growthPlanFromCritiques, HIPOTESIS };

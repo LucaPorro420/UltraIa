@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { analyzeChannel, planExperiments, buildPlaybook, clasifyCritique, critiquesToKpis, buildAvoidanceFromCritiques, type ChannelSample, type EngagementSignal } from './growth';
+import { analyzeChannel, planExperiments, buildPlaybook, clasifyCritique, critiquesToKpis, buildAvoidanceFromCritiques, growthPlanFromCritiques, type ChannelSample, type EngagementSignal } from './growth';
 
 describe('growth: analyzeChannel', () => {
   it('construye un perfil promedio desde muestras', () => {
@@ -215,5 +215,23 @@ describe('growth: puente publicationSignals (cierre F5 AutoPub)', () => {
     const exps = planExperiments(perfil, kpis);
     expect(exps[0].variable).toBe('hook'); // 3 quejas -> kpi 40 (peor)
     expect(exps[1].variable).toBe('titulo'); // 1 queja -> kpi 80
+  });
+
+  it('growthPlanFromCritiques: cierra el loop en un paso (kpis + evitar)', () => {
+    const plan = growthPlanFromCritiques('canal-demo', [
+      'el titulo no engancha', 'titulo clickbait', 'titulo confuso',
+      'el hook es largo',
+    ]);
+    expect(plan.kpis.titulo).toBe(40); // 3 quejas -> 100 - 60
+    expect(plan.kpis.hook).toBe(80); // 1 queja -> 100 - 20
+    expect(plan.evitar).toHaveLength(2);
+    expect(plan.evitar[0].fuente).toBe('titulo');
+    expect(plan.evitar[0].peso).toBe(3);
+  });
+
+  it('growthPlanFromCritiques: vacio -> kpis {} + evitar [] (degradacion elegante)', () => {
+    const plan = growthPlanFromCritiques('canal-demo', []);
+    expect(plan.kpis).toEqual({});
+    expect(plan.evitar).toEqual([]);
   });
 });
