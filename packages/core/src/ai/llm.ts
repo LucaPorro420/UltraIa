@@ -253,6 +253,91 @@ function qwenModel(name: string): LanguageModel {
   return provider(name);
 }
 
+// OpenRouter is OpenAI-compatible: a single key (OPENROUTER_API_KEY) unlocks hundreds of
+// models, including the keyless `:free` tier (e.g. google/gemma-2-9b-it:free) that needs NO
+// per-vendor key. Extra headers make usage show up in the OpenRouter dashboard.
+function openrouterModel(name: string): LanguageModel {
+  if (!process.env.OPENROUTER_API_KEY) {
+    throw new AiUnavailableError(
+      'OPENROUTER_API_KEY is not set (ULTRAIA_PROVIDER=openrouter). Add it to apps/web/.env (see .env.example).',
+    );
+  }
+  const provider = createOpenAI({
+    baseURL: 'https://openrouter.ai/api/v1',
+    apiKey: process.env.OPENROUTER_API_KEY,
+    compatibility: 'compatible',
+    fetch: modelFetch,
+    headers: {
+      'HTTP-Referer': process.env.APP_URL || 'http://localhost:3000',
+      'X-Title': 'UltraIa',
+    },
+  });
+  return provider(name);
+}
+
+// Groq is OpenAI-compatible — ultra-low latency, free tier (GROQ_API_KEY).
+function groqModel(name: string): LanguageModel {
+  if (!process.env.GROQ_API_KEY) {
+    throw new AiUnavailableError(
+      'GROQ_API_KEY is not set (ULTRAIA_PROVIDER=groq). Get a free key at https://console.groq.com/keys.',
+    );
+  }
+  const provider = createOpenAI({
+    baseURL: 'https://api.groq.com/openai/v1',
+    apiKey: process.env.GROQ_API_KEY,
+    compatibility: 'compatible',
+    fetch: modelFetch,
+  });
+  return provider(name);
+}
+
+// Mistral is OpenAI-compatible — free tier (MISTRAL_API_KEY).
+function mistralModel(name: string): LanguageModel {
+  if (!process.env.MISTRAL_API_KEY) {
+    throw new AiUnavailableError(
+      'MISTRAL_API_KEY is not set (ULTRAIA_PROVIDER=mistral). Get a free key at https://console.mistral.ai/.',
+    );
+  }
+  const provider = createOpenAI({
+    baseURL: 'https://api.mistral.ai/v1',
+    apiKey: process.env.MISTRAL_API_KEY,
+    fetch: modelFetch,
+  });
+  return provider(name);
+}
+
+// Together AI is OpenAI-compatible — free tier (TOGETHER_API_KEY).
+function togetherModel(name: string): LanguageModel {
+  if (!process.env.TOGETHER_API_KEY) {
+    throw new AiUnavailableError(
+      'TOGETHER_API_KEY is not set (ULTRAIA_PROVIDER=together). Get a free key at https://api.together.xyz/.',
+    );
+  }
+  const provider = createOpenAI({
+    baseURL: 'https://api.together.xyz/v1',
+    apiKey: process.env.TOGETHER_API_KEY,
+    compatibility: 'compatible',
+    fetch: modelFetch,
+  });
+  return provider(name);
+}
+
+// HuggingFace Inference API is OpenAI-compatible — free tier (HUGGINGFACE_API_KEY).
+function huggingfaceModel(name: string): LanguageModel {
+  if (!process.env.HUGGINGFACE_API_KEY) {
+    throw new AiUnavailableError(
+      'HUGGINGFACE_API_KEY is not set (ULTRAIA_PROVIDER=huggingface). Get a free key at https://huggingface.co/settings/tokens.',
+    );
+  }
+  const provider = createOpenAI({
+    baseURL: 'https://api-inference.huggingface.co/v1',
+    apiKey: process.env.HUGGINGFACE_API_KEY,
+    compatibility: 'compatible',
+    fetch: modelFetch,
+  });
+  return provider(name);
+}
+
 /** Qwen model family on DashScope — selectable via ULTRAIA_MODEL / QWEN_MODEL. */
 export const QWEN_MODELS = [
   'qwen3.8-max-preview',
@@ -279,6 +364,11 @@ function defaultNameFor(provider: ProviderName): string {
     case 'lmstudio': return 'qwen2.5-7b-instruct';
     case 'deepseek': return 'deepseek-chat';
     case 'qwen': return QWEN_DEFAULT_MODEL;
+    case 'openrouter': return process.env.OPENROUTER_MODEL || 'google/gemma-2-9b-it:free';
+    case 'groq': return 'llama-3.1-8b-instant';
+    case 'mistral': return 'mistral-small-latest';
+    case 'together': return 'meta-llama/Llama-3.2-11B-Vision-Instruct-Turbo';
+    case 'huggingface': return 'meta-llama/Llama-3.1-8B-Instruct';
     default: return 'gpt-4o-mini';
   }
 }
@@ -291,7 +381,28 @@ function buildProvider(p: ProviderName, name: string): LanguageModel {
     case 'deepseek': return deepseekModel(name);
     case 'qwen': return qwenModel(name);
     case 'openai': return openaiModel(name);
+    case 'openrouter': return openrouterModel(name);
+    case 'groq': return groqModel(name);
+    case 'mistral': return mistralModel(name);
+    case 'together': return togetherModel(name);
+    case 'huggingface': return huggingfaceModel(name);
   }
+}
+
+/**
+ * Build a LanguageModel for an EXPLICIT provider+model pair (the canonical builder used by the
+ * orchestrator for per-request routing and failover). Cached by `${provider}:${name}`.
+ * Throws AiUnavailableError if that specific provider's key is missing — unlike `resolveModel`,
+ * it does NOT fall back to a local provider.
+ */
+export function modelFor(provider: ProviderName, model?: string): LanguageModel {
+  const name = model || defaultNameFor(provider);
+  const key = `${provider}:${name}`;
+  const cached = modelCache.get(key);
+  if (cached) return cached;
+  const built = buildProvider(provider, name);
+  modelCache.set(key, built);
+  return built;
 }
 
 /**
@@ -303,8 +414,6 @@ function buildProvider(p: ProviderName, name: string): LanguageModel {
 export function resolveModel(model?: string): LanguageModel {
   const primary = (process.env.ULTRAIA_PROVIDER || 'ollama') as ProviderName;
   const name = model || process.env.ULTRAIA_MODEL || defaultNameFor(primary);
-  const direct = modelCache.get(`${primary}:${name}`);
-  if (direct) return direct;
   return tryResolve(name, primary);
 }
 
@@ -315,9 +424,7 @@ function tryResolve(name: string, primary: ProviderName): LanguageModel {
   let lastErr: unknown;
   for (const p of order) {
     try {
-      const built = buildProvider(p, name);
-      modelCache.set(`${p}:${name}`, built);
-      return built;
+      return modelFor(p, name);
     } catch (e) {
       if (e instanceof AiUnavailableError) {
         lastErr = e;
@@ -329,7 +436,18 @@ function tryResolve(name: string, primary: ProviderName): LanguageModel {
   throw lastErr ?? new AiUnavailableError('No local model provider available (Ollama/LMStudio).');
 }
 
-export type ProviderName = 'openai' | 'google' | 'ollama' | 'lmstudio' | 'deepseek' | 'qwen';
+export type ProviderName =
+  | 'openai'
+  | 'google'
+  | 'ollama'
+  | 'lmstudio'
+  | 'deepseek'
+  | 'qwen'
+  | 'openrouter'
+  | 'groq'
+  | 'mistral'
+  | 'together'
+  | 'huggingface';
 
 export class OpenAICompatibleGateway implements AiGateway {
   async generateStructured<T>(input: StructuredGenInput): Promise<T> {
