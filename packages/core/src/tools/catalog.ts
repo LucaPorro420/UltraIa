@@ -81,6 +81,7 @@ const CATALOG_META: Record<Capability, { category: ToolCategory; route: string; 
   netwatch: { category: 'nube-infra', route: '/dashboard', related: ['cerebro'], consolidates: [] },
   designcompose: { category: 'diseno-ui', route: '/studio', related: ['design', 'geometry', 'pngrender'], consolidates: [] },
   learnModels: { category: 'aprendizaje', route: '/dashboard', related: ['autolearn', 'semantic_memory'], consolidates: [] },
+  prioritize: { category: 'productividad-equipo', route: '/dashboard', related: ['cerebro', 'autopub', 'growth', 'metrics'], consolidates: [] },
 };
 
 
@@ -148,6 +149,7 @@ export const ES: Partial<Record<Capability, LocalizedTool>> = {
   netwatch: { name: 'NetWatch', description: 'Vigilante de red WiFi: monitorea y reconecta la conexion.', tags: ['red','wifi'] },
   designcompose: { name: 'Design Compose', description: 'Composicion 2D o 3D determinista y sin claves desde matematicas.', tags: ['diseno','composicion'] },
   learnModels: { name: 'Modelos de aprendizaje', description: 'Aprendizaje programado: pensamientos, compresion de memoria y meta-razonamiento.', tags: ['aprendizaje','meta'] },
+  prioritize: { name: 'Priorizador', description: 'Motor de priorizacion estilo Meta-IA: puntua experimentos por impacto, confianza, aprendizaje, urgencia y costo; detecta reglas debiles, cuellos de botella y calcula ROI.', tags: ['priorizacion','meta-ia','experimentos'] },
 };
 
 export const PT: Partial<Record<Capability, LocalizedTool>> = {
@@ -214,6 +216,7 @@ export const PT: Partial<Record<Capability, LocalizedTool>> = {
   netwatch: { name: 'NetWatch', description: 'Vigilante de rede WiFi: monitora e reconecta a conexao.', tags: ['rede','wifi'] },
   designcompose: { name: 'Design Compose', description: 'Composicao 2D ou 3D deterministica e sem chaves a partir de matematica.', tags: ['design','composicao'] },
   learnModels: { name: 'Modelos de aprendizagem', description: 'Aprendizagem programada: pensamentos, compressao de memoria e meta-raciocinio.', tags: ['aprendizagem','meta'] },
+  prioritize: { name: 'Priorizador', description: 'Motor de priorizacao estilo Meta-IA: pontua experimentos por impacto, confianca, aprendizagem, urgencia e custo; detecta regras fracas, gargalos e calcula ROI.', tags: ['priorizacao','meta-ia','experimentos'] },
 };
 export const IT: Partial<Record<Capability, LocalizedTool>> = {
   calculator: { name: 'Calcolatrice', description: 'Valuta un espressione matematica in modo sicuro (solo matematica).', tags: ['matematica','calcolo'] },
@@ -279,6 +282,7 @@ export const IT: Partial<Record<Capability, LocalizedTool>> = {
   netwatch: { name: 'NetWatch', description: 'Sorvegliante di rete WiFi: monitora e riconnette la connessione.', tags: ['rete','wifi'] },
   designcompose: { name: 'Design Compose', description: 'Composizione 2D o 3D deterministica e senza chiavi da matematica.', tags: ['design','composizione'] },
   learnModels: { name: 'Modelli di apprendimento', description: 'Apprendimento programmato: pensieri, compressione della memoria e meta-ragionamento.', tags: ['apprendimento','meta'] },
+  prioritize: { name: 'Prioritizzatore', description: 'Motore di priorita stile Meta-IA: valuta esperimenti per impatto, confidenza, apprendimento, urgenza e costo; rileva regole deboli, colli di bottiglia e calcola il ROI.', tags: ['priorita','meta-ia','esperimenti'] },
 };
 export const DE: Partial<Record<Capability, LocalizedTool>> = {
   calculator: { name: 'Taschenrechner', description: 'Wertet einen mathematischen Ausdruck sicher aus (nur Mathematik).', tags: ['mathematik','berechnung'] },
@@ -344,6 +348,7 @@ export const DE: Partial<Record<Capability, LocalizedTool>> = {
   netwatch: { name: 'NetWatch', description: 'WLAN-Netzwerkwaechter: ueberwacht und verbindet die Verbindung neu.', tags: ['netz','wifi'] },
   designcompose: { name: 'Design Compose', description: 'Deterministische und schluessellose 2D- oder 3D-Komposition aus Mathematik.', tags: ['design','komposition'] },
   learnModels: { name: 'Lernmodelle', description: 'Programmiertes Lernen: Gedanken, Gedaechtniskompression und Meta-Reasoning.', tags: ['lernen','meta'] },
+  prioritize: { name: 'Priorisierer', description: 'Priorisierungs-Engine im Meta-IA-Stil: bewertet Experimente nach Wirkung, Vertrauen, Lernwert, Dringlichkeit und Kosten; erkennt schwache Regeln, Engpaesse und berechnet ROI.', tags: ['priorisierung','meta-ia','experimente'] },
 };
 export const ZH: Partial<Record<Capability, LocalizedTool>> = {
   calculator: { name: '计算器', description: '安全地计算数学表达式（仅数学）。', tags: ['数学','计算'] },
@@ -409,6 +414,7 @@ export const ZH: Partial<Record<Capability, LocalizedTool>> = {
   netwatch: { name: 'NetWatch', description: 'WiFi 网络监视器：监控并重新连接。', tags: ['网络','wifi'] },
   designcompose: { name: 'Design Compose', description: '确定性且无密钥的 2D 或 3D 合成，来自数学。', tags: ['设计','合成'] },
   learnModels: { name: '学习模型', description: '编程式学习：思考、记忆压缩与元推理。', tags: ['学习','元'] },
+  prioritize: { name: '优先排序器', description: 'Meta-IA 风格的优先级引擎：按影响力、置信度、学习价值、紧迫度和成本为实验打分；检测弱规则、瓶颈并计算 ROI。', tags: ['优先级','meta-ia','实验'] },
 };
 export const RU: Partial<Record<Capability, LocalizedTool>> = {
   calculator: { name: 'Калькулятор', description: 'Безопасно вычисляет математическое выражение (только математика).', tags: ['математика','вычисления'] },
@@ -474,6 +480,7 @@ export const RU: Partial<Record<Capability, LocalizedTool>> = {
   netwatch: { name: 'NetWatch', description: 'Сторож сети WiFi: мониторит и переподключает соединение.', tags: ['сеть','wifi'] },
   designcompose: { name: 'Design Compose', description: 'Детерминированная и безключевая 2D- или 3D-композиция из математики.', tags: ['дизайн','композиция'] },
   learnModels: { name: 'Модели обучения', description: 'Программируемое обучение: мысли, сжатие памяти и метарассуждение.', tags: ['обучение','мета'] },
+  prioritize: { name: 'Приоритизатор', description: 'Движок приоритизации в стиле Meta-IA: оценивает эксперименты по влиянию, уверенности, обучению, срочности и стоимости; выявляет слабые правила, узкие места и считает ROI.', tags: ['приоритизация','meta-ia','эксперименты'] },
 };
 
 function titleCase(id: string): string {

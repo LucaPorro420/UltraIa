@@ -20,6 +20,7 @@ import { present } from '../tools/present';
 import { createDefaultPublishers, publishToAll, buildBilingualMetadata } from '../tools/publish';
 import { createHarness, type HarnessRuntime } from '../tools/harness';
 import { analyzeChannel, planExperiments, buildPlaybook } from '../tools/growth';
+import { scoreExperiment, levelFor, prioritizeExperiments, autoPrioritizeCycle, type PriorityExperiment, type Rule, type ModuleBottleneck } from '../tools/prioritize';
 import { planReframe, planUpscale, planLutMatch, planRotoscope, planDrawToEdit, planBroll } from '../tools/vfx';
 import {
   EFFECT_KINDS,
@@ -912,6 +913,40 @@ export function chatStream(opts: {
           if (!canal || !signalsJson) throw new Error('playbook requiere canal + signalsJson');
           const signals = JSON.parse(signalsJson) as Array<{ canal: string; variable: 'titulo' | 'hook' | 'thumbnail' | 'duracion' | 'formato'; variante: 'control' | 'test'; kpi: number }>;
           return { accion, playbook: buildPlaybook(canal, signals) };
+        }
+        return { accion, ok: false, error: 'accion desconocida' };
+      },
+    });
+  }
+  if (opts.tools?.includes('prioritize')) {
+    tools.prioritize_run = tool({
+      description:
+        'Meta-IA prioritization engine (enlaces.txt): score experiments with Priority = Impact x Confidence x LearningValue x Urgency / Cost (clamped 0-1), assign A/B/C/D tiers, and rank a batch by score. Detect weak rules (confidence < threshold) and module bottlenecks, compute expected ROI and knowledge-per-cost, and run the 8-step auto-motor (analyze rules -> detect weak -> detect bottlenecks -> ROI -> knowledge -> sort -> pick best -> library update) deterministically. Use to decide which experiment best improves the ecosystem at the lowest cost.',
+      parameters: z.object({
+        accion: z.enum(['score', 'list', 'cycle']),
+        experimentsJson: z.string().optional(), // [{id, objective, impact, confidence, learningValue, urgency, computeCost, strategicImportance?, relatedRules?, notes?}]
+        rulesJson: z.string().optional(), // para cycle: [{id, description, confidence, impact}]
+        bottlenecksJson: z.string().optional(), // para cycle: [{module, impactGlobal}]
+      }),
+      execute: async ({ accion, experimentsJson, rulesJson, bottlenecksJson }) => {
+        if (!experimentsJson) throw new Error('score/list/cycle requiere experimentsJson');
+        const experiments = JSON.parse(experimentsJson) as PriorityExperiment[];
+        if (accion === 'score') {
+          return {
+            accion,
+            scores: experiments.map((e) => {
+              const s = scoreExperiment(e);
+              return { id: e.id, score: s, level: levelFor(s) };
+            }),
+          };
+        }
+        if (accion === 'list') {
+          return { accion, ranked: prioritizeExperiments(experiments) };
+        }
+        if (accion === 'cycle') {
+          const rules = rulesJson ? (JSON.parse(rulesJson) as Rule[]) : undefined;
+          const bottlenecks = bottlenecksJson ? (JSON.parse(bottlenecksJson) as ModuleBottleneck[]) : undefined;
+          return { accion, cycle: autoPrioritizeCycle({ experiments, rules, bottlenecks }) };
         }
         return { accion, ok: false, error: 'accion desconocida' };
       },

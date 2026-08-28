@@ -131,6 +131,7 @@ import { screenflow } from './screenflow';
 import { cloudTools } from './cloud';
 import { harness } from './harness';
 import { growth } from './growth';
+import { prioritize } from './prioritize';
 import { vfx } from './vfx';
 import { codevfx } from './codevfx';
 import * as recordly from './recordly';
@@ -167,7 +168,7 @@ import { qdrantMemory as qdrantMemoryTools } from './qdrant-memory';
 import { studio as studioTools } from './studio';
 import * as learnModels from './learn-models';
 
-export const tools = { web, image, video, music, stitch, reach, skills: { runSkill }, content, g0dm0d3, topics, present: presentTools, publish, enrutador, mediaScore, metrics, memoryFs: { createMemoryFs }, diagram, videoEdit, screenflow, cloud: cloudTools, harness, growth, vfx, codevfx, travel, generative, libros, sdf, videoqa, motion, replica, imaging, semanticMemory,   autolearn, learnModels, genesis, creativo, vault: vaultTools, pdfsearch: pdfsearchTools, qdrantMemory: qdrantMemoryTools, kgraph, brainpage, autopub, security, codequality, deps, geom, geometry, pngrender, procvid, physics2d, cadgeo, recordly, cerebro, evo: evoDomain, evolution: evolutionDomain, studio: studioTools };
+export const tools = { web, image, video, music, stitch, reach, skills: { runSkill }, content, g0dm0d3, topics, present: presentTools, publish, enrutador, mediaScore, metrics, memoryFs: { createMemoryFs }, diagram, videoEdit, screenflow, cloud: cloudTools, harness, growth, prioritize, vfx, codevfx, travel, generative, libros, sdf, videoqa, motion, replica, imaging, semanticMemory,   autolearn, learnModels, genesis, creativo, vault: vaultTools, pdfsearch: pdfsearchTools, qdrantMemory: qdrantMemoryTools, kgraph, brainpage, autopub, security, codequality, deps, geom, geometry, pngrender, procvid, physics2d, cadgeo, recordly, cerebro, evo: evoDomain, evolution: evolutionDomain, studio: studioTools };
 
 export const TOOL_DESCRIPTIONS: Record<string, string> = {
   calculator: 'Safely evaluate a mathematical expression (math only).',
@@ -209,6 +210,8 @@ export const TOOL_DESCRIPTIONS: Record<string, string> = {
     'Agent harness runtime (DeepSeek Harness pattern, everything-is-a-plugin): boot a plugin tree (tools/observers/schedulers with topological dependency order), run tasks through the tools of active plugins, advance the tick clock to fire scheduled jobs, inspect the runtime (dump) and shut it down (unwinds effects in reverse order, fail-soft). No privileged core Ã¢â‚¬â€ every capability is a plugin. Deterministic, keyless. Use to compose agent runtimes declaratively and orchestrate plugin-driven execution.',
   growth:
     'Channel growth engine (VidRush + Abacus.AI patterns): analyze a channel profile from published samples (pacing, cut cadence, on-screen text density, hook length, thumbnail style), plan A/B experiments on ONE variable at a time (title/hook/thumbnail/duration/format Ã¢â‚¬â€ worst KPI first, max experiments cap), and build a per-channel playbook that compounds wins from engagement signals (victory = test beats control by >=5 KPI points). Deterministic, keyless. Use to model a channel, isolate what moves its metrics, and persist winning recommendations.',
+  prioritize:
+    'Meta-IA prioritization engine (enlaces.txt): score experiments with Priority = Impact x Confidence x LearningValue x Urgency / Cost (clamped 0-1), assign A/B/C/D tiers, and rank a batch by score. Detect weak rules (confidence < threshold) and module bottlenecks, compute expected ROI and knowledge-per-cost, and run the 8-step auto-motor (analyze rules -> detect weak -> detect bottlenecks -> ROI -> knowledge -> sort -> pick best -> library update) deterministically. Use to decide which experiment best improves the ecosystem at the lowest cost.',
   vfx:
     'VFX planning engine (Higgsfield DaVinci Resolve plugin principles): plan AI post-production operations deterministically and keyless Ã¢â‚¬â€ reframe (16:9 -> 9:16 crop windows following action centers with smooth pan + ffmpeg argv), upscale (1080p..8k ladder, lanczos vs generative), AI LUT match (grade presets -> ffmpeg eq args), rotoscope (remove-background plan: keyframes/alpha/cleanup/cost), draw-to-edit (sketch -> video prompt with camera motion) and B-roll request builder (missing beat -> frame shape -> motion -> transition). Execution delegates to ffmpeg/video_edit and generation providers. Use to plan post-production before rendering.',
   codevfx:
@@ -315,6 +318,7 @@ export type Capability =
   | 'cloud'
   | 'harness'
   | 'growth'
+  | 'prioritize'
   | 'vfx'
   | 'codevfx'
   | 'recordly'
