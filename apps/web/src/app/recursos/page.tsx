@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { ExternalLink, Play } from 'lucide-react';
 import { optionalUser } from '@/lib/server/context';
 import { MarketingHeader } from '@/components/marketing-header';
+import { SiteFooter } from '@/components/site-footer';
 import { StatCard } from '@/components/ui/stat-card';
 import { RECURSOS_IA } from '@/data/recursos-ia';
 
@@ -95,6 +96,7 @@ export default async function RecursosPage() {
           ))}
         </div>
       </section>
+      <SiteFooter />
     </main>
   );
 }

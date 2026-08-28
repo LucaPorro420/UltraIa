@@ -4,6 +4,7 @@ import { prisma } from '@ultraia/core';
 import { Badge } from '@/components/ui/badge';
 import { EmptyState } from '@/components/ui/empty-state';
 import { MarketingHeader } from '@/components/marketing-header';
+import { SiteFooter } from '@/components/site-footer';
 
 export const metadata = { title: 'Explore public agents · UltraIa' };
 
@@ -97,6 +98,7 @@ export default async function ExplorePage() {
           </div>
         )}
       </section>
+      <SiteFooter />
     </main>
   );
 }
