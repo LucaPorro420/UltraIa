@@ -21,6 +21,10 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run db:generate
+      # Crea el esquema en la BD efimera de CI antes del build: las rutas prerender
+      # (p.ej. /sitemap.xml) consultan Prisma en build time y fallan si la tabla
+      # no existe. Equivale al `npm run db:migrate` del flujo local documentado.
+      - run: npx prisma db push --schema packages/core/prisma/schema.prisma --accept-data-loss
       - run: npm run typecheck
       - run: npm run lint
       - run: npm run test
