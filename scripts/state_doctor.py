@@ -279,12 +279,20 @@ def check_plan_collision(root: Path, git_fn=run_git) -> list[str]:
             rel = str(p.relative_to(root)).replace("\\", "/")
             if rel not in files:
                 files.append(rel)
-    groups = {}
+    # Group by (task_id, slug). A genuine collision is two plan files that share
+    # BOTH the same task id AND the same slug (i.e. the exact same plan). Tasks
+    # that were merely renumbered and kept distinct slugs are different plans and
+    # must NOT be flagged.
+    groups: dict[tuple[str, str], list[str]] = {}
     for f in files:
-        m = re.match(r".*loop-(\d+)-", Path(f).name)
+        m = re.match(r".*loop-(\d+)-(.+?)\.md$", Path(f).name)
         if m:
-            groups.setdefault(m.group(1), []).append(Path(f).name)
-    return [f"task {tid} tiene {len(v)} plan files ({', '.join(v)})" for tid, v in groups.items() if len(v) >= 2]
+            groups.setdefault((m.group(1), m.group(2)), []).append(Path(f).name)
+    return [
+        f"task {tid} tiene {len(v)} plan files con el MISMO slug ({', '.join(v)})"
+        for (tid, _slug), v in groups.items()
+        if len(v) >= 2
+    ]
 
 
 def run_all(root: Path) -> dict:

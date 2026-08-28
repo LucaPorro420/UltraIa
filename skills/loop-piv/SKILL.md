@@ -184,9 +184,13 @@ Ver `docs/MODOS-OPERACION.md` (mapa central) y la skill `modos-operacion`. Resum
 
 ## Auto-conmutación Plan→Build
 
-- Driver: `python scripts/loop_piv.py [--cycles N] [--gate-only] [--plan-only] [--triage]
+- Driver: `python scripts/loop_piv.py [--cycles N] [--gate-only] [--gate] [--verify PLAN] [--plan-only] [--triage]
   [--no-commit] [--dry-run]` — emite la petición de build automáticamente al terminar P
   (`opencode run --agent piv-build "<plan>"`) pasando la RUTA del plan file.
+  `--gate` corre el gate runner determinista (`scripts/loop_gate.py`): mata dev servers antes
+  del build y ejecuta typecheck→lint→test→build; idóneo para la fase V de forma aislada.
+  `--verify <plan.md>` corre el verifier determinista (`scripts/loop_verifier.py`): valida
+  secciones obligatorias del plan + existencia de archivos planificados y responde APPROVE/REJECT.
 - En-sesión: conmutar de plan a build sin esperar confirmación (autorización permanente del
   usuario 15/08/2026). Los gates humanos aplican SOLO a push/merge.
 
@@ -196,3 +200,41 @@ Ver `docs/MODOS-OPERACION.md` (mapa central) y la skill `modos-operacion`. Resum
 - Máx 3 fix attempts por ítem. Un fix por run (no refactorizar código no relacionado).
 - Si el estado es confuso → leer STATE.md y run-log ANTES de actuar; nunca inventar estado.
 - El driver puede fallar → registrar el fallo en run-log y escalar; nunca loop infinito silencioso.
+
+## Definition of Done (DoD) del harness PIVR
+
+El harness se considera completo cuando:
+
+- **C1 — Doctor determinista**: `scripts/state_doctor.py` implementa los 13 checks como
+  funciones puras y es ejecutable en CI sin `opencode` (verificado por
+  `scripts/state_doctor.test.py`, 27 tests). El driver `scripts/loop_piv.py --doctor`
+  lo invoca como pre-flight *advisory* (no aborta el ciclo salvo `--doctor` aislado,
+  que usa `as_gate=True` y devuelve el exit code real).
+- **C2 — Triage determinista**: `scripts/loop_triage.py` corre `state_doctor` como paso 0
+  y escribe un bloque idempotente `<!-- TRIAGE:AUTO:START -->…<!-- TRIAGE:AUTO:END -->`
+  en STATE.md (no destructivo); verificado por `scripts/loop_triage.test.py`, 7 tests.
+- **C3 — Espejos de skills en sync**: `scripts/sync_skill_mirrors.py` materializa
+  `.opencode/skills/<n>/SKILL.md` → `skills/<n>/SKILL.md` SOLO para los ESPEJOS (skills
+  con contraparte en ambos lados), omitiendo los *source-only*; verificado por
+  `scripts/sync_skill_mirrors.test.py`, 5 tests. Los skills siguen siendo wrappers
+  in-session; los scripts Python son la fuente canónica de ejecución.
+
+Verificación global: `npm run harness:test` corre los 5 harness tests (doctor, triage,
+loop_piv_doctor, loop_piv_mark_done, sync) y debe quedar en verde. En CI, `state_doctor`
+es el pre-flight obligatorio (espejos, encoding, lock, kill switch, root crítico a 0 bytes).
+
+### Drivers canónicos (scripts Python, no `opencode`)
+
+Para que el harness corra en CI sin un agente, los tres subsistemas tienen script Python
+determinista como fuente de verdad:
+
+| Subsistema | Script canónico | Skill in-session (wrapper) |
+|---|---|---|
+| Doctor (integridad) | `scripts/state_doctor.py` | `state-integrity-check` |
+| Triage (priorización) | `scripts/loop_triage.py` | `loop-triage` |
+| Driver PIVR | `scripts/loop_piv.py` | `loop-piv` |
+| Sync espejos | `scripts/sync_skill_mirrors.py` | (mantenimiento) |
+
+El driver `scripts/loop_piv.py` invoca `state_doctor.py` y `loop_triage.py` vía
+`subprocess` (advisory en ciclos, gate en `--doctor` aislado), NO via `opencode run
+--agent`. Esto garantiza reproducibilidad y evita dependencias del runtime del agente.
