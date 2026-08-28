@@ -3,11 +3,13 @@ import { redirect } from 'next/navigation';
 import { Sparkles } from 'lucide-react';
 import { RegisterForm } from './register-form';
 import { getCurrentUser } from '@/lib/server/context';
+import { SiteFooter } from '@/components/site-footer';
 
 export default async function RegisterPage() {
   if (await getCurrentUser()) redirect('/dashboard');
   return (
-    <main className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 py-12">
+    <>
+      <main className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 py-12">
       <div aria-hidden className="aurora-bg pointer-events-none absolute inset-0" />
       <div
         aria-hidden
@@ -50,5 +52,7 @@ export default async function RegisterPage() {
         </p>
       </div>
     </main>
+      <SiteFooter />
+    </>
   );
 }

@@ -1,0 +1,137 @@
+'use client';
+
+import { useLayoutEffect, useRef } from 'react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { DrawSVGPlugin } from 'gsap/DrawSVGPlugin';
+import { TECH_RADAR, type TechRadarItem } from '@/data/tech-radar';
+
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger, DrawSVGPlugin);
+}
+
+// * Diagrama de nodos: cada tecnologia es una caja; las lineas son sus dependencias.
+// * Layout deterministico: una columna por categoria, cajas apiladas dentro de la columna.
+const COL_W = 230;
+const ROW_H = 74;
+const NODE_W = 180;
+const NODE_H = 50;
+const TOP = 30;
+
+type Pos = { x: number; y: number; cx: number; cy: number };
+
+export function RoadmapDiagram() {
+  const root = useRef<HTMLDivElement>(null);
+  const byCat = new Map<string, TechRadarItem[]>();
+  for (const t of TECH_RADAR) {
+    const arr = byCat.get(t.category) ?? [];
+    arr.push(t);
+    byCat.set(t.category, arr);
+  }
+  const cats = Array.from(byCat.entries());
+
+  const pos = new Map<string, Pos>();
+  let maxRows = 0;
+  cats.forEach(([cat, items], ci) => {
+    items.forEach((it, ri) => {
+      const x = ci * COL_W;
+      const y = TOP + ri * ROW_H;
+      pos.set(it.name, { x, y, cx: x + NODE_W / 2, cy: y + NODE_H / 2 });
+    });
+    maxRows = Math.max(maxRows, items.length);
+  });
+
+  const width = cats.length * COL_W;
+  const height = TOP + maxRows * ROW_H + NODE_H;
+
+  const lines: { x1: number; y1: number; x2: number; y2: number; key: string }[] = [];
+  for (const t of TECH_RADAR) {
+    const a = pos.get(t.name);
+    if (!a) continue;
+    for (const c of t.connections) {
+      const b = pos.get(c);
+      if (b) lines.push({ x1: a.cx, y1: a.cy, x2: b.cx, y2: b.cy, key: `${t.name}>${c}` });
+    }
+  }
+
+  useLayoutEffect(() => {
+    const ctx = gsap.context(() => {
+      gsap.matchMedia().add('(prefers-reduced-motion: no-preference)', () => {
+        const tl = gsap.timeline({
+          scrollTrigger: { trigger: root.current, start: 'top 80%', once: true },
+          defaults: { ease: 'power3.out' },
+        });
+        tl.fromTo(
+          '.rm-line',
+          { opacity: 0, drawSVG: 0 },
+          { opacity: 0.45, drawSVG: '100%', duration: 0.9, stagger: 0.04, ease: 'none' }
+        ).fromTo(
+          '.rm-node',
+          { opacity: 0, y: 14 },
+          { opacity: 1, y: 0, duration: 0.6, stagger: 0.07 },
+          '-=0.5'
+        );
+      });
+    }, root);
+    return () => ctx.revert();
+  }, []);
+
+  return (
+    <div ref={root} className="glass-panel overflow-auto rounded-xl p-2">
+      <svg width={width} height={height} className="min-w-full">
+        {lines.map((l) => (
+          <line
+            key={l.key}
+            x1={l.x1}
+            y1={l.y1}
+            x2={l.x2}
+            y2={l.y2}
+            stroke="#8b5cf6"
+            strokeWidth={1.5}
+            opacity={0}
+            className="rm-line"
+          />
+        ))}
+        {cats.map(([cat, items], ci) => (
+          <g key={cat}>
+            <text x={ci * COL_W + NODE_W / 2} y={16} textAnchor="middle" className="fill-neutral-400 font-mono text-[10px] uppercase tracking-widest">
+              {cat}
+            </text>
+            {items.map((it) => {
+              const p = pos.get(it.name)!;
+              return (
+                <g key={it.name} className="rm-node">
+                  <rect
+                    x={p.x}
+                    y={p.y}
+                    width={NODE_W}
+                    height={NODE_H}
+                    rx={8}
+                    className="fill-neutral-900 stroke-violet-500/60"
+                    strokeWidth={1.25}
+                  />
+                  <text
+                    x={p.x + NODE_W / 2}
+                    y={p.y + 20}
+                    textAnchor="middle"
+                    className="fill-white text-[11px]"
+                  >
+                    {it.name.length > 22 ? it.name.slice(0, 21) + '…' : it.name}
+                  </text>
+                  <text
+                    x={p.x + NODE_W / 2}
+                    y={p.y + 38}
+                    textAnchor="middle"
+                    className="fill-neutral-500 text-[9px]"
+                  >
+                    imp {it.importance}/5
+                  </text>
+                </g>
+              );
+            })}
+          </g>
+        ))}
+      </svg>
+    </div>
+  );
+}
