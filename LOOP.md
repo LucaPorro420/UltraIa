@@ -62,7 +62,9 @@ Python determinista como fuente de verdad (los skills de agente son wrappers in-
   `as_gate=True` solo en `--doctor` aislado). NO usa `opencode run --agent` para doctor/triage.
 - `loop_gate.py` es el corredor determinista de los 4 gates CI (typecheck→lint→test→build) con
   kill de dev servers antes del build (`--kill`); el driver lo invoca con `--gate`. Reutilizable
-  en CI (`py -3.12 scripts/loop_gate.py --kill --json`).
+  en CI (`py -3.12 scripts/loop_gate.py --kill --json`). Además corre un **meta-gate `harness`**
+  (`npm run harness:test`, 7 suites del driver PIVR) justo antes del build, para detectar
+  regresiones del harness sin esperar el build de ~5 min. Total: 5 checks en `npm run gate`.
 - `loop_verifier.py` materializa el skill `loop-verifier` en código determinista: lee un plan file,
   valida secciones obligatorias y existencia de los archivos planificados, y responde
   APPROVE/REJECT (exit 0/1). El driver lo invoca con `--verify <plan.md>`; `--check-diff` exige

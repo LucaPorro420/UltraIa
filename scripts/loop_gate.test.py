@@ -26,9 +26,9 @@ class GateRunnerTests(unittest.TestCase):
             return 0, "ok"
 
         report = lg.run_gates(run=fake_run)
-        self.assertEqual(calls, ["typecheck", "lint", "test", "build"])
+        self.assertEqual(calls, ["typecheck", "lint", "test", "harness:test", "build"])
         self.assertTrue(report["passed"])
-        self.assertEqual(len(report["results"]), 4)
+        self.assertEqual(len(report["results"]), 5)
 
     def test_short_circuit_on_failure(self) -> None:
         calls: list[str] = []
@@ -78,7 +78,7 @@ class GateRunnerTests(unittest.TestCase):
             return (0, "ok") if argv[2] != "lint" else (1, "lint failed")
 
         report = lg.run_gates(continue_on_failure=True, run=fake_run)
-        self.assertEqual(calls, ["typecheck", "lint", "test", "build"])
+        self.assertEqual(calls, ["typecheck", "lint", "test", "harness:test", "build"])
         self.assertFalse(report["passed"])
 
     def test_report_shape_on_success(self) -> None:

@@ -31,11 +31,15 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 
-# Orden canónico de CI (ver AGENTS.md "Health Stack").
+# Orden canónico de CI (ver AGENTS.md "Health Stack") + meta-gate de harness.
+# `harness:test` corre `npm run harness:test` (7 suites Python del driver PIVR) justo
+# antes del build: si el harness regresa, fallamos rápido sin el build de ~5 min.
+# El `name` debe coincidir con el script npm (el runner invoca `npm run <name>`).
 GATES = (
     ("typecheck", "npm run typecheck"),
     ("lint", "npm run lint"),
     ("test", "npm run test"),
+    ("harness:test", "npm run harness:test"),
     ("build", "npm run build"),
 )
 
