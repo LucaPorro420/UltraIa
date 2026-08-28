@@ -293,6 +293,10 @@ export const TOOL_DESCRIPTIONS: Record<string, string> = {
     'Modelos de aprendizaje programado (deterministas, keyless): integran "pensamientos" (observation/hypothesis/error/resolution/learning), comprimen la memoria al superar capacidad (colapsan duplicados por kind+tag, conservan los de mayor importancia) y derivan modelos avanzados de meta-razonamiento que calculan diferencias entre conjuntos de pensamientos (contrastThoughts) y resuelven errores (resolveErrors → estrategia + confianza por solapamiento de tags; spawnAdvancedModel consolida contrastes y resoluciones). Determinista, keyless. Usa para que el agente aprenda, comprima y razone sobre sus propios pensamientos.',
   goal:
     'Meta-agente autonomo (/goal): dado un objetivo + lista de tareas, ejecuta cada tarea encadenando contexto (memoria) y despachando a las capabilities reales del proyecto (creadores de contenido, viajes/video, planificador/orquestador, investigacion, memoria/vault, topicos, diagramas, publicacion, mensajeria, media-score). El modelo decide por tarea si responder o invocar una herramienta via JSON {"tool","args"}; soporta encadenado (investigar -> crear -> publicar). Usa para ejecutar peticiones complejas de principio a fin sin intervencion.',
+  orchestrator:
+    'Orquestador de modelos (failover automatico): cambia de modelo y modo sin que fallen las respuestas. Recomienda el modelo gratis adecuado por tarea/modo (keyless-first: OpenRouter :free, luego Google/DeepSeek/Qwen/Groq/Mistral/Together/HuggingFace si hay clave), resuelve el LanguageModel construible (route) con degradacion elegante, lista los proveedores disponibles segun claves de entorno, y construye el system prompt con modo (P-P/P-B/L-T/S-D) + estrategia (concise/agentic/reasoning/creative). Usa para no depender de un solo proveedor y para que el agente elija el tier correcto por trabajo.',
+  chat_memory:
+    'Memoria de chat persistente + grafo (graphity): preserva la consistencia al cambiar de modelo o modo. Crea sesiones, append turnos (user/assistant/system), reconstruye un bloque de contexto compacto (context) inyectable en cualquier modelo, deriva un grafo de entidades (graph) y persiste/reanuda en disco (save/load). Deterministico y keyless. Usa para que el contexto y la intencion del usuario no se pierdan cuando el orquestador cambia de proveedor o de modo operativo.',
 };
 
 export type Capability =
@@ -359,7 +363,9 @@ export type Capability =
   | 'netwatch'
   | 'designcompose'
   | 'learnModels'
-  | 'goal';
+  | 'goal'
+  | 'orchestrator'
+  | 'chat_memory';
 
 export * from './emailCode';
 export * from './smtp';

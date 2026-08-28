@@ -154,6 +154,9 @@ import {
 } from '../tools/screenflow';
 import { cloudFilesTool, createCloudFilesHandler, LocalCloudAdapter, R2CloudAdapter, type CloudStorageAdapter } from '../tools/cloud';
 import { join } from 'node:path';
+import { ModelOrchestrator } from './orchestrator';
+import { ChatSessionMemory } from './chat-memory';
+import { FREE_MODEL_CATALOG } from './model-catalog';
 
 const modelCache = new Map<string, LanguageModel>();
 
@@ -489,6 +492,22 @@ function resolveCloudAdapter(): CloudStorageAdapter {
   return new LocalCloudAdapter(
     process.env.ULTRAIA_CLOUD_DIR ?? join(process.cwd(), '..', '..', '.ultraia', 'cloud'),
   );
+}
+
+// Cache de sesiones de chat en memoria (mismo proceso) para que append/context operen sobre
+// la misma sesion sin requerir save/load entre cada llamada. save() persiste a disco.
+const chatSessionCache = new Map<string, ChatSessionMemory>();
+
+function getChatSession(sessionId?: string, rootDir?: string): ChatSessionMemory {
+  if (sessionId && chatSessionCache.has(sessionId)) return chatSessionCache.get(sessionId)!;
+  if (sessionId) {
+    const m = ChatSessionMemory.load(sessionId, { rootDir });
+    chatSessionCache.set(sessionId, m);
+    return m;
+  }
+  const m = new ChatSessionMemory({ rootDir });
+  chatSessionCache.set(m.sessionId, m);
+  return m;
 }
 
 export function chatStream(opts: {
@@ -3183,6 +3202,100 @@ export function chatStream(opts: {
       description: cloudFilesTool.description,
       parameters: cloudFilesTool.inputSchema,
       execute: createCloudFilesHandler(resolveCloudAdapter()),
+    });
+  }
+
+  if (opts.tools?.includes('orchestrator')) {
+    tools.orchestrator_route = tool({
+      description:
+        'Orquestador de modelos: cambia de modelo y modo automaticamente con failover. Acciones: ' +
+        'recommend (que modelo usaria para tarea/modo), route (resuelve el LanguageModel construible), ' +
+        'providers (proveedores con clave disponible), context (system prompt con modo+estrategia), ' +
+        'catalog (modelos gratis disponibles). Keyless-first: prioriza los :free de OpenRouter.',
+      parameters: z.object({
+        action: z.enum(['recommend', 'route', 'providers', 'context', 'catalog']),
+        taskType: z.enum(['chat', 'coding', 'reasoning', 'vision', 'fast', 'agent', 'summarize', 'translate']).optional(),
+        mode: z.enum(['P-P', 'P-B', 'L-T', 'S-D']).optional(),
+        strategy: z.enum(['concise', 'agentic', 'reasoning', 'creative']).optional(),
+        tier: z.enum(['fast', 'balanced', 'reasoning', 'coding', 'vision']).optional(),
+        preferredProvider: z.string().optional(),
+        model: z.string().optional(),
+      }),
+      execute: async ({ action, taskType, mode, strategy, tier, preferredProvider, model }) => {
+        const orch = new ModelOrchestrator();
+        const req: any = { taskType, mode, strategy, tier, preferredProvider, model };
+        switch (action) {
+          case 'recommend': {
+            const r = orch.recommend(req);
+            return { provider: r.provider, model: r.model, tier: r.tier };
+          }
+          case 'route': {
+            try {
+              await orch.route(req);
+              return { ok: true, provider: req.provider ?? 'auto', model: req.model ?? 'auto' };
+            } catch (e) {
+              return { ok: false, error: (e as Error).message };
+            }
+          }
+          case 'providers':
+            return { available: orch.availableProviders() };
+          case 'context':
+            return { system: orch.buildSystemContext(req, '') };
+          case 'catalog':
+            return {
+              models: FREE_MODEL_CATALOG.map((m) => ({ id: m.id, provider: m.provider, tier: m.tier, keyless: m.keyless })),
+            };
+          default:
+            return { error: 'accion desconocida' };
+        }
+      },
+    });
+  }
+
+  if (opts.tools?.includes('chat_memory')) {
+    tools.chat_memory_session = tool({
+      description:
+        'Memoria de chat persistente + grafo (graphity). Acciones: create (nueva sesion), append ' +
+        '(agrega turno user/assistant/system), context (bloque de contexto para inyectar al cambiar ' +
+        'de modelo/modo, preserva consistencia), graph (grafo de entidades), save (persiste en disco), ' +
+        'load (reanuda sesion desde disco). Deterministico y keyless.',
+      parameters: z.object({
+        action: z.enum(['create', 'append', 'context', 'graph', 'save', 'load']),
+        sessionId: z.string().optional(),
+        role: z.enum(['user', 'assistant', 'system']).optional(),
+        content: z.string().optional(),
+        maxRecent: z.number().int().optional(),
+        rootDir: z.string().optional(),
+      }),
+      execute: async ({ action, sessionId, role, content, maxRecent, rootDir }) => {
+        if (!sessionId && action !== 'create') return { error: 'sessionId requerido para esta accion' };
+        try {
+          const mem = getChatSession(sessionId, rootDir);
+          switch (action) {
+            case 'create':
+              return { sessionId: mem.sessionId };
+            case 'append':
+              if (!role || content === undefined) return { error: 'role y content requeridos' };
+              mem.addTurn(role, content);
+              return { ok: true, turns: mem.getTurns().length, sessionId: mem.sessionId };
+            case 'context':
+              return { ...mem.getContextBlock({ maxRecent }), sessionId: mem.sessionId };
+            case 'graph': {
+              const g = mem.buildGraph();
+              return { sessionId: mem.sessionId, nodes: g.nodes.length, edges: g.edges.length, graph: g };
+            }
+            case 'save':
+              mem.save();
+              return { ok: true, sessionId: mem.sessionId };
+            case 'load':
+              return { ok: true, sessionId: mem.sessionId, turns: mem.getTurns().length };
+            default:
+              return { error: 'accion desconocida' };
+          }
+        } catch (e) {
+          return { error: (e as Error).message };
+        }
+      },
     });
   }
 

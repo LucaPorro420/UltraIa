@@ -82,6 +82,8 @@ const CATALOG_META: Record<Capability, { category: ToolCategory; route: string; 
   designcompose: { category: 'diseno-ui', route: '/studio', related: ['design', 'geometry', 'pngrender'], consolidates: [] },
   learnModels: { category: 'aprendizaje', route: '/dashboard', related: ['autolearn', 'semantic_memory'], consolidates: [] },
   prioritize: { category: 'productividad-equipo', route: '/dashboard', related: ['cerebro', 'autopub', 'growth', 'metrics'], consolidates: [] },
+  orchestrator: { category: 'ia-ml', route: '/dashboard', related: ['chat_memory', 'goal', 'cerebro'], consolidates: [] },
+  chat_memory: { category: 'datos-backend', route: '/dashboard', related: ['memory', 'semantic_memory', 'qdrant_memory', 'brainpage', 'orchestrator'], consolidates: [] },
 };
 
 
@@ -150,6 +152,8 @@ export const ES: Partial<Record<Capability, LocalizedTool>> = {
   designcompose: { name: 'Design Compose', description: 'Composicion 2D o 3D determinista y sin claves desde matematicas.', tags: ['diseno','composicion'] },
   learnModels: { name: 'Modelos de aprendizaje', description: 'Aprendizaje programado: pensamientos, compresion de memoria y meta-razonamiento.', tags: ['aprendizaje','meta'] },
   prioritize: { name: 'Priorizador', description: 'Motor de priorizacion estilo Meta-IA: puntua experimentos por impacto, confianza, aprendizaje, urgencia y costo; detecta reglas debiles, cuellos de botella y calcula ROI.', tags: ['priorizacion','meta-ia','experimentos'] },
+  orchestrator: { name: 'Orquestador de modelos', description: 'Cambia de modelo y modo con failover automatico: recomienda el modelo gratis adecuado por tarea/modo, resuelve el LanguageModel construible y lista proveedores disponibles.', tags: ['orquestador','modelos','failover'] },
+  chat_memory: { name: 'Memoria de chat (graphity)', description: 'Memoria de chat persistente + grafo que preserva la consistencia al cambiar de modelo o modo: crea sesiones, append turnos y reconstruye contexto inyectable.', tags: ['memoria','grafo','contexto'] },
 };
 
 export const PT: Partial<Record<Capability, LocalizedTool>> = {
@@ -217,6 +221,8 @@ export const PT: Partial<Record<Capability, LocalizedTool>> = {
   designcompose: { name: 'Design Compose', description: 'Composicao 2D ou 3D deterministica e sem chaves a partir de matematica.', tags: ['design','composicao'] },
   learnModels: { name: 'Modelos de aprendizagem', description: 'Aprendizagem programada: pensamentos, compressao de memoria e meta-raciocinio.', tags: ['aprendizagem','meta'] },
   prioritize: { name: 'Priorizador', description: 'Motor de priorizacao estilo Meta-IA: pontua experimentos por impacto, confianca, aprendizagem, urgencia e custo; detecta regras fracas, gargalos e calcula ROI.', tags: ['priorizacao','meta-ia','experimentos'] },
+  orchestrator: { name: 'Orquestrador de modelos', description: 'Troca de modelo e modo com failover automatico: recomenda o modelo gratis adequado por tarefa/modo, resolve o LanguageModel construivel e lista provedores disponiveis.', tags: ['orquestrador','modelos','failover'] },
+  chat_memory: { name: 'Memoria de chat (graphity)', description: 'Memoria de chat persistente + grafo que preserva a consistencia ao trocar de modelo ou modo: cria sessoes, anexa turnos e reconstrói contexto injetavel.', tags: ['memoria','grafo','contexto'] },
 };
 export const IT: Partial<Record<Capability, LocalizedTool>> = {
   calculator: { name: 'Calcolatrice', description: 'Valuta un espressione matematica in modo sicuro (solo matematica).', tags: ['matematica','calcolo'] },
@@ -283,6 +289,8 @@ export const IT: Partial<Record<Capability, LocalizedTool>> = {
   designcompose: { name: 'Design Compose', description: 'Composizione 2D o 3D deterministica e senza chiavi da matematica.', tags: ['design','composizione'] },
   learnModels: { name: 'Modelli di apprendimento', description: 'Apprendimento programmato: pensieri, compressione della memoria e meta-ragionamento.', tags: ['apprendimento','meta'] },
   prioritize: { name: 'Prioritizzatore', description: 'Motore di priorita stile Meta-IA: valuta esperimenti per impatto, confidenza, apprendimento, urgenza e costo; rileva regole deboli, colli di bottiglia e calcola il ROI.', tags: ['priorita','meta-ia','esperimenti'] },
+  orchestrator: { name: 'Orchestratore di modelli', description: 'Cambia modello e modalita con failover automatico: raccomanda il modello gratuito adatto per task/modalita, risolve il LanguageModel costruibile ed elenca i provider disponibili.', tags: ['orchestratore','modelli','failover'] },
+  chat_memory: { name: 'Memoria chat (graphity)', description: 'Memoria chat persistente + grafo che preserva la coerenza al cambio di modello o modalita: crea sessioni, aggiunge turni e ricostruisce il contesto iniettabile.', tags: ['memoria','grafo','contesto'] },
 };
 export const DE: Partial<Record<Capability, LocalizedTool>> = {
   calculator: { name: 'Taschenrechner', description: 'Wertet einen mathematischen Ausdruck sicher aus (nur Mathematik).', tags: ['mathematik','berechnung'] },
@@ -349,6 +357,8 @@ export const DE: Partial<Record<Capability, LocalizedTool>> = {
   designcompose: { name: 'Design Compose', description: 'Deterministische und schluessellose 2D- oder 3D-Komposition aus Mathematik.', tags: ['design','komposition'] },
   learnModels: { name: 'Lernmodelle', description: 'Programmiertes Lernen: Gedanken, Gedaechtniskompression und Meta-Reasoning.', tags: ['lernen','meta'] },
   prioritize: { name: 'Priorisierer', description: 'Priorisierungs-Engine im Meta-IA-Stil: bewertet Experimente nach Wirkung, Vertrauen, Lernwert, Dringlichkeit und Kosten; erkennt schwache Regeln, Engpaesse und berechnet ROI.', tags: ['priorisierung','meta-ia','experimente'] },
+  orchestrator: { name: 'Modell-Orchestrator', description: 'Wechselt Modell und Modus mit automatischem Failover: empfiehlt das passende kostenlose Modell nach Task/Modus, loest das konstruierbare LanguageModel auf und listet verfuegbare Provider.', tags: ['orchestrator','modelle','failover'] },
+  chat_memory: { name: 'Chat-Gedaechtnis (graphity)', description: 'Persistentes Chat-Gedaechtnis + Graph, das die Konsistenz beim Modell- oder Moduswechsel bewahrt: erstellt Sessions, haengt Turns an und rekonstruiert injizierbaren Kontext.', tags: ['gedaechtnis','graph','kontext'] },
 };
 export const ZH: Partial<Record<Capability, LocalizedTool>> = {
   calculator: { name: '计算器', description: '安全地计算数学表达式（仅数学）。', tags: ['数学','计算'] },
@@ -415,6 +425,8 @@ export const ZH: Partial<Record<Capability, LocalizedTool>> = {
   designcompose: { name: 'Design Compose', description: '确定性且无密钥的 2D 或 3D 合成，来自数学。', tags: ['设计','合成'] },
   learnModels: { name: '学习模型', description: '编程式学习：思考、记忆压缩与元推理。', tags: ['学习','元'] },
   prioritize: { name: '优先排序器', description: 'Meta-IA 风格的优先级引擎：按影响力、置信度、学习价值、紧迫度和成本为实验打分；检测弱规则、瓶颈并计算 ROI。', tags: ['优先级','meta-ia','实验'] },
+  orchestrator: { name: '模型编排器', description: '以自动故障转移切换模型与模式：按任务/模式推荐合适的免费模型，解析可构建的 LanguageModel 并列出可用提供商。', tags: ['编排器','模型','故障转移'] },
+  chat_memory: { name: '聊天记忆（graphity）', description: '持久化聊天记忆 + 图谱，在切换模型或模式时保持一致性：创建会话、追加轮次并重建可注入的上下文。', tags: ['记忆','图谱','上下文'] },
 };
 export const RU: Partial<Record<Capability, LocalizedTool>> = {
   calculator: { name: 'Калькулятор', description: 'Безопасно вычисляет математическое выражение (только математика).', tags: ['математика','вычисления'] },
@@ -481,6 +493,8 @@ export const RU: Partial<Record<Capability, LocalizedTool>> = {
   designcompose: { name: 'Design Compose', description: 'Детерминированная и безключевая 2D- или 3D-композиция из математики.', tags: ['дизайн','композиция'] },
   learnModels: { name: 'Модели обучения', description: 'Программируемое обучение: мысли, сжатие памяти и метарассуждение.', tags: ['обучение','мета'] },
   prioritize: { name: 'Приоритизатор', description: 'Движок приоритизации в стиле Meta-IA: оценивает эксперименты по влиянию, уверенности, обучению, срочности и стоимости; выявляет слабые правила, узкие места и считает ROI.', tags: ['приоритизация','meta-ia','эксперименты'] },
+  orchestrator: { name: 'Оркестратор моделей', description: 'Переключает модель и режим с автоматическим отказоустойчивым переключением: рекомендует подходящую бесплатную модель по задаче/режиму, разрешает конструируемый LanguageModel и перечисляет доступных провайдеров.', tags: ['оркестратор','модели','failover'] },
+  chat_memory: { name: 'Память чата (graphity)', description: 'Постоянная память чата + граф, сохраняющая согласованность при смене модели или режима: создаёт сессии, добавляет ходы и восстанавливает инъецируемый контекст.', tags: ['память','граф','контекст'] },
 };
 
 function titleCase(id: string): string {
