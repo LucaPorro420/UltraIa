@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { optionalUser } from '@/lib/server/context';
 import { LandingHero } from '@/components/landing/landing-hero';
 import { LandingFeatures } from '@/components/landing/landing-features';
+import { LandingDashboard } from '@/components/landing/landing-dashboard';
 import { LandingEcosystem } from '@/components/landing/landing-ecosystem';
 import { LandingPillars } from '@/components/landing/landing-pillars';
 import { LandingCta } from '@/components/landing/landing-cta';
@@ -26,6 +27,7 @@ export default async function LandingPage() {
       <main>
         <LandingHero user={user} />
         <LandingFeatures />
+        <LandingDashboard />
         <LandingEcosystem />
         <LandingPillars />
         <LandingCta user={user} />
