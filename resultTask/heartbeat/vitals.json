@@ -1,16 +1,16 @@
 {
-  "fecha": "2026-08-27",
+  "fecha": "2026-08-28",
   "entorno": "github-actions",
   "vitals": {
-    "puntuacion": 40,
+    "puntuacion": 48,
     "estado": "ROJO",
     "signos": [
       {
         "nombre": "gates",
-        "valor": 0.5,
+        "valor": 0.75,
         "peso": 0.35,
         "ok": false,
-        "nota": "2/4 verdes (ROJO: test, build)"
+        "nota": "3/4 verdes (ROJO: build)"
       },
       {
         "nombre": "tests",
@@ -21,10 +21,10 @@
       },
       {
         "nombre": "backlog",
-        "valor": 0.98,
+        "valor": 0.97,
         "peso": 0.15,
         "ok": false,
-        "nota": "110/112 accionables cerradas, 2 pendientes, 1 bloqueadas"
+        "nota": "133/137 accionables cerradas, 4 pendientes, 2 bloqueadas"
       },
       {
         "nombre": "gaps",
@@ -45,13 +45,13 @@
         "valor": 1,
         "peso": 0.05,
         "ok": true,
-        "nota": "139 commits + 15 lecciones"
+        "nota": "195 commits + 10 lecciones"
       }
     ],
     "razones": [
-      "gates: 2/4 verdes (ROJO: test, build)",
+      "gates: 3/4 verdes (ROJO: build)",
       "tests: 0/0 tests",
-      "backlog: 110/112 accionables cerradas, 2 pendientes, 1 bloqueadas",
+      "backlog: 133/137 accionables cerradas, 4 pendientes, 2 bloqueadas",
       "gaps: 16 gaps abiertos"
     ]
   },
@@ -115,28 +115,28 @@
       "fuentes": 8
     },
     "backlog": {
-      "total": 113,
-      "done": 110,
-      "bloqueadas": 1,
-      "pendientes": 2
+      "total": 139,
+      "done": 133,
+      "bloqueadas": 2,
+      "pendientes": 4
     },
     "actividad": {
-      "commits": 139,
-      "lecciones": 15
+      "commits": 195,
+      "lecciones": 10
     },
     "gates": {
       "typecheck": true,
       "lint": true,
-      "test": false,
+      "test": true,
       "build": false
     }
   },
   "regresiones": [],
   "accion": {
     "modo": "reparar",
-    "objetivo": "gates en rojo: test, build",
+    "objetivo": "gates en rojo: build",
     "razon": "el organismo se esta degradando: reparar antes que avanzar (regla: no commitear con gates rojos)",
     "prioridad": "P0",
-    "comando": "npm run test"
+    "comando": "npm run build"
   }
 }
