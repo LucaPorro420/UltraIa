@@ -2962,3 +2962,11 @@ de código, sin commit.
 ```json
 {"pattern":"pivr","iter":["134","141","142"],"gates":{"typecheck":0,"lint":0,"build":"ENV-OOM-RED"},"commits":[],"note":"134/141 DONE ya implementado; 142 bloqueado WIP llm.ts; backlog 120-142 cerrado"}
 ```
+
+## [P] iter-CI build gate (28/08) - Sensado: local build ROJO por OOM; usuario eligio "Build en CI/otra maq". Prediccion: empujar a origin/master dispara ci.yml y revela fallos reales.
+- **[I]** Push `e24cd1a..994bf5f` -> CI run 33128299470 FALLO en `npm run test` (`launcher.test.ts` llama WebView2 nativo; ubuntu no tiene -> exit 1). Fix: `describe.skipIf(process.platform!==win32 || CI)` en `packages/runtime/src/launcher.test.ts` (commit e7de25c). Re-push -> run 33128583667 FALLO en `npm run build` (`/sitemap.xml` prerender: tabla `AgentBlueprint` inexistente; CI solo corria `db:generate`, no creaba esquema). Fix: anadir `npx prisma db push --accept-data-loss` en `.github/workflows/ci.yml` (commit 26b1b35).
+- **[V]** Re-push -> run 33128935592 GREEN: db:generate ✓, db push ✓, typecheck ✓, lint ✓, test ✓, build ✓. Build gate desbloqueado.
+- **[R]** Build gate AHORA GREEN en CI (no es defecto de codigo, sino ENV local OOM + CI faltaba schema). Backlog 120-142 cerrado salvo loop-142 (WIP ajeno llm.ts). NO push adicional (ya estaban en origin/master).
+```json
+{"pattern":"pivr","iter":["ci-build"],"gates":{"typecheck":0,"lint":0,"test":0,"build":0,"env":"CI-ubuntu GREEN"},"commits":["e7de25c","26b1b35"],"note":"build gate GREEN en CI; backlog 120-142 cerrado"}
+```
