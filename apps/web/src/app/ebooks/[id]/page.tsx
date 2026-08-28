@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { ArrowLeft, ArrowRight, BookOpen, Layers, Play } from 'lucide-react';
 import { optionalUser } from '@/lib/server/context';
 import { MarketingHeader } from '@/components/marketing-header';
+import { SiteFooter } from '@/components/site-footer';
 import { getEbook, EBOOKS, formatPrice } from '@/data/ebooks';
 import { LibraryButton } from '@/components/ebooks/library-button';
 
@@ -128,6 +129,8 @@ export default async function EbookDetailPage({
           </aside>
         </div>
       </section>
+
+      <SiteFooter />
     </main>
   );
 }

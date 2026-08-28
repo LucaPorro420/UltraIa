@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { optionalUser } from '@/lib/server/context';
 import { MarketingHeader } from '@/components/marketing-header';
+import { SiteFooter } from '@/components/site-footer';
 import { EBOOKS, formatPrice } from '@/data/ebooks';
 
 export const metadata: Metadata = {
@@ -84,6 +85,8 @@ export default async function EbooksPage() {
           ))}
         </div>
       </section>
+
+      <SiteFooter />
     </main>
   );
 }

@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { optionalUser } from '@/lib/server/context';
 import { MarketingHeader } from '@/components/marketing-header';
+import { SiteFooter } from '@/components/site-footer';
 import { PlaygroundCanvas } from '@/components/ebooks/playground-canvas';
 
 export const metadata: Metadata = {
@@ -63,6 +64,8 @@ export default async function PlaygroundPage() {
           </aside>
         </div>
       </section>
+
+      <SiteFooter />
     </main>
   );
 }

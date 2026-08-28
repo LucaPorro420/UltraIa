@@ -4,6 +4,7 @@ import { prisma } from '@ultraia/core';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { MarketingHeader } from '@/components/marketing-header';
+import { SiteFooter } from '@/components/site-footer';
 import { PublicAgentChat } from '@/components/public-agent-chat';
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
@@ -86,6 +87,8 @@ export default async function PublicAgentPage({ params }: { params: Promise<{ id
         <PublicAgentChat agentId={id} />
       </Card>
     </main>
+
+    <SiteFooter />
     </>
   );
 }

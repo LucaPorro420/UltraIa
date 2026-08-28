@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { BookOpen, ArrowLeft } from 'lucide-react';
 import { MarketingHeader } from '@/components/marketing-header';
+import { SiteFooter } from '@/components/site-footer';
 import { useEbookLibrary } from '@/components/ebooks/library';
 import { EBOOKS, formatPrice } from '@/data/ebooks';
 
@@ -69,6 +70,8 @@ export default function LibraryPage() {
           </div>
         )}
       </section>
+
+      <SiteFooter />
     </main>
   );
 }
