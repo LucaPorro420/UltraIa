@@ -1,184 +1,135 @@
 'use client';
 
-import { useEffect, useLayoutEffect, useRef } from 'react';
 import Link from 'next/link';
-import dynamic from 'next/dynamic';
 import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useRef } from 'react';
+import { useIsomorphicLayoutEffect } from './use-isomorphic-layout-effect';
 
-const AuroraCanvas = dynamic(() => import('@/components/aurora/aurora-canvas').then((m) => m.AuroraCanvas), {
-  ssr: false,
-  loading: () => <div className="h-full w-full bg-canvas" />,
-});
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger);
+}
 
-const TERMINAL_LINES = [
-  { prefix: '$', text: 'ultraia design "summarize support tickets"', color: 'text-neutral-300' },
-  { prefix: '›', text: 'agent-architect: drafting blueprint…', color: 'text-violet-300' },
-  { prefix: '›', text: 'system prompt … 1,240 tokens', color: 'text-violet-300' },
-  { prefix: '›', text: 'tools: [ticket-reader, safe-calc]', color: 'text-cyan-300' },
-  { prefix: '›', text: 'rubric: accuracy .4 · clarity .3 · tone .3', color: 'text-amber-300' },
-  { prefix: '✓', text: 'regression evals: 4/4 PASS', color: 'text-emerald-300' },
-];
+type LandingHeroProps = {
+  user?: { name?: string | null; email: string } | null;
+};
 
-export function LandingHero({ user }: { user: { name?: string | null; email: string } | null }) {
-  const root = useRef<HTMLElement>(null);
+export function LandingHero({ user }: LandingHeroProps) {
+  const root = useRef<HTMLDivElement>(null);
 
-  useLayoutEffect(() => {
-    const ctx = gsap.context(() => {
-      gsap.matchMedia().add('(prefers-reduced-motion: reduce)', () => {
-        gsap.set('.hero-anim', { clearProps: 'all' });
-      });
-      gsap.matchMedia().add('(prefers-reduced-motion: no-preference)', () => {
-        const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
-        tl.fromTo(
-          '.hero-badge',
-          { opacity: 0, y: 16 },
-          { opacity: 1, y: 0, duration: 0.6 }
-        )
-          .fromTo(
-            '.hero-title',
-            { opacity: 0, y: 28 },
-            { opacity: 1, y: 0, duration: 0.8 },
-            '-=0.3'
-          )
-          .fromTo(
-            '.hero-sub',
-            { opacity: 0, y: 20 },
-            { opacity: 1, y: 0, duration: 0.6 },
-            '-=0.45'
-          )
-          .fromTo(
-            '.hero-cta',
-            { opacity: 0, y: 16 },
-            { opacity: 1, y: 0, duration: 0.5, stagger: 0.08 },
-            '-=0.35'
-          )
-          .fromTo(
-            '.hero-mock',
-            { opacity: 0, y: 48, scale: 0.97 },
-            { opacity: 1, y: 0, scale: 1, duration: 0.9 },
-            '-=0.3'
-          );
-
-        // Terminal typing: reveal lines sequentially, then blink the status dot
-        const lines = gsap.utils.toArray<HTMLElement>('.term-line');
-        const typeTl = gsap.timeline({ delay: 0.5, repeat: -1, repeatDelay: 2.5 });
-        lines.forEach((line, i) => {
-          typeTl
-            .fromTo(
-              line,
-              { opacity: 0 },
-              { opacity: 1, duration: 0.1, ease: 'none' },
-              i * 0.55
-            )
-            .to(line, { opacity: 0.25, duration: 0.4, ease: 'none' }, i * 0.55 + 0.35);
-        });
-      });
-    }, root);
-    return () => ctx.revert();
-  }, []);
-
-  useEffect(() => {
+  useIsomorphicLayoutEffect(() => {
+    const el = root.current;
+    if (!el) return;
+    let ctx: gsap.Context | undefined;
     const mm = gsap.matchMedia();
-    return () => mm.revert();
+    mm.add('(prefers-reduced-motion: no-preference)', () => {
+      ctx = gsap.context(() => {
+        gsap.from('.hero-anim', {
+          opacity: 0,
+          y: 24,
+          duration: 0.6,
+          ease: 'power2.out',
+          stagger: 0.07,
+          clearProps: 'opacity,transform',
+        });
+        // Terminal mock: keep typing caret alive without layout thrash
+        gsap.to('.terminal-line-caret', {
+          opacity: 0,
+          duration: 0.6,
+          repeat: -1,
+          yoyo: true,
+          ease: 'power1.inOut',
+        });
+      }, el);
+    });
+    return () => {
+      ctx?.revert();
+      mm.revert();
+    };
   }, []);
 
   return (
-    <section ref={root} className="relative overflow-hidden">
-      {/* WebGL aurora (live shader) behind the content */}
-      <div className="pointer-events-none absolute inset-0">
-        <AuroraCanvas className="h-full w-full" />
+    <section
+      ref={root}
+      className="relative overflow-hidden border-b border-border-subtle bg-canvas py-20 sm:py-28"
+    >
+      <div className="pointer-events-none absolute inset-0 -z-10 opacity-60 [mask-image:radial-gradient(ellipse_at_top,black,transparent_70%)]">
+        <div className="absolute left-1/2 top-[-10%] h-[380px] w-[680px] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(139,92,246,0.18),transparent_60%)] blur-3xl" />
+        <div className="grid-dots absolute inset-0" />
       </div>
-      {/* IDE grid-dot backdrop, masked to the top area */}
-      <div
-        aria-hidden
-        className="grid-dots pointer-events-none absolute inset-x-0 top-0 h-[560px] [mask-image:radial-gradient(ellipse_70%_60%_at_50%_0%,black_35%,transparent_75%)] opacity-40"
-      />
-      {/* Soft radial vignette to seat text on the canvas */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_30%,transparent_0%,transparent_55%,rgba(8,8,10,0.7)_100%)]"
-      />
 
-      <div className="relative mx-auto max-w-5xl px-6 pb-24 pt-20 text-center sm:pt-28">
-        <span className="hero-anim hero-badge inline-flex items-center gap-2 rounded-full border border-border-muted bg-panel px-3 py-1 font-mono text-[11px] uppercase tracking-wider text-neutral-400">
-          <span className="relative flex h-1.5 w-1.5">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-            <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400" />
-          </span>
-          v1.0 · eval-gated improvements · human approval
-        </span>
-
-        <h1 className="hero-anim hero-title mx-auto mt-8 max-w-3xl font-display text-5xl font-bold leading-[1.05] tracking-tight sm:text-6xl">
-          AI that{' '}
-          <span className="gradient-neo-text">
-            creates AI
-          </span>{' '}
-          — and learns from every conversation.
-        </h1>
-
-        <p className="hero-anim hero-sub mx-auto mt-6 max-w-2xl font-display text-lg text-neutral-400">
-          Describe a task in plain language. UltraIa designs a purpose-built AI agent with its own
-          system prompt, tools and evaluation rubric. Real feedback drives automatic improvements —
-          always gated by evaluation, always approved by you.
-        </p>
-
-        <div className="hero-anim hero-cta mt-10 flex flex-wrap items-center justify-center gap-4">
-          <Link
-            href={user ? '/agents/new' : '/register'}
-            className="rounded-xl bg-primary px-8 py-3 font-semibold text-white shadow-[0_0_24px_-8px_var(--color-primary)] transition-all duration-200 ease-out hover:bg-primary/85 hover:shadow-[0_0_32px_-6px_var(--color-primary)]"
-          >
-            Create your first agent
-          </Link>
-          <Link
-            href="#how-it-works"
-            className="rounded-xl border border-border-muted bg-panel px-8 py-3 font-medium text-neutral-200 transition-colors duration-200 hover:border-border-active hover:text-white"
-          >
-            See it work
-          </Link>
+      <div className="mx-auto max-w-5xl px-6 text-center">
+        <div className="hero-anim mb-4 inline-flex items-center gap-2 rounded-full border border-border-subtle bg-panel/60 px-3 py-1 text-xs text-neutral-300">
+          <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+          Agentes de IA que se construyen solos
         </div>
 
-        {/* Agent console mockup (AgentTileWindow pattern, DESIGN.md §7) */}
-        <div className="hero-anim hero-mock mx-auto mt-16 max-w-2xl text-left">
-          <div className="gradient-neo-frame rounded-2xl p-px shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] transition-shadow duration-300 hover:shadow-[0_0_28px_-10px_var(--color-neo-400)]">
-            <div className="overflow-hidden rounded-[15px] bg-panel/80 backdrop-blur-md">
-            <div className="flex items-center justify-between border-b border-border-subtle bg-panel-header px-4 py-2.5">
-              <div className="flex items-center gap-2.5">
-                <span className="relative flex h-2 w-2">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
-                </span>
-                <span className="font-mono text-xs font-semibold text-neutral-200">
-                  agent-architect
-                </span>
-                <span className="hidden rounded border border-violet-500/30 bg-violet-500/10 px-1.5 py-0.5 font-mono text-[10px] uppercase text-violet-400 sm:inline-block">
-                  design
-                </span>
-              </div>
-              <span className="rounded border border-emerald-500/30 bg-emerald-500/10 px-1.5 py-0.5 font-mono text-[10px] font-bold uppercase text-emerald-300">
-                live
+        <h1 className="hero-anim font-display text-4xl font-bold leading-[1.05] tracking-tight text-white sm:text-5xl md:text-6xl">
+          Describe tu idea.{' '}
+          <span className="gradient-neo-text">UltraIa la convierte</span> en un equipo de agentes.
+        </h1>
+
+        <p className="hero-anim mx-auto mt-5 max-w-2xl text-base text-neutral-400 sm:text-lg">
+          Diseña, ejecuta y publica agentes autónomos con herramientas, memoria y bucles de
+          mejora. Sin infraestructura. Sin costo para empezar.
+        </p>
+
+        <div className="hero-anim mt-8 flex flex-wrap justify-center gap-3">
+          {user ? (
+            <>
+              <Link
+                href="/dashboard"
+                className="rounded-md bg-primary px-5 py-2.5 text-sm font-medium text-white shadow-[0_0_24px_-8px_var(--color-primary)] transition-all duration-200 hover:bg-primary/85 hover:shadow-[0_0_34px_-6px_var(--color-primary)]"
+              >
+                Abrir dashboard
+              </Link>
+              <Link
+                href="/agents/new"
+                className="rounded-md border border-border-subtle bg-panel px-5 py-2.5 text-sm font-medium text-neutral-200 transition-colors duration-200 hover:border-neutral-600 hover:text-white"
+              >
+                Crear agente
+              </Link>
+            </>
+          ) : (
+            <>
+              <Link
+                href="/register"
+                className="rounded-md bg-primary px-5 py-2.5 text-sm font-medium text-white shadow-[0_0_24px_-8px_var(--color-primary)] transition-all duration-200 hover:bg-primary/85 hover:shadow-[0_0_34px_-6px_var(--color-primary)]"
+              >
+                Crear tu primer agente
+              </Link>
+              <Link
+                href="#how-it-works"
+                className="rounded-md border border-border-subtle bg-panel px-5 py-2.5 text-sm font-medium text-neutral-200 transition-colors duration-200 hover:border-neutral-600 hover:text-white"
+              >
+                Ver cómo funciona
+              </Link>
+            </>
+          )}
+        </div>
+
+        {/* Terminal mock */}
+        <div className="hero-anim mx-auto mt-12 max-w-2xl text-left">
+          <div className="overflow-hidden rounded-xl border border-border-subtle bg-panel/80 shadow-[0_0_50px_-25px_var(--color-neo-400)]">
+            <div className="flex items-center gap-2 border-b border-border-subtle px-4 py-2.5">
+              <span className="h-2.5 w-2.5 rounded-full bg-red-400/80" />
+              <span className="h-2.5 w-2.5 rounded-full bg-yellow-400/80" />
+              <span className="h-2.5 w-2.5 rounded-full bg-green-400/80" />
+              <span className="ml-2 font-mono text-xs text-neutral-500">
+                ultraia ~ agent-forge
               </span>
             </div>
-            <div className="space-y-1.5 bg-input-active p-4 font-mono text-xs leading-relaxed">
-              {TERMINAL_LINES.map((l) => (
-                <p key={l.text} className="term-line opacity-0">
-                  <span className="mr-2 select-none text-neutral-600">{l.prefix}</span>
-                  <span className={l.color}>{l.text}</span>
-                </p>
-              ))}
-              <p className="flex items-center gap-1.5 pt-1 text-neutral-500">
-                <span className="stream-caret" />
-                waiting for feedback…
-              </p>
-            </div>
-            <div className="flex items-center gap-2 border-t border-border-subtle bg-input-active px-3 py-2">
-              <span className="font-mono text-[11px] text-neutral-600">prompt &gt;</span>
-              <input
-                readOnly
-                value="improve the rubric based on yesterday's bad ratings"
-                className="w-full bg-transparent font-mono text-xs text-neutral-300 focus:outline-none"
-              />
-            </div>
-</div>
+            <pre className="overflow-x-auto px-4 py-4 font-mono text-[13px] leading-relaxed text-neutral-300">
+              <span className="text-neutral-500">$ </span>
+              <span className="text-primary">ultraia</span> create agent --goal &quot;resume
+              youtube trend and draft a short script&quot;
+{'              '}
+<span className="terminal-line-caret stream-caret" />
+{'\n'}
+<span className="text-green-400">✓</span> plan: 4 tools + memory + rubric
+{'              '}
+<span className="text-green-400">✓</span> agents forged · ready to run
+            </pre>
           </div>
         </div>
       </div>
