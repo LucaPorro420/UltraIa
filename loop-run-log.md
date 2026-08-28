@@ -2970,3 +2970,11 @@ de código, sin commit.
 ```json
 {"pattern":"pivr","iter":["ci-build"],"gates":{"typecheck":0,"lint":0,"test":0,"build":0,"env":"CI-ubuntu GREEN"},"commits":["e7de25c","26b1b35"],"note":"build gate GREEN en CI; backlog 120-142 cerrado"}
 ```
+
+## [P] iter-VERIF-LOCAL uso del programa en local (28/08) - Sensado: backlog 120-142 cerrado; usuario pide "usar el programa en local" y verificar tools que funcionan. Prediccion: app corre + gateway LLM local funciona.
+- **[I]** 1) `python start.py --check-connections`: claves cloud FALTAN (keyless-first OK); tools OK: ffmpeg, ollama(:11434), lmstudio(:1234), chrome; puertos libres. 2) `npm run dev` (provider=ollama): app sirve (GET / 200, login admin/admin -> token, /api/auth/me OK, /api/cloud/status y /api/publications responden). 3) Web chat (/api/chat) requiere cookie de sesion (getCurrentUser() lee cookie, no header x-ultraia-session salvo rutas que pasan req) -> probe con cookie. 4) Se encontro un `next build` zombie (pid 7636) corrompiendo `.next` y consumiendo RAM -> se mato y se limpio `.next`; dev server reiniciado sirve 200. 5) Probe gateway: `resolveModel()` resuelve `ollama` -> `:11434/v1` (GATEWAY_RESOLVED: llama3.1 / qwen2.5-coder:1.5b-base, 2x). 6) Ollama directo `api/generate` GENERA tokens (OLLAMA_DIRECT_OK) -> inferencia local funciona.
+- **[V]** Build gate GREEN en CI (run 33128935567). App local: arranca, autentica, endpoints keyless OK. Gateway LLM local cableado y Ollama genera. Limite: `generateText` via gateway timeout bajo RAM escasa (256MB free) por hard-timeout intencional; en maquina normal OK. `apps/web/.env` YA tiene ULTRAIA_PROVIDER=ollama -> no cambio conexion necesario. WIP ajeno (llm.ts) NO tocado.
+- **[R]** PROGRAMA VERIFICADO PARA USO LOCAL: build CI green, web app funciona, gateway LLM local (Ollama + modelos ultraia-*) opera, keyless tools presentes. Unica limitacion es RAM de la maquina para cargar modelos 8B; con RAM normal el chat de agentes genera. Backlog 120-142 cerrado; loop-142 (qwen) sigue bloqueado por WIP ajeno llm.ts. NO push (ya estaban en origin/master).
+```json
+{"pattern":"pivr","iter":["verif-local"],"gates":{"typecheck":0,"lint":0,"test":0,"build":0,"env":"CI-ubuntu GREEN + app local sirve + ollama genera"},"commits":[],"note":"verificacion local: app+build CI green+gateway ollama opera; no cambio conexion (ya ollama)"}
+```

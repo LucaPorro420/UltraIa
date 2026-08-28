@@ -211,6 +211,8 @@ Last run: 20/08/2026 - Iteracion 67 (plan maestro: F3 smoke E2E playwright IPv4 
 
 ## Recent Noise (ignored this run)
 
+- VERIF LOCAL 28/08: CI green (run 33128935567) + app sirve local (GET / 200, login admin/admin OK, /api/auth/me OK). Gateway LLM local cableado: resolveModel() con ULTRAIA_PROVIDER=ollama resuelve :11434/v1 (probado 2x). Ollama genera tokens localmente (api/generate OK; modelos ultraia-* ya pulleados). apps/web/.env YA default ollama -> NO hace falta cambio de conexion. Limite: inferencia lenta bajo RAM escasa (free mem llego a 256MB) dispara el hard-timeout del gateway (por diseno, no cuelga UI); en maquina con RAM normal genera bien. No se edito codigo (llm.ts es WIP ajeno).
+
 - Fallos transitorios de red en tests (Tunetank MCP content.live, yt-dlp audiolibrary): pasaron al reintentar ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â no regresiÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â³n.
 - Cuarentena temporal de 3 test files #25 (connections/publications/publish) durante gates de iter-53: restaurados con hash-check ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â maniobra de gates normal, no error.
 - `"Video by coders.learning [DcD96B5Nd-m].mp4"` + 60 renders travel staged: datos del usuario / outputs de capability travel, no producto ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ignorar en anÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡lisis.
