@@ -26,6 +26,7 @@
     "doctor": "python scripts/state_doctor.py",
     "triage": "python scripts/loop_triage.py",
     "gate": "py -3.12 scripts/loop_gate.py",
+    "editor:qa": "node scripts/editor-qa-sweep.mjs",
     "test:cov": "npm run test:cov -w @ultraia/core && npm run test:cov -w @ultraia/runtime",
     "test:ci": "npm run test:ci -w @ultraia/core && npm run test:ci -w @ultraia/runtime",
     "test:clean": "node scripts/clean-vitest-cache.js",
