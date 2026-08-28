@@ -35,7 +35,7 @@ import {
   type PixelFn,
   encodeGif,
 } from './pngrender';
-import { simplexNoise2D } from './generative';
+import { simplexNoise2D, fbm2D } from './generative';
 import { superShapeRadius, type SuperShapeParams } from './geometry';
 
 /** Error de dominio procvid. */
@@ -51,6 +51,7 @@ export const PROCVID_ANIMATIONS = [
   'waves',
   'orbits',
   'noise-flow',
+  'fbm-flow',
   'fractal-zoom',
   'shape-morph',
   // v2 (iter-103): tunnel/metaballs/kaleido/starfield — mismas garantías
@@ -137,6 +138,7 @@ const DEFAULT_PALETTE: Record<ProcVidAnimation, string> = {
   waves: 'ice',
   orbits: 'neoViolet',
   'noise-flow': 'obsidian',
+  'fbm-flow': 'neoViolet',
   'fractal-zoom': 'fire',
   'shape-morph': 'neoViolet',
   // v2 (iter-103): paletas default de las animaciones nuevas.
@@ -292,6 +294,31 @@ export function framePixelFn(spec: NormalizedProcVidSpec, t: number): PixelFn {
         const sy = y * scale + t * flowSpeed;
         const n1 = simplexNoise2D(sx, sy, seed);
         const n2 = simplexNoise2D(sx * 2 + 7.31, sy * 2 + t * flowSpeed * 1.4, seed + 91);
+        const v = clamp01(0.5 + 0.35 * n1 + warp * n2);
+        return samplePalette(palette, v);
+      };
+    }
+
+    case 'fbm-flow': {
+      // Igual estructura de flujo que noise-flow pero con fBm (suma de octavas
+      // de value noise) en lugar de Simplex -> textura fractal más rica.
+      const scale = num(params, 'scale', 3.5);
+      const flowSpeed = num(params, 'flowSpeed', 2.5);
+      const warp = num(params, 'warp', 0.35);
+      const octaves = Math.max(1, Math.min(8, Math.floor(num(params, 'octaves', 5))));
+      const persistence = num(params, 'persistence', 0.55);
+      const lacunarity = num(params, 'lacunarity', 2);
+      return (px, py) => {
+        const [x, y] = toPlane(px, py);
+        const sx = x * scale;
+        const sy = y * scale + t * flowSpeed;
+        const n1 = fbm2D(sx, sy, { seed, octaves, persistence, lacunarity });
+        const n2 = fbm2D(sx * 2 + 7.31, sy * 2 + t * flowSpeed * 1.4, {
+          seed: seed + 91,
+          octaves,
+          persistence,
+          lacunarity,
+        });
         const v = clamp01(0.5 + 0.35 * n1 + warp * n2);
         return samplePalette(palette, v);
       };

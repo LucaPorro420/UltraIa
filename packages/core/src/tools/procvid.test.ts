@@ -170,6 +170,16 @@ describe('procvid — animaciones puras', () => {
     const v2 = framePixelFn(s2, 0.5)(12, 12);
     expect(Array.from(v1)).not.toEqual(Array.from(v2));
   });
+
+  it('fbm-flow es determinista y distinto de noise-flow', () => {
+    const sFbm = resolveSpec({ animation: 'fbm-flow', width: 24, height: 24, fps: 5, durationSec: 1, seed: 1 });
+    const a = framePixelFn(sFbm, 0.5)(12, 12);
+    const b = framePixelFn(sFbm, 0.5)(12, 12);
+    expect(Array.from(a)).toEqual(Array.from(b));
+    const sNoise = resolveSpec({ animation: 'noise-flow', width: 24, height: 24, fps: 5, durationSec: 1, seed: 1 });
+    const vNoise = framePixelFn(sNoise, 0.5)(12, 12);
+    expect(Array.from(a)).not.toEqual(Array.from(vNoise));
+  });
 });
 
 describe('procvid — render de frames', () => {
@@ -237,10 +247,10 @@ describe('procvid — manifest determinista', () => {
 /* ------------------------------------------------------------------ */
 
 describe('procvid v2 — animaciones nuevas', () => {
-  const NUEVAS = ['tunnel', 'metaballs', 'kaleido', 'starfield'] as const;
+  const NUEVAS = ['tunnel', 'metaballs', 'kaleido', 'starfield', 'fbm-flow'] as const;
 
-  it('catálogo: 10 animaciones con las 4 nuevas', () => {
-    expect(PROCVID_ANIMATIONS).toHaveLength(10);
+  it('catálogo: 11 animaciones con las 5 nuevas', () => {
+    expect(PROCVID_ANIMATIONS).toHaveLength(11);
     for (const a of NUEVAS) expect(PROCVID_ANIMATIONS).toContain(a);
   });
 
