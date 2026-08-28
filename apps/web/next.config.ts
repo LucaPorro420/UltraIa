@@ -4,7 +4,14 @@ const nextConfig: NextConfig = {
   output: 'standalone', // empaquetable sin node_modules completos (prototipo descargable)
   transpilePackages: ['@ultraia/core'],
   serverExternalPackages: ['@prisma/client', '@google/stitch-sdk'],
+  // Low-RAM build: typecheck/lint ya corren como gates separados, así que no se repiten
+  // aquí (ahorra memoria y tiempo). El build sigue validando la compilación.
+  productionSourceMaps: false,
+  eslint: { ignoreDuringBuilds: true },
+  typescript: { ignoreBuildErrors: true },
+  experimental: { cpus: 1 }, // un solo worker de generación estática = menos RAM
   webpack: (config, { isServer }) => {
+    config.cache = false; // desactiva caché de webpack para reducir el uso de RAM
     if (!isServer) {
       const serverOnlyBuiltins = [
         'child_process',
