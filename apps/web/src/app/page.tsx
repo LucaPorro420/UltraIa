@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import { optionalUser } from '@/lib/server/context';
 import { MarketingHeader } from '@/components/marketing-header';
 import { LandingHero } from '@/components/landing/landing-hero';
@@ -6,6 +7,9 @@ import { LandingFeatures } from '@/components/landing/landing-features';
 
 export default async function LandingPage() {
   const user = await optionalUser();
+  // Un usuario ya autenticado que vuelve a la raíz entra directo al app:
+  // evita la sensación de "quedarse trabado en la landing".
+  if (user) redirect('/dashboard');
   return (
     <main className="min-h-screen bg-canvas">
       <MarketingHeader user={user} />
