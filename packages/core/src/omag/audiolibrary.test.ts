@@ -1,10 +1,16 @@
-import { spawnSync } from 'node:child_process';
+import { execFileSync } from 'node:child_process';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { AudioLibrary } from './audiolibrary';
 
+// Use the same probe the production code uses (execFile) so the test's
+// ffmpeg detection agrees with extractAudioFromVideo on every platform.
 function hasCommand(cmd: string): boolean {
-  const res = spawnSync(cmd, ['-version'], { stdio: 'ignore', timeout: 5000 });
-  return res.error == null;
+  try {
+    execFileSync(cmd, ['-version'], { stdio: 'ignore', timeout: 5000 });
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 afterEach(() => {
