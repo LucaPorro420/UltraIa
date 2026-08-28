@@ -29,7 +29,7 @@
     "test:cov": "npm run test:cov -w @ultraia/core && npm run test:cov -w @ultraia/runtime",
     "test:ci": "npm run test:ci -w @ultraia/core && npm run test:ci -w @ultraia/runtime",
     "test:clean": "node scripts/clean-vitest-cache.js",
-    "harness:test": "py -3.12 scripts/loop_piv_doctor.test.py && py -3.12 scripts/loop_piv_mark_done.test.py && py -3.12 scripts/state_doctor.test.py && py -3.12 scripts/loop_triage.test.py && py -3.12 scripts/sync_skill_mirrors.test.py && py -3.12 scripts/loop_gate.test.py"
+    "harness:test": "py -3.12 scripts/loop_piv_doctor.test.py && py -3.12 scripts/loop_piv_mark_done.test.py && py -3.12 scripts/state_doctor.test.py && py -3.12 scripts/loop_triage.test.py && py -3.12 scripts/sync_skill_mirrors.test.py && py -3.12 scripts/loop_gate.test.py && py -3.12 scripts/loop_verifier.test.py"
   },
   "devDependencies": {
     "prisma": "^6.7.0",

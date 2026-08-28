@@ -140,7 +140,8 @@ Verdad verificada 9/9 PASS en `learning/truth/truth_tecno_recursos.json` (fuente
 - lint: npm run lint (next lint)
 - test: npm run test (vitest run, core)
 - build: npm run build (production build)
-- gate: npm run gate (loop_gate.py — 4 gates CI; `py -3.12 scripts/loop_gate.py --kill` mata dev servers antes de build)
+  - gate: npm run gate (loop_gate.py — 4 gates CI; `py -3.12 scripts/loop_gate.py --kill` mata dev servers antes de build)
+  - verify: `py -3.12 scripts/loop_verifier.py <plan.md>` (loop-verifier determinista: APPROVE/REJECT por estructura de plan + archivos planificados; `loop_piv.py --verify <plan>` lo invoca)
 - start: python start.py (setup + web + webhooks en un comando)
 
 ## Diseño & motion (13/08/2026)

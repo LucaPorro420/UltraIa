@@ -56,13 +56,18 @@ Python determinista como fuente de verdad (los skills de agente son wrappers in-
 | Driver PIVR | `scripts/loop_piv.py` | `scripts/loop_piv_doctor.test.py` (11), `scripts/loop_piv_mark_done.test.py` (4) | `loop-piv` |
 | Sync espejos de skills | `scripts/sync_skill_mirrors.py` | `scripts/sync_skill_mirrors.test.py` (5) | (mantenimiento) |
 | Gate runner (fase V) | `scripts/loop_gate.py` | `scripts/loop_gate.test.py` (6) | (driver `--gate`) |
+| Verifier determinista (fase V) | `scripts/loop_verifier.py` | `scripts/loop_verifier.test.py` (6) | (driver `--verify <plan>`) |
 
 - El driver invoca `state_doctor.py` y `loop_triage.py` vía `subprocess` (advisory en ciclos;
   `as_gate=True` solo en `--doctor` aislado). NO usa `opencode run --agent` para doctor/triage.
 - `loop_gate.py` es el corredor determinista de los 4 gates CI (typecheck→lint→test→build) con
   kill de dev servers antes del build (`--kill`); el driver lo invoca con `--gate`. Reutilizable
   en CI (`py -3.12 scripts/loop_gate.py --kill --json`).
-- Verificación global: `npm run harness:test` corre los 6 harness tests y debe quedar en verde.
+- `loop_verifier.py` materializa el skill `loop-verifier` en código determinista: lee un plan file,
+  valida secciones obligatorias y existencia de los archivos planificados, y responde
+  APPROVE/REJECT (exit 0/1). El driver lo invoca con `--verify <plan.md>`; `--check-diff` exige
+  que el diff toque al menos un archivo planificado. No edita archivos (CI-friendly).
+- Verificación global: `npm run harness:test` corre los 7 harness tests y debe quedar en verde.
 - Check-9 (espejos): `sync_skill_mirrors.py` sincroniza solo los ESPEJOS (skills con contraparte en
   ambos lados), omitiendo los *source-only*; `state_doctor.py` compara SHA-1 de los espejos reales.
 

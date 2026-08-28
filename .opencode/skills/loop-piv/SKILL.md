@@ -184,11 +184,13 @@ Ver `docs/MODOS-OPERACION.md` (mapa central) y la skill `modos-operacion`. Resum
 
 ## Auto-conmutación Plan→Build
 
-- Driver: `python scripts/loop_piv.py [--cycles N] [--gate-only] [--gate] [--plan-only] [--triage]
+- Driver: `python scripts/loop_piv.py [--cycles N] [--gate-only] [--gate] [--verify PLAN] [--plan-only] [--triage]
   [--no-commit] [--dry-run]` — emite la petición de build automáticamente al terminar P
   (`opencode run --agent piv-build "<plan>"`) pasando la RUTA del plan file.
   `--gate` corre el gate runner determinista (`scripts/loop_gate.py`): mata dev servers antes
   del build y ejecuta typecheck→lint→test→build; idóneo para la fase V de forma aislada.
+  `--verify <plan.md>` corre el verifier determinista (`scripts/loop_verifier.py`): valida
+  secciones obligatorias del plan + existencia de archivos planificados y responde APPROVE/REJECT.
 - En-sesión: conmutar de plan a build sin esperar confirmación (autorización permanente del
   usuario 15/08/2026). Los gates humanos aplican SOLO a push/merge.
 

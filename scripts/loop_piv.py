@@ -484,6 +484,8 @@ def run_singletons(args: argparse.Namespace) -> int | None:
         run_doctor(args.dry_run, args.timeout, as_gate=False)
     if args.triage:
         return run_triage(args.dry_run, args.timeout)
+    if getattr(args, "verify", None):
+        return run_verify(args)
     if getattr(args, "gate", False):
         # Gate runner determinista (loop_gate.py): kill de dev servers + 4 gates.
         return run_gate(args)
@@ -514,6 +516,25 @@ def run_gate(args: argparse.Namespace) -> int:
         print(f"[gate] {r['name']}: {status} ({r['duration_s']:.1f}s)")
     print("[gate] FULL:", "GREEN" if report["passed"] else "RED")
     return 0 if report["passed"] else 1
+
+
+def run_verify(args: argparse.Namespace) -> int:
+    """Verifica un plan file con loop_verifier y termina (accion --verify)."""
+    plan_arg = getattr(args, "verify", None)
+    if not plan_arg:
+        print("[verify] falta la ruta del plan (--verify <plan.md>)")
+        return 2
+    sys.path.insert(0, str(SCRIPTS))
+    import loop_verifier  # noqa: E402  (import diferido)
+    plan = Path(plan_arg)
+    if not plan.is_absolute():
+        plan = ROOT / plan
+    report = loop_verifier.verify(plan, ROOT, check_diff=False)
+    verdict = "APPROVE" if report["approved"] else "REJECT"
+    print(f"[verify] {verdict}: {plan}")
+    for r in report["reasons"]:
+        print(f"  - {r}")
+    return 0 if report["approved"] else 1
 
 
 def run_v_gates(args: argparse.Namespace) -> bool:
@@ -635,6 +656,10 @@ def parse_args() -> argparse.Namespace:
     )
     ap.add_argument("--retries", type=int, default=1, help="reintentos de ciclo en fallo (default 1)")
     ap.add_argument("--resume", action="store_true", help="reanuda desde last-run.json pendiente")
+    ap.add_argument(
+        "--verify", metavar="PLAN", default=None,
+        help="verifica un plan file con loop_verifier (APPROVE/REJECT) y termina",
+    )
     ap.add_argument("--json", action="store_true", help="imprime resumen JSON (last-run) al final")
     return ap.parse_args()
 
