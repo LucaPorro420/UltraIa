@@ -40,7 +40,13 @@ function runLauncher(timeoutMs: number): Promise<{ code: number | null; stdout: 
   });
 }
 
-describe('desktop launcher spike (Fase D paso 2b)', () => {
+// El launcher arranca UltraRuntime + Local API + proxy UI y, en el paso 3, requiere
+// el runtime Evergreen de WebView2 (nativo de Windows). En CI (ubuntu) o en cualquier
+// plataforma que no sea win32 no puede ejecutarse, asi que se salta. Sigue corriendo
+// en la maquina de desarrollo Windows (donde hay WebView2) para validar el spike Fase D.
+const DESKTOP_LAUNCHER_RUNNABLE = process.platform === 'win32' && !process.env.CI;
+
+describe.skipIf(!DESKTOP_LAUNCHER_RUNNABLE)('desktop launcher spike (Fase D paso 2b)', () => {
   it('--check arranca runtime + Local API + proxy, reporta core sano y sale 0', async () => {
     const { code, stdout, stderr } = await runLauncher(240_000);
     const lines = stdout.split('\n').filter((l) => l.includes('[launcher]'));
