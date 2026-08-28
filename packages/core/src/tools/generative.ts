@@ -71,7 +71,7 @@ function clamp(v: number, lo: number, hi: number): number {
 }
 
 /** Deterministic 0..1 hash of an integer coordinate pair. */
-function hash2(x: number, y: number, seed: number): number {
+export function hash2(x: number, y: number, seed: number): number {
   let h = seed >>> 0;
   h = Math.imul(h ^ (x + 0x9e3779b9), 0x85ebca6b);
   h = Math.imul(h ^ (y + 0xc2b2ae35), 0x27d4eb2f);
@@ -187,6 +187,156 @@ export function simplexNoiseField(width: number, height: number, opts: { seed?: 
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
       out[y * width + x] = 0.5 + 0.5 * simplexNoise2D(x / scale, y / scale, seed);
+    }
+  }
+  return out;
+}
+
+/* ------------------------------------------------------------------ */
+/* Additional noise generators (value / fBm / Worley)                  */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Single-octave value noise at a point. Lattice of seeded hashes at integer
+ * corners, smoothstep-interpolated. Deterministic; returns 0..1.
+ */
+export function valueNoise2D(x: number, y: number, seed = 1337): number {
+  const xi = Math.floor(x);
+  const yi = Math.floor(y);
+  const xf = x - xi;
+  const yf = y - yi;
+  const u = smoothstep(xf);
+  const v = smoothstep(yf);
+  const v00 = hash2(xi, yi, seed);
+  const v10 = hash2(xi + 1, yi, seed);
+  const v01 = hash2(xi, yi + 1, seed);
+  const v11 = hash2(xi + 1, yi + 1, seed);
+  return lerp(lerp(v00, v10, u), lerp(v01, v11, u), v);
+}
+
+/** Value-noise field — returns values normalized to 0..1. */
+export function valueNoiseField(
+  width: number,
+  height: number,
+  opts: { seed?: number; scale?: number } = {},
+): Float32Array {
+  const seed = opts.seed ?? 1337;
+  const scale = Math.max(1, opts.scale ?? 16);
+  const out = new Float32Array(width * height);
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      out[y * width + x] = valueNoise2D(x / scale, y / scale, seed);
+    }
+  }
+  return out;
+}
+
+export interface FbmOptions {
+  seed?: number;
+  /** Fractal octaves (1..8). */
+  octaves?: number;
+  /** Amplitude multiplier per octave (0..1). */
+  persistence?: number;
+  /** Frequency multiplier per octave (>0). */
+  lacunarity?: number;
+  /** Base frequency divisor — larger = larger features. */
+  scale?: number;
+}
+
+/**
+ * Fractional Brownian motion at a point: sum of octaves of value noise with
+ * increasing frequency and decreasing amplitude. Deterministic; returns 0..1.
+ */
+export function fbm2D(x: number, y: number, opts: FbmOptions = {}): number {
+  const seed = opts.seed ?? 1337;
+  const octaves = Math.max(1, Math.min(8, opts.octaves ?? 4));
+  const persistence = clamp(opts.persistence ?? 0.5, 0, 1);
+  const lacunarity = opts.lacunarity && opts.lacunarity > 0 ? opts.lacunarity : 2;
+  const baseScale = Math.max(1e-6, opts.scale ?? 1);
+  let amp = 1;
+  let freq = 1 / baseScale;
+  let total = 0;
+  let norm = 0;
+  for (let o = 0; o < octaves; o++) {
+    total += valueNoise2D(x * freq, y * freq, seed + o * 1013) * amp;
+    norm += amp;
+    amp *= persistence;
+    freq *= lacunarity;
+  }
+  return total / norm;
+}
+
+/** fBm field — returns values normalized to 0..1. */
+export function fbmField(
+  width: number,
+  height: number,
+  opts: { seed?: number; octaves?: number; persistence?: number; lacunarity?: number; scale?: number } = {},
+): Float32Array {
+  const { scale = 16, ...rest } = opts;
+  const s = Math.max(1, scale);
+  const out = new Float32Array(width * height);
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      out[y * width + x] = fbm2D(x / s, y / s, rest);
+    }
+  }
+  return out;
+}
+
+export type WorleyMetric = 'euclidean' | 'manhattan' | 'chebyshev';
+
+export interface WorleyOptions {
+  seed?: number;
+  /** Cell size in pixels (>=1). */
+  scale?: number;
+  metric?: WorleyMetric;
+}
+
+/**
+ * Cellular (Worley / Voronoi F1) noise at a point: distance to the nearest
+ * jittered feature point in the 3x3 neighboring cells. Deterministic;
+ * returns 0..1 (clamped nearest-feature distance).
+ */
+export function worleyNoise2D(
+  x: number,
+  y: number,
+  seed = 1337,
+  metric: WorleyMetric = 'euclidean',
+): number {
+  const xi = Math.floor(x);
+  const yi = Math.floor(y);
+  let minDist = Infinity;
+  for (let oy = -1; oy <= 1; oy++) {
+    for (let ox = -1; ox <= 1; ox++) {
+      const cx = xi + ox;
+      const cy = yi + oy;
+      const fx = cx + hash2(cx, cy, seed);
+      const fy = cy + hash2(cx, cy, seed + 7919);
+      const dx = fx - x;
+      const dy = fy - y;
+      let d: number;
+      if (metric === 'manhattan') d = Math.abs(dx) + Math.abs(dy);
+      else if (metric === 'chebyshev') d = Math.max(Math.abs(dx), Math.abs(dy));
+      else d = Math.sqrt(dx * dx + dy * dy);
+      if (d < minDist) minDist = d;
+    }
+  }
+  return clamp(minDist, 0, 1);
+}
+
+/** Worley (cellular) noise field — returns 0..1. */
+export function worleyField(
+  width: number,
+  height: number,
+  opts: WorleyOptions = {},
+): Float32Array {
+  const seed = opts.seed ?? 1337;
+  const scale = Math.max(1, opts.scale ?? 16);
+  const metric = opts.metric ?? 'euclidean';
+  const out = new Float32Array(width * height);
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      out[y * width + x] = worleyNoise2D(x / scale, y / scale, seed, metric);
     }
   }
   return out;
@@ -727,6 +877,12 @@ export const generative = {
   simplexNoise2D,
   simplexNoiseField,
   mandelbrot,
+  valueNoise2D,
+  valueNoiseField,
+  fbm2D,
+  fbmField,
+  worleyNoise2D,
+  worleyField,
   flowField,
   lSystem,
   valuesToSvg,

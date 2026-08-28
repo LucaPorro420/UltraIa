@@ -11,6 +11,13 @@ import {
   kenBurnsFrames,
   lSystem,
   mandelbrot,
+  valueNoise2D,
+  valueNoiseField,
+  fbm2D,
+  fbmField,
+  worleyNoise2D,
+  worleyField,
+  hash2,
   mixSynths,
   mulberry32,
   particleFrames,
@@ -395,5 +402,110 @@ describe('audio: ADSR / sequencer / mix', () => {
     expect(wav.readUInt16LE(22)).toBe(1); // mono
     expect(wav.readUInt16LE(34)).toBe(16); // 16-bit
     expect(wav.length).toBe(44 + r.pcm.length * 2);
+  });
+});
+
+describe('valueNoise2D / valueNoiseField', () => {
+  it('devuelve 0..1 y es determinista', () => {
+    const a = valueNoise2D(3.3, 7.7, 12);
+    const b = valueNoise2D(3.3, 7.7, 12);
+    expect(a).toBe(b);
+    expect(a).toBeGreaterThanOrEqual(0);
+    expect(a).toBeLessThanOrEqual(1);
+  });
+
+  it('difiere con otra seed', () => {
+    const a = valueNoise2D(3.3, 7.7, 12);
+    const c = valueNoise2D(3.3, 7.7, 13);
+    expect(a).not.toBe(c);
+  });
+
+  it('es continua: coordenadas cercanas dan valores cercanos', () => {
+    const d = Math.abs(valueNoise2D(10.4, 5.2, 7) - valueNoise2D(10.41, 5.2, 7));
+    expect(d).toBeLessThan(0.05);
+  });
+
+  it('el campo tiene las dimensiones pedidas y es determinista', () => {
+    const a = valueNoiseField(32, 32, { seed: 9, scale: 8 });
+    const b = valueNoiseField(32, 32, { seed: 9, scale: 8 });
+    expect(a.length).toBe(32 * 32);
+    expect(fnv1a(a)).toBe(fnv1a(b));
+    for (const v of a) {
+      expect(v).toBeGreaterThanOrEqual(0);
+      expect(v).toBeLessThanOrEqual(1);
+    }
+  });
+});
+
+describe('fbm2D / fbmField', () => {
+  it('devuelve 0..1 y es determinista', () => {
+    const a = fbm2D(12.5, 4.2, { seed: 3, octaves: 5 });
+    const b = fbm2D(12.5, 4.2, { seed: 3, octaves: 5 });
+    expect(a).toBe(b);
+    expect(a).toBeGreaterThanOrEqual(0);
+    expect(a).toBeLessThanOrEqual(1);
+  });
+
+  it('con octaves=1 es igual a valueNoise2D en la misma escala', () => {
+    const x = 12.5;
+    const y = 4.2;
+    const seed = 21;
+    const scale = 4;
+    expect(fbm2D(x, y, { seed, octaves: 1, scale })).toBeCloseTo(
+      valueNoise2D(x / scale, y / scale, seed),
+      10,
+    );
+  });
+
+  it('aumentar octavas cambia el resultado pero mantiene rango', () => {
+    const lo = fbm2D(1.1, 2.2, { seed: 1, octaves: 1 });
+    const hi = fbm2D(1.1, 2.2, { seed: 1, octaves: 6 });
+    expect(lo).not.toBe(hi);
+    expect(hi).toBeGreaterThanOrEqual(0);
+    expect(hi).toBeLessThanOrEqual(1);
+  });
+
+  it('el campo es determinista y del tamaño pedido', () => {
+    const a = fbmField(24, 24, { seed: 5, octaves: 4, scale: 6 });
+    const b = fbmField(24, 24, { seed: 5, octaves: 4, scale: 6 });
+    expect(a.length).toBe(24 * 24);
+    expect(fnv1a(a)).toBe(fnv1a(b));
+  });
+});
+
+describe('worleyNoise2D / worleyField', () => {
+  it('devuelve 0..1 y es determinista', () => {
+    const a = worleyNoise2D(3.3, 7.7, 12);
+    const b = worleyNoise2D(3.3, 7.7, 12);
+    expect(a).toBe(b);
+    expect(a).toBeGreaterThanOrEqual(0);
+    expect(a).toBeLessThanOrEqual(1);
+  });
+
+  it('en el centro de un feature point la distancia es ~0', () => {
+    const seed = 17;
+    // feature point de la celda (0,0)
+    const fx = 0 + hash2(0, 0, seed);
+    const fy = 0 + hash2(0, 0, seed + 7919);
+    expect(worleyNoise2D(fx, fy, seed)).toBeLessThan(1e-9);
+  });
+
+  it('métricas alternativas producen resultados válidos distintos', () => {
+    const e = worleyNoise2D(3.3, 7.7, 5, 'euclidean');
+    const m = worleyNoise2D(3.3, 7.7, 5, 'manhattan');
+    const c = worleyNoise2D(3.3, 7.7, 5, 'chebyshev');
+    for (const v of [e, m, c]) {
+      expect(v).toBeGreaterThanOrEqual(0);
+      expect(v).toBeLessThanOrEqual(1);
+    }
+    expect(m).not.toBe(e);
+    expect(c).not.toBe(e);
+  });
+
+  it('el campo es determinista y del tamaño pedido', () => {
+    const a = worleyField(20, 20, { seed: 4, scale: 5 });
+    const b = worleyField(20, 20, { seed: 4, scale: 5 });
+    expect(a.length).toBe(20 * 20);
+    expect(fnv1a(a)).toBe(fnv1a(b));
   });
 });
