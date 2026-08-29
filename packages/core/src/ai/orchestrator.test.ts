@@ -45,8 +45,8 @@ describe('ModelOrchestrator', () => {
 
   it('recommend returns the first candidate', () => {
     const r = orch.recommend({ taskType: 'coding' });
-    expect(r.provider).toBe('openrouter'); // qwen2.5-coder-7b-instruct:free is keyless
-    expect(r.model).toContain('coder');
+    expect(r.provider).toBe('openrouter'); // keyless :free coding model (e.g. cohere/north-mini-code)
+    expect(r.model).toContain('code');
   });
 
   it('buildSystemContext injects mode + strategy guidance', () => {

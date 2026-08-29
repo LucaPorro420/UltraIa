@@ -21,6 +21,8 @@ import {
   Sparkles,
   FileText,
   Download as DownloadIcon,
+  Cpu,
+  Brain,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { MarketingHeader } from '@/components/marketing-header';
@@ -30,7 +32,16 @@ import { CreationsGrid, deriveAsset } from '@/components/studio/creations-grid';
 import { OssLab } from '@/components/studio/oss-lab';
 import { postJson, type AssetDraft } from '@/components/studio/types';
 
-type Cap = 'web' | 'image' | 'video' | 'music' | 'design' | 'branding' | 'chat';
+type Cap =
+  | 'web'
+  | 'image'
+  | 'video'
+  | 'music'
+  | 'design'
+  | 'branding'
+  | 'chat'
+  | 'orchestrator'
+  | 'chat_memory';
 
 const CAP_META: Record<Cap, { label: string; icon: typeof Globe; blurb: string }> = {
   web: { label: 'Web', icon: Globe, blurb: 'Read any public site or social post' },
@@ -40,9 +51,29 @@ const CAP_META: Record<Cap, { label: string; icon: typeof Globe; blurb: string }
   design: { label: 'Design', icon: LayoutTemplate, blurb: 'Generate UI screens (Google Stitch)' },
   branding: { label: 'Branding', icon: Megaphone, blurb: 'On-brand assets + Pomelli' },
   chat: { label: 'Chat', icon: MessageSquare, blurb: 'Multimodal assistant (needs AI key)' },
+  orchestrator: {
+    label: 'Orchestrator',
+    icon: Cpu,
+    blurb: 'Auto model+mode routing with failover (OpenRouter free)',
+  },
+  chat_memory: {
+    label: 'Chat memory',
+    icon: Brain,
+    blurb: 'Persistent session + graph (graphity) for consistency',
+  },
 };
 
-const ALL_CAPS: Cap[] = ['web', 'image', 'video', 'music', 'design', 'branding', 'chat'];
+const ALL_CAPS: Cap[] = [
+  'web',
+  'image',
+  'video',
+  'music',
+  'design',
+  'branding',
+  'chat',
+  'orchestrator',
+  'chat_memory',
+];
 
 const CONNECTORS = [
   { label: 'Google Flow', href: 'https://labs.google/fx/tools/flow', note: 'Veo video (50 free credits/day)' },
@@ -76,6 +107,8 @@ export function StudioClient({
     design: true,
     branding: true,
     chat: true,
+    orchestrator: false,
+    chat_memory: false,
   });
   const [view, setView] = useState<StudioView>('crear');
   const [creationsKey, setCreationsKey] = useState(0);

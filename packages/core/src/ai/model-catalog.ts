@@ -25,21 +25,21 @@ export interface FreeModelSpec {
 
 /**
  * Curated, starting catalog. Add/remove freely — this is the single source of truth the
- * orchestrator routes against. `:free` ids are stable on OpenRouter; the rest are the
- * vendor free-tier defaults (require their own key).
+ * orchestrator routes against. `:free` ids ROTATE on OpenRouter (they get retired
+ * periodically) — refresh this block against https://openrouter.ai/api/v1/models
+ * (pricing prompt+completion == '0') when routing starts hitting "No endpoints".
+ * The rest are vendor free-tier defaults (require their own key).
  */
 export const FREE_MODEL_CATALOG: FreeModelSpec[] = [
   // --- OpenRouter keyless `:free` tier (ONLY OpenRouter key needed) ---
-  { id: 'google/gemma-2-9b-it:free', provider: 'openrouter', label: 'Gemma 2 9B', tier: 'balanced', contextTokens: 8192, keyless: true },
-  { id: 'meta-llama/llama-3.1-8b-instruct:free', provider: 'openrouter', label: 'Llama 3.1 8B', tier: 'balanced', contextTokens: 8192, keyless: true },
-  { id: 'meta-llama/llama-3.2-3b-instruct:free', provider: 'openrouter', label: 'Llama 3.2 3B', tier: 'fast', contextTokens: 8192, keyless: true },
-  { id: 'mistralai/mistral-7b-instruct:free', provider: 'openrouter', label: 'Mistral 7B', tier: 'balanced', contextTokens: 8192, keyless: true },
-  { id: 'qwen/qwen2.5-7b-instruct:free', provider: 'openrouter', label: 'Qwen 2.5 7B', tier: 'balanced', contextTokens: 32768, keyless: true },
-  { id: 'qwen/qwen2.5-coder-7b-instruct:free', provider: 'openrouter', label: 'Qwen 2.5 Coder 7B', tier: 'coding', contextTokens: 32768, keyless: true },
-  { id: 'deepseek/deepseek-r1-distill-llama-70b:free', provider: 'openrouter', label: 'DeepSeek R1 Distill 70B', tier: 'reasoning', contextTokens: 131072, keyless: true },
-  { id: 'nvidia/llama-3.1-nemotron-70b-instruct:free', provider: 'openrouter', label: 'Nemotron 70B', tier: 'balanced', contextTokens: 131072, keyless: true },
-  { id: 'cognitivecomputations/dolphin-mixtral-8x7b:free', provider: 'openrouter', label: 'Dolphin Mixtral 8x7B', tier: 'balanced', contextTokens: 32768, keyless: true },
-  { id: 'thedrummer/unsloth-llama-3.3-70b:free', provider: 'openrouter', label: 'Llama 3.3 70B (Unsloth)', tier: 'balanced', contextTokens: 131072, keyless: true },
+  { id: 'liquid/lfm-2.5-2.6b:free', provider: 'openrouter', label: 'LFM 2.5 2.6B', tier: 'fast', contextTokens: 65536, keyless: true },
+  { id: 'inclusionai/ling-3.0-flash-fin:free', provider: 'openrouter', label: 'Ling 3.0 Flash', tier: 'fast', contextTokens: 262144, keyless: true },
+  { id: 'nvidia/nemotron-3.5-lightning:free', provider: 'openrouter', label: 'Nemotron 3.5 Lightning', tier: 'balanced', contextTokens: 1000000, keyless: true },
+  { id: 'z-ai/glm-5.2:free', provider: 'openrouter', label: 'GLM 5.2', tier: 'balanced', contextTokens: 256000, keyless: true },
+  { id: 'cohere/north-mini-code:free', provider: 'openrouter', label: 'North Mini Code', tier: 'coding', contextTokens: 256000, keyless: true },
+  { id: 'poolside/laguna-s-2.1:free', provider: 'openrouter', label: 'Laguna S 2.1', tier: 'coding', contextTokens: 262144, keyless: true },
+  { id: 'nvidia/nemotron-3-ultra-550b-a55b:free', provider: 'openrouter', label: 'Nemotron 3 Ultra 550B', tier: 'reasoning', contextTokens: 1000000, keyless: true },
+  { id: 'thinkingmachines/inkling:free', provider: 'openrouter', label: 'Inkling (vision+audio)', tier: 'vision', contextTokens: 1048576, keyless: true },
 
   // --- Vendor free tiers (need their OWN free key; fail-soft when absent) ---
   { id: 'gemini-2.5-flash', provider: 'google', label: 'Gemini 2.5 Flash', tier: 'balanced', contextTokens: 1048576, keyless: false, notes: 'Visión + razonamiento, 1M ctx' },

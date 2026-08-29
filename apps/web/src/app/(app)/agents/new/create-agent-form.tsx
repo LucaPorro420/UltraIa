@@ -61,6 +61,8 @@ export function CreateAgentForm() {
               { value: 'video', label: 'Video' },
               { value: 'music', label: 'Music' },
               { value: 'design', label: 'Design' },
+              { value: 'orchestrator', label: 'Orchestrator' },
+              { value: 'chat_memory', label: 'Chat memory' },
             ] as const
           ).map((c) => (
             <label

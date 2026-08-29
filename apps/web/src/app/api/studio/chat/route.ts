@@ -2,7 +2,17 @@ import { z } from 'zod';
 import { chatStream, AiUnavailableError } from '@ultraia/core';
 import { getCurrentUser } from '@/lib/server/context';
 
-const CAPABILITIES = ['calculator', 'web', 'image', 'video', 'music', 'design', 'branding'] as const;
+const CAPABILITIES = [
+  'calculator',
+  'web',
+  'image',
+  'video',
+  'music',
+  'design',
+  'branding',
+  'orchestrator',
+  'chat_memory',
+] as const;
 
 const bodySchema = z.object({
   capabilities: z.array(z.enum(CAPABILITIES)).max(7).optional(),
@@ -20,6 +30,8 @@ Available tools (enabled per request):
 - video: produce a photoreal video storyboard (sequence of frames) from a text prompt.
 - music: compose an original music piece (structured composition) from a text prompt.
 - calculator: safe math.
+- orchestrator: automatic model+mode router with failover; call it to pick the best provider/model/tier for the task (keyless OpenRouter :free first, then free tiers).
+- chat_memory: persistent session memory + entity graph (graphity); use it to keep context consistent when switching models/modes, or to recall earlier turns.
 
 When a tool result is an image/video URL, present it clearly so the user can open it. When the user asks to "recreate", "see", or "generate" media, prefer the matching tool. Be concise and concrete.`;
 
