@@ -45,8 +45,8 @@ describe('ModelOrchestrator', () => {
 
   it('recommend returns the first candidate', () => {
     const r = orch.recommend({ taskType: 'coding' });
-    expect(r.provider).toBe('openrouter'); // keyless :free coding model (e.g. cohere/north-mini-code)
-    expect(r.model).toContain('code');
+    expect(r.provider).toBe('openrouter'); // keyless :free coding model
+    expect(r.tier).toBe('coding'); // Verify it's a coding-tier model
   });
 
   it('buildSystemContext injects mode + strategy guidance', () => {
