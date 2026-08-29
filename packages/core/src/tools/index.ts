@@ -169,9 +169,11 @@ import { qdrantMemory as qdrantMemoryTools } from './qdrant-memory';
 import { studio as studioTools } from './studio';
 import * as observabilityNs from './observability';
 import * as agenticNs from './agentic';
+import * as zernioNs from './zernio';
+import * as sandboxNs from './sandbox';
 import * as learnModels from './learn-models';
 
-export const tools = { web, image, video, music, stitch, reach, skills: { runSkill }, content, g0dm0d3, topics, present: presentTools, publish, enrutador, mediaScore, metrics, memoryFs: { createMemoryFs }, diagram, videoEdit, screenflow, cloud: cloudTools, harness, growth, prioritize, vfx, codevfx, travel, generative, libros, sdf, videoqa, motion, replica, imaging, semanticMemory,   autolearn, learnModels, genesis, creativo, vault: vaultTools, pdfsearch: pdfsearchTools, qdrantMemory: qdrantMemoryTools, kgraph, brainpage, autopub, security, codequality, deps, geom, geometry, pngrender, procvid, physics2d, cadgeo, recordly, cerebro, evo: evoDomain, evolution: evolutionDomain, studio: studioTools, observability: observabilityNs.observability, agentic: agenticNs.agentic };
+export const tools = { web, image, video, music, stitch, reach, skills: { runSkill }, content, g0dm0d3, topics, present: presentTools, publish, enrutador, mediaScore, metrics, memoryFs: { createMemoryFs }, diagram, videoEdit, screenflow, cloud: cloudTools, harness, growth, prioritize, vfx, codevfx, travel, generative, libros, sdf, videoqa, motion, replica, imaging, semanticMemory,   autolearn, learnModels, genesis, creativo, vault: vaultTools, pdfsearch: pdfsearchTools, qdrantMemory: qdrantMemoryTools, kgraph, brainpage, autopub, security, codequality, deps, geom, geometry, pngrender, procvid, physics2d, cadgeo, recordly, cerebro, evo: evoDomain, evolution: evolutionDomain, studio: studioTools, observability: observabilityNs.observability, agentic: agenticNs.agentic, zernio: zernioNs.zernio, sandbox: sandboxNs.sandbox };
 
 export const TOOL_DESCRIPTIONS: Record<string, string> = {
   calculator: 'Safely evaluate a mathematical expression (math only).',
@@ -192,7 +194,7 @@ export const TOOL_DESCRIPTIONS: Record<string, string> = {
   present:
     'Presentation builder (AutoPub F3): builds a PublicationPackage from raw content Ã¢â‚¬â€ per-channel captions + hashtags (YouTube/TikTok/Instagram/blog), visual specs (9:16/1:1/16:9), SRT subtitles, branding kit and suggested schedule. Use to adapt one piece of content into ready-to-publish packages per platform.',
   publish:
-    'Distribution adapters (AutoPub F4): publish a final MP4 (9:16, <60s) to YouTube Shorts (resumable upload v3), TikTok (Direct Post 2 steps), X, Meta (Instagram Reels / Threads), Telegram (Bot API sendVideo), Discord (webhook), Slack (files.upload) and LinkedIn (Assets API + UGC Posts) with bilingual es/ar metadata. Validates tokens first; fails soft with a clear reason when a platform is not configured. Use to ship finished video content to the channels.',
+    'Distribution adapters (AutoPub F4): publish a final MP4 (9:16, <60s) to YouTube Shorts (resumable upload v3), TikTok (Direct Post 2 steps), X, Meta (Instagram Reels / Threads), Telegram (Bot API sendVideo), Discord (webhook), Slack (files.upload), LinkedIn (Assets API + UGC Posts) and Zernio (unified 16-platform fan-out with one API key) with bilingual es/ar metadata. Validates tokens first; fails soft with a clear reason when a platform is not configured. Use to ship finished video content to the channels.',
   publications:
     'Publication queue (AutoPub F4): create/list/approve/reject queued publications from PublicationPackages (auto-approves text/blog; video/image channels require human approval) and publish scheduled items that are due. Persisted in Prisma. Use to manage the content distribution pipeline end-to-end.',
   contenido:
@@ -299,6 +301,10 @@ export const TOOL_DESCRIPTIONS: Record<string, string> = {
     'Observabilidad agéntica (Langfuse port, Fase A): traza cada paso del agente (spans, generaciones, scores) hacia Langfuse Cloud (https://cloud.langfuse.com) via POST /api/public/ingestion con batch + Basic auth; keyless-first fail-soft (sin LANGFUSE_PUBLIC_KEY/SECRET_KEY no hace red, solo buffer local). Acciones: trace (span/generation/score) y flush. Determinista, fetch inyectable, nunca tira. Usa para medir costo/latencia/calidad por paso y cerrar el loop de mejora.',
   agentic:
     'Puente infraestructura agéntica (6 capas, port determinista sin Python): demuestra LangGraph (grafo dirigido con validación DAG + maxCycles para ciclos), CrewAI (roles+tasks con validación de dependencias), LlamaIndex (RAG pipeline loaders→chunk→embed→store), Semantic Kernel/LCEL (routeIntent + planLcelChain), E2B (planSandbox local vs nube aislada por E2B_API_KEY), y Mem0/Chainlit (planMemory con fallback qdrant). Todo serializable JSON, keyless-first, fetch inyectable solo para sandbox futuro. Usa como plantilla para elegir qué capa materializar en producción.',
+  zernio:
+    'Zernio MCP (https://mcp.zernio.com/mcp, 50+ tools, verificado 28/08 v3.4.4): cliente MCP remoto para scheduling social multi-plataforma (twitter/instagram/linkedin/tiktok/youtube/etc) via POST SSE (tools/list + tools/call). Tools: accounts_list/get, profiles_list, posts_create/cross_post/publish_now, media_generate_upload_link, analytics_get_analytics, inbox comments. Keyless-first fail-soft (sin ZERNIO_API_KEY intenta; writes con multi-account requieren account_id). Determinista, fetch inyectable, nunca tira. Usa para publicar programado o inmediato desde el modelo agéntico.',
+  sandbox:
+    'Sandbox aislado (E2B Code Interpreter port, Fase B): ejecuta código de agentes de forma segura. Si E2B_API_KEY presente → POST a E2B cloud (api.e2b.dev) con lang/code/timeout; si no → local allowlist (no exec real, solo plan `[local plan]`). Determinista, fetch inyectable, fail-soft, nunca evalúa en tests. Usa para que el agente ejecute python/js/ts/bash sin romper el host.',
   orchestrator:
     'Orquestador de modelos (failover automatico): cambia de modelo y modo sin que fallen las respuestas. Recomienda el modelo gratis adecuado por tarea/modo (keyless-first: OpenRouter :free, luego Google/DeepSeek/Qwen/Groq/Mistral/Together/HuggingFace si hay clave), resuelve el LanguageModel construible (route) con degradacion elegante, lista los proveedores disponibles segun claves de entorno, y construye el system prompt con modo (P-P/P-B/L-T/S-D) + estrategia (concise/agentic/reasoning/creative). Usa para no depender de un solo proveedor y para que el agente elija el tier correcto por trabajo.',
   chat_memory:
@@ -373,10 +379,15 @@ export type Capability =
   | 'orchestrator'
   | 'observability'
   | 'agentic'
+  | 'zernio'
+  | 'sandbox'
   | 'chat_memory';
 
 export * from './observability';
 export * from './agentic';
+export * from './zernio';
+export * from './sandbox';
 export * from './emailCode';
 export * from './smtp';
 export * from './catalog';
+export * from './zernio';

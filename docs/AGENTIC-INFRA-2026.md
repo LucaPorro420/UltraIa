@@ -65,10 +65,44 @@ npx vite-node Task/agentic-demo.ts
 
 Determinista y keyless — misma seed → mismos bytes (fnv1a idéntico en re-ejecución).
 
+## Zernio MCP — conexión al modelo agéntico (28/08/2026, Fase B+C)
+
+> MCP remoto verificado: `https://mcp.zernio.com/mcp` — `Zernio 3.4.4`, 50+ tools via `POST` SSE (`2024-11-05`). Config en `opencode.json` `mcp.zernio` (remote, `Bearer {env:ZERNIO_API_KEY}`) + cliente `packages/core/src/tools/zernio.ts`.
+
+| Familia | Tools | Uso en UltraIa |
+|---|---|---|
+| `accounts_*` | `accounts_list` (all), `accounts_get` (por platform), `accounts_get_follower_stats`, `health` | Descubrir `account_id` antes de postear (multi-account agencias) |
+| `profiles_*` | `profiles_list/get/create/update/delete` | Agrupar cuentas por cliente |
+| `posts_*` | `posts_create` (draft/scheduled/publish_now), `posts_cross_post` (multi-plataforma), `posts_list/get/update/delete/retry` | **AutoPub F4 extendido**: publicar programado o inmediato en twitter/instagram/linkedin/tiktok/youtube/pinterest/threads/facebook/bluesky |
+| `media_*` | `media_generate_upload_link` + `media_check_upload_status` | Adjuntar imágenes/videos a posts (flujo browser upload) |
+| `analytics_*` | `analytics_get_analytics`, `get_daily_metrics`, `get_best_time_to_post`, `get_post_timeline` | Cerrar loop con KPIs reales (complementa `metrics` + `langfuse`) |
+| `inbox` | `comments_list_inbox_comments`, `mentions_list` | Inbox unificado (comentarios/menciones) |
+
+**Flujo multi-account (obligatorio para agencias):**
+1. `zernio_accounts` accion `list` → IDs
+2. `zernio_posts` accion `create` con `account_id` (si se omite y hay múltiples, el MCP retorna error con lista de candidatos — reintentar).
+
+**Capabilities del modelo:**
+- `zernio_accounts` / `zernio_posts` / `zernio_analytics` / `zernio_media` (wired en `ai/llm.ts`, gated por `opts.tools` → `['zernio']`)
+- `sandbox_run` (Fase B): `executeSandbox({lang,code,timeoutMs})` → `local` sin `E2B_API_KEY`, `e2b` con key (fetch inyectable, fail-soft)
+
+**Cómo probar (keyless-first):**
+```bash
+# Lista tools (mock, sin red):
+npx vitest run src/tools/zernio.test.ts src/tools/sandbox.test.ts
+# Demo real (sin ZERNIO_API_KEY → fail-soft con razón, con key → lista cuentas):
+npx vite-node Task/zernio-demo.ts
+# Con Zernio key (https://zernio.com → API key):
+ZERNIO_API_KEY=... npx vite-node Task/zernio-demo.ts
+# MCP nativo del runtime (opencode):
+npx opencode run --agent piv-build "usa zernio_posts para crear borrador en twitter"
+```
+
+**Demo:** `Task/zernio-demo.ts` → `resultTask/zernio/` (tools.json + accounts.json + sandbox.json + manifest.json), idempotente.
+
 ## Siguientes fases
 
-- **Fase B** (sandbox real): `tools/sandbox.ts` con `E2B_API_KEY` + fetch inyectable, wiring `sandbox_run` + adapter `E2BSandboxAdapter` que respeta `CommandExecutor` allowlist.
-- **Fase C** (MCP server): `packages/runtime/src/api/mcp.ts` expone `tools/*` como MCP `tools/list` + `tools/call` sobre `LocalApiServer` (127.0.0.1 + token), spec Streamable HTTP 2025-03, usando patrón `build-mcp-app`.
+- **Fase C** (MCP server propio): `packages/runtime/src/api/mcp.ts` expone tus 65 tools como MCP `tools/list` + `tools/call` sobre `LocalApiServer` (127.0.0.1 + token), spec Streamable HTTP 2025-03, patrón `build-mcp-app` (capabilities ya instaladas).
 
 ## Skills instaladas esta sesión
 

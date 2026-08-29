@@ -22,7 +22,7 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
   const metadata = { ...buildBilingualMetadata(pub.tema, pub.caption) };
 
   try {
-    const resultado = await publishToAll(createDefaultPublishers(), {
+    const resultado = await publishToAll(createDefaultPublishers({ includeZernio: true }), {
       videoPath,
       metadata,
     });

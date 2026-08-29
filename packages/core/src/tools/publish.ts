@@ -16,6 +16,7 @@ import { createSlackAdapter } from './slack';
 import { createRedditAdapter } from './reddit';
 import { createPinterestAdapter } from './pinterest';
 import { createWhatsAppAdapter } from './whatsapp';
+import { createZernioAdapter } from './zernioPublish';
 
 export interface PublishMetadata {
   title: string;
@@ -24,7 +25,7 @@ export interface PublishMetadata {
   privacyStatus: 'public' | 'private' | 'unlisted';
 }
 
-export type PublishPlatform = 'youtube' | 'tiktok' | 'x' | 'instagram' | 'threads' | 'facebook' | 'linkedin' | 'telegram' | 'discord' | 'slack' | 'reddit' | 'pinterest' | 'whatsapp';
+export type PublishPlatform = 'youtube' | 'tiktok' | 'x' | 'instagram' | 'threads' | 'facebook' | 'linkedin' | 'telegram' | 'discord' | 'slack' | 'reddit' | 'pinterest' | 'whatsapp' | 'zernio';
 
 export interface PublishInput {
   /** Ruta del MP4 final (9:16, <60s). */
@@ -40,6 +41,18 @@ export interface PublishInput {
   /** URL pública de la imagen (alternativa a imageBuffer). */
   imageUrl?: string;
   metadata?: Partial<PublishMetadata>;
+  /** Texto explícito (Zernio / agentes de mensajería). Si falta se deriva de metadata. */
+  text?: string;
+  /** URL de destino (p.ej. link en Pinterest/Reddit). */
+  link?: string;
+  /** ISO 8601 para programar (Zernio). Si falta → publishNow. */
+  scheduledFor?: string;
+  /** Plataformas Zernio objetivo (p.ej. ['instagram','tiktok','linkedin']). Si falta, Zernio descubre cuentas activas. */
+  zernioPlatforms?: string[];
+  /** Mapa plataforma→accountId de Zernio. */
+  zernioAccountIds?: Record<string, string>;
+  /** Profile ID de Zernio (opcional; default env ZERNIO_PROFILE_ID). */
+  zernioProfileId?: string;
 }
 
 export interface PublishResult {
@@ -777,6 +790,7 @@ export function createDefaultPublishers(opts: {
   includeReddit?: boolean;
   includePinterest?: boolean;
   includeWhatsApp?: boolean;
+  includeZernio?: boolean;
 } = {}): PublisherAdapter[] {
   const base = [createYouTubeAdapter(), createTikTokAdapter()];
   if (opts.includeX) base.push(createXAdapter());
@@ -789,7 +803,8 @@ export function createDefaultPublishers(opts: {
   if (opts.includeReddit) base.push(createRedditAdapter());
   if (opts.includePinterest) base.push(createPinterestAdapter());
   if (opts.includeWhatsApp) base.push(createWhatsAppAdapter());
+  if (opts.includeZernio) base.push(createZernioAdapter());
   return base;
 }
 
-export const publish = { createYouTubeAdapter, createTikTokAdapter, createXAdapter, createInstagramAdapter, createThreadsAdapter, createFacebookAdapter, createTelegramAdapter, createDiscordAdapter, createSlackAdapter, createLinkedInAdapter, createRedditAdapter, createPinterestAdapter, createWhatsAppAdapter, createDefaultPublishers, publishToAll, buildBilingualMetadata, buildXPostText, xAppendMultipartBody, formBody, IG_MEDIA_URL, THREADS_MEDIA_URL, LINKEDIN_ASSETS_URL, LINKEDIN_UGCP_URL, LINKEDIN_VIDEO_RECIPE, FB_GRAPH_URL };
+export const publish = { createYouTubeAdapter, createTikTokAdapter, createXAdapter, createInstagramAdapter, createThreadsAdapter, createFacebookAdapter, createTelegramAdapter, createDiscordAdapter, createSlackAdapter, createLinkedInAdapter, createRedditAdapter, createPinterestAdapter, createWhatsAppAdapter, createZernioAdapter, createDefaultPublishers, publishToAll, buildBilingualMetadata, buildXPostText, xAppendMultipartBody, formBody, IG_MEDIA_URL, THREADS_MEDIA_URL, LINKEDIN_ASSETS_URL, LINKEDIN_UGCP_URL, LINKEDIN_VIDEO_RECIPE, FB_GRAPH_URL };

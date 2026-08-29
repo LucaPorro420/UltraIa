@@ -86,6 +86,8 @@ const CATALOG_META: Record<Capability, { category: ToolCategory; route: string; 
   chat_memory: { category: 'datos-backend', route: '/dashboard', related: ['memory', 'semantic_memory', 'qdrant_memory', 'brainpage', 'orchestrator'], consolidates: [] },
   observability: { category: 'productividad-equipo', route: '/dashboard', related: ['metrics', 'harness', 'genesis'], consolidates: [] },
   agentic: { category: 'automatizacion', route: '/dashboard', related: ['harness', 'research', 'autopub'], consolidates: [] },
+  zernio: { category: 'contenido-cms', route: '/dashboard', related: ['publish', 'autopub', 'metrics'], consolidates: [] },
+  sandbox: { category: 'codigo-dev', route: '/studio', related: ['harness', 'genesis'], consolidates: [] },
 };
 
 

@@ -125,6 +125,8 @@ import * as evoDomain from '../tools/evo';
 import * as evolutionDomain from '../tools/evolution';
 import { createObservabilityTracer } from '../tools/observability';
 import { planAgenticGraph, planCrew, planRagPipeline, routeIntent, planLcelChain, planSandbox, planMemory } from '../tools/agentic';
+import { createZernioClient } from '../tools/zernio';
+import { executeSandbox } from '../tools/sandbox';
 import { createPublication, listPublications, approvePublication, rejectPublication, publishDue } from '../domain/publications';
 import { generarContenido, type ContentPackage } from '../tools/enrutador';
 import { computeChannelKpis, fetchChannelAnalytics } from '../tools/metrics';
@@ -3392,6 +3394,128 @@ export function chatStream(opts: {
         }
         throw new Error(`capa desconocida: ${capa}`);
       },
+    });
+  }
+
+  if (opts.tools?.includes('zernio')) {
+    tools.zernio_accounts = tool({
+      description: 'Zernio MCP — cuentas y perfiles: lista cuentas conectadas (accounts_list), detalle por plataforma (accounts_get), lista perfiles (profiles_list). Usa para descubrir account_id antes de publicar.',
+      parameters: z.object({
+        accion: z.enum(['list', 'get', 'profiles_list', 'profiles_get']),
+        platform: z.string().max(50).optional(),
+        profile_id: z.string().max(100).optional(),
+      }),
+      execute: async ({ accion, platform, profile_id }) => {
+        const client = createZernioClient();
+        if (accion === 'list') return client.callTool('accounts_list', {});
+        if (accion === 'get') {
+          if (!platform) throw new Error('get requiere platform');
+          return client.callTool('accounts_get', { platform });
+        }
+        if (accion === 'profiles_list') return client.callTool('profiles_list', {});
+        if (accion === 'profiles_get') {
+          if (!profile_id) throw new Error('profiles_get requiere profile_id');
+          return client.callTool('profiles_get', { profile_id });
+        }
+        throw new Error(`accion desconocida: ${accion}`);
+      },
+    });
+    tools.zernio_posts = tool({
+      description: 'Zernio MCP — posts: crea (draft/scheduled/publish_now), cross-post multi-plataforma, lista, detalle, update, delete, retry. Para publicar programado o inmediato en twitter/instagram/linkedin/tiktok/youtube/etc.',
+      parameters: z.object({
+        accion: z.enum(['create', 'cross_post', 'list', 'get', 'update', 'delete', 'publish_now']),
+        content: z.string().max(5000).optional(),
+        platform: z.string().max(50).optional(),
+        platforms: z.string().max(300).optional(),
+        account_id: z.string().max(100).optional(),
+        post_id: z.string().max(100).optional(),
+        is_draft: z.boolean().optional(),
+        publish_now: z.boolean().optional(),
+        schedule_minutes: z.number().int().min(0).max(525600).optional(),
+        media_urls: z.string().max(2000).optional(),
+        title: z.string().max(500).optional(),
+      }),
+      execute: async (args) => {
+        const client = createZernioClient();
+        switch (args.accion) {
+          case 'create':
+            if (!args.content || !args.platform) throw new Error('create requiere content + platform');
+            return client.callTool('posts_create', {
+              content: args.content,
+              platform: args.platform,
+              ...(args.account_id ? { account_id: args.account_id } : {}),
+              ...(args.is_draft !== undefined ? { is_draft: args.is_draft } : {}),
+              ...(args.publish_now !== undefined ? { publish_now: args.publish_now } : {}),
+              ...(args.schedule_minutes !== undefined ? { schedule_minutes: args.schedule_minutes } : {}),
+              ...(args.media_urls ? { media_urls: args.media_urls } : {}),
+              ...(args.title ? { title: args.title } : {}),
+            } as Record<string, unknown>);
+          case 'cross_post':
+            if (!args.content || !args.platforms) throw new Error('cross_post requiere content + platforms');
+            return client.callTool('posts_cross_post', {
+              content: args.content,
+              platforms: args.platforms,
+              ...(args.account_id ? { account_ids: args.account_id } : {}),
+              ...(args.is_draft !== undefined ? { is_draft: args.is_draft } : {}),
+              ...(args.publish_now !== undefined ? { publish_now: args.publish_now } : {}),
+              ...(args.media_urls ? { media_urls: args.media_urls } : {}),
+            } as Record<string, unknown>);
+          case 'list':
+            return client.callTool('posts_list', { ...(args.platform ? { status: args.platform } : {}) });
+          case 'get':
+            if (!args.post_id) throw new Error('get requiere post_id');
+            return client.callTool('posts_get', { post_id: args.post_id });
+          case 'publish_now':
+            if (!args.content || !args.platform) throw new Error('publish_now requiere content + platform');
+            return client.callTool('posts_publish_now', { content: args.content, platform: args.platform, ...(args.account_id ? { account_id: args.account_id } : {}) } as Record<string, unknown>);
+          default:
+            throw new Error(`accion desconocida: ${args.accion}`);
+        }
+      },
+    });
+    tools.zernio_analytics = tool({
+      description: 'Zernio MCP — analytics: métricas por post/cuenta/plataforma (analytics_get_analytics, daily_metrics, best_time_to_post). Usa para medir engagement y cerrar el loop.',
+      parameters: z.object({
+        accion: z.enum(['analytics', 'daily', 'best_time']),
+        post_id: z.string().max(100).optional(),
+        platform: z.string().max(50).optional(),
+        account_id: z.string().max(100).optional(),
+      }),
+      execute: async ({ accion, post_id, platform, account_id }) => {
+        const client = createZernioClient();
+        if (accion === 'analytics') return client.callTool('analytics_get_analytics', { ...(post_id ? { post_id } : {}), ...(platform ? { platform } : {}), ...(account_id ? { account_id } : {}) });
+        if (accion === 'daily') return client.callTool('analytics_get_daily_metrics', { ...(platform ? { platform } : {}), ...(account_id ? { account_id } : {}) });
+        if (accion === 'best_time') return client.callTool('analytics_get_best_time_to_post', { ...(platform ? { platform } : {}) });
+        throw new Error(`accion desconocida: ${accion}`);
+      },
+    });
+    tools.zernio_media = tool({
+      description: 'Zernio MCP — media: genera URL de upload (media_generate_upload_link) y chequea estado (media_check_upload_status). Usa para adjuntar imágenes/videos a posts.',
+      parameters: z.object({
+        accion: z.enum(['generate_link', 'check_status']),
+        token: z.string().max(200).optional(),
+      }),
+      execute: async ({ accion, token }) => {
+        const client = createZernioClient();
+        if (accion === 'generate_link') return client.callTool('media_generate_upload_link', {});
+        if (accion === 'check_status') {
+          if (!token) throw new Error('check_status requiere token');
+          return client.callTool('media_check_upload_status', { token });
+        }
+        throw new Error(`accion desconocida: ${accion}`);
+      },
+    });
+  }
+
+  if (opts.tools?.includes('sandbox')) {
+    tools.sandbox_run = tool({
+      description: 'Sandbox aislado (E2B Fase B): ejecuta código python/javascript/typescript/bash. Si E2B_API_KEY → nube E2B; si no → local plan (no exec). Fail-soft, nunca evalúa sin allowlist.',
+      parameters: z.object({
+        lang: z.enum(['python', 'javascript', 'typescript', 'bash']),
+        code: z.string().min(1).max(10000),
+        timeoutMs: z.number().int().min(1000).max(60000).optional(),
+      }),
+      execute: async ({ lang, code, timeoutMs }) => executeSandbox({ lang, code, timeoutMs }),
     });
   }
 
