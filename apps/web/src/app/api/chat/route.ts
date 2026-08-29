@@ -52,15 +52,17 @@ export async function POST(req: Request) {
   if (!parsed.success) return new Response('Invalid body', { status: 400 });
   const { agentId, conversationId, messages, modo } = parsed.data;
 
-  const blueprint = await getBlueprintForUser(prisma, user.id, agentId);
-  if (!blueprint) return new Response('Agent not found', { status: 404 });
+  // Parallel DB queries (rule: async-parallel) — all independent
+  const [blueprint, conversation, version] = await Promise.all([
+    getBlueprintForUser(prisma, user.id, agentId),
+    prisma.conversation.findUnique({ where: { id: conversationId } }),
+    getActiveVersion(prisma, agentId),
+  ]);
 
-  const conversation = await prisma.conversation.findUnique({ where: { id: conversationId } });
+  if (!blueprint) return new Response('Agent not found', { status: 404 });
   if (!conversation || conversation.blueprintId !== agentId) {
     return new Response('Conversation not found', { status: 404 });
   }
-
-  const version = await getActiveVersion(prisma, agentId);
   if (!version) return new Response('No active version for this agent', { status: 409 });
 
   const tools = JSON.parse(version.tools) as string[];
