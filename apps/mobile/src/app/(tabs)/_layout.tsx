@@ -6,6 +6,7 @@ import { Colors } from '@/constants/theme';
 
 const ICONS: Record<string, keyof typeof Ionicons.glyphMap> = {
   index: 'stats-chart',
+  chat: 'chatbubble-ellipses',
   creaciones: 'images',
   publicaciones: 'paper-plane',
   cloud: 'cloud',
@@ -40,6 +41,10 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="index"
         options={{ title: 'Dashboard', tabBarIcon: ({ color, size }) => <Ionicons name={ICONS.index} size={size} color={color} /> }}
+      />
+      <Tabs.Screen
+        name="chat"
+        options={{ title: 'Chat', tabBarIcon: ({ color, size }) => <Ionicons name={ICONS.chat} size={size} color={color} /> }}
       />
       <Tabs.Screen
         name="creaciones"

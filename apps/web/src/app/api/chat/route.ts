@@ -84,6 +84,7 @@ export async function POST(req: Request) {
         (modoDirective ? `\n\n${modoDirective}` : ''),
       messages,
       tools,
+      userId: user.id,
       onFinish: async ({ text }) => {
         const count = await prisma.message.count({ where: { conversationId } });
         const userSeq = count + 1;
@@ -168,6 +169,7 @@ async function handleGoalCommand(args: {
       { role: 'assistant', content: summary },
     ],
     tools,
+    userId: user.id,
     onFinish: async ({ text }) => {
       const count = await prisma.message.count({ where: { conversationId } });
       const userSeq = count + 1;

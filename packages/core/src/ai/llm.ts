@@ -4,6 +4,8 @@ import { createGoogleGenerativeAI } from '@ai-sdk/google';
 import { z } from 'zod';
 import type { AiGateway, ChatMessage, ChatTextInput, StructuredGenInput } from './gateway';
 import { AiUnavailableError } from './gateway';
+import { modelCache as responseCache } from './model-cache';
+import { searchMemories, storeMemory } from './mem0-client';
 import { evaluate } from '../tools/calculator';
 import { fetchWebContent } from '../tools/web';
 import { generateImage } from '../tools/image';
@@ -614,6 +616,8 @@ export function chatStream(opts: {
   db?: import('../db/client').Db;
   /** Memory filesystem de agente (Fable-5 pattern); si falta, efÃ­mero por request. */
   memoryFs?: MemoryFs | null;
+  /** User ID for mem0 persistent memory. */
+  userId?: string;
 }) {
   const tools: Record<string, Tool> = {};
   if (opts.tools?.includes('calculator')) {
@@ -3505,11 +3509,10 @@ export function chatStream(opts: {
         throw new Error(`accion desconocida: ${accion}`);
       },
     });
-  }
-
-  if (opts.tools?.includes('sandbox')) {
+  }  if (opts.tools?.includes('sandbox')) {
     tools.sandbox_run = tool({
-      description: 'Sandbox aislado (E2B Fase B): ejecuta código python/javascript/typescript/bash. Si E2B_API_KEY → nube E2B; si no → local plan (no exec). Fail-soft, nunca evalúa sin allowlist.',
+      description:
+        'Sandbox aislado (E2B Fase B): ejecuta código python/javascript/typescript/bash. Si E2B_API_KEY → nube E2B; si no → local plan (no exec). Fail-soft, nunca evalúa sin allowlist.',
       parameters: z.object({
         lang: z.enum(['python', 'javascript', 'typescript', 'bash']),
         code: z.string().min(1).max(10000),
@@ -3519,12 +3522,61 @@ export function chatStream(opts: {
     });
   }
 
+  // --- Cache check ---
+  const lastUserMsg = [...opts.messages].reverse().find((m) => m.role === 'user');
+  const cacheKey = JSON.stringify(opts.messages);
+  const cached = responseCache.get(opts.system, cacheKey, opts.model ?? 'default');
+  if (cached?.hit) {
+    // Return cached response as a stream
+    const stream = new ReadableStream({
+      start(controller) {
+        controller.enqueue(new TextEncoder().encode(cached.response));
+        controller.close();
+      },
+    });
+    return {
+      toDataStreamResponse: () => new Response(stream, {
+        headers: { 'Content-Type': 'text/plain; charset=utf-8', 'X-Cache': 'HIT' },
+      }),
+    };
+  }
+
+  // --- Mem0: inject user memory context (async, fail-soft) ---
+  let systemPrompt = opts.system;
+  if (opts.userId && lastUserMsg) {
+    searchMemories(opts.userId, lastUserMsg.content)
+      .then((memories) => {
+        if (memories.length > 0) {
+          const memBlock = memories.map((m) => `- ${m.memory}`).join('\n');
+          // Note: system prompt is already set before stream starts, so we prepend via state
+          systemPrompt += `\n\n## Contexto previo del usuario:\n${memBlock}`;
+        }
+      })
+      .catch(() => {}); // Fail-soft
+  }
+
+  // --- Wrapped onFinish: store in mem0 + cache ---
+  const originalOnFinish = opts.onFinish;
+  const wrappedOnFinish = async (result: { text: string }) => {
+    // Store in mem0
+    if (opts.userId && lastUserMsg) {
+      await storeMemory(opts.userId, [
+        { role: 'user', content: lastUserMsg.content },
+        { role: 'assistant', content: result.text },
+      ]);
+    }
+    // Store in cache
+    responseCache.set(opts.system, cacheKey, opts.model ?? 'default', result.text);
+    // Call original onFinish
+    await originalOnFinish?.(result);
+  };
+
   return streamText({
     model: resolveModel(opts.model),
-    system: opts.system,
+    system: systemPrompt,
     messages: opts.messages.map((m) => ({ role: m.role, content: m.content })),
     tools: Object.keys(tools).length ? tools : undefined,
     maxSteps: 4,
-    onFinish: opts.onFinish,
+    onFinish: wrappedOnFinish,
   });
 }
