@@ -84,6 +84,8 @@ const CATALOG_META: Record<Capability, { category: ToolCategory; route: string; 
   prioritize: { category: 'productividad-equipo', route: '/dashboard', related: ['cerebro', 'autopub', 'growth', 'metrics'], consolidates: [] },
   orchestrator: { category: 'ia-ml', route: '/dashboard', related: ['chat_memory', 'goal', 'cerebro'], consolidates: [] },
   chat_memory: { category: 'datos-backend', route: '/dashboard', related: ['memory', 'semantic_memory', 'qdrant_memory', 'brainpage', 'orchestrator'], consolidates: [] },
+  observability: { category: 'productividad-equipo', route: '/dashboard', related: ['metrics', 'harness', 'genesis'], consolidates: [] },
+  agentic: { category: 'automatizacion', route: '/dashboard', related: ['harness', 'research', 'autopub'], consolidates: [] },
 };
 
 

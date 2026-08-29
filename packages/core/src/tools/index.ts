@@ -167,9 +167,11 @@ import { vaultTools } from './vault';
 import { pdfsearchTools } from './pdfsearch';
 import { qdrantMemory as qdrantMemoryTools } from './qdrant-memory';
 import { studio as studioTools } from './studio';
+import * as observabilityNs from './observability';
+import * as agenticNs from './agentic';
 import * as learnModels from './learn-models';
 
-export const tools = { web, image, video, music, stitch, reach, skills: { runSkill }, content, g0dm0d3, topics, present: presentTools, publish, enrutador, mediaScore, metrics, memoryFs: { createMemoryFs }, diagram, videoEdit, screenflow, cloud: cloudTools, harness, growth, prioritize, vfx, codevfx, travel, generative, libros, sdf, videoqa, motion, replica, imaging, semanticMemory,   autolearn, learnModels, genesis, creativo, vault: vaultTools, pdfsearch: pdfsearchTools, qdrantMemory: qdrantMemoryTools, kgraph, brainpage, autopub, security, codequality, deps, geom, geometry, pngrender, procvid, physics2d, cadgeo, recordly, cerebro, evo: evoDomain, evolution: evolutionDomain, studio: studioTools };
+export const tools = { web, image, video, music, stitch, reach, skills: { runSkill }, content, g0dm0d3, topics, present: presentTools, publish, enrutador, mediaScore, metrics, memoryFs: { createMemoryFs }, diagram, videoEdit, screenflow, cloud: cloudTools, harness, growth, prioritize, vfx, codevfx, travel, generative, libros, sdf, videoqa, motion, replica, imaging, semanticMemory,   autolearn, learnModels, genesis, creativo, vault: vaultTools, pdfsearch: pdfsearchTools, qdrantMemory: qdrantMemoryTools, kgraph, brainpage, autopub, security, codequality, deps, geom, geometry, pngrender, procvid, physics2d, cadgeo, recordly, cerebro, evo: evoDomain, evolution: evolutionDomain, studio: studioTools, observability: observabilityNs.observability, agentic: agenticNs.agentic };
 
 export const TOOL_DESCRIPTIONS: Record<string, string> = {
   calculator: 'Safely evaluate a mathematical expression (math only).',
@@ -293,6 +295,10 @@ export const TOOL_DESCRIPTIONS: Record<string, string> = {
     'Modelos de aprendizaje programado (deterministas, keyless): integran "pensamientos" (observation/hypothesis/error/resolution/learning), comprimen la memoria al superar capacidad (colapsan duplicados por kind+tag, conservan los de mayor importancia) y derivan modelos avanzados de meta-razonamiento que calculan diferencias entre conjuntos de pensamientos (contrastThoughts) y resuelven errores (resolveErrors → estrategia + confianza por solapamiento de tags; spawnAdvancedModel consolida contrastes y resoluciones). Determinista, keyless. Usa para que el agente aprenda, comprima y razone sobre sus propios pensamientos.',
   goal:
     'Meta-agente autonomo (/goal): dado un objetivo + lista de tareas, ejecuta cada tarea encadenando contexto (memoria) y despachando a las capabilities reales del proyecto (creadores de contenido, viajes/video, planificador/orquestador, investigacion, memoria/vault, topicos, diagramas, publicacion, mensajeria, media-score). El modelo decide por tarea si responder o invocar una herramienta via JSON {"tool","args"}; soporta encadenado (investigar -> crear -> publicar). Usa para ejecutar peticiones complejas de principio a fin sin intervencion.',
+  observability:
+    'Observabilidad agéntica (Langfuse port, Fase A): traza cada paso del agente (spans, generaciones, scores) hacia Langfuse Cloud (https://cloud.langfuse.com) via POST /api/public/ingestion con batch + Basic auth; keyless-first fail-soft (sin LANGFUSE_PUBLIC_KEY/SECRET_KEY no hace red, solo buffer local). Acciones: trace (span/generation/score) y flush. Determinista, fetch inyectable, nunca tira. Usa para medir costo/latencia/calidad por paso y cerrar el loop de mejora.',
+  agentic:
+    'Puente infraestructura agéntica (6 capas, port determinista sin Python): demuestra LangGraph (grafo dirigido con validación DAG + maxCycles para ciclos), CrewAI (roles+tasks con validación de dependencias), LlamaIndex (RAG pipeline loaders→chunk→embed→store), Semantic Kernel/LCEL (routeIntent + planLcelChain), E2B (planSandbox local vs nube aislada por E2B_API_KEY), y Mem0/Chainlit (planMemory con fallback qdrant). Todo serializable JSON, keyless-first, fetch inyectable solo para sandbox futuro. Usa como plantilla para elegir qué capa materializar en producción.',
   orchestrator:
     'Orquestador de modelos (failover automatico): cambia de modelo y modo sin que fallen las respuestas. Recomienda el modelo gratis adecuado por tarea/modo (keyless-first: OpenRouter :free, luego Google/DeepSeek/Qwen/Groq/Mistral/Together/HuggingFace si hay clave), resuelve el LanguageModel construible (route) con degradacion elegante, lista los proveedores disponibles segun claves de entorno, y construye el system prompt con modo (P-P/P-B/L-T/S-D) + estrategia (concise/agentic/reasoning/creative). Usa para no depender de un solo proveedor y para que el agente elija el tier correcto por trabajo.',
   chat_memory:
@@ -365,8 +371,12 @@ export type Capability =
   | 'learnModels'
   | 'goal'
   | 'orchestrator'
+  | 'observability'
+  | 'agentic'
   | 'chat_memory';
 
+export * from './observability';
+export * from './agentic';
 export * from './emailCode';
 export * from './smtp';
 export * from './catalog';

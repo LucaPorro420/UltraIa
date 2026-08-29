@@ -123,6 +123,8 @@ import * as physics2d from '../tools/physics2d';
 import * as cadgeo from '../tools/cadgeo';
 import * as evoDomain from '../tools/evo';
 import * as evolutionDomain from '../tools/evolution';
+import { createObservabilityTracer } from '../tools/observability';
+import { planAgenticGraph, planCrew, planRagPipeline, routeIntent, planLcelChain, planSandbox, planMemory } from '../tools/agentic';
 import { createPublication, listPublications, approvePublication, rejectPublication, publishDue } from '../domain/publications';
 import { generarContenido, type ContentPackage } from '../tools/enrutador';
 import { computeChannelKpis, fetchChannelAnalytics } from '../tools/metrics';
@@ -509,6 +511,96 @@ function getChatSession(sessionId?: string, rootDir?: string): ChatSessionMemory
   chatSessionCache.set(m.sessionId, m);
   return m;
 }
+
+export const orchestratorTool = tool({
+  description:
+    'Orquestador de modelos: cambia de modelo y modo automaticamente con failover. Acciones: ' +
+    'recommend (que modelo usaria para tarea/modo), route (resuelve el LanguageModel construible), ' +
+    'providers (proveedores con clave disponible), context (system prompt con modo+estrategia), ' +
+    'catalog (modelos gratis disponibles). Keyless-first: prioriza los :free de OpenRouter.',
+  parameters: z.object({
+    action: z.enum(['recommend', 'route', 'providers', 'context', 'catalog']),
+    taskType: z.enum(['chat', 'coding', 'reasoning', 'vision', 'fast', 'agent', 'summarize', 'translate']).optional(),
+    mode: z.enum(['P-P', 'P-B', 'L-T', 'S-D']).optional(),
+    strategy: z.enum(['concise', 'agentic', 'reasoning', 'creative']).optional(),
+    tier: z.enum(['fast', 'balanced', 'reasoning', 'coding', 'vision']).optional(),
+    preferredProvider: z.string().optional(),
+    model: z.string().optional(),
+  }),
+  execute: async ({ action, taskType, mode, strategy, tier, preferredProvider, model }) => {
+    const orch = new ModelOrchestrator();
+    const req: any = { taskType, mode, strategy, tier, preferredProvider, model };
+    switch (action) {
+      case 'recommend': {
+        const r = orch.recommend(req);
+        return { provider: r.provider, model: r.model, tier: r.tier };
+      }
+      case 'route': {
+        try {
+          await orch.route(req);
+          return { ok: true, provider: req.provider ?? 'auto', model: req.model ?? 'auto' };
+        } catch (e) {
+          return { ok: false, error: (e as Error).message };
+        }
+      }
+      case 'providers':
+        return { available: orch.availableProviders() };
+      case 'context':
+        return { system: orch.buildSystemContext(req, '') };
+      case 'catalog':
+        return {
+          models: FREE_MODEL_CATALOG.map((m) => ({ id: m.id, provider: m.provider, tier: m.tier, keyless: m.keyless })),
+        };
+      default:
+        return { error: 'accion desconocida' };
+    }
+  },
+});
+
+export const chatMemoryTool = tool({
+  description:
+    'Memoria de chat persistente + grafo (graphity). Acciones: create (nueva sesion), append ' +
+    '(agrega turno user/assistant/system), context (bloque de contexto para inyectar al cambiar ' +
+    'de modelo/modo, preserva consistencia), graph (grafo de entidades), save (persiste en disco), ' +
+    'load (reanuda sesion desde disco). Deterministico y keyless.',
+  parameters: z.object({
+    action: z.enum(['create', 'append', 'context', 'graph', 'save', 'load']),
+    sessionId: z.string().optional(),
+    role: z.enum(['user', 'assistant', 'system']).optional(),
+    content: z.string().optional(),
+    maxRecent: z.number().int().optional(),
+    rootDir: z.string().optional(),
+  }),
+  execute: async ({ action, sessionId, role, content, maxRecent, rootDir }) => {
+    if (!sessionId && action !== 'create') return { error: 'sessionId requerido para esta accion' };
+    try {
+      const mem = getChatSession(sessionId, rootDir);
+      switch (action) {
+        case 'create':
+          return { sessionId: mem.sessionId };
+        case 'append':
+          if (!role || content === undefined) return { error: 'role y content requeridos' };
+          mem.addTurn(role, content);
+          return { ok: true, turns: mem.getTurns().length, sessionId: mem.sessionId };
+        case 'context':
+          return { ...mem.getContextBlock({ maxRecent }), sessionId: mem.sessionId };
+        case 'graph': {
+          const g = mem.buildGraph();
+          return { sessionId: mem.sessionId, nodes: g.nodes.length, edges: g.edges.length, graph: g };
+        }
+        case 'save':
+          mem.save();
+          return { ok: true, sessionId: mem.sessionId };
+        case 'load':
+          return { ok: true, sessionId: mem.sessionId, turns: mem.getTurns().length };
+        default:
+          return { error: 'accion desconocida' };
+      }
+    } catch (e) {
+      return { error: (e as Error).message };
+    }
+  },
+});
 
 export function chatStream(opts: {
   model?: string;
@@ -3206,95 +3298,99 @@ export function chatStream(opts: {
   }
 
   if (opts.tools?.includes('orchestrator')) {
-    tools.orchestrator_route = tool({
+    tools.orchestrator_route = orchestratorTool;
+  }
+
+  if (opts.tools?.includes('chat_memory')) {
+    tools.chat_memory_session = chatMemoryTool;
+  }
+
+  if (opts.tools?.includes('observability')) {
+    tools.observability_trace = tool({
       description:
-        'Orquestador de modelos: cambia de modelo y modo automaticamente con failover. Acciones: ' +
-        'recommend (que modelo usaria para tarea/modo), route (resuelve el LanguageModel construible), ' +
-        'providers (proveedores con clave disponible), context (system prompt con modo+estrategia), ' +
-        'catalog (modelos gratis disponibles). Keyless-first: prioriza los :free de OpenRouter.',
+        'Observabilidad agéntica (Langfuse port, Fase A): traza spans/generaciones/scores hacia Langfuse Cloud via ingestion batch; keyless-first fail-soft sin LANGFUSE_* no hace red. Acciones: trace (span|generation|score) + flush.',
       parameters: z.object({
-        action: z.enum(['recommend', 'route', 'providers', 'context', 'catalog']),
-        taskType: z.enum(['chat', 'coding', 'reasoning', 'vision', 'fast', 'agent', 'summarize', 'translate']).optional(),
-        mode: z.enum(['P-P', 'P-B', 'L-T', 'S-D']).optional(),
-        strategy: z.enum(['concise', 'agentic', 'reasoning', 'creative']).optional(),
-        tier: z.enum(['fast', 'balanced', 'reasoning', 'coding', 'vision']).optional(),
-        preferredProvider: z.string().optional(),
-        model: z.string().optional(),
+        accion: z.enum(['trace', 'generation', 'score', 'flush']),
+        name: z.string().min(1).max(100).optional(),
+        inputJson: z.string().max(5000).optional(),
+        outputJson: z.string().max(5000).optional(),
+        model: z.string().max(100).optional(),
+        value: z.number().min(0).max(1).optional(),
+        comment: z.string().max(300).optional(),
       }),
-      execute: async ({ action, taskType, mode, strategy, tier, preferredProvider, model }) => {
-        const orch = new ModelOrchestrator();
-        const req: any = { taskType, mode, strategy, tier, preferredProvider, model };
-        switch (action) {
-          case 'recommend': {
-            const r = orch.recommend(req);
-            return { provider: r.provider, model: r.model, tier: r.tier };
-          }
-          case 'route': {
-            try {
-              await orch.route(req);
-              return { ok: true, provider: req.provider ?? 'auto', model: req.model ?? 'auto' };
-            } catch (e) {
-              return { ok: false, error: (e as Error).message };
-            }
-          }
-          case 'providers':
-            return { available: orch.availableProviders() };
-          case 'context':
-            return { system: orch.buildSystemContext(req, '') };
-          case 'catalog':
-            return {
-              models: FREE_MODEL_CATALOG.map((m) => ({ id: m.id, provider: m.provider, tier: m.tier, keyless: m.keyless })),
-            };
-          default:
-            return { error: 'accion desconocida' };
+      execute: async ({ accion, name, inputJson, outputJson, model, value, comment }) => {
+        const tracer = createObservabilityTracer({
+          host: process.env.LANGFUSE_HOST,
+          publicKey: process.env.LANGFUSE_PUBLIC_KEY,
+          secretKey: process.env.LANGFUSE_SECRET_KEY,
+        });
+        if (accion === 'trace') {
+          if (!name) throw new Error('trace requiere name');
+          const input = inputJson ? JSON.parse(inputJson) : undefined;
+          const output = outputJson ? JSON.parse(outputJson) : undefined;
+          const id = tracer.traceStep({ name, input, output });
+          return { id, buffered: tracer.buffered.length, enabled: tracer.enabled };
         }
+        if (accion === 'generation') {
+          if (!name) throw new Error('generation requiere name');
+          const input = inputJson ? JSON.parse(inputJson) : undefined;
+          const output = outputJson ? JSON.parse(outputJson) : undefined;
+          const id = tracer.traceGeneration({ name, model, input, output });
+          return { id, buffered: tracer.buffered.length, enabled: tracer.enabled };
+        }
+        if (accion === 'score') {
+          if (!name || value === undefined) throw new Error('score requiere name + value');
+          const id = tracer.score(name, value, comment);
+          return { id, buffered: tracer.buffered.length, enabled: tracer.enabled };
+        }
+        if (accion === 'flush') {
+          const res = await tracer.flush();
+          return res;
+        }
+        throw new Error(`accion desconocida: ${accion}`);
       },
     });
   }
 
-  if (opts.tools?.includes('chat_memory')) {
-    tools.chat_memory_session = tool({
+  if (opts.tools?.includes('agentic')) {
+    tools.agentic_plan = tool({
       description:
-        'Memoria de chat persistente + grafo (graphity). Acciones: create (nueva sesion), append ' +
-        '(agrega turno user/assistant/system), context (bloque de contexto para inyectar al cambiar ' +
-        'de modelo/modo, preserva consistencia), graph (grafo de entidades), save (persiste en disco), ' +
-        'load (reanuda sesion desde disco). Deterministico y keyless.',
+        'Puente infraestructura agéntica (6 capas): planifica grafo agéntico (LangGraph), crew (CrewAI), RAG pipeline (LlamaIndex), routing (SK/LCEL), sandbox (E2B), memoria (Mem0/Chainlit). Todo determinista, keyless-first, serializable JSON. Usa para demostrar o materializar una capa antes de ejecutarla.',
       parameters: z.object({
-        action: z.enum(['create', 'append', 'context', 'graph', 'save', 'load']),
-        sessionId: z.string().optional(),
-        role: z.enum(['user', 'assistant', 'system']).optional(),
-        content: z.string().optional(),
-        maxRecent: z.number().int().optional(),
-        rootDir: z.string().optional(),
+        capa: z.enum(['graph', 'crew', 'rag', 'route', 'lcel', 'sandbox', 'memory']),
+        specJson: z.string().max(10000).optional(),
+        intent: z.string().max(500).optional(),
       }),
-      execute: async ({ action, sessionId, role, content, maxRecent, rootDir }) => {
-        if (!sessionId && action !== 'create') return { error: 'sessionId requerido para esta accion' };
-        try {
-          const mem = getChatSession(sessionId, rootDir);
-          switch (action) {
-            case 'create':
-              return { sessionId: mem.sessionId };
-            case 'append':
-              if (!role || content === undefined) return { error: 'role y content requeridos' };
-              mem.addTurn(role, content);
-              return { ok: true, turns: mem.getTurns().length, sessionId: mem.sessionId };
-            case 'context':
-              return { ...mem.getContextBlock({ maxRecent }), sessionId: mem.sessionId };
-            case 'graph': {
-              const g = mem.buildGraph();
-              return { sessionId: mem.sessionId, nodes: g.nodes.length, edges: g.edges.length, graph: g };
-            }
-            case 'save':
-              mem.save();
-              return { ok: true, sessionId: mem.sessionId };
-            case 'load':
-              return { ok: true, sessionId: mem.sessionId, turns: mem.getTurns().length };
-            default:
-              return { error: 'accion desconocida' };
-          }
-        } catch (e) {
-          return { error: (e as Error).message };
+      execute: async ({ capa, specJson, intent }) => {
+        if (capa === 'graph') {
+          const spec = specJson ? JSON.parse(specJson) : { entry: 'start', nodes: [{ id: 'start', kind: 'router' }], edges: [] };
+          return planAgenticGraph(spec);
         }
+        if (capa === 'crew') {
+          const spec = specJson ? JSON.parse(specJson) : { roles: [{ name: 'researcher', goal: 'investigar' }], tasks: [{ id: 't1', role: 'researcher', objective: 'buscar' }] };
+          return planCrew(spec);
+        }
+        if (capa === 'rag') {
+          const spec = specJson ? JSON.parse(specJson) : { loaders: ['web'], chunk: { size: 1000, overlap: 100 }, embed: 'local', store: 'qdrant' };
+          return planRagPipeline(spec);
+        }
+        if (capa === 'route') {
+          if (!intent) throw new Error('route requiere intent');
+          return routeIntent(intent);
+        }
+        if (capa === 'lcel') {
+          const steps = specJson ? JSON.parse(specJson) : [{ kind: 'prompt', name: 'template' }, { kind: 'model', name: 'gpt-4o-mini' }];
+          return planLcelChain(steps);
+        }
+        if (capa === 'sandbox') {
+          const spec = specJson ? JSON.parse(specJson) : { lang: 'python', code: 'print("hello")' };
+          return planSandbox(spec);
+        }
+        if (capa === 'memory') {
+          const spec = specJson ? JSON.parse(specJson) : { kind: 'semantic', query: 'buscar' };
+          return planMemory(spec);
+        }
+        throw new Error(`capa desconocida: ${capa}`);
       },
     });
   }
