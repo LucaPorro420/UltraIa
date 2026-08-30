@@ -1041,3 +1041,10 @@ Cada commit agrega una sección con fecha y la lista de archivos `.ts/.tsx` toca
 
 ## 2026-08-30T22:26:56.228Z
 - [ ] apps/web/src/app/api/health/route.ts
+
+## 2026-08-30T22:37:04.620Z
+- [ ] apps/web/src/app/layout.tsx
+- [ ] apps/web/src/components/performance/web-vitals.tsx
+- [ ] apps/web/src/components/ui/error-boundary.tsx
+- [ ] apps/web/src/components/ui/loading.tsx
+- [ ] apps/web/src/hooks/use-performance.ts

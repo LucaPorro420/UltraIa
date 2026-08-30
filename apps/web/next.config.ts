@@ -10,6 +10,14 @@ const nextConfig: NextConfig = {
   eslint: { ignoreDuringBuilds: true },
   typescript: { ignoreBuildErrors: true },
   experimental: { cpus: 1 }, // un solo worker de generación estática = menos RAM
+  
+  // Performance budgets
+  modularizeImports: {
+    'lucide-react': {
+      transform: 'lucide-react/dist/esm/icons/{{ kebabCase member }}',
+    },
+  },
+  
   webpack: (config, { isServer }) => {
     config.cache = { type: 'filesystem' }; // caché persistente: evita recompilación completa en cada request
     if (!isServer) {
