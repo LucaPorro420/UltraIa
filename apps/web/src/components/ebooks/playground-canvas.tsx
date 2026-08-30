@@ -1,22 +1,26 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import * as THREE from 'three';
+import {
+  WebGLRenderer, Scene, PerspectiveCamera, DirectionalLight, AmbientLight,
+  MeshStandardMaterial, Mesh, BoxGeometry, SphereGeometry, TorusGeometry,
+  IcosahedronGeometry, BufferGeometry,
+} from 'three';
 
 const SHAPES = ['cube', 'sphere', 'torus', 'icosa'] as const;
 type ShapeKind = (typeof SHAPES)[number];
 
-function buildGeometry(shape: ShapeKind): THREE.BufferGeometry {
+function buildGeometry(shape: ShapeKind): BufferGeometry {
   switch (shape) {
     case 'sphere':
-      return new THREE.SphereGeometry(1.3, 64, 64);
+      return new SphereGeometry(1.3, 64, 64);
     case 'torus':
-      return new THREE.TorusGeometry(1.1, 0.42, 32, 96);
+      return new TorusGeometry(1.1, 0.42, 32, 96);
     case 'icosa':
-      return new THREE.IcosahedronGeometry(1.4, 0);
+      return new IcosahedronGeometry(1.4, 0);
     case 'cube':
     default:
-      return new THREE.BoxGeometry(1.8, 1.8, 1.8);
+      return new BoxGeometry(1.8, 1.8, 1.8);
   }
 }
 
@@ -32,22 +36,22 @@ export function PlaygroundCanvas({ initialShape = 'cube' }: { initialShape?: Sha
     if (!canvas) return;
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+    const renderer = new WebGLRenderer({ canvas, antialias: true, alpha: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+    const scene = new Scene();
+    const camera = new PerspectiveCamera(45, 1, 0.1, 100);
     camera.position.set(0, 0, 5);
 
-    const key = new THREE.DirectionalLight(0xffffff, 2.2);
+    const key = new DirectionalLight(0xffffff, 2.2);
     key.position.set(5, 5, 5);
     scene.add(key);
-    const rim = new THREE.DirectionalLight(0x8b5cf6, 1.4);
+    const rim = new DirectionalLight(0x8b5cf6, 1.4);
     rim.position.set(-5, -2, -4);
     scene.add(rim);
-    scene.add(new THREE.AmbientLight(0x404060, 1.2));
+    scene.add(new AmbientLight(0x404060, 1.2));
 
-    const material = new THREE.MeshStandardMaterial({
+    const material = new MeshStandardMaterial({
       color: 0x8b5cf6,
       roughness: 0.25,
       metalness: 0.35,
@@ -55,7 +59,7 @@ export function PlaygroundCanvas({ initialShape = 'cube' }: { initialShape?: Sha
       emissiveIntensity: 0.4,
     });
     const geometry = buildGeometry(shape);
-    const mesh = new THREE.Mesh(geometry, material);
+    const mesh = new Mesh(geometry, material);
     scene.add(mesh);
 
     const resize = () => {

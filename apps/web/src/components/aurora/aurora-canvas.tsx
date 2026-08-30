@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import * as THREE from 'three';
+import { WebGLRenderer, Scene, OrthographicCamera, ShaderMaterial, Vector2, PlaneGeometry, Mesh, Clock } from 'three';
 
 const VERTEX = /* glsl */ `
 varying vec2 vUv;
@@ -105,7 +105,7 @@ export function AuroraCanvas({ className }: { className?: string }) {
 
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    const renderer = new THREE.WebGLRenderer({
+    const renderer = new WebGLRenderer({
       canvas,
       alpha: true,
       antialias: false,
@@ -113,20 +113,20 @@ export function AuroraCanvas({ className }: { className?: string }) {
     });
     renderer.setClearColor(0x000000, 0);
 
-    const scene = new THREE.Scene();
-    const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+    const scene = new Scene();
+    const camera = new OrthographicCamera(-1, 1, 1, -1, 0, 1);
 
-    const material = new THREE.ShaderMaterial({
+    const material = new ShaderMaterial({
       vertexShader: VERTEX,
       fragmentShader: FRAGMENT,
       transparent: true,
       uniforms: {
         uTime: { value: 12 },
-        uResolution: { value: new THREE.Vector2(1, 1) },
+        uResolution: { value: new Vector2(1, 1) },
       },
     });
-    const geometry = new THREE.PlaneGeometry(2, 2);
-    const mesh = new THREE.Mesh(geometry, material);
+    const geometry = new PlaneGeometry(2, 2);
+    const mesh = new Mesh(geometry, material);
     scene.add(mesh);
 
     const resize = () => {
@@ -140,7 +140,7 @@ export function AuroraCanvas({ className }: { className?: string }) {
     };
     resize();
 
-    const clock = new THREE.Clock();
+    const clock = new Clock();
     let raf = 0;
     const animate = () => {
       material.uniforms.uTime.value = clock.getElapsedTime();

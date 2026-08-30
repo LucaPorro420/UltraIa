@@ -1,7 +1,11 @@
 @import "tailwindcss";
 
+/* ═══════════════════════════════════════════════════════════════════
+   DESIGN TOKENS — Dark Obsidian + Neo Violet (DESIGN.md §2)
+   ═══════════════════════════════════════════════════════════════════ */
+
 @theme {
-  /* Dark Obsidian surfaces (IMAGE-INTEGRATIONS / ADDITIONS2 + DESIGN.md) */
+  /* Surfaces */
   --color-canvas: #08080a;
   --color-panel: #111115;
   --color-panel-header: #18181f;
@@ -14,7 +18,7 @@
   --color-accent: #f472b6;
   --color-destructive: #f87171;
 
-  /* Neo Violet palette (uxintace "Best Color Palette", DESIGN.md §2) */
+  /* Neo Violet palette */
   --color-neo-100: #f69dee;
   --color-neo-200: #ee9ced;
   --color-neo-300: #d09ae6;
@@ -74,319 +78,191 @@
   }
 }
 
-:root {
-  /* Multimodal IDE accents (IMAGE-INTEGRATIONS / ADDITIONS2) */
-  --agent-video: #a855f7;
-  --agent-audio: #06b6d4;
-  --agent-text: #f59e0b;
-  --agent-code: #10b981;
-  --agent-web: #6366f1;
-  --status-thinking: #3b82f6;
-  --status-streaming: #10b981;
-  --status-error: #ef4444;
-}
+/* ═══════════════════════════════════════════════════════════════════
+   @layer base — resets, root vars, body
+   ═══════════════════════════════════════════════════════════════════ */
 
-body {
-  @apply bg-canvas text-neutral-100 antialiased;
-  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-}
+@layer base {
+  :root {
+    --agent-video: #a855f7;
+    --agent-audio: #06b6d4;
+    --agent-text: #f59e0b;
+    --agent-code: #10b981;
+    --agent-web: #6366f1;
+    --status-thinking: #3b82f6;
+    --status-streaming: #10b981;
+    --status-error: #ef4444;
+  }
 
-::selection {
-  background: color-mix(in srgb, var(--color-primary) 40%, transparent);
-}
+  body {
+    @apply bg-canvas text-neutral-100 antialiased;
+    font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  }
 
-/* Thin custom scrollbar (Calm UI) */
-* {
-  scrollbar-width: thin;
-  scrollbar-color: var(--color-border-muted) transparent;
-}
+  ::selection {
+    background: color-mix(in srgb, var(--color-primary) 40%, transparent);
+  }
 
-/* Glow border per agent modality */
-.glow-video {
-  border-color: color-mix(in srgb, var(--agent-video) 45%, transparent);
-  box-shadow: 0 0 18px -6px var(--agent-video);
-}
-.glow-audio {
-  border-color: color-mix(in srgb, var(--agent-audio) 45%, transparent);
-  box-shadow: 0 0 18px -6px var(--agent-audio);
-}
-.glow-text {
-  border-color: color-mix(in srgb, var(--agent-text) 45%, transparent);
-  box-shadow: 0 0 18px -6px var(--agent-text);
-}
-.glow-code {
-  border-color: color-mix(in srgb, var(--agent-code) 45%, transparent);
-  box-shadow: 0 0 18px -6px var(--agent-code);
-}
-.glow-web {
-  border-color: color-mix(in srgb, var(--agent-web) 45%, transparent);
-  box-shadow: 0 0 18px -6px var(--agent-web);
-}
-
-/* Resizable panel handles (react-resizable-panels) */
-.resize-handle {
-  position: relative;
-  width: 6px;
-  background: transparent;
-  transition: background 150ms ease;
-}
-.resize-handle:hover,
-.resize-handle[data-resize-handle-active] {
-  background: linear-gradient(180deg, transparent, rgba(139, 92, 246, 0.6), transparent);
-}
-.resize-handle-v {
-  width: 6px;
-}
-.resize-handle-h {
-  height: 6px;
-  width: 100%;
-}
-
-/* --- Motion utilities (DESIGN.md §6) --- */
-
-/* Aurora background for hero / sections */
-.aurora-bg {
-  background:
-    radial-gradient(ellipse 60% 45% at 20% 0%, rgba(139, 92, 246, 0.14), transparent 60%),
-    radial-gradient(ellipse 50% 40% at 85% 10%, rgba(6, 182, 212, 0.08), transparent 60%),
-    radial-gradient(ellipse 55% 45% at 55% 90%, rgba(99, 102, 241, 0.1), transparent 60%);
-}
-
-/* IDE grid-dot pattern (ADDITIONS2 §2B) */
-.grid-dots {
-  background-image: radial-gradient(#27272a 1px, transparent 1px);
-  background-size: 16px 16px;
-  animation: var(--animate-grid-drift);
-}
-
-/* --- Neo Violet utilities (uxintace palette, DESIGN.md §2) --- */
-
-/* Gradient text (lightest -> mid -> deepest violet) */
-.gradient-neo-text {
-  background-image: linear-gradient(100deg, #ee9ced 0%, #988cdb 45%, #5167cb 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-
-/* Soft outer glow */
-.glow-neo {
-  box-shadow: 0 0 32px -10px color-mix(in srgb, var(--color-neo-400) 55%, transparent);
-}
-
-/* Gradient hairline frame: wrap content in p-px */
-.gradient-neo-frame {
-  background-image: linear-gradient(
-    120deg,
-    rgba(238, 156, 237, 0.7),
-    rgba(152, 140, 219, 0.45) 40%,
-    rgba(81, 103, 203, 0.7)
-  );
-}
-
-/* Radial neo aura for section backdrops */
-.neo-aura {
-  background:
-    radial-gradient(ellipse 55% 50% at 25% 0%, rgba(238, 156, 237, 0.09), transparent 60%),
-    radial-gradient(ellipse 60% 50% at 78% 15%, rgba(81, 103, 203, 0.12), transparent 65%);
-}
-
-/* --- 2026 polish utilities (hybrid pass: Dark Obsidian + glass/glow) --- */
-
-/* Glass panel: translucent surface with hairline top highlight */
-.glass-panel {
-  background: color-mix(in srgb, var(--color-panel) 82%, transparent);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--color-border-subtle);
-  box-shadow:
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.04),
-    0 8px 24px -12px rgba(0, 0, 0, 0.6);
-}
-
-/* Interactive card: subtle lift + primary glow on hover (150ms) */
-.card-glow-hover {
-  transition: transform 150ms var(--ease-ultra), box-shadow 150ms var(--ease-ultra),
-    border-color 150ms var(--ease-ultra), background-color 150ms var(--ease-ultra);
-}
-.card-glow-hover:hover {
-  transform: translateY(-2px);
-  border-color: color-mix(in srgb, var(--color-primary) 45%, var(--color-border-muted));
-  box-shadow: 0 10px 32px -14px rgba(139, 92, 246, 0.35);
-}
-
-/* Focus ring: visible on every interactive element */
-:where(a, button, input, textarea, select, summary, [tabindex]):focus-visible {
-  outline: 2px solid color-mix(in srgb, var(--color-primary) 70%, transparent);
-  outline-offset: 2px;
-  border-radius: 6px;
-}
-
-/* Gradient hairline frame (stronger, 2026 version) */
-.gradient-neo-frame-strong {
-  background-image: linear-gradient(
-    120deg,
-    rgba(238, 156, 237, 0.9),
-    rgba(152, 140, 219, 0.5) 40%,
-    rgba(81, 103, 203, 0.9)
-  );
-  box-shadow: 0 0 40px -12px color-mix(in srgb, var(--color-neo-400) 45%, transparent);
-}
-
-/* Typing indicator dots */
-.typing-dot {
-  width: 5px;
-  height: 5px;
-  border-radius: 9999px;
-  background: var(--color-primary);
-  animation: var(--animate-typing);
-}
-
-/* Streaming caret */
-.stream-caret {
-  display: inline-block;
-  width: 2px;
-  height: 1em;
-  vertical-align: text-bottom;
-  margin-left: 2px;
-  background: var(--color-primary);
-  animation: var(--animate-stream-cursor);
-}
-
-/* Shimmer skeleton for loading cards */
-.shimmer {
-  background: linear-gradient(
-    110deg,
-    var(--color-panel-hover) 8%,
-    var(--color-border-muted) 18%,
-    var(--color-panel-hover) 33%
-  );
-  background-size: 200% 100%;
-  animation: var(--animate-shimmer);
-}
-
-/* Reduced motion: kill all animation/transition (Calm UI, DESIGN.md §6) */
-@media (prefers-reduced-motion: reduce) {
   * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-border-muted) transparent;
+  }
+
+  :where(a, button, input, textarea, select, summary, [tabindex]):focus-visible {
+    outline: 2px solid color-mix(in srgb, var(--color-primary) 70%, transparent);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   @layer components — reusable UI patterns
+   ═══════════════════════════════════════════════════════════════════ */
+
+@layer components {
+  /* Agent modality glow */
+  .glow-video { border-color: color-mix(in srgb, var(--agent-video) 45%, transparent); box-shadow: 0 0 18px -6px var(--agent-video); }
+  .glow-audio { border-color: color-mix(in srgb, var(--agent-audio) 45%, transparent); box-shadow: 0 0 18px -6px var(--agent-audio); }
+  .glow-text  { border-color: color-mix(in srgb, var(--agent-text) 45%, transparent); box-shadow: 0 0 18px -6px var(--agent-text); }
+  .glow-code  { border-color: color-mix(in srgb, var(--agent-code) 45%, transparent); box-shadow: 0 0 18px -6px var(--agent-code); }
+  .glow-web   { border-color: color-mix(in srgb, var(--agent-web) 45%, transparent); box-shadow: 0 0 18px -6px var(--agent-web); }
+
+  /* Glass panel */
+  .glass-panel {
+    background: color-mix(in srgb, var(--color-panel) 82%, transparent);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--color-border-subtle);
+    box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.04), 0 8px 24px -12px rgba(0, 0, 0, 0.6);
+  }
+
+  /* Card hover effect */
+  .card-glow-hover {
+    transition: transform 150ms var(--ease-ultra), box-shadow 150ms var(--ease-ultra),
+      border-color 150ms var(--ease-ultra), background-color 150ms var(--ease-ultra);
+  }
+  .card-glow-hover:hover {
+    transform: translateY(-2px);
+    border-color: color-mix(in srgb, var(--color-primary) 45%, var(--color-border-muted));
+    box-shadow: 0 10px 32px -14px rgba(139, 92, 246, 0.35);
+  }
+
+  /* Neo Violet gradient text */
+  .gradient-neo-text {
+    background-image: linear-gradient(100deg, #ee9ced 0%, #988cdb 45%, #5167cb 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* Neo Violet glow */
+  .glow-neo {
+    box-shadow: 0 0 32px -10px color-mix(in srgb, var(--color-neo-400) 55%, transparent);
+  }
+
+  /* Gradient hairline frames */
+  .gradient-neo-frame {
+    background-image: linear-gradient(120deg, rgba(238, 156, 237, 0.7), rgba(152, 140, 219, 0.45) 40%, rgba(81, 103, 203, 0.7));
+  }
+  .gradient-neo-frame-strong {
+    background-image: linear-gradient(120deg, rgba(238, 156, 237, 0.9), rgba(152, 140, 219, 0.5) 40%, rgba(81, 103, 203, 0.9));
+    box-shadow: 0 0 40px -12px color-mix(in srgb, var(--color-neo-400) 45%, transparent);
+  }
+
+  /* Aurora background */
+  .aurora-bg {
+    background:
+      radial-gradient(ellipse 60% 45% at 20% 0%, rgba(139, 92, 246, 0.14), transparent 60%),
+      radial-gradient(ellipse 50% 40% at 85% 10%, rgba(6, 182, 212, 0.08), transparent 60%),
+      radial-gradient(ellipse 55% 45% at 55% 90%, rgba(99, 102, 241, 0.1), transparent 60%);
+  }
+
+  /* Neo aura */
+  .neo-aura {
+    background:
+      radial-gradient(ellipse 55% 50% at 25% 0%, rgba(238, 156, 237, 0.09), transparent 60%),
+      radial-gradient(ellipse 60% 50% at 78% 15%, rgba(81, 103, 203, 0.12), transparent 65%);
+  }
+
+  /* Grid dots */
+  .grid-dots {
+    background-image: radial-gradient(#27272a 1px, transparent 1px);
+    background-size: 16px 16px;
+    animation: var(--animate-grid-drift);
+  }
+
+  /* Resize handles (react-resizable-panels) */
+  .resize-handle { position: relative; width: 6px; background: transparent; transition: background 150ms ease; }
+  .resize-handle:hover, .resize-handle[data-resize-handle-active] { background: linear-gradient(180deg, transparent, rgba(139, 92, 246, 0.6), transparent); }
+  .resize-handle-v { width: 6px; }
+  .resize-handle-h { height: 6px; width: 100%; }
+
+  /* Typing indicator */
+  .typing-dot { width: 5px; height: 5px; border-radius: 9999px; background: var(--color-primary); animation: var(--animate-typing); }
+
+  /* Streaming caret */
+  .stream-caret { display: inline-block; width: 2px; height: 1em; vertical-align: text-bottom; margin-left: 2px; background: var(--color-primary); animation: var(--animate-stream-cursor); }
+
+  /* Shimmer skeleton */
+  .shimmer {
+    background: linear-gradient(110deg, var(--color-panel-hover) 8%, var(--color-border-muted) 18%, var(--color-panel-hover) 33%);
+    background-size: 200% 100%;
+    animation: var(--animate-shimmer);
+  }
+
+  /* ── IDE shell separators ── */
+  .ide-sep { position: relative; z-index: 20; flex-shrink: 0; background: transparent; }
+  .ide-sep-col { width: 6px; margin-left: -3px; margin-right: -3px; cursor: col-resize; }
+  .ide-sep-row { height: 6px; margin-top: -3px; margin-bottom: -3px; cursor: row-resize; }
+  .ide-sep::after { content: ''; position: absolute; border-radius: 2px; background: var(--color-border-subtle); transition: background-color 150ms ease, box-shadow 150ms ease; }
+  .ide-sep-col::after { top: 50%; left: 50%; width: 2px; height: 56px; transform: translate(-50%, -50%); }
+  .ide-sep-row::after { top: 50%; left: 50%; width: 56px; height: 2px; transform: translate(-50%, -50%); }
+  .ide-sep:hover::after, .ide-sep:focus-visible::after, .ide-sep[data-separator-state='drag']::after { background: var(--color-primary); box-shadow: 0 0 12px color-mix(in srgb, var(--color-primary) 60%, transparent); outline: none; }
+
+  /* ── Markdown body (chat-style) ── */
+  .md-body > :first-child { margin-top: 0; }
+  .md-body > :last-child { margin-bottom: 0; }
+  .md-body p { margin: 0.5em 0; }
+  .md-body ul, .md-body ol { margin: 0.5em 0; padding-left: 1.25em; }
+  .md-body ul { list-style: disc; }
+  .md-body ol { list-style: decimal; }
+  .md-body li { margin: 0.2em 0; }
+  .md-body h1, .md-body h2, .md-body h3, .md-body h4 { font-family: var(--font-display); color: var(--color-neutral-100); font-weight: 700; margin: 0.9em 0 0.4em; line-height: 1.3; }
+  .md-body h1 { font-size: 1.2em; }
+  .md-body h2 { font-size: 1.1em; }
+  .md-body h3 { font-size: 1em; }
+  .md-body strong { color: var(--color-neutral-100); font-weight: 600; }
+  .md-body a { color: var(--color-primary); text-decoration: underline; text-underline-offset: 2px; }
+  .md-body code { font-family: var(--font-mono); font-size: 0.88em; background: var(--color-panel-header); border: 1px solid var(--color-border-subtle); border-radius: 4px; padding: 0.1em 0.35em; color: var(--color-neutral-200); }
+  .md-body pre { background: var(--color-canvas); border: 1px solid var(--color-border-subtle); border-radius: 8px; padding: 0.75em 1em; overflow-x: auto; margin: 0.6em 0; }
+  .md-body pre code { background: transparent; border: none; padding: 0; font-size: 0.82em; }
+  .md-body blockquote { margin: 0.6em 0; padding-left: 0.9em; border-left: 2px solid color-mix(in oklab, var(--color-primary) 40%, transparent); color: var(--color-neutral-400); }
+  .md-body table { border-collapse: collapse; margin: 0.6em 0; width: 100%; font-size: 0.9em; }
+  .md-body th, .md-body td { border: 1px solid var(--color-border-subtle); padding: 0.35em 0.6em; text-align: left; }
+  .md-body th { background: var(--color-panel-header); color: var(--color-neutral-200); }
+  .md-body hr { border: none; border-top: 1px solid var(--color-border-subtle); margin: 0.8em 0; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   @layer utilities — one-off helper classes
+   ═══════════════════════════════════════════════════════════════════ */
+
+@layer utilities {
+  .sr-only {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border-width: 0;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   Reduced motion
+   ═══════════════════════════════════════════════════════════════════ */
+
+@media (prefers-reduced-motion: reduce) {
+  *, .grid-dots, .ide-sep::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
-  }
-  .grid-dots {
-    animation: none;
-  }
-}
-
-/* Markdown body for the assistant chat (Claude/ChatGPT-style) */
-.md-body > :first-child { margin-top: 0; }
-.md-body > :last-child { margin-bottom: 0; }
-.md-body p { margin: 0.5em 0; }
-.md-body ul, .md-body ol { margin: 0.5em 0; padding-left: 1.25em; }
-.md-body ul { list-style: disc; }
-.md-body ol { list-style: decimal; }
-.md-body li { margin: 0.2em 0; }
-.md-body h1, .md-body h2, .md-body h3, .md-body h4 {
-  font-family: var(--font-display);
-  color: var(--color-neutral-100);
-  font-weight: 700;
-  margin: 0.9em 0 0.4em;
-  line-height: 1.3;
-}
-.md-body h1 { font-size: 1.2em; }
-.md-body h2 { font-size: 1.1em; }
-.md-body h3 { font-size: 1em; }
-.md-body strong { color: var(--color-neutral-100); font-weight: 600; }
-.md-body a { color: var(--color-primary); text-decoration: underline; text-underline-offset: 2px; }
-.md-body code {
-  font-family: var(--font-mono);
-  font-size: 0.88em;
-  background: var(--color-panel-header);
-  border: 1px solid var(--color-border-subtle);
-  border-radius: 4px;
-  padding: 0.1em 0.35em;
-  color: var(--color-neutral-200);
-}
-.md-body pre {
-  background: var(--color-canvas);
-  border: 1px solid var(--color-border-subtle);
-  border-radius: 8px;
-  padding: 0.75em 1em;
-  overflow-x: auto;
-  margin: 0.6em 0;
-}
-.md-body pre code {
-  background: transparent;
-  border: none;
-  padding: 0;
-  font-size: 0.82em;
-}
-.md-body blockquote {
-  margin: 0.6em 0;
-  padding-left: 0.9em;
-  border-left: 2px solid color-mix(in oklab, var(--color-primary) 40%, transparent);
-  color: var(--color-neutral-400);
-}
-.md-body table { border-collapse: collapse; margin: 0.6em 0; width: 100%; font-size: 0.9em; }
-.md-body th, .md-body td { border: 1px solid var(--color-border-subtle); padding: 0.35em 0.6em; text-align: left; }
-.md-body th { background: var(--color-panel-header); color: var(--color-neutral-200); }
-.md-body hr { border: none; border-top: 1px solid var(--color-border-subtle); margin: 0.8em 0; }
-
-/* ── IDE shell — separadores redimensionables (F1) ─────────────────────── */
-
-.ide-sep {
-  position: relative;
-  z-index: 20;
-  flex-shrink: 0;
-  background: transparent;
-}
-/* Separador vertical (entre columnas): overlay de 6px sin romper el flex. */
-.ide-sep-col {
-  width: 6px;
-  margin-left: -3px;
-  margin-right: -3px;
-  cursor: col-resize;
-}
-/* Separador horizontal (entre filas del dock). */
-.ide-sep-row {
-  height: 6px;
-  margin-top: -3px;
-  margin-bottom: -3px;
-  cursor: row-resize;
-}
-.ide-sep::after {
-  content: '';
-  position: absolute;
-  border-radius: 2px;
-  background: var(--color-border-subtle);
-  transition:
-    background-color 150ms ease,
-    box-shadow 150ms ease;
-}
-.ide-sep-col::after {
-  top: 50%;
-  left: 50%;
-  width: 2px;
-  height: 56px;
-  transform: translate(-50%, -50%);
-}
-.ide-sep-row::after {
-  top: 50%;
-  left: 50%;
-  width: 56px;
-  height: 2px;
-  transform: translate(-50%, -50%);
-}
-.ide-sep:hover::after,
-.ide-sep:focus-visible::after,
-.ide-sep[data-separator-state='drag']::after {
-  background: var(--color-primary);
-  box-shadow: 0 0 12px color-mix(in srgb, var(--color-primary) 60%, transparent);
-  outline: none;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .ide-sep::after {
-    transition: none;
   }
 }
