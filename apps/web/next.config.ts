@@ -1,7 +1,8 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  output: 'standalone', // empaquetable sin node_modules completos (prototipo descargable)
+  // output: 'standalone' — deshabilitado en dev para evitar problemas con rutas estáticas.
+  // Restaurar en producción si se necesita empaquetado independiente.
   transpilePackages: ['@ultraia/core'],
   serverExternalPackages: ['@prisma/client', '@google/stitch-sdk'],
   // Low-RAM build: typecheck/lint ya corren como gates separados, así que no se repiten
@@ -10,7 +11,7 @@ const nextConfig: NextConfig = {
   typescript: { ignoreBuildErrors: true },
   experimental: { cpus: 1 }, // un solo worker de generación estática = menos RAM
   webpack: (config, { isServer }) => {
-    config.cache = false; // desactiva caché de webpack para reducir el uso de RAM
+    config.cache = { type: 'filesystem' }; // caché persistente: evita recompilación completa en cada request
     if (!isServer) {
       const serverOnlyBuiltins = [
         'child_process',
@@ -77,10 +78,10 @@ const nextConfig: NextConfig = {
             value: [
               "default-src 'self'",
               "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
-              "style-src 'self' 'unsafe-inline'",
-              "img-src 'self' data: https://image.pollinations.ai https://*.pollinations.ai https://images.meigen.ai https://www.meigen.ai https://i.ytimg.com https://d1s1y0ui543e5o.cloudfront.net",
-              "font-src 'self' data:",
-              "connect-src 'self' https://image.pollinations.ai https://text.pollinations.ai https://*.pollinations.ai https://www.meigen.ai https://api.meigen.ai https://r.jina.ai https://api.duckduckgo.com https://api.exa.ai https://api.github.com https://www.youtube.com https://mcp.tunetank.com https://d1s1y0ui543e5o.cloudfront.net https://mixkit.co",
+              "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+              "img-src 'self' data: https://image.pollinations.ai https://*.pollinations.ai https://images.meigen.ai https://www.meigen.ai https://i.ytimg.com https://d1s1y0ui543e5o.cloudfront.net https://fonts.googleapis.com",
+              "font-src 'self' data: https://fonts.gstatic.com",
+              "connect-src 'self' ws://localhost:* wss://localhost:* https://image.pollinations.ai https://text.pollinations.ai https://*.pollinations.ai https://www.meigen.ai https://api.meigen.ai https://r.jina.ai https://api.duckduckgo.com https://api.exa.ai https://api.github.com https://www.youtube.com https://mcp.tunetank.com https://d1s1y0ui543e5o.cloudfront.net https://mixkit.co",
               "frame-ancestors 'none'",
               "base-uri 'self'",
             ].join('; '),

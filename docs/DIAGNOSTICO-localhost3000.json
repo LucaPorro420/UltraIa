@@ -1,0 +1,172 @@
+{
+  "titulo": "Diagnóstico Completo: localhost:3000 — Errores MIME, CSS, JS y Extensiones",
+  "fecha": "2026-08-30",
+  "proyecto": "UltraIa",
+  "version_next": "15.3.3",
+  "version_react": "19.2.3",
+
+  "resumen_ejecutivo": {
+    "problema_principal": "Al abrir localhost:3000, el navegador muestra errores de MIME type (CSS servido como text/html) y chunks JS con 404.",
+    "causa_raiz": "CSP (Content-Security-Policy) demasiado restrictivo + extensión Plurality de Chrome inyectando scripts + caché stale de webpack.",
+    "solucion": "Ajustar CSP para permitir Google Fonts y WebSocket (HMR), deshabilitar extensión Plurality en localhost, limpiar caché."
+  },
+
+  "problemas_encontrados": [
+    {
+      "id": "PROB-001",
+      "severidad": "CRITICO",
+      "titulo": "CSP bloquea Google Fonts",
+      "descripcion": "El header Content-Security-Policy tiene font-src 'self' data: que NO permite fonts.googleapis.com ni fonts.gstatic.com.",
+      "error_navegador": "Refused to load the stylesheet from fonts.googleapis.com because it violates the following Content Security Policy directive: font-src 'self' data:",
+      "archivo": "apps/web/next.config.ts",
+      "linea": 83,
+      "solucion": "Agregar https://fonts.googleapis.com y https://fonts.gstatic.com al directive font-src.",
+      "impacto": "Las fuentes Inter, Plus Jakarta Sans y JetBrains Mono no cargan. El sitio usa fuentes fallback del sistema.",
+      "verificado": false
+    },
+    {
+      "id": "PROB-002",
+      "severidad": "CRITICO",
+      "titulo": "CSP bloquea WebSocket para HMR (Hot Module Replacement)",
+      "descripcion": "El dev server de Next.js usa WebSocket para Hot Module Replacement. El CSP actual no incluye ws:// o wss:// en connect-src.",
+      "error_navegador": "WebSocket connection to 'ws://localhost:3000/_next/webpack-hmr' failed",
+      "archivo": "apps/web/next.config.ts",
+      "linea": 84,
+      "solucion": "Agregar ws://localhost:* y wss://localhost:* al connect-src en desarrollo.",
+      "impacto": "El hot reload no funciona. Los cambios no se reflejan sin recarga manual.",
+      "verificado": false
+    },
+    {
+      "id": "PROB-003",
+      "severidad": "ALTO",
+      "titulo": "Extensión Plurality de Chrome inyecta scripts en localhost",
+      "descripcion": "La extensión 'Plurality' (app.plurality.network) inyecta content scripts en http://localhost:3000, causando conflictos de MIME type.",
+      "error_navegador": "[Plurality][DEBUG] Content script loaded, notifying extensionReady. APP_BASE_URL: https://app.plurality.network current origin: http://localhost:3000",
+      "archivo": "N/A (extensión del navegador)",
+      "solucion": "Deshabilitar la extensión Plurality para localhost en chrome://extensions, o usar modo incógnito.",
+      "impacto": "Los scripts inyectados por la extensión causan errores de MIME type y 404 en chunks.",
+      "verificado": true
+    },
+    {
+      "id": "PROB-004",
+      "severidad": "ALTO",
+      "titulo": "webpack.cache = false fuerza recompilación completa en cada request",
+      "descripcion": "La config webpack: (config) => { config.cache = false } desactiva la caché de webpack. Esto fuerza recompilación completa en cada request del dev server.",
+      "archivo": "apps/web/next.config.ts",
+      "linea": 13,
+      "solucion": "Cambiar a config.cache = { type: 'filesystem' } para caché persistente, o eliminar la línea (Next.js usa caché por defecto).",
+      "impacto": "El dev server tarda 35-60 segundos en compilar cada página. Los chunks cambian de hash en cada compilación, causando 404 si el navegador tiene una versión anterior.",
+      "verificado": true
+    },
+    {
+      "id": "PROB-005",
+      "severidad": "MEDIO",
+      "titulo": "CSP style-src no permite estilos inline de extensiones",
+      "descripcion": "El directive style-src 'self' 'unsafe-inline' permite estilos inline del sitio, pero las extensiones de Chrome que inyectan estilos pueden ser bloqueadas.",
+      "archivo": "apps/web/next.config.ts",
+      "linea": 80,
+      "solucion": "Agregar 'unsafe-hashes' o usar nonces para estilos inline de extensiones.",
+      "impacto": "Algunas extensiones de Chrome no pueden aplicar estilos en el sitio.",
+      "verificado": false
+    },
+    {
+      "id": "PROB-006",
+      "severidad": "MEDIO",
+      "titulo": "output: 'standalone' puede causar problemas en dev mode",
+      "descripcion": "La opción output: 'standalone' está diseñada para producción. En dev mode puede causar comportamientos inesperados con rutas estáticas.",
+      "archivo": "apps/web/next.config.ts",
+      "linea": 4,
+      "solucion": "Eliminar output: 'standalone' o condicionarlo a process.env.NODE_ENV === 'production'.",
+      "impacto": "Posibles problemas con rutas estáticas y archivos .next/static en dev mode.",
+      "verificado": false
+    },
+    {
+      "id": "PROB-007",
+      "severidad": "BAJO",
+      "titulo": "CSP img-src no permite imágenes de Google Fonts",
+      "descripcion": "Algunas fuentes de Google incluyen imágenes de fallback. El CSP img-src no incluye fonts.googleapis.com.",
+      "archivo": "apps/web/next.config.ts",
+      "linea": 81,
+      "solucion": "Agregar https://fonts.googleapis.com al img-src.",
+      "impacto": "Imágenes de fallback de fuentes no cargan.",
+      "verificado": false
+    }
+  ],
+
+  "soluciones_aplicadas": [
+    {
+      "id": "FIX-001",
+      "problema": "PROB-001",
+      "descripcion": "Agregado fonts.googleapis.com y fonts.gstatic.com al font-src en CSP",
+      "archivo_modificado": "apps/web/next.config.ts",
+      "cambio": "font-src 'self' data: → font-src 'self' data: https://fonts.googleapis.com https://fonts.gstatic.com"
+    },
+    {
+      "id": "FIX-002",
+      "problema": "PROB-002",
+      "descripcion": "Agregado WebSocket (ws/wss) al connect-src para HMR en desarrollo",
+      "archivo_modificado": "apps/web/next.config.ts",
+      "cambio": "connect-src 'self' ... → connect-src 'self' ws://localhost:* wss://localhost:* ..."
+    },
+    {
+      "id": "FIX-003",
+      "problema": "PROB-004",
+      "descripcion": "Cambiado webpack.cache de false a filesystem para caché persistente",
+      "archivo_modificado": "apps/web/next.config.ts",
+      "cambio": "config.cache = false → config.cache = { type: 'filesystem' }"
+    },
+    {
+      "id": "FIX-004",
+      "problema": "PROB-006",
+      "descripcion": "Eliminado output: 'standalone' que causaba problemas en dev mode",
+      "archivo_modificado": "apps/web/next.config.ts",
+      "cambio": "Eliminada línea output: 'standalone'"
+    }
+  ],
+
+  "soluciones_pendientes_usuario": [
+    {
+      "id": "USER-001",
+      "problema": "PROB-003",
+      "accion": "Deshabilitar extensión Plurality en Chrome",
+      "pasos": [
+        "1. Abrir chrome://extensions",
+        "2. Buscar 'Plurality'",
+        "3. Hacer clic en 'Detalles'",
+        "4. En 'Permitido en', seleccionar 'En los sitios que specifiques'",
+        "5. No agregar localhost:3000 a la lista de permitidos",
+        "6. Alternativamente: desactivar la extensión completamente"
+      ],
+      "alternativa": "Usar modo incógnito (Ctrl+Shift+N) que deshabilita extensiones por defecto"
+    }
+  ],
+
+  "verificacion_post_fix": {
+    "pasos": [
+      "1. Matar procesos node: taskkill /F /IM node.exe",
+      "2. Limpiar caché: eliminar apps/web/.next/",
+      "3. Iniciar dev server: npm run dev",
+      "4. Abrir http://localhost:3000 en Chrome",
+      "5. Abrir DevTools (F12) → pestaña Console",
+      "6. Verificar que NO hay errores de MIME type",
+      "7. Verificar que NO hay 404 en chunks JS/CSS",
+      "8. Verificar que las fuentes cargan (Network → pestaña Fonts)"
+    ],
+    "errores_esperados_cero": [
+      "Refused to apply style... MIME type",
+      "Failed to load resource... 404",
+      "Refused to execute script... MIME type",
+      "WebSocket connection... failed"
+    ]
+  },
+
+  "configuracion_recomendada_next_config": {
+    "descripcion": "Configuración final recomendada para next.config.ts",
+    "notas": [
+      "Eliminar output: 'standalone' en desarrollo (causa problemas con rutas estáticas)",
+      "Usar webpack.cache = { type: 'filesystem' } para caché persistente (acelera dev server)",
+      "CSP debe permitir Google Fonts (font-src) y WebSocket (connect-src)",
+      "En producción, restaurar output: 'standalone' si se necesita empaquetado independiente"
+    ]
+  }
+}
