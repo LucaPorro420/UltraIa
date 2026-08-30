@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import useSWR from 'swr';
 import {
   Group,
   Panel,
@@ -270,34 +271,19 @@ interface ConnectionsSummary {
   conectados: number;
 }
 
+const fetcher = (url: string) => fetch(url).then((r) => r.json());
+
 function useConnectionsHealth(): ConnectionsSummary | null {
-  const [summary, setSummary] = useState<ConnectionsSummary | null>(null);
-  useEffect(() => {
-    let alive = true;
-    const load = async () => {
-      try {
-        const res = await fetch('/api/connections');
-        if (!res.ok) return;
-        const data = (await res.json()) as {
-          connections: { conectado: boolean }[];
-        };
-        if (!alive) return;
-        setSummary({
-          total: data.connections.length,
-          conectados: data.connections.filter((c) => c.conectado).length,
-        });
-      } catch {
-        /* fail-soft: el HUD no bloquea el shell */
-      }
-    };
-    load();
-    const id = window.setInterval(load, 60_000);
-    return () => {
-      alive = false;
-      window.clearInterval(id);
-    };
-  }, []);
-  return summary;
+  const { data } = useSWR<{ connections: { conectado: boolean }[] }>(
+    '/api/connections',
+    fetcher,
+    { refreshInterval: 60_000, revalidateOnFocus: false }
+  );
+  if (!data) return null;
+  return {
+    total: data.connections.length,
+    conectados: data.connections.filter((c) => c.conectado).length,
+  };
 }
 
 function ConnectionsHud() {
@@ -340,28 +326,14 @@ const ESTADO_DOT: Record<string, string> = {
 };
 
 function useRecentPublications(): PublicationRow[] {
-  const [rows, setRows] = useState<PublicationRow[]>([]);
-  useEffect(() => {
-    let alive = true;
-    const load = async () => {
-      try {
-        const res = await fetch('/api/publications');
-        if (!res.ok) return;
-        const data = (await res.json()) as { items?: PublicationRow[] } | PublicationRow[];
-        const list = Array.isArray(data) ? data : (data.items ?? []);
-        if (alive) setRows(list.slice(0, 6));
-      } catch {
-        /* fail-soft */
-      }
-    };
-    load();
-    const id = window.setInterval(load, 90_000);
-    return () => {
-      alive = false;
-      window.clearInterval(id);
-    };
-  }, []);
-  return rows;
+  const { data } = useSWR<{ items?: PublicationRow[] } | PublicationRow[]>(
+    '/api/publications',
+    fetcher,
+    { refreshInterval: 90_000, revalidateOnFocus: false }
+  );
+  if (!data) return [];
+  const list = Array.isArray(data) ? data : (data.items ?? []);
+  return list.slice(0, 6);
 }
 
 function DockActivity() {

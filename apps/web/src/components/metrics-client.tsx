@@ -78,9 +78,9 @@ function badgeClase(canal: string): string {
   return map[canal] ?? 'bg-neutral-500/10 text-neutral-300 ring-1 ring-neutral-500/20';
 }
 
-export function MetricsClient() {
-  const [kpis, setKpis] = useState<KpisResponse | null>(null);
-  const [loading, setLoading] = useState(true);
+export function MetricsClient({ initialKpis }: { initialKpis?: KpisResponse | null } = {}) {
+  const [kpis, setKpis] = useState<KpisResponse | null>(initialKpis ?? null);
+  const [loading, setLoading] = useState(!initialKpis);
   const [error, setError] = useState<string | null>(null);
   const [platform, setPlatform] = useState<(typeof PLATFORMS)[number]>('youtube');
   const [channelId, setChannelId] = useState('');
