@@ -1,10 +1,16 @@
 'use client';
 
 import { useChat } from 'ai/react';
+import dynamic from 'next/dynamic';
 import { useEffect, useRef, useState } from 'react';
-import ReactMarkdown from 'react-markdown';
 import { Check, Copy, RefreshCcw, SendHorizontal, Sparkles, Square } from 'lucide-react';
 import { cn } from '@/lib/utils';
+
+// Lazy-load react-markdown (~30KB gzipped) — only needed when messages exist
+const ReactMarkdown = dynamic(() => import('react-markdown'), {
+  ssr: false,
+  loading: () => <span className="text-neutral-400">...</span>,
+});
 
 const SUGGESTIONS = [
   'Busca en la web: noticias de IA de esta semana',

@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { Suspense } from 'react';
 import { format } from 'date-fns';
 import { getFeedbackStats, listVersions, prisma } from '@ultraia/core';
 import { requireUser } from '@/lib/server/context';
@@ -26,9 +27,15 @@ export default async function AgentDetailPage({ params }: { params: Promise<{ id
   const { id } = await params;
   const user = await requireUser();
 
-  const blueprint = await prisma.agentBlueprint.findFirst({
-    where: { id, workspace: { ownerId: user.id } },
-  });
+  // Parallel queries — 3 independent DB calls run simultaneously
+  const [blueprint, versions, stats] = await Promise.all([
+    prisma.agentBlueprint.findFirst({
+      where: { id, workspace: { ownerId: user.id } },
+    }),
+    listVersions(prisma, id),
+    getFeedbackStats(prisma, id),
+  ]);
+
   if (!blueprint) {
     return (
       <div>
@@ -43,9 +50,7 @@ export default async function AgentDetailPage({ params }: { params: Promise<{ id
     );
   }
 
-  const versions = await listVersions(prisma, id);
   const active = versions.find((v) => v.status === 'ACTIVE');
-  const stats = await getFeedbackStats(prisma, id);
   const evalInputs = JSON.parse(blueprint.evalInputs || '[]') as string[];
 
   return (
