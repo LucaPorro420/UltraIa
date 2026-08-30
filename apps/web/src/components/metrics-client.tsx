@@ -154,14 +154,14 @@ export function MetricsClient({ initialKpis }: { initialKpis?: KpisResponse | nu
       )}
 
       {loading && !kpis ? (
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+        <div className="cq-card grid grid-cols-2 gap-4 md:grid-cols-4">
           {[...Array(4)].map((_, i) => (
             <div key={i} className="h-24 animate-pulse rounded-lg border border-border-subtle bg-panel" />
           ))}
         </div>
       ) : (
         totales && (
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+          <div className="cq-card grid grid-cols-2 gap-4 md:grid-cols-4">
             <StatCard label="Publicaciones" value={fmt(totales.total)} icon={<BarChart3 className="h-4 w-4" />} hint="en la cola" />
             <StatCard label="Publicadas" value={fmt(totales.publicadas)} icon={<CheckCircle2 className="h-4 w-4" />} hint="PUBLISHED" />
             <StatCard label="Fallidas" value={fmt(totales.fallidas)} icon={<XCircle className="h-4 w-4" />} hint="FAILED" />

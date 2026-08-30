@@ -120,6 +120,17 @@
    ═══════════════════════════════════════════════════════════════════ */
 
 @layer components {
+  /* Container queries — responsive cards that adapt to their container width */
+  .cq-card { container-type: inline-size; container-name: card; }
+  .cq-card .cq-title { font-size: clamp(0.875rem, 0.5rem + 1cqi, 1.25rem); }
+  .cq-card .cq-grid { display: grid; gap: 0.75rem; }
+  @container card (min-width: 400px) {
+    .cq-card .cq-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @container card (min-width: 640px) {
+    .cq-card .cq-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+
   /* Agent modality glow */
   .glow-video { border-color: color-mix(in srgb, var(--agent-video) 45%, transparent); box-shadow: 0 0 18px -6px var(--agent-video); }
   .glow-audio { border-color: color-mix(in srgb, var(--agent-audio) 45%, transparent); box-shadow: 0 0 18px -6px var(--agent-audio); }
@@ -255,6 +266,30 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════════
+   View Transitions API — smooth page navigation (2026 baseline)
+   ═══════════════════════════════════════════════════════════════════ */
+
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition-old(root) {
+  animation: fade-out 150ms ease-out;
+}
+::view-transition-new(root) {
+  animation: fade-in 200ms ease-in;
+}
+
+@keyframes fade-out {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(-4px); }
+}
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
    Reduced motion
    ═══════════════════════════════════════════════════════════════════ */
 
@@ -264,5 +299,9 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none !important;
   }
 }

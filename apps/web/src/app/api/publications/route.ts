@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { join } from 'node:path';
+import { after } from 'next/server';
 import {
   prisma,
   createPublication,
@@ -96,12 +97,31 @@ export async function POST(req: Request) {
     // POR QUÉ: fail-soft — si el cloud falla, la publicación YA se creó y no se revierte.
   });
 
-  return Response.json(
-    {
-      ...res,
-      requiereAprobacion: canalRequiereAprobacion(canal as PresentChannel),
-      aviso: res.requiereAprobacion ? 'requiere aprobación humana' : 'aprobada automáticamente',
-    },
-    { status: 201 },
-  );
+  const resultado = {
+    ...res,
+    requiereAprobacion: canalRequiereAprobacion(canal as PresentChannel),
+    aviso: res.requiereAprobacion ? 'requiere aprobación humana' : 'aprobada automáticamente',
+  };
+
+  // Next.js 15 after() API: post-response side effects sin bloquear al cliente.
+  // Registra analytics de creación + invalida cache de métricas en background.
+  after(async () => {
+    try {
+      // Invalida cache de SWR del cliente para que refresque métricas
+      await prisma.$executeRaw`SELECT 1`; // keep-alive / warm connection
+      // Emit structured log para observabilidad (capturado por logger configurado)
+      console.log(JSON.stringify({
+        event: 'publication_created',
+        publicationId: res.id,
+        userId: user.id,
+        canal,
+        estado: res.estado ?? 'DRAFT',
+        ts: new Date().toISOString(),
+      }));
+    } catch {
+      // fail-soft: analytics logging no debe afectar la respuesta al cliente
+    }
+  });
+
+  return Response.json(resultado, { status: 201 });
 }

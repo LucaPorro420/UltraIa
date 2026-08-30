@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useOptimistic, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 import { api } from '@/api/client';
 import type { ListPublicationsResponse, Publication, PublicationEstado, PublicationFiltro } from '@/api/types';
@@ -22,6 +22,14 @@ export default function PublicacionesScreen() {
   const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState<string | null>(null);
 
+  // React 19 useOptimistic: actualización instantánea del UI antes de la respuesta del server.
+  // Cuando el usuario aprueba/rechaza, el estado cambia inmediatamente en la lista.
+  const [optimisticPubs, applyOptimistic] = useOptimistic(
+    data?.items ?? [],
+    (current: Publication[], { id, nuevoEstado }: { id: string; nuevoEstado: PublicationEstado }) =>
+      current.map((p) => (p.id === id ? { ...p, estado: nuevoEstado } : p)),
+  );
+
   const load = useCallback(async (est: PublicationFiltro = estado) => {
     setLoading(true);
     setError(null);
@@ -41,13 +49,19 @@ export default function PublicacionesScreen() {
   }, [load]);
 
   const transicion = async (id: string, accion: 'approve' | 'reject') => {
+    // Optimistic update: cambia el estado inmediatamente en el UI
+    const nuevoEstado: PublicationEstado = accion === 'approve' ? 'APPROVED' : 'REJECTED';
+    applyOptimistic({ id, nuevoEstado });
     setBusyId(id);
     setError(null);
     try {
       await api.post<{ id: string; estado: PublicationEstado }>(`/api/publications/${id}/${accion}`);
+      // Re-fetch para sincronizar con el server (fuente de verdad)
       await load();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error en la acción');
+      // Revert: el re-fetch restaura el estado real
+      await load();
     } finally {
       setBusyId(null);
     }
@@ -66,9 +80,9 @@ export default function PublicacionesScreen() {
       {error ? <ErrorBanner message={error} /> : null}
       {loading && !data ? <Loading label="Cargando cola…" /> : null}
 
-      {!loading && data && data.items.length === 0 ? <EmptyState message={`Sin publicaciones en ${estado}`} /> : null}
+      {!loading && data && optimisticPubs.length === 0 ? <EmptyState message={`Sin publicaciones en ${estado}`} /> : null}
 
-      {data?.items.map((p) => (
+      {optimisticPubs.map((p) => (
         <PublicationCard key={p.id} pub={p} busy={busyId === p.id} onApprove={() => transicion(p.id, 'approve')} onReject={() => transicion(p.id, 'reject')} />
       ))}
     </Screen>
