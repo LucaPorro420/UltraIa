@@ -32,34 +32,37 @@ python start.py --skip-setup   # arrancar sin tocar install/.env/migrate
 ```powershell
 npm install
 cp .env.example .env                # root: para Prisma CLI
-cp .env.example apps/web/.env       # Next.js runtime
+cp apps/web/.env.example apps/web/.env  # Next.js runtime
+# Generar AUTH_SECRET para sesiones:
+$secret = python -c "import secrets; print(secrets.token_hex(32))"
+(Get-Content apps/web/.env) -replace '^AUTH_SECRET=$', "AUTH_SECRET=$secret" | Set-Content apps/web/.env
 npm run db:migrate                  # crea packages/core/prisma/dev.db
 npm run dev                         # http://localhost:3000
 ```
 
 ## API keys que debes poner
 
-Pon las claves reales en `apps/web/.env` (y `ULTRAIA/integracionesImplementacion/.env` para el pipeline):
+Todas las keys son **opcionales** — sin ellas, el sistema usa fallbacks keyless (Ollama local, Pollinations imágenes, Tunetank música, edge-tts voz). Pon las claves reales en `apps/web/.env`:
 
 | Variable | Necesaria para |
 |---|---|
-| `OPENAI_API_KEY` | Generación de agentes (blueprints) y chat |
-| `ULTRAIA_MODEL` | Opcional: modelo por defecto (ej. `gpt-4o`) |
-| `ELEVENLABS_API_KEY` | Pipeline ar-SA: voz |
-| `RUNWAY_API_KEY` | Pipeline ar-SA: video |
+| `ULTRAIA_PROVIDER` | Proveedor LLM: `ollama` (default, local) / `openai` / `google` / `deepseek` / `openrouter` / `groq` |
+| `OPENAI_API_KEY` | Solo si usas OpenAI como proveedor |
+| `GOOGLE_API_KEY` | Solo si usas Google Gemini (gratis) |
+| `AUTH_SECRET` | Sesiones de usuario (ya generado en .env) |
 
-Sin `OPENAI_API_KEY` la web arranca igual, pero la generación de agentes reales fallará.
+Para canales de publicación (Telegram, Discord, YouTube, etc.) guía completa: `docs/CANALES-CONFIG-2026.md`.
 
 ## Verificación de calidad (espejo del CI)
 
 ```powershell
 npm run typecheck   # tsc en core + web
 npm run lint        # ESLint (web)
-npm run test        # Vitest: 61/61 (core)
+npm run test        # Vitest: 2053+ (core + runtime)
 npm run build       # build de producción
 ```
 
-Última corrida (13/08/2026): todo verde — typecheck 0 errores, lint 0 avisos, tests 61/61, build OK. Dashboard: 10.0/10.
+Última corrida (30/08/2026): todo verde — typecheck 0 errores, lint 0 avisos, tests 2053+, build OK 191 páginas.
 
 ## Estado de servicios
 

@@ -24,15 +24,15 @@ Manual setup, step by step:
 
 ```bash
 npm install
-cp .env.example .env          # root: for Prisma CLI
-cp .env.example apps/web/.env # Next.js runtime (same values)
-npm run db:migrate            # creates packages/core/prisma/dev.db
-npm run dev                   # http://localhost:3000
+cp .env.example .env                    # root: for Prisma CLI
+cp apps/web/.env.example apps/web/.env  # Next.js runtime
+npm run db:migrate                      # creates packages/core/prisma/dev.db
+npm run dev                             # http://localhost:3000
 ```
 
 See `QUICKSTART.md` for the full checklist (prereqs, API keys, verification).
 
-Set `OPENAI_API_KEY` (and optionally `ULTRAIA_MODEL`) in `apps/web/.env` for real agent generation.
+All API keys are optional — without them, the system uses keyless fallbacks (Ollama local, Pollinations images, Tunetank music, edge-tts voice).
 
 ## Commands
 
