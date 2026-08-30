@@ -38,6 +38,15 @@ export {
 } from './content-templates';
 export type { DerivedContent } from './content-templates';
 export * from './content-sources';
+export {
+  listManifests,
+  readContentFile,
+  listContentFiles,
+  getContentStats,
+  type ContentManifest,
+  type ContentFile,
+  type ContentStats,
+} from './content-manifest';
 // geometry/pngrender/procvid (loop-93): simbolos unicos Geo*/Png*/procvid - sin colision TS2308 con geom.
 export * from './geometry';
 export * from './pngrender';

@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { Suspense } from 'react';
-import { Bot } from 'lucide-react';
+import { Bot, FileText, ArrowRight } from 'lucide-react';
 import { prisma } from '@ultraia/core';
 import { requireUser } from '@/lib/server/context';
 import { Badge } from '@/components/ui/badge';
@@ -148,6 +148,27 @@ export default async function DashboardPage() {
         <div className="mt-4">
           <SkillPipeline />
         </div>
+      </section>
+
+      {/* Content engine — quick access */}
+      <section className="mt-4 rounded-lg border border-border-subtle bg-panel/60 p-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <FileText className="h-4 w-4 text-primary" />
+            <h2 className="font-display text-sm font-semibold text-neutral-200">Content Engine</h2>
+          </div>
+          <Link
+            href="/content"
+            className="flex items-center gap-1 text-xs text-neutral-500 hover:text-primary transition-colors"
+          >
+            Generar contenido
+            <ArrowRight className="h-3 w-3" />
+          </Link>
+        </div>
+        <p className="mt-1 text-[13px] text-neutral-500">
+          Genera blog posts, guiones de video, captions e hilos desde 3 ebooks y 12 cursos.
+          Determinista, keyless, bilingüe es/ar.
+        </p>
       </section>
 
       {/* Agent list — streams via Suspense, DB query runs in parallel */}

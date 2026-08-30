@@ -53,6 +53,7 @@ import { encodeWav } from '../packages/core/src/omag/sound';
 import { mixSynths, sequenceNotes, synthPinkNoise, type NoteStep } from '../packages/core/src/tools/generative';
 import { runAgentLoop, type AgentGoalRun, type AgentLoopStepContext } from '../packages/core/src/tools/agent-loop';
 import { SemanticMemoryIndex, loadTruthAuto, type TruthDoc } from '../packages/core/src/tools/semantic-memory';
+import { generateDerivedContent, ALL_CONTENT_SOURCES } from '../packages/core/src/tools/content-engine';
 
 const ROOT = process.cwd();
 const CEREBRO_DIR = path.join(ROOT, '.ultraia', 'cerebro');
@@ -234,6 +235,45 @@ async function crearDisenos(dir: string, semilla: number, errores: string[] = []
   }
 }
 
+/** Fase CREATE: contenido derivado desde ebooks y cursos (blog/caption/thread). */
+function crearContenido(dir: string, semilla: number, errores: string[] = []): number {
+  const contentDir = path.join(dir, 'content');
+  fs.mkdirSync(contentDir, { recursive: true });
+  let count = 0;
+
+  // Seleccionar 3 fuentes al azar con la semilla para variedad
+  const sources = [...ALL_CONTENT_SOURCES];
+  const shuffled = sources.sort((a, b) => {
+    const ha = (semilla + a.id.charCodeAt(0)) % 100;
+    const hb = (semilla + b.id.charCodeAt(0)) % 100;
+    return ha - hb;
+  });
+  const picked = shuffled.slice(0, Math.min(3, shuffled.length));
+
+  const types: Array<'blog-post' | 'social-caption' | 'thread'> = ['blog-post', 'social-caption', 'thread'];
+  const idiomas: Array<'es' | 'ar'> = ['es'];
+
+  for (const source of picked) {
+    for (const type of types) {
+      for (const idioma of idiomas) {
+        try {
+          const result = generateDerivedContent(source, {
+            type,
+            idioma,
+            dir: contentDir,
+            dryRun: false,
+          });
+          count += result.files.length;
+          console.log(`  contenido: ${result.files.length} archivo(s) ${type} ${idioma} desde ${source.id}`);
+        } catch (err) {
+          errores.push(`CONTENIDO fail-soft (${source.id}/${type}/${idioma}): ${String(err).slice(0, 120)}`);
+        }
+      }
+    }
+  }
+  return count;
+}
+
 async function publicar(dir: string, videos: number, cfg: ReturnType<typeof resolveCerebroConfig>): Promise<{ ok: boolean; encoladas: number }> {
   if (videos === 0) return { ok: true, encoladas: 0 };
   try {
@@ -303,9 +343,12 @@ async function ejecutarFasesCiclo(opts: {
   }
   let artefactos = 0;
   let videos = 0;
+  let contenido = 0;
   try {
     artefactos += await crearObjetos(dir, lote, errores);
     artefactos += await crearDisenos(dir, semilla, errores);
+    contenido = crearContenido(dir, semilla, errores);
+    artefactos += contenido;
     videos = await crearVideos(dir, lote, errores);
     artefactos += videos;
   } catch (e) {
@@ -564,7 +607,7 @@ async function main(): Promise<void> {
   fs.writeFileSync(path.join(dir, 'manifest.json'), JSON.stringify({ cycleId, ...resumen }, null, 2));
   fs.writeFileSync(path.join(dir, 'report.md'), buildBrainReport(plan, resumen));
   writeState(advanceBrainState(state, { artefactos, publicaciones: encoladas, lecciones }));
-  console.log(`[cerebro] ciclo listo: ${artefactos} artefactos, ${encoladas} publicaciÃ³n(es), ${(resumen.duracionMs / 1000).toFixed(1)}s`);
+  console.log(`[cerebro] ciclo listo: ${artefactos} artefactos (incl. ${contenido} contenido), ${encoladas} publicaciÃ³n(es), ${(resumen.duracionMs / 1000).toFixed(1)}s`);
 }
 
 void main().catch((err) => {
