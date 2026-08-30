@@ -9,9 +9,7 @@ const nextConfig: NextConfig = {
   productionSourceMaps: false,
   eslint: { ignoreDuringBuilds: true },
   typescript: { ignoreBuildErrors: true },
-  experimental: { cpus: 1 }, // un solo worker de generación estática = menos RAM
   webpack: (config, { isServer }) => {
-    config.cache = false; // desactiva caché de webpack para reducir el uso de RAM
     if (!isServer) {
       const serverOnlyBuiltins = [
         'child_process',
