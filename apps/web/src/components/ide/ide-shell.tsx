@@ -14,6 +14,7 @@ import {
 import { PanelLeftClose, PanelLeftOpen, SquareTerminal, LogOut } from 'lucide-react';
 import { ALL_NAV_ITEMS, WORKSPACE_ITEMS, PUBLIC_NAV_ITEMS, type NavItem } from './nav-items';
 import { logoutAction } from '@/app/(app)/actions';
+import { ThemeProvider } from './theme-provider';
 
 /**
  * UltraIa IDE Shell (F1) — entorno todo-en-uno:
@@ -532,6 +533,7 @@ export function IdeShell({ userName, children }: { userName: string; children: R
   }
 
   return (
+    <ThemeProvider>
     <div className="relative flex h-screen overflow-hidden bg-canvas text-neutral-100">
       <NavProgressBar />
       <div aria-hidden className="aurora-bg pointer-events-none absolute inset-0 opacity-60" />
@@ -592,5 +594,6 @@ export function IdeShell({ userName, children }: { userName: string; children: R
         </Panel>
       </Group>
     </div>
+    </ThemeProvider>
   );
 }
