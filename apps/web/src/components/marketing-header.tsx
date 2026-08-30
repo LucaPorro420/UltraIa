@@ -14,6 +14,7 @@ const NAV_LINKS: { href: string; label: string }[] = [
   { href: '/explore', label: 'Explorar' },
   { href: '/recursos', label: 'Recursos' },
   { href: '/roadmap', label: 'Roadmap' },
+  { href: '/course', label: 'Curso' },
 ];
 
 export function MarketingHeader({ user }: MarketingHeaderProps) {
