@@ -11,6 +11,7 @@ export * from './auth/apikey';
 export * from './auth/password';
 export * from './auth/session';
 export * from './db/client';
+export * from './lib/errors';
 export * from './domain/blueprint';
 export * from './domain/briefs';
 export * from './domain/eval';

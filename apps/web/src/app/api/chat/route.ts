@@ -72,7 +72,7 @@ export async function POST(req: Request) {
 
   // --- Comando /goal: ejecutor autonomo de todo el proyecto ---
   if (lastUserText.trim().startsWith('/goal')) {
-    return handleGoalCommand({ version, lastUserText, tools, guardrails, conversationId });
+    return handleGoalCommand({ version, lastUserText, tools, guardrails, conversationId, userId: user.id });
   }
 
   let result;
@@ -86,7 +86,7 @@ export async function POST(req: Request) {
         (modoDirective ? `\n\n${modoDirective}` : ''),
       messages,
       tools,
-      userId: user.id,
+    userId,
       onFinish: async ({ text }) => {
         const count = await prisma.message.count({ where: { conversationId } });
         const userSeq = count + 1;
@@ -122,8 +122,9 @@ async function handleGoalCommand(args: {
   tools: string[];
   guardrails: string[];
   conversationId: string;
+  userId: string;
 }): Promise<Response> {
-  const { version, lastUserText, tools, guardrails, conversationId } = args;
+  const { version, lastUserText, tools, guardrails, conversationId, userId } = args;
   const body = lastUserText.trim().replace(/^\/goal\s*/i, '');
   const lines = body.split('\n').map((s) => s.trim()).filter(Boolean);
   const goal = lines[0] ?? 'Ejecutar las tareas del proyecto';
@@ -171,7 +172,7 @@ async function handleGoalCommand(args: {
       { role: 'assistant', content: summary },
     ],
     tools,
-    userId: user.id,
+    userId,
     onFinish: async ({ text }) => {
       const count = await prisma.message.count({ where: { conversationId } });
       const userSeq = count + 1;
