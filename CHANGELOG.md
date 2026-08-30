@@ -7,6 +7,49 @@ SemVer. Contrato de estabilidad de la linea 1.x: los cambios que rompan APIs pub
 a 2.0.0. Lo keyless-first (degradacion elegante sin claves API) se mantiene como regla
 de diseno en toda la linea 1.x.
 
+## [1.5.0] - 2026-08-30
+
+Performance, monitoring y production-readiness. Esta version deja el proyecto listo
+para lanzamiento con optimizaciones de peso, tiempo de respuesta y observabilidad.
+
+### Performance
+- Web Vitals reporting (LCP, INP, CLS, FCP, TTFB) via `/api/vitals` con sendBeacon.
+- `modularizeImports` para lucide-react (tree-shaking por icono individual).
+- Service Worker para cache offline de assets estaticos.
+- PWA manifest con iconos maskables y theme color Dark Obsidian.
+- Performance hooks (`useRenderTime`, `useAsyncTimer`) para desarrollo.
+- LoadingSpinner y PageLoading components reutilizables.
+
+### Monitoring
+- `/api/vitals` endpoint que almacena metricas en Prisma (fail-soft).
+- ErrorBoundary component con retry automatico.
+- WebVitalsReporter integrado en root layout.
+
+### Content Engine (completo)
+- `content-templates.ts` (blog/video/caption/thread, deterministic, keyless, es/ar).
+- `content-sources.ts` (3 ebooks + 12 courses como fuentes).
+- `content-engine.ts` (batch + atomic writes + manifests).
+- `content-manifest.ts` (list/read/stats desde disco).
+- `/content` page (form interactivo + batch generation).
+- `/content/history` (manifest viewer + markdown preview + download).
+- `/api/content` (POST generate single/batch).
+- `/api/content/generate-due` (POST batch auto-gen para cerebro).
+- `/api/content/list` (GET list files + stats).
+- Cerebro integration: `crearContenido` phase en cada ciclo.
+- Dashboard: Content Engine card con link rapido.
+
+### Infra
+- `next.config.ts`: `modularizeImports` para lucide-react.
+- `public/manifest.json` + `public/sw.js` (PWA).
+- `components/ui/error-boundary.tsx`, `components/ui/loading.tsx`.
+- `components/performance/web-vitals.tsx`.
+- `hooks/use-performance.ts`.
+
+### Cifras
+- 35 paginas, 58 API routes, 195 build entries.
+- 2,250+ tests (2,071 core + 193 runtime).
+- 70 capabilities registradas.
+
 ## [1.0.0] - 2026-08-26
 
 Primera version estable de UltraIa: plataforma donde agentes IA generan otros agentes,

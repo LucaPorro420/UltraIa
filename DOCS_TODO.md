@@ -1048,3 +1048,7 @@ Cada commit agrega una sección con fecha y la lista de archivos `.ts/.tsx` toca
 - [ ] apps/web/src/components/ui/error-boundary.tsx
 - [ ] apps/web/src/components/ui/loading.tsx
 - [ ] apps/web/src/hooks/use-performance.ts
+
+## 2026-08-30T22:39:01.296Z
+- [ ] apps/web/next.config.ts
+- [ ] apps/web/src/app/layout.tsx

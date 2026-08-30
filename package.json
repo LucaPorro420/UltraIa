@@ -1,6 +1,6 @@
 {
   "name": "ultraia",
-  "version": "1.0.0",
+  "version": "1.5.0",
   "private": true,
   "description": "UltraIa — AI that creates AI and learns from AI. Generate purpose-built agents from a task description and improve them from usage feedback.",
   "workspaces": [
