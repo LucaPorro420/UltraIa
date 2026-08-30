@@ -327,7 +327,7 @@ async function ejecutarFasesCiclo(opts: {
   semilla: number;
   lote: ReturnType<typeof planProceduralBatch>;
   cycleId: string;
-}): Promise<{ artefactos: number; videos: number; encoladas: number; lecciones: number }> {
+}): Promise<{ artefactos: number; videos: number; encoladas: number; lecciones: number; contenido: number }> {
   const { dir, config, errores, plan, semilla, lote } = opts;
   let lecciones = 0;
   if (!plan.pasos.find((p) => p.kind === 'learn')?.saltado) {
@@ -360,7 +360,7 @@ async function ejecutarFasesCiclo(opts: {
     encoladas = res.encoladas;
     if (!res.ok) errores.push('PUBLISH fail-soft: BD no disponible → outbox JSON');
   }
-  return { artefactos, videos, encoladas, lecciones };
+  return { artefactos, videos, encoladas, lecciones, contenido };
 }
 
 /**

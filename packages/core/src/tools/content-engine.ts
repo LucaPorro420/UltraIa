@@ -56,10 +56,10 @@ export interface GenerateResult {
 /* Generador                                                           */
 /* ------------------------------------------------------------------ */
 
-export function generateDerivedContent(
+export async function generateDerivedContent(
   source: ContentSource,
   options: GenerateOptions,
-): GenerateResult {
+): Promise<GenerateResult> {
   const { type, idioma = 'es', dir = '.ultraia/content', dryRun = false } = options;
 
   // Generar contenido derivado
@@ -93,10 +93,8 @@ export function generateDerivedContent(
 
   // Escribir archivos (idempotente)
   if (!dryRun) {
-    // Nota: writeFileSync es síncrono; en producción usar writeFile async
-    // pero para el dominio puro esto es aceptable
     const content = serializeContent(derived);
-    writeAtomic(filepath, content);
+    await writeAtomic(filepath, content);
   }
 
   // Manifest
@@ -112,7 +110,7 @@ export function generateDerivedContent(
   const manifestPath = path.join(dir, 'manifest.json');
 
   if (!dryRun) {
-    writeAtomic(manifestPath, JSON.stringify(manifest, null, 2));
+    await writeAtomic(manifestPath, JSON.stringify(manifest, null, 2));
   }
 
   return {
@@ -142,10 +140,10 @@ export interface BatchResult {
   totalWords: number;
 }
 
-export function generateBatch(
+export async function generateBatch(
   sources: ContentSource[],
   options: BatchOptions,
-): BatchResult {
+): Promise<BatchResult> {
   const { types, idiomas = ['es'], dir = '.ultraia/content', dryRun = false } = options;
   const results: GenerateResult[] = [];
   let totalFiles = 0;
@@ -154,7 +152,7 @@ export function generateBatch(
   for (const source of sources) {
     for (const type of types) {
       for (const idioma of idiomas) {
-        const result = generateDerivedContent(source, {
+        const result = await generateDerivedContent(source, {
           type,
           idioma,
           dir,
@@ -194,17 +192,10 @@ function serializeContent(content: DerivedContent): string {
 /* Escritura atómica                                                   */
 /* ------------------------------------------------------------------ */
 
-function writeAtomic(filepath: string, content: string): void {
+async function writeAtomic(filepath: string, content: string): Promise<void> {
   const dir = path.dirname(filepath);
-  // mkdirSync recursivo (idempotente)
-  try {
-    const { mkdirSync } = require('node:fs');
-    mkdirSync(dir, { recursive: true });
-  } catch {
-    // ya existe
-  }
+  await mkdir(dir, { recursive: true });
   const tmp = `${filepath}.tmp.${Date.now()}`;
-  const { writeFileSync, renameSync } = require('node:fs');
-  writeFileSync(tmp, content, 'utf-8');
-  renameSync(tmp, filepath);
+  await writeFile(tmp, content, 'utf-8');
+  await rename(tmp, filepath);
 }

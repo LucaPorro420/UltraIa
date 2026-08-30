@@ -128,8 +128,8 @@ describe('content-templates', () => {
 });
 
 describe('content-engine', () => {
-  it('generateDerivedContent genera blog post con manifest', () => {
-    const result = generateDerivedContent(SAMPLE_SOURCE, {
+  it('generateDerivedContent genera blog post con manifest', async () => {
+    const result = await generateDerivedContent(SAMPLE_SOURCE, {
       type: 'blog-post',
       idioma: 'es',
       dryRun: true,
@@ -140,8 +140,8 @@ describe('content-engine', () => {
     expect(result.files[0].content.wordCount).toBeGreaterThan(0);
   });
 
-  it('generateBatch genera múltiples contenidos', () => {
-    const result = generateBatch([SAMPLE_SOURCE, SAMPLE_COURSE], {
+  it('generateBatch genera múltiples contenidos', async () => {
+    const result = await generateBatch([SAMPLE_SOURCE, SAMPLE_COURSE], {
       types: ['blog-post', 'social-caption'],
       idiomas: ['es'],
       dryRun: true,
@@ -151,8 +151,8 @@ describe('content-engine', () => {
     expect(result.totalWords).toBeGreaterThan(0);
   });
 
-  it('generateBatch bilingüe', () => {
-    const result = generateBatch([SAMPLE_SOURCE], {
+  it('generateBatch bilingüe', async () => {
+    const result = await generateBatch([SAMPLE_SOURCE], {
       types: ['blog-post'],
       idiomas: ['es', 'ar'],
       dryRun: true,
@@ -163,16 +163,16 @@ describe('content-engine', () => {
     expect(idiomas).toContain('ar');
   });
 
-  it('genera video script con duración estimada', () => {
-    const result = generateDerivedContent(SAMPLE_SOURCE, {
+  it('genera video script con duración estimada', async () => {
+    const result = await generateDerivedContent(SAMPLE_SOURCE, {
       type: 'video-script',
       dryRun: true,
     });
     expect(result.files[0].content.estimatedReadMin).toBe(1); // ≤60s
   });
 
-  it('genera social caption corto', () => {
-    const result = generateDerivedContent(SAMPLE_SOURCE, {
+  it('genera social caption corto', async () => {
+    const result = await generateDerivedContent(SAMPLE_SOURCE, {
       type: 'social-caption',
       dryRun: true,
     });

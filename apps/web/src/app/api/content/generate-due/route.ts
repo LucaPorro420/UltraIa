@@ -42,7 +42,7 @@ export async function POST(request: Request) {
     return Response.json({ error: 'No matching sources found' }, { status: 404 });
   }
 
-  const result = generateBatch(sources, {
+  const result = await generateBatch(sources, {
     types,
     idiomas,
     dryRun: !write,
