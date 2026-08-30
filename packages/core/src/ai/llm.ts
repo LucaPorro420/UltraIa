@@ -73,6 +73,7 @@ import {
   resolveCerebroConfig,
 } from '../tools/cerebro';
 import { planTravelVideo, buildTakeManifest, buildTravelRender, replicateLandscape, travelLeadImage, type TravelPlan } from '../tools/travel';
+import { generateDerivedContent, generateBatch } from '../tools/content-engine';
 import {
   perlinNoise,
   simplexNoiseField,
@@ -3509,7 +3510,62 @@ export function chatStream(opts: {
         throw new Error(`accion desconocida: ${accion}`);
       },
     });
-  }  if (opts.tools?.includes('sandbox')) {
+  }  if (opts.tools?.includes('content-engine')) {
+    tools.content_generate = tool({
+      description:
+        'Content Engine: genera contenido derivado (blog post, video script, social caption, thread) desde fuentes internas (ebooks, cursos). Determinista, keyless, bilingüe es/ar.',
+      parameters: z.object({
+        sourceId: z.string().describe('ID de la fuente (ej: ebook-threejs, course-react)'),
+        type: z.enum(['blog-post', 'video-script', 'social-caption', 'thread']).describe('Tipo de contenido derivado'),
+        idioma: z.enum(['es', 'ar']).default('es').describe('Idioma destino'),
+        dryRun: z.boolean().default(false).describe('Si true, genera sin escribir archivos'),
+      }),
+      execute: async ({ sourceId, type, idioma, dryRun }) => {
+        const { generateDerivedContent } = await import('../tools/content-engine');
+        const { ALL_CONTENT_SOURCES } = await import('../tools/content-sources');
+        const source = ALL_CONTENT_SOURCES.find((s) => s.id === sourceId);
+        if (!source) return { error: `Fuente no encontrada: ${sourceId}. Disponibles: ${ALL_CONTENT_SOURCES.map((s) => s.id).join(', ')}` };
+        return generateDerivedContent(source, { type, idioma, dryRun });
+      },
+    });
+    tools.content_batch = tool({
+      description:
+        'Content Engine batch: genera múltiples contenidos derivados de varias fuentes en una sola llamada.',
+      parameters: z.object({
+        sourceIds: z.array(z.string()).optional().describe('IDs de fuentes (vacío = todas)'),
+        types: z.array(z.enum(['blog-post', 'video-script', 'social-caption', 'thread'])).describe('Tipos de contenido'),
+        idiomas: z.array(z.enum(['es', 'ar'])).default(['es']).describe('Idiomas'),
+        dryRun: z.boolean().default(false),
+      }),
+      execute: async ({ sourceIds, types, idiomas, dryRun }) => {
+        const { generateBatch } = await import('../tools/content-engine');
+        const { ALL_CONTENT_SOURCES } = await import('../tools/content-sources');
+        const sources = sourceIds
+          ? ALL_CONTENT_SOURCES.filter((s) => sourceIds.includes(s.id))
+          : ALL_CONTENT_SOURCES;
+        if (sources.length === 0) return { error: 'Ninguna fuente encontrada' };
+        return generateBatch(sources, { types, idiomas, dryRun });
+      },
+    });
+    tools.content_sources = tool({
+      description: 'Content Engine: lista todas las fuentes de contenido disponibles (ebooks, cursos).',
+      parameters: z.object({}),
+      execute: async () => {
+        const { ALL_CONTENT_SOURCES } = await import('../tools/content-sources');
+        return ALL_CONTENT_SOURCES.map((s) => ({
+          id: s.id,
+          title: s.title,
+          category: s.category,
+          level: s.level,
+          topics: s.topics,
+          chapters: s.chapters?.length ?? 0,
+          lessons: s.lessons?.length ?? 0,
+        }));
+      },
+    });
+  }
+
+  if (opts.tools?.includes('sandbox')) {
     tools.sandbox_run = tool({
       description:
         'Sandbox aislado (E2B Fase B): ejecuta código python/javascript/typescript/bash. Si E2B_API_KEY → nube E2B; si no → local plan (no exec). Fail-soft, nunca evalúa sin allowlist.',
