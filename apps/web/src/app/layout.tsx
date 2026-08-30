@@ -2,18 +2,32 @@ import type { Metadata } from 'next';
 import Script from 'next/script';
 import { Toaster } from 'sonner';
 import { inter, jakarta, jetbrains } from '@/lib/fonts';
+import { WebVitalsReporter } from '@/components/performance/web-vitals';
 import './globals.css';
 
 export const metadata: Metadata = {
   title: 'UltraIa — AI that creates AI and learns from AI',
   description:
     'Describe a task, UltraIa builds a purpose-built AI agent and improves it from real usage feedback, with human approval at every step.',
+  manifest: '/manifest.json',
+  themeColor: '#8b5cf6',
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 5,
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'UltraIa',
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${inter.variable} ${jakarta.variable} ${jetbrains.variable}`} suppressHydrationWarning>
       <body className="font-sans" suppressHydrationWarning>
+        <WebVitalsReporter />
         {children}
         <Toaster theme="dark" position="bottom-right" richColors />
         {process.env.NODE_ENV === 'development' && (

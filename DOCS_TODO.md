@@ -966,3 +966,78 @@ Cada commit agrega una sección con fecha y la lista de archivos `.ts/.tsx` toca
 ## 2026-08-26T06:11:04.018Z
 - [ ] apps/web/src/app/(app)/workspace/workspace-client.tsx
 - [ ] apps/web/src/components/ide/ide-shell.tsx
+
+## 2026-08-30T12:23:09.582Z
+- [ ] apps/web/next.config.ts
+
+## 2026-08-30T13:05:29.769Z
+- [ ] apps/web/src/app/(app)/design-system/design-system-client.tsx
+- [ ] apps/web/src/app/(app)/design-system/page.tsx
+- [ ] apps/web/src/components/ide/ide-shell.tsx
+- [ ] apps/web/src/components/ide/nav-items.ts
+- [ ] apps/web/src/components/ide/theme-customizer.tsx
+- [ ] apps/web/src/components/ide/theme-engine.ts
+- [ ] apps/web/src/components/ide/theme-provider.tsx
+
+## 2026-08-30T13:25:18.457Z
+- [ ] apps/web/src/app/layout.tsx
+- [ ] apps/web/src/components/aurora/aurora-canvas.tsx
+- [ ] apps/web/src/components/ebooks/playground-canvas.tsx
+- [ ] apps/web/src/lib/dev-cleanup.ts
+
+## 2026-08-30T14:08:28.608Z
+- [ ] apps/web/src/app/(marketing)/page.tsx
+- [ ] apps/web/src/components/landing/landing-sections.tsx
+
+## 2026-08-30T14:14:14.347Z
+- [ ] apps/web/src/app/(app)/agents/[id]/error.tsx
+- [ ] apps/web/src/app/(app)/agents/[id]/page.tsx
+- [ ] apps/web/src/app/(app)/dashboard/error.tsx
+- [ ] apps/web/src/app/(app)/dashboard/page.tsx
+- [ ] apps/web/src/components/assistant-chat.tsx
+
+## 2026-08-30T14:45:13.002Z
+- [ ] apps/web/src/data/content-sources.ts
+- [ ] packages/core/src/tools/content-engine.test.ts
+- [ ] packages/core/src/tools/content-engine.ts
+- [ ] packages/core/src/tools/content-templates.ts
+
+## 2026-08-30T14:54:13.342Z
+- [ ] apps/web/src/app/(app)/metrics/page.tsx
+- [ ] apps/web/src/components/ide/ide-shell.tsx
+- [ ] apps/web/src/components/metrics-client.tsx
+
+## 2026-08-30T15:22:40.381Z
+- [ ] apps/web/src/app/api/content/route.ts
+- [ ] apps/web/src/data/content-sources.ts
+- [ ] packages/core/src/ai/llm.ts
+- [ ] packages/core/src/tools/content-engine.ts
+- [ ] packages/core/src/tools/content-sources.ts
+- [ ] packages/core/src/tools/index.ts
+
+## 2026-08-30T16:19:13.884Z
+- [ ] apps/web/src/app/(marketing)/content/page.tsx
+- [ ] apps/web/src/app/api/content/generate-due/route.ts
+- [ ] apps/web/src/components/content/content-client.tsx
+- [ ] apps/web/src/components/ide/nav-items.ts
+- [ ] packages/core/src/tools/content-sources.ts
+- [ ] packages/core/src/tools/index.ts
+
+## 2026-08-30T21:48:31.701Z
+- [ ] apps/mobile/src/app/(tabs)/publicaciones.tsx
+- [ ] apps/web/src/app/api/publications/route.ts
+- [ ] apps/web/src/components/metrics-client.tsx
+- [ ] apps/web/src/lib/server/context.ts
+- [ ] apps/web/src/middleware.ts
+
+## 2026-08-30T21:51:08.342Z
+- [ ] Task/cerebro-cycle.ts
+- [ ] apps/web/src/app/(app)/dashboard/page.tsx
+- [ ] apps/web/src/app/(marketing)/content/history/page.tsx
+- [ ] apps/web/src/app/api/content/list/route.ts
+- [ ] apps/web/src/components/content/content-history-client.tsx
+- [ ] packages/core/src/tools/content-manifest.ts
+- [ ] packages/core/src/tools/index.ts
+
+## 2026-08-30T22:26:56.228Z
+- [ ] apps/web/src/app/api/health/route.ts

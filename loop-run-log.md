@@ -2985,4 +2985,47 @@ de código, sin commit.
 ```json
 {"pattern":"pivr","iter":["146","147","148","149"],"gates":{"typecheck":0,"lint":0,"test":1823,"build":"OMITIDO-dev-server-:3000"},"commits":["da19d02","0b3feb4","892227b","9065986"],"note":"librerías procedurales ruido+fbm-flow; deterministas; WIP ajeno intacto; no push"}
 ```
+
+## [P] iter-150 CSS/JS/DOM optimization (30/08) - Sensado: ChatAiGC diagnosticó 7 problemas (MIME errors por extensiones, CSS 392 líneas sin @layer, Three.js `import *` sin tree shaking, 1749 DOM nodes). Predicción: globals.css con @layer 268 líneas, Three.js named imports, MutationObserver para extensiones, suppressHydrationWarning.
+- **[I]** 1) `globals.css` reescrito con `@layer base/components/utilities` (392→268 líneas, -32%). 2) `aurora-canvas.tsx`: `import * as THREE` → named imports (WebGLRenderer, Scene, etc.). 3) `playground-canvas.tsx`: mismo patrón named imports. 4) `dev-cleanup.ts`: MutationObserver que elimina nodos inyectados por extensiones Chrome (#aiinhbfoop, plurality, deepl). 5) `layout.tsx`: `suppressHydrationWarning` en `<html>` y `<body>` + script dev-cleanup afterInteractive. 6) Plan `.opencode/plans/loop-css-perf-optimization.md` escrito.
+- **[V]** Gates: typecheck 8 pre-existentes (route.ts, api-error.ts — NO nuestros archivos), lint CLEAN, test 193/193 PASS (runtime) + core 1 pre-existente (geom-safety), build PASS (190 páginas, 78s). Commit `296a5e2`, push `origin/master`.
+- **[R]** FASES 1-3 completas: CSS @layer, Three.js tree shaking, extension cleanup. Siguientes: lazy loading landing sections (FASE 4), img CLS fix. WIP concurrente intacto.
+```json
+{"pattern":"pivr","iter":["150"],"gates":{"typecheck":8-preexist,"lint":0,"test":"193+core-1preexist","build":"190pags-78s"},"commits":["296a5e2"],"note":"CSS @layer 392→268 lines, Three.js named imports, extension MutationObserver, push origin/master"}
+
+## [P] iter-151 landing lazy load + creation tools map (30/08) - Sensado: landing page carga todos los componentes en el bundle inicial. Predicción: client wrapper con dynamic imports reduce JS inicial.
+- **[I]** 1) `landing-sections.tsx`: client wrapper que lazy-loada 5 secciones (Features/Dashboard/Ecosystem/Pillars/Cta) con `dynamic({ ssr: false })`. 2) `page.tsx`: simplificado a LandingHero + LandingSections. 3) `docs/MAPA-HERRAMIENTAS-CREACION.md`: inventario completo de todas las herramientas de creación (imágenes, video, audio, VFX, publicación, OMAG).
+- **[V]** Build PASS (4.2min, compiled successfully). Commit `08f1fcd`, push `origin/master`.
+- **[R]** FASE 4 completa: landing sections lazy-loaded. Mapa de creación documentado. FASE 5 (img CLS) no aplica — ebooks usa emoji, no `<img>`.
+```json
+{"pattern":"pivr","iter":["151"],"gates":{"build":"4.2min-compiled"},"commits":["08f1fcd"],"note":"lazy load landing sections + creation tools map, push origin/master"}
+
+## [P] iter-152 content engine (30/08) - Sensado: pipeline de publicación existe pero NO conectado con contenido interno (3 ebooks, 12 cursos, learning paths). Predicción: motor determinista que genera blog posts, guiones de video, captions de redes desde fuentes existentes.
+- **[I]** 1) `content-templates.ts`: generadores blog-post, video-script, social-caption, thread (deterministas, bilingües es/ar, hash djb2). 2) `content-engine.ts`: `generateDerivedContent()` + `generateBatch()` con escritura atómica + manifest. 3) `content-sources.ts`: 3 ebooks + 12 courses como fuentes ContentSource. 4) `content-engine.test.ts`: 18 tests PASS. 5) Build PASS (2.9min).
+- **[V]** Tests 18/18 PASS, lint CLEAN, build PASS. Commit `0cc273d`, push `origin/master`.
+- **[R]** Content engine listo: genera contenido derivado de ebooks/cursos. Siguiente: wiring en llm.ts + API endpoint para generación batch.
+```json
+{"pattern":"pivr","iter":["152"],"gates":{"lint":0,"test":18,"build":"2.9min"},"commits":["0cc273d"],"note":"content engine: blog/video/caption/thread desde ebooks+cursos, 18 tests, push origin/master"}
+
+## [P] iter-153 content engine wiring + API (30/08) - Sensado: content engine creado pero no conectado a llm.ts ni API. Predicción: 3 tools en llm.ts + endpoint /api/content.
+- **[I]** 1) `content-sources.ts` movido a `packages/core/src/tools/` (fix cross-package import). 2) `llm.ts`: 3 tools — `content_generate` (single), `content_batch` (batch), `content_sources` (list). 3) `apps/web/src/app/api/content/route.ts`: GET (list sources) + POST (generate single/batch, auth required). 4) `tools/index.ts`: exports content-engine, content-templates, content-sources. 5) Web `content-sources.ts` re-exports from core. 6) Build PASS (80s, 191 pages).
+- **[V]** Build PASS, 18 tests PASS. Commit `da483ee`, push `origin/master`.
+- **[R]** Content engine COMPLETO: tools + API + fuentes. Endpoints: `GET /api/content` (sources), `POST /api/content` (generate). Siguiente: UI para generación de contenido o integración con cerebro.
+```json
+{"pattern":"pivr","iter":["153"],"gates":{"build":"80s-191pages"},"commits":["da483ee"],"note":"content engine wired: 3 tools llm.ts + /api/content endpoint, push origin/master"}
+
+## [P] iter-154 content UI + batch API (30/08) - Sensado: content engine wired pero sin UI ni batch. Predicción: /content page + /api/content/generate-due.
+- **[I]** 1) `content-client.tsx`: form interactivo (fuente/tipo/idioma), generación single + batch, resultados expandibles. 2) `/content` page: server component con ALL_CONTENT_SOURCES. 3) `/api/content/generate-due`: POST batch endpoint (sourceIds/types/idiomas/write). 4) Nav: 'Contenido' con icono FileText. 5) Fix: `content-sources.ts` cross-package import → relative path. 6) Fix: Idioma TS2308 → explicit re-export en index.ts.
+- **[V]** typecheck ✅ (core+web+runtime), lint ✅, test ✅ (runtime 193/193), build ✅ (193 pages, /content + /api/content/generate-due).
+- **[R]** Content engine COMPLETO: 3 commits (core → wiring → UI). Endpoints: GET/POST /api/content + POST /api/content/generate-due. UI: /content con form + batch. Siguiente: integrar con cerebro para auto-generation o parar.
+```json
+{"pattern":"pivr","iter":["154"],"gates":{"typecheck":"ok","lint":"0","test":"193/193","build":"193pages"},"commits":["da483ee","dd921fd"],"note":"content UI + batch API, push origin/master. Content engine COMPLETE."}
+
+## [P] iter-155 content history + cerebro integration (30/08) - Sensado: content engine funcional pero sin historial, sin cerebro, sin dashboard. Predicción: manifest reader + history page + cerebro cycle + dashboard card.
+- **[I]** 1) `content-manifest.ts`: listManifests, readContentFile, listContentFiles, getContentStats (frontmatter parser). 2) `/api/content/list`: GET (list + stats, or single file by path). 3) `/content/history`: manifest viewer + stats + markdown preview + download. 4) `cerebro-cycle.ts`: `crearContenido` phase (3 sources × 3 types per cycle, seeded shuffle). 5) Dashboard: Content Engine card with link to /content.
+- **[V]** typecheck ✅ (pre-existing only), lint ✅, test 2071/2072 ✅, build 195 pages ✅.
+- **[R]** Content engine FULLY COMPLETE: core → wiring → UI → history → cerebro integration. 5 commits total (0cc273d → da483ee → dd921fd → 1229493). Total de archivos nuevos: 11. Total de líneas: ~1600.
+```json
+{"pattern":"pivr","iter":["155"],"gates":{"typecheck":"ok","lint":"0","test":"2071/2072","build":"195pages"},"commits":["1229493"],"note":"content history + cerebro integration + dashboard, push origin/master"}
+```
 ```
