@@ -6,7 +6,6 @@ const nextConfig: NextConfig = {
   serverExternalPackages: ['@prisma/client', '@google/stitch-sdk'],
   // Low-RAM build: typecheck/lint ya corren como gates separados, así que no se repiten
   // aquí (ahorra memoria y tiempo). El build sigue validando la compilación.
-  productionSourceMaps: false,
   eslint: { ignoreDuringBuilds: true },
   typescript: { ignoreBuildErrors: true },
   experimental: { cpus: 1 }, // un solo worker de generación estática = menos RAM
