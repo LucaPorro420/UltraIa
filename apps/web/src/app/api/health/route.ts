@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { prisma } from '@ultraia/core';
 
 /**
  * GET /api/health — latido publico del servidor (iter-82).
@@ -13,6 +14,10 @@ import { join } from 'node:path';
  * Si no existe (deploy limpio o filesystem serverless sin ese archivo), el
  * endpoint sigue respondiendo `ok` con `vitals: null`: la liveness NUNCA depende
  * de la telemetria.
+ *
+ * DB check (2026): prueba la conexion a Prisma de forma fail-soft.
+ * Si la DB no responde, `db` = "unreachable" pero el endpoint sigue 200
+ * (un monitor de uptime no debe alarmarse por un DB timeout momentaneo).
  */
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -57,8 +62,18 @@ function ultimoPulso(): PulsoResumen | null {
   return null;
 }
 
+async function checkDatabase(): Promise<{ status: string; latencyMs?: number }> {
+  const start = performance.now();
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+    return { status: 'ok', latencyMs: Math.round(performance.now() - start) };
+  } catch {
+    return { status: 'unreachable', latencyMs: Math.round(performance.now() - start) };
+  }
+}
+
 export async function GET() {
-  const pulso = ultimoPulso();
+  const [pulso, db] = await Promise.all([Promise.resolve(ultimoPulso()), checkDatabase()]);
   const cuerpo = {
     ok: true,
     servicio: 'ultraia-web',
@@ -66,6 +81,7 @@ export async function GET() {
     commit: process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7) ?? null,
     entorno: process.env.VERCEL_ENV ?? process.env.NODE_ENV ?? 'unknown',
     uptimeSegundos: Math.round(process.uptime()),
+    db,
     vitals: pulso,
   };
   // 200 siempre que el proceso responda; el estado del organismo va en el cuerpo
