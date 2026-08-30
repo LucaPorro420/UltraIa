@@ -18,6 +18,7 @@ import {
   Target,
   ListOrdered,
   Palette,
+  FileText,
 } from 'lucide-react';
 
 /** Icono canonico de navegacion (referencia tipada para no acoplar a LucideIcon). */
@@ -42,6 +43,7 @@ export const WORKSPACE_ITEMS: NavItem[] = [
   { href: '/herramientas', label: 'Herramientas', icon: Boxes },
   { href: '/goal', label: 'Goal', icon: Target },
   { href: '/cloud', label: 'Cloud', icon: Cloud },
+  { href: '/content', label: 'Contenido', icon: FileText },
   { href: '/connections', label: 'Conexiones', icon: PlugZap },
   { href: '/metrics', label: 'Metricas', icon: BarChart3 },
   { href: '/prioritize', label: 'Priorizar', icon: ListOrdered },

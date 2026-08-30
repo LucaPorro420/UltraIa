@@ -6,7 +6,7 @@
  * que el motor consume.
  */
 
-import type { ContentSource } from '@ultraia/core/src/tools/content-templates';
+import type { ContentSource } from './content-templates';
 
 /* ------------------------------------------------------------------ */
 /* Ebooks                                                              */

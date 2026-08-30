@@ -27,7 +27,16 @@ export * from './libros';
 export * from './sdf';
 export * from './geom';
 export * from './content-engine';
-export * from './content-templates';
+// content-templates: explicit re-export to avoid Idioma collision with enrutador (identical type).
+export {
+  type DerivedType,
+  type ContentSource,
+  generateBlogPost,
+  generateVideoScript,
+  generateSocialCaption,
+  generateThread,
+} from './content-templates';
+export type { DerivedContent } from './content-templates';
 export * from './content-sources';
 // geometry/pngrender/procvid (loop-93): simbolos unicos Geo*/Png*/procvid - sin colision TS2308 con geom.
 export * from './geometry';
