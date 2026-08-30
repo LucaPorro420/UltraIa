@@ -11,6 +11,7 @@ import { laravel } from './data/laravel';
 import { svelte } from './data/svelte';
 import { node } from './data/node';
 import { typescript } from './data/typescript';
+import { learningPaths } from './data/learning-paths';
 
 // Orden canónico del roadmap (frontend → fullstack → backend → lenguaje).
 export const frameworks: Framework[] = [
@@ -82,3 +83,6 @@ export function courseStats(): CourseStats {
 export function lessonKey(frameworkId: string, lessonId: string): string {
   return `${frameworkId}/${lessonId}`;
 }
+
+export { learningPaths };
+export type { LearningPath } from './data/learning-paths';

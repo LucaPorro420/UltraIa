@@ -13,6 +13,7 @@ type MarketingHeaderProps = {
 const NAV_LINKS: { href: string; label: string }[] = [
   { href: '/explore', label: 'Explorar' },
   { href: '/recursos', label: 'Recursos' },
+  { href: '/learning-paths', label: 'Caminos' },
   { href: '/roadmap', label: 'Roadmap' },
   { href: '/course', label: 'Curso' },
 ];
