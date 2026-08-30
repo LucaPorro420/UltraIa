@@ -1,0 +1,144 @@
+{
+  "titulo": "Plan de Optimización CSS + Performance — UltraIa",
+  "fecha": "2026-08-30",
+  "resumen": "Reducir CSS de 120KB a 60KB, JS de 2607KB a 1500KB, y nodos DOM de 1749 a 800",
+  
+  "estado_actual": {
+    "css_total_kb": 120,
+    "js_total_kb": 2607,
+    "nodos_dom": 1749,
+    "estilos_inline_kb": 34,
+    "first_load_js_kb": 102,
+    "pagina_mas_pesada": "/ebooks/playground (252 KB)"
+  },
+
+  "objetivos": {
+    "css_total_kb": 60,
+    "js_total_kb": 1500,
+    "nodos_dom": 800,
+    "estilos_inline_kb": 5,
+    "first_load_js_kb": 80
+  },
+
+  "fases": [
+    {
+      "numero": 1,
+      "nombre": "Optimización CSS",
+      "prioridad": "ALTA",
+      "acciones": [
+        {
+          "id": "1.1",
+          "descripcion": "Dividir globals.css (392 líneas) en 4 módulos",
+          "archivos": ["globals-base.css", "globals-utilities.css", "globals-components.css", "globals-motion.css"],
+          "beneficio": "Carga selectiva por página"
+        },
+        {
+          "id": "1.2",
+          "descripcion": "Eliminar clases CSS duplicadas que Tailwind ya ofrece",
+          "ejemplo": ".glow-video → border-purple-500/45 shadow-[0_0_18px_-6px_#a855f7]",
+          "beneficio": "Menos CSS custom"
+        },
+        {
+          "id": "1.3",
+          "descripcion": "Configurar compresión gzip/brotli en next.config.ts",
+          "beneficio": "60-80% menos datos transferidos"
+        }
+      ]
+    },
+    {
+      "numero": 2,
+      "nombre": "Optimización JavaScript",
+      "prioridad": "ALTA",
+      "acciones": [
+        {
+          "id": "2.1",
+          "descripcion": "Tree shaking de Three.js (importar solo lo necesario)",
+          "ahorro_estimado_kb": 300,
+          "beneficio": "300 KB menos en bundle"
+        },
+        {
+          "id": "2.2",
+          "descripcion": "Dynamic imports para páginas pesadas",
+          "paginas": ["/ebooks/playground", "/dashboard", "/agents/new", "/studio"],
+          "beneficio": "Carga bajo demanda"
+        },
+        {
+          "id": "2.3",
+          "descripcion": "Eliminar polyfills innecesarios",
+          "ahorro_estimado_kb": 20,
+          "beneficio": "20 KB menos"
+        }
+      ]
+    },
+    {
+      "numero": 3,
+      "nombre": "Extensiones Chrome",
+      "prioridad": "MEDIA",
+      "acciones": [
+        {
+          "id": "3.1",
+          "descripcion": "MutationObserver para limpiar DOM de extensiones",
+          "extensiones_afectadas": ["Plurality", "DeepL", "aiinhbfoop"],
+          "beneficio": "DOM limpio, sin errores MIME"
+        },
+        {
+          "id": "3.2",
+          "descripcion": "Crear guía docs/EXTENSIONES-CHROME.md",
+          "beneficio": "Usuario sabe cómo configurar su navegador"
+        }
+      ]
+    },
+    {
+      "numero": 4,
+      "nombre": "DOM y Rendering",
+      "prioridad": "MEDIA",
+      "acciones": [
+        {
+          "id": "4.1",
+          "descripcion": "Virtualizar listas largas con @tanstack/react-virtual",
+          "listas": ["agentes", "publicaciones", "galería"],
+          "beneficio": "Reducir nodos DOM a ~200-300"
+        },
+        {
+          "id": "4.2",
+          "descripcion": "Lazy loading de secciones del landing",
+          "componentes": ["LandingFeatures", "LandingDashboard", "LandingEcosystem", "LandingPillars"],
+          "beneficio": "Carga progresiva"
+        },
+        {
+          "id": "4.3",
+          "descripcion": "Agregar dimensiones a imágenes para evitar CLS",
+          "beneficio": "Score Lighthouse > 90"
+        }
+      ]
+    },
+    {
+      "numero": 5,
+      "nombre": "Streaming SSR",
+      "prioridad": "BAJA",
+      "acciones": [
+        {
+          "id": "5.1",
+          "descripcion": "Convertir páginas pesadas a Server Components con Suspense",
+          "beneficio": "UI responde instantáneamente"
+        },
+        {
+          "id": "5.2",
+          "descripcion": "Agregar suppressHydrationWarning en html/body",
+          "beneficio": "Eliminar errores de hidratación por extensiones"
+        }
+      ]
+    }
+  ],
+
+  "criterios_verificacion": {
+    "css_total_kb": "< 60",
+    "js_total_kb": "< 1500",
+    "first_load_js_kb": "< 80",
+    "nodos_dom": "< 800",
+    "cls": "< 0.1",
+    "lighthouse_performance": "> 90",
+    "dev_server_startup": "< 10s",
+    "errores_mime_consola": 0
+  }
+}
