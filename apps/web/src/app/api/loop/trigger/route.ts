@@ -133,8 +133,8 @@ async function runGoalCycle(
 
     return {
       status: errors.length > 0 && successes.length === 0 ? 'error' : 'completed',
-      output: results.map((r: { output: string }) => r.output).join('\n---\n'),
-      error: errors.length > 0 ? errors.map((e: { error?: string }) => e.error).join('; ') : undefined,
+      output: results.map((r) => r.output).join('\n---\n'),
+      error: errors.length > 0 ? errors.map((e) => e.error ?? '').join('; ') : undefined,
     };
   } catch (err) {
     return {
@@ -165,7 +165,7 @@ export async function POST(req: NextRequest) {
   // Validate input
   let input;
   try {
-    input = validateTriggerInput({ ...json, userId: user.id });
+    input = validateTriggerInput({ ...(json as Record<string, unknown>), userId: user.id });
   } catch (err) {
     const message = err instanceof Error ? err.message : 'validation error';
     return NextResponse.json({ error: message }, { status: 400 });
