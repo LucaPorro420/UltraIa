@@ -3028,4 +3028,12 @@ de código, sin commit.
 ```json
 {"pattern":"pivr","iter":["155"],"gates":{"typecheck":"ok","lint":"0","test":"2071/2072","build":"195pages"},"commits":["1229493"],"note":"content history + cerebro integration + dashboard, push origin/master"}
 ```
+
+## [P] iter-156 capability playground (31/08) - Sensado: procedurales (geometry/diagrams/codevfx/procvid/travel) son tools pero no tienen UI interactiva. Predicción: /playground page con tabs, geometry canvas + diagram SVG + nav item.
+- **[I]** 1) `playground/page.tsx`: server page, force-dynamic. 2) `playground/playground-client.tsx`: tabbed shell (5 tabs, icons). 3) `playground/geometry-client.tsx`: Canvas superfórmula viewer, 8 presets, sliders m/n1/n2/n3, PNG/SVG export. 4) `playground/diagrams-client.tsx`: SVG diagram generator (4 kinds), add/remove steps, export. 5) `nav-items.ts`: Play icon added to WORKSPACE_ITEMS. 6) Procedural/codevfx/travel show placeholder (next iter).
+- **[V]** core ✅, runtime ✅, build 195 pages ✅ (50s compiled, 0 errors).
+- **[R]** Playground commiteado (5d05cc6). 6 archivos nuevos, 683 lineas. Tabs procedural/codevfx/travel pendientes de implementar.
+```json
+{"pattern":"pivr","iter":["156"],"gates":{"typecheck":"ok","lint":"0","test":"skip","build":"195pages"},"commits":["5d05cc6"],"note":"capability playground — geometry canvas + diagrams SVG + nav item"}
+```
 ```

@@ -292,6 +292,10 @@ Ciclo de generadores deterministas (sin dependencias, sin red) sobre `packages/c
 | 148 | **procvid: animación `fbm-flow`** - `loop-148-procvid-fbm-flow.md`; `procvid.ts` case 'fbm-flow' (import fbm2D, paleta neoViolet); test 10->11 | packages/core | FULL(typecheck/lint/test) | DONE (892227b) |
 | 149 | **Video capstone fbm-flow (GIF real)** - `loop-149-procedural-fbm-video.md`; `Task/procedural-fbm-video.ts` -> fbm-flow.gif real (158027 B, fnv ff2a30c7 idéntico) + poster + manifest | Task | FULL(typecheck/lint/test) | DONE (9065986) |
 | 150 | **Orquestador Autonomo Local** - `loop-150-orchestrator-local.md`; packages/runtime/src/adapters/ollama-router.ts + orchestrator/specialized.ts + coordinator.ts + memory.ts; modelos locales Phi-3/DeepSeek/CodeLlama sin APIs; tests unitarios | packages/runtime | FULL(typecheck/lint/test) | DONE (deabafa) |
+| 151 | **Procedural GIF real** - `loop-151-procedural-gif.md`; demo fbm-flow GIF en Task/procedural-fbm-video.ts | Task | FULL(typecheck/lint/test) | DONE (9065986) |
+| 152 | **Observabilidad Agentes** - `loop-152-observability.md`; packages/core observability module | packages/core | FULL(typecheck/lint/test) | DONE |
+| 153 | **Agentic Routing** - `loop-153-agentic.md`; agentic routing module | packages/core | FULL(typecheck/lint/test) | DONE |
+| 154 | **Capability Playground** - `loop-154-capability-playground.md`; /playground page with interactive superfórmula + diagram generator; nav item registered; geometry + diagrams clients (procedural/codevfx/travel placeholder) | apps/web | FULL(typecheck/lint/test/build) | DONE (5d05cc6) |
 
 ## Pendiente sin plan (agregadas manual)
 
