@@ -948,6 +948,27 @@ export function chatStream(opts: {
       },
     });
   }
+  if (opts.tools?.includes('loop-trigger')) {
+    tools.loop_trigger = tool({
+      description:
+        'Autonomous IDE trigger: dado una tarea, ejecuta el pipeline apropiado (PIVR para dev, goal runner para contenido). Modos: auto (selecciona por contenido), p-p (solo plan), p-b (implementa plan), goal (ejecuta agente). Retorna taskId, status, summary, output, filesChanged. Conecta al EventBus del runtime para updates en tiempo real.',
+      parameters: z.object({
+        task: z.string().min(10).max(4000).describe('Descripcion de la tarea a ejecutar'),
+        mode: z.enum(['auto', 'p-p', 'p-b', 'goal']).optional().describe('Modo de ejecucion'),
+        agentId: z.string().optional().describe('ID del agente a usar (solo mode=goal)'),
+      }),
+      execute: async ({ task, mode, agentId }) => {
+        // Ejecuta via fetch al endpoint local (el tool corre en server-side)
+        const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000';
+        const res = await fetch(`${baseUrl}/api/loop/trigger`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ task, mode, agentId, userId: opts.userId ?? 'system' }),
+        });
+        return await res.json();
+      },
+    });
+  }
   if (opts.tools?.includes('publish')) {
     tools.publish_submit = tool({
       description:

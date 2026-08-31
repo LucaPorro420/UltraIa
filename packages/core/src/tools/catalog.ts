@@ -29,6 +29,7 @@ const CATALOG_META: Record<Capability, { category: ToolCategory; route: string; 
   content: { category: 'video-audio', route: '/studio', related: ['music', 'video', 'studio'], consolidates: [] },
   g0dm0d3: { category: 'ia-ml', route: '/studio', related: ['skills'], consolidates: [] },
   goal: { category: 'automatizacion', route: '/dashboard', related: ['skills', 'cerebro', 'genesis', 'autopub'], consolidates: [] },
+  'loop-trigger': { category: 'automatizacion', route: '/dashboard', related: ['goal', 'cerebro', 'genesis', 'harness'], consolidates: [] },
   topics: { category: 'contenido-cms', route: '/dashboard', related: ['contenido', 'autopub', 'metrics'], consolidates: [] },
   present: { category: 'contenido-cms', route: '/dashboard', related: ['publications', 'contenido', 'autopub'], consolidates: [] },
   publish: { category: 'contenido-cms', route: '/dashboard', related: ['publications', 'autopub'], consolidates: [] },
@@ -94,6 +95,7 @@ const CATALOG_META: Record<Capability, { category: ToolCategory; route: string; 
 export const ES: Partial<Record<Capability, LocalizedTool>> = {
   calculator: { name: 'Calculadora', description: 'Evalua una expresion matematica de forma segura (solo matematicas).', tags: ['matematicas','calculo'] },
   goal: { name: 'Meta-agente /goal', description: 'Ejecuta objetivos globales de principio a fin orquestando todas las capacidades: contenido, viajes, planificador, investigacion, memoria, publicacion y mensajeria.', tags: ['meta-agente','orquestacion'] },
+  'loop-trigger': { name: 'Trigger IDE Autonomo', description: 'Dispara ciclos PIVR o goal runner desde cualquier fuente. Selecciona pipeline por contenido, ejecuta y retorna resultado.', tags: ['trigger','autonomo','piv'] },
   web: { name: 'Web', description: 'Lee el texto y metadatos de una pagina publica (web o publicacion social no privada). Sin claves.', tags: ['web','lectura'] },
   image: { name: 'Imagen', description: 'Genera una imagen fotorrealista desde un texto con un modelo gratuito sin claves. Devuelve una URL.', tags: ['imagen','generacion'] },
   video: { name: 'Video', description: 'Produce un guion grafico de video (secuencia de fotogramas) desde un texto. Sin claves; video real si hay proveedor.', tags: ['video','guion'] },
@@ -163,6 +165,7 @@ export const ES: Partial<Record<Capability, LocalizedTool>> = {
 export const PT: Partial<Record<Capability, LocalizedTool>> = {
   calculator: { name: 'Calculadora', description: 'Avalia uma expressao matematica de forma segura (apenas matematica).', tags: ['matematica','calculo'] },
   goal: { name: 'Meta-agente /goal', description: 'Executa objetivos globais de ponta a ponta orquestrando todas as capacidades: conteudo, viagens, planejador, pesquisa, memoria, publicacao e mensageria.', tags: ['meta-agente','orquestracao'] },
+  'loop-trigger': { name: 'Trigger IDE Autonomo', description: 'Dispara ciclos PIVR ou goal runner de qualquer fonte. Seleciona pipeline por conteudo, executa e retorna resultado.', tags: ['trigger','autonomo','piv'] },
   web: { name: 'Web', description: 'Le o texto e os metadados de uma pagina publica (web ou publicacao social nao privada). Sem chaves.', tags: ['web','leitura'] },
   image: { name: 'Imagem', description: 'Gera uma imagem fotorrealista a partir de um texto com um modelo gratuito sem chaves. Retorna uma URL.', tags: ['imagem','geracao'] },
   video: { name: 'Video', description: 'Produz um roteiro de video (sequencia de quadros) a partir de um texto. Sem chaves; video real se houver provedor.', tags: ['video','roteiro'] },
@@ -231,6 +234,7 @@ export const PT: Partial<Record<Capability, LocalizedTool>> = {
 export const IT: Partial<Record<Capability, LocalizedTool>> = {
   calculator: { name: 'Calcolatrice', description: 'Valuta un espressione matematica in modo sicuro (solo matematica).', tags: ['matematica','calcolo'] },
   goal: { name: 'Meta-agente /goal', description: 'Esegue obiettivi globali dall\'inizio alla fine orchestrando tutte le capacita: contenuto, viaggi, pianificatore, ricerca, memoria, pubblicazione e messaggistica.', tags: ['meta-agente','orchestrazione'] },
+  'loop-trigger': { name: 'Trigger IDE Autonomo', description: 'Avvia cicli PIVR o goal runner da qualsiasi fonte. Seleziona pipeline per contenuto, esegue e restituisce il risultato.', tags: ['trigger','autonomo','piv'] },
   web: { name: 'Web', description: 'Legge il testo e i metadati di una pagina pubblica (web o pubblicazione social non privata). Senza chiavi.', tags: ['web','lettura'] },
   image: { name: 'Immagine', description: 'Genera un immagine fotorealistica da un testo con un modello gratuito senza chiavi. Restituisce un URL.', tags: ['immagine','generazione'] },
   video: { name: 'Video', description: 'Produce uno storyboard video (sequenza di fotogrammi) da un testo. Senza chiavi; video reale se c\'e un provider.', tags: ['video','storyboard'] },
@@ -299,6 +303,7 @@ export const IT: Partial<Record<Capability, LocalizedTool>> = {
 export const DE: Partial<Record<Capability, LocalizedTool>> = {
   calculator: { name: 'Taschenrechner', description: 'Wertet einen mathematischen Ausdruck sicher aus (nur Mathematik).', tags: ['mathematik','berechnung'] },
   goal: { name: 'Meta-Agent /goal', description: 'Fuehrt globale Ziele von Anfang bis Ende aus und orchestriert alle Faehigkeiten: Inhalt, Reisen, Planer, Forschung, Speicher, Veroeffentlichung und Messaging.', tags: ['meta-agent','orchestrierung'] },
+  'loop-trigger': { name: 'Trigger IDE Autonom', description: 'Startet PIVR- oder goal-runner-Zyklen aus jeder Quelle. Waehlt Pipeline nach Inhalt, fuehrt aus und liefert Ergebnis.', tags: ['trigger','autonom','piv'] },
   web: { name: 'Web', description: 'Liest Text und Metadaten einer oeffentlichen Seite (Web oder oeffentlicher Social-Beitrag). Ohne Schluessel.', tags: ['web','lesen'] },
   image: { name: 'Bild', description: 'Erzeugt ein fotorealistisches Bild aus einem Text mit einem kostenlosen Modell ohne Schluessel. Gibt eine URL zurueck.', tags: ['bild','generierung'] },
   video: { name: 'Video', description: 'Erstellt ein Video-Storyboard (Bildfolge) aus einem Text. Ohne Schluessel; echtes Video falls Anbieter vorhanden.', tags: ['video','storyboard'] },
@@ -367,6 +372,7 @@ export const DE: Partial<Record<Capability, LocalizedTool>> = {
 export const ZH: Partial<Record<Capability, LocalizedTool>> = {
   calculator: { name: '计算器', description: '安全地计算数学表达式（仅数学）。', tags: ['数学','计算'] },
   goal: { name: '元智能体 /goal', description: '端到端执行全局目标，编排所有能力：内容、旅行、规划器、研究、记忆、发布与消息。', tags: ['元智能体','编排'] },
+  'loop-trigger': { name: '自主IDE触发器', description: '从任何来源触发PIVR或目标运行器循环。按内容选择管道、执行并返回结果。', tags: ['触发器','自主','piv'] },
   web: { name: '网页', description: '读取公开页面的文本和元数据（网页或公开社交帖子）。无需密钥。', tags: ['网页','读取'] },
   image: { name: '图像', description: '用免费无密钥模型从文本生成写实图像。返回 URL。', tags: ['图像','生成'] },
   video: { name: '视频', description: '从文本生成视频分镜（帧序列）。无需密钥；如有提供商则生成真实视频。', tags: ['视频','分镜'] },
@@ -435,6 +441,7 @@ export const ZH: Partial<Record<Capability, LocalizedTool>> = {
 export const RU: Partial<Record<Capability, LocalizedTool>> = {
   calculator: { name: 'Калькулятор', description: 'Безопасно вычисляет математическое выражение (только математика).', tags: ['математика','вычисления'] },
   goal: { name: 'Meta-агент /goal', description: 'Выполняет глобальные цели от начала до конца, оркестрируя все возможности: контент, путешествия, планировщик, исследование, память, публикация и обмен сообщениями.', tags: ['meta-agent','оркестрация'] },
+  'loop-trigger': { name: 'Триггер автономного IDE', description: 'Запускает циклы PIVR или goal runner из любого источника. Выбирает конвейер по содержанию, выполняет и возвращает результат.', tags: ['триггер','автономный','piv'] },
   web: { name: 'Веб', description: 'Читает текст и метаданные публичной страницы (веб или публичный соцпост). Без ключей.', tags: ['веб','чтение'] },
   image: { name: 'Изображение', description: 'Генерирует фотореалистичное изображение из текста бесплатной моделью без ключей. Возвращает URL.', tags: ['изображение','генерация'] },
   video: { name: 'Видео', description: 'Создаёт раскадровку видео (последовательность кадров) из текста. Без ключей; настоящее видео при наличии провайдера.', tags: ['видео','раскадровка'] },

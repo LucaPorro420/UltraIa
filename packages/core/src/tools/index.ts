@@ -81,6 +81,8 @@ export * from './genesis';
 export * from './vault';
 // goal: meta-agente /goal (motor puro runGoal + parseIntent + goalSystemPrompt); sin colisiones.
 export * from './goal';
+// loop-trigger: trigger endpoint dominio puro para Autonomous IDE (PIVR + goal runner).
+export * from './loop-trigger';
 // agent-loop: bucle de agente que conecta memoria/plan/orquestador/verificador/tester.
 export * from './agent-loop';
 export * from './pdfsearch';
@@ -318,6 +320,8 @@ export const TOOL_DESCRIPTIONS: Record<string, string> = {
     'Modelos de aprendizaje programado (deterministas, keyless): integran "pensamientos" (observation/hypothesis/error/resolution/learning), comprimen la memoria al superar capacidad (colapsan duplicados por kind+tag, conservan los de mayor importancia) y derivan modelos avanzados de meta-razonamiento que calculan diferencias entre conjuntos de pensamientos (contrastThoughts) y resuelven errores (resolveErrors → estrategia + confianza por solapamiento de tags; spawnAdvancedModel consolida contrastes y resoluciones). Determinista, keyless. Usa para que el agente aprenda, comprima y razone sobre sus propios pensamientos.',
   goal:
     'Meta-agente autonomo (/goal): dado un objetivo + lista de tareas, ejecuta cada tarea encadenando contexto (memoria) y despachando a las capabilities reales del proyecto (creadores de contenido, viajes/video, planificador/orquestador, investigacion, memoria/vault, topicos, diagramas, publicacion, mensajeria, media-score). El modelo decide por tarea si responder o invocar una herramienta via JSON {"tool","args"}; soporta encadenado (investigar -> crear -> publicar). Usa para ejecutar peticiones complejas de principio a fin sin intervencion.',
+  'loop-trigger':
+    'Autonomous IDE trigger: dado una tarea, ejecuta el pipeline apropiado (PIVR para dev, goal runner para contenido). Modos: auto (selecciona por contenido), p-p (solo plan), p-b (implementa plan), goal (ejecuta agente). Retorna taskId, status, summary, output, filesChanged. Conecta al EventBus del runtime para updates en tiempo real. Usa para disparar ciclos autónomos desde cualquier fuente (VS Code, Discord, Telegram, web).',
   observability:
     'Observabilidad agéntica (Langfuse port, Fase A): traza cada paso del agente (spans, generaciones, scores) hacia Langfuse Cloud (https://cloud.langfuse.com) via POST /api/public/ingestion con batch + Basic auth; keyless-first fail-soft (sin LANGFUSE_PUBLIC_KEY/SECRET_KEY no hace red, solo buffer local). Acciones: trace (span/generation/score) y flush. Determinista, fetch inyectable, nunca tira. Usa para medir costo/latencia/calidad por paso y cerrar el loop de mejora.',
   agentic:
@@ -397,6 +401,7 @@ export type Capability =
   | 'designcompose'
   | 'learnModels'
   | 'goal'
+  | 'loop-trigger'
   | 'orchestrator'
   | 'observability'
   | 'agentic'

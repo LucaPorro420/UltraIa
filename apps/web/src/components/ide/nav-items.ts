@@ -20,6 +20,7 @@ import {
   Palette,
   FileText,
   Play,
+  Brain,
 } from 'lucide-react';
 
 /** Icono canonico de navegacion (referencia tipada para no acoplar a LucideIcon). */
@@ -50,6 +51,7 @@ export const WORKSPACE_ITEMS: NavItem[] = [
   { href: '/prioritize', label: 'Priorizar', icon: ListOrdered },
   { href: '/lab', label: 'Lab', icon: FlaskConical },
   { href: '/playground', label: 'Playground', icon: Play },
+  { href: '/hypothesis-quest', label: 'Hypothesis Quest', icon: Brain },
   { href: '/roadmap', label: 'Roadmap', icon: Map },
   { href: '/design-system', label: 'Design System', icon: Palette },
 ];

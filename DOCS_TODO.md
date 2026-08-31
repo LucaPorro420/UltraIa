@@ -1060,3 +1060,49 @@ Cada commit agrega una sección con fecha y la lista de archivos `.ts/.tsx` toca
 - [ ] apps/web/src/types/web-vitals.d.ts
 - [ ] packages/core/src/tools/content-engine.test.ts
 - [ ] packages/core/src/tools/content-engine.ts
+
+## 2026-08-31T04:53:03.364Z
+- [ ] apps/web/src/app/(app)/cloud/page.tsx
+- [ ] packages/core/src/ai/mem0-client.ts
+
+## 2026-08-31T05:31:33.065Z
+- [ ] apps/web/src/app/(app)/content/history/page.tsx
+- [ ] apps/web/src/app/(app)/content/page.tsx
+- [ ] apps/web/src/app/(app)/ebooks/[id]/page.tsx
+- [ ] apps/web/src/app/(app)/ebooks/library/page.tsx
+- [ ] apps/web/src/app/(app)/ebooks/page.tsx
+- [ ] apps/web/src/app/(app)/ebooks/playground/page.tsx
+- [ ] apps/web/src/app/(app)/studio/studio-client.tsx
+- [ ] apps/web/src/app/(marketing)/ebooks/[id]/page.tsx
+- [ ] apps/web/src/app/(marketing)/ebooks/library/page.tsx
+- [ ] apps/web/src/app/(marketing)/ebooks/page.tsx
+- [ ] apps/web/src/app/(marketing)/ebooks/playground/page.tsx
+- [ ] apps/web/src/components/gallery/detail-dialog.tsx
+- [ ] apps/web/src/components/gallery/prompt-card.tsx
+
+## 2026-08-31T05:33:13.580Z
+- [ ] apps/web/src/app/(app)/playground/diagrams-client.tsx
+- [ ] apps/web/src/app/(app)/playground/geometry-client.tsx
+- [ ] apps/web/src/app/(app)/playground/page.tsx
+- [ ] apps/web/src/app/(app)/playground/playground-client.tsx
+- [ ] apps/web/src/components/ide/nav-items.ts
+
+## 2026-08-31T15:27:08.995Z
+- [ ] apps/web/src/app/(app)/playground/codevfx-client.tsx
+- [ ] apps/web/src/app/(app)/playground/playground-client.tsx
+- [ ] apps/web/src/app/(app)/playground/procedural-client.tsx
+- [ ] apps/web/src/app/(app)/playground/travel-client.tsx
+
+## 2026-08-31T16:00:15.073Z
+- [ ] apps/web/src/app/api/codevfx/route.ts
+- [ ] apps/web/src/app/api/geometry/route.ts
+- [ ] apps/web/src/app/api/travel/route.ts
+
+## 2026-08-31T16:11:51.575Z
+- [ ] apps/web/src/app/(app)/playground/travel-client.tsx
+
+## 2026-08-31T16:35:40.617Z
+- [ ] apps/web/src/app/api/geometry/route.ts
+- [ ] apps/web/src/app/layout.tsx
+- [ ] packages/core/src/omag/audiolibrary.test.ts
+- [ ] packages/core/src/tools/content.live.test.ts

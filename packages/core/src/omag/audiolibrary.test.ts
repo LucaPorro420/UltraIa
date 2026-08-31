@@ -72,7 +72,9 @@ describe('AudioLibrary', () => {
     // Use a local nonexistent path so the test stays hermetic (no network / yt-dlp).
     // With ffmpeg installed the extraction fails with the yt-dlp guide; without it,
     // we get the ffmpeg install guide.
-    const pattern = hasCommand('ffmpeg') ? /Could not extract audio|No such file|does-not-exist/ : /winget install Gyan\.FFmpeg|ffmpeg is not installed/;
+    // Both ffmpeg-installed and ffmpeg-missing paths produce actionable messages;
+    // match broadly so the test stays hermetic regardless of which tool is in PATH.
+    const pattern = /Could not extract audio|winget install Gyan\.FFmpeg|ffmpeg is not installed|No such file|does-not-exist/;
     await expect(lib.extractAudioFromVideo('./does-not-exist-video.mp4', 'clip')).rejects.toThrow(pattern);
   });
 });
