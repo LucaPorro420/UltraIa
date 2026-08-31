@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
+import Image from 'next/image';
 
 /**
  * Interactive Travel Video Planner.
@@ -72,7 +73,7 @@ function generatePlan(destino: string, estilo: TravelStyle, idioma: TravelLang, 
   const seed = fnv1a(`${destino}:${estilo}:${idioma}`);
   const numScenes = Math.max(3, Math.min(7, Math.round(duracion / 8)));
 
-  const sceneTemplates: Record<TravelStyle, { lugares: string[]; descs: string[]; hooks: string[]; narrs: string[] }> = {
+  const sceneTemplates: Record<TravelStyle, { lugares: string[]; descs: string[]; hooks: string; narrs: string }> = {
     aventura: {
       lugares: ['Mirador', 'Acantilado', 'Paso estrecho', 'Cumbre', 'Cascada', 'Puente colgante', 'Cueva'],
       descs: ['Vistas panorámicas de 360 grados', 'Formaciones rocosas imponentes', 'Paisaje que corta el aliento', 'Nubes rozan la cima', 'Agua cristalina cayendo', 'Estructura sobre el vacío', 'Formaciones geológicas milenarias'],
@@ -113,7 +114,7 @@ function generatePlan(destino: string, estilo: TravelStyle, idioma: TravelLang, 
       motion: MOTIONS[motionIdx],
       duracionSeg: sceneDur,
       promptImagen: `${templates.lugares[idx]} of ${destino}, cinematic photography, dramatic lighting, 9:16 vertical, ultra detailed`,
-      narracion: `${templates.narrs[idioma]}: ${templates.lugares[idx]}`,
+      narracion: `${templates.narrs}: ${templates.lugares[idx]}`,
     });
   }
 
@@ -226,11 +227,13 @@ export function TravelClient() {
 
             {/* Scene image preview */}
             <div className="relative overflow-hidden rounded-lg border border-[#26263a] bg-[#0c0c10]">
-              <img
+              <Image
                 src={pollinationsUrl(plan.escenas[selectedScene].promptImagen, 405, 720, imageSeed)}
                 alt={plan.escenas[selectedScene].lugar}
+                width={405}
+                height={720}
                 className="mx-auto max-h-[400px] object-contain"
-                loading="lazy"
+                unoptimized
               />
               <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-[#0c0c10] to-transparent p-4">
                 <div className="text-sm font-medium text-[#e7e7ee]">{plan.escenas[selectedScene].lugar}</div>
