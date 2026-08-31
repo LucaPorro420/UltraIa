@@ -3,6 +3,9 @@
 import { useState } from 'react';
 import { GeometryClient } from './geometry-client';
 import { DiagramsClient } from './diagrams-client';
+import { ProceduralClient } from './procedural-client';
+import { CodevfxClient } from './codevfx-client';
+import { TravelClient } from './travel-client';
 
 type Tab = 'geometry' | 'diagrams' | 'procedural' | 'codevfx' | 'travel';
 
@@ -53,25 +56,9 @@ export function PlaygroundClient() {
       <div className="rounded-xl border border-[#1f1f2a] bg-[#111115] p-4">
         {tab === 'geometry' && <GeometryClient />}
         {tab === 'diagrams' && <DiagramsClient />}
-        {tab === 'procedural' && (
-          <div className="text-sm text-[#9a9aae]">
-            <p>Procedural playground ya existe en{' '}
-              <a href="/lab/procedural" className="text-[#8b5cf6] hover:underline">/lab/procedural</a>
-            </p>
-          </div>
-        )}
-        {tab === 'codevfx' && (
-          <div className="text-sm text-[#9a9aae]">
-            <p>CodeVFX: efectos visuales generativos (fire, ice, lightning, meteor, beam, ground).</p>
-            <p className="mt-2">Próximamente: editor interactivo de efectos.</p>
-          </div>
-        )}
-        {tab === 'travel' && (
-          <div className="text-sm text-[#9a9aae]">
-            <p>Travel planner: genera planes de video de viaje con prompts de imagen 9:16.</p>
-            <p className="mt-2">Próximamente: editor interactivo de planes de viaje.</p>
-          </div>
-        )}
+        {tab === 'procedural' && <ProceduralClient />}
+        {tab === 'codevfx' && <CodevfxClient />}
+        {tab === 'travel' && <TravelClient />}
       </div>
     </div>
   );
