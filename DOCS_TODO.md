@@ -1125,3 +1125,33 @@ Cada commit agrega una sección con fecha y la lista de archivos `.ts/.tsx` toca
 - [ ] packages/core/src/tools/index.ts
 - [ ] packages/core/src/tools/loop-trigger.test.ts
 - [ ] packages/core/src/tools/loop-trigger.ts
+
+## 2026-08-31T19:10:04.234Z
+- [ ] apps/web/src/app/api/loop/trigger/route.ts
+
+## 2026-08-31T21:45:02.747Z
+- [ ] apps/web/src/app/api/bridge/route.ts
+- [ ] apps/web/src/lib/api-error.ts
+- [ ] packages/core/src/ai/geom-safety.test.ts
+- [ ] packages/core/src/ai/llm.ts
+- [ ] packages/core/src/tools/catalog.ts
+- [ ] packages/core/src/tools/chat-bridge.test.ts
+- [ ] packages/core/src/tools/chat-bridge.ts
+- [ ] packages/core/src/tools/index.ts
+
+## 2026-08-31T21:50:43.008Z
+- [ ] .vscode-extension/src/chat-panel.ts
+- [ ] .vscode-extension/src/extension.ts
+- [ ] .vscode-extension/src/status-bar.ts
+- [ ] .vscode-extension/src/task-provider.ts
+- [ ] .vscode-extension/src/ws-client.ts
+
+## 2026-08-31T22:00:08.861Z
+- [ ] packages/core/src/lib/errors.test.ts
+- [ ] packages/core/src/lib/errors.ts
+
+## 2026-08-31T22:02:54.263Z
+- [ ] apps/web/src/app/api/loop/trigger/route.ts
+
+## 2026-08-31T22:03:47.087Z
+- [ ] apps/web/src/app/api/bridge/route.ts
