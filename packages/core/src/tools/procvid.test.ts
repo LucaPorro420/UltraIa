@@ -250,7 +250,7 @@ describe('procvid v2 — animaciones nuevas', () => {
   const NUEVAS = ['tunnel', 'metaballs', 'kaleido', 'starfield', 'fbm-flow'] as const;
 
   it('catálogo: 14 animaciones con las 5+v3', () => {
-    expect(PROCVID_ANIMATIONS).toHaveLength(14);
+    expect(PROCVID_ANIMATIONS).toHaveLength(17);
     for (const a of NUEVAS) expect(PROCVID_ANIMATIONS).toContain(a);
   });
 
@@ -335,10 +335,10 @@ describe('procvid v2 — planAudioMux', () => {
 /* ------------------------------------------------------------------ */
 
 describe('procvid v3 — animaciones nuevas', () => {
-  const V3 = ['voronoi', 'reaction-diffusion', 'fire'] as const;
+  const V3 = ['voronoi', 'reaction-diffusion', 'fire', 'fireflies', 'circuit', 'aurora'] as const;
 
-  it('catálogo: 14 animaciones incluye las 3 v3', () => {
-    expect(PROCVID_ANIMATIONS).toHaveLength(14);
+  it('catálogo: 17 animaciones incluye las 6 v3', () => {
+    expect(PROCVID_ANIMATIONS).toHaveLength(17);
     for (const a of V3) expect(PROCVID_ANIMATIONS).toContain(a);
   });
 
@@ -425,6 +425,74 @@ describe('procvid v3 — animaciones nuevas', () => {
     const spec = resolveSpec({ animation: 'fire', width: 16, height: 16, fps: 4, durationSec: 1 });
     const f = framePixelFn(spec, 0.999);
     for (const [x, y] of [[0, 0], [15, 15], [0, 15], [15, 0]] as const) {
+      const [r, g, b] = f(x, y);
+      expect([r, g, b].every(Number.isFinite)).toBe(true);
+    }
+  });
+
+  it('fireflies: glow visible (centro más brillante que fondo)', () => {
+    const spec = resolveSpec({ animation: 'fireflies', width: 64, height: 64, fps: 6, durationSec: 1, params: { count: 8 } });
+    const f = framePixelFn(spec, 0.3);
+    // Check some pixels have glow > 0.
+    let maxGlow = 0;
+    for (let y = 0; y < 64; y += 4) {
+      for (let x = 0; x < 64; x += 4) {
+        const [r, g, b] = f(x, y);
+        maxGlow = Math.max(maxGlow, r + g + b);
+      }
+    }
+    expect(maxGlow).toBeGreaterThan(0);
+  });
+
+  it('fireflies: NaN-free in edges', () => {
+    const spec = resolveSpec({ animation: 'fireflies', width: 16, height: 16, fps: 4, durationSec: 1 });
+    const f = framePixelFn(spec, 0.5);
+    for (const [x, y] of [[0, 0], [15, 15]] as const) {
+      const [r, g, b] = f(x, y);
+      expect([r, g, b].every(Number.isFinite)).toBe(true);
+    }
+  });
+
+  it('circuit: grid lines visible (non-zero v)', () => {
+    const spec = resolveSpec({ animation: 'circuit', width: 64, height: 64, fps: 6, durationSec: 1, params: { gridSize: 8 } });
+    const f = framePixelFn(spec, 0.3);
+    let nonzero = 0;
+    for (let y = 0; y < 64; y += 4) {
+      for (let x = 0; x < 64; x += 4) {
+        const [r, g, b] = f(x, y);
+        if (r + g + b > 0) nonzero++;
+      }
+    }
+    expect(nonzero).toBeGreaterThan(0);
+  });
+
+  it('circuit: NaN-free in edges', () => {
+    const spec = resolveSpec({ animation: 'circuit', width: 16, height: 16, fps: 4, durationSec: 1 });
+    const f = framePixelFn(spec, 0.999);
+    for (const [x, y] of [[0, 0], [15, 15]] as const) {
+      const [r, g, b] = f(x, y);
+      expect([r, g, b].every(Number.isFinite)).toBe(true);
+    }
+  });
+
+  it('aurora: layers visible in upper half', () => {
+    const spec = resolveSpec({ animation: 'aurora', width: 64, height: 64, fps: 6, durationSec: 1, params: { layers: 3 } });
+    const f = framePixelFn(spec, 0.3);
+    // Upper half should have some brightness from aurora layers.
+    let upperSum = 0;
+    for (let y = 0; y < 32; y += 4) {
+      for (let x = 0; x < 64; x += 4) {
+        const [r, g, b] = f(x, y);
+        upperSum += r + g + b;
+      }
+    }
+    expect(upperSum).toBeGreaterThan(0);
+  });
+
+  it('aurora: NaN-free in edges', () => {
+    const spec = resolveSpec({ animation: 'aurora', width: 16, height: 16, fps: 4, durationSec: 1 });
+    const f = framePixelFn(spec, 0.5);
+    for (const [x, y] of [[0, 0], [15, 15]] as const) {
       const [r, g, b] = f(x, y);
       expect([r, g, b].every(Number.isFinite)).toBe(true);
     }

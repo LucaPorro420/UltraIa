@@ -64,6 +64,10 @@ export const PROCVID_ANIMATIONS = [
   'voronoi',
   'reaction-diffusion',
   'fire',
+  // v3b (iter-150): fireflies/circuit/aurora — objetos y marcos luminosos
+  'fireflies',
+  'circuit',
+  'aurora',
 ] as const;
 
 export type ProcVidAnimation = (typeof PROCVID_ANIMATIONS)[number];
@@ -154,6 +158,10 @@ const DEFAULT_PALETTE: Record<ProcVidAnimation, string> = {
   voronoi: 'neoViolet',
   'reaction-diffusion': 'fire',
   fire: 'fire',
+  // v3b (iter-150): paletas default de las animaciones v3b.
+  fireflies: 'ice',
+  circuit: 'obsidian',
+  aurora: 'neoViolet',
 };
 
 /* ------------------------------------------------------------------ */
@@ -598,6 +606,124 @@ export function framePixelFn(spec: NormalizedProcVidSpec, t: number): PixelFn {
         const v = clamp01(baseGlow * heightFade + turbBoost);
         // Mapear a fuego: negro→rojo→amarillo→blanco.
         return samplePalette(palette, clamp01(v));
+      };
+    }
+
+    case 'fireflies': {
+      // Luciérnagas: N puntos brillantes con órbitas suaves y glow gaussiano.
+      const count = Math.max(3, Math.min(40, Math.round(num(params, 'count', 12))));
+      const speed = num(params, 'speed', 0.5);
+      const glowRadius = num(params, 'glowRadius', 0.08);
+      const hash4 = (i: number, salt: number): number => {
+        const h = Math.sin((i + 1) * 127.1 + salt * 311.7 + (seed % 89) * 0.6180339) * 43758.5453;
+        return h - Math.floor(h);
+      };
+      const flies: Array<{ cx: number; cy: number; r: number; phase: number; amp: number }> = [];
+      for (let i = 0; i < count; i++) {
+        flies.push({
+          cx: hash4(i, 1) * 1.6 - 0.8,
+          cy: hash4(i, 2) * 0.8 - 0.4,
+          r: hash4(i, 3) * 0.15 + 0.03,
+          phase: hash4(i, 4) * TAU,
+          amp: hash4(i, 5) * 0.12 + 0.02,
+        });
+      }
+      const inv2g2 = 1 / (2 * glowRadius * glowRadius);
+      return (px, py) => {
+        const [x, y] = toPlane(px, py);
+        let glow = 0;
+        for (const f of flies) {
+          const fx = f.cx + Math.sin(t * TAU * speed + f.phase) * f.amp;
+          const fy = f.cy + Math.cos(t * TAU * speed * 0.7 + f.phase) * f.amp * 0.6;
+          const dx = x - fx;
+          const dy = y - fy;
+          glow += Math.exp(-(dx * dx + dy * dy) * inv2g2);
+        }
+        return samplePalette(palette, clamp01(0.05 + glow * 0.45));
+      };
+    }
+
+    case 'circuit': {
+      // Circuito impreso animado: grid de líneas con pulso que viaja horizontal/
+      // verticalmente y nodos que parpadean. Look tech/cyberpunk.
+      const gridSize = Math.max(4, Math.min(20, Math.round(num(params, 'gridSize', 10))));
+      const speed = num(params, 'speed', 1);
+      const lineWidth = num(params, 'lineWidth', 0.02);
+      const hash5 = (i: number, salt: number): number => {
+        const h = Math.sin((i + 1) * 127.1 + salt * 311.7 + (seed % 89) * 0.6180339) * 43758.5453;
+        return h - Math.floor(h);
+      };
+      // Precompute which grid lines are "active" (carry signal).
+      const hLineActive = new Set<number>();
+      const vLineActive = new Set<number>();
+      for (let i = 0; i < gridSize; i++) {
+        if (hash5(i, 20) > 0.3) hLineActive.add(i);
+        if (hash5(i, 21) > 0.3) vLineActive.add(i);
+      }
+      return (px, py) => {
+        const [x, y] = toPlane(px, py);
+        let v = 0;
+        // Grid coordinates (0..gridSize).
+        const gx = ((x + 1) / 2) * gridSize;
+        const gy = ((y + 1) / 2) * gridSize;
+        // Horizontal lines (constant y, varying x).
+        for (const li of hLineActive) {
+          const ly = li;
+          const dy = Math.abs(gy - ly);
+          if (dy < lineWidth * gridSize * 3) {
+            // Pulse travels along x.
+            const pulse = Math.sin(gx * 2 - t * TAU * speed * 2 + li) * 0.5 + 0.5;
+            const fade = Math.exp(-dy * dy * 50);
+            v += fade * (0.15 + pulse * 0.6);
+          }
+        }
+        // Vertical lines (constant x, varying y).
+        for (const li of vLineActive) {
+          const lx = li;
+          const dx = Math.abs(gx - lx);
+          if (dx < lineWidth * gridSize * 3) {
+            // Pulse travels along y.
+            const pulse = Math.sin(gy * 2 - t * TAU * speed * 2 + li + 1.5) * 0.5 + 0.5;
+            const fade = Math.exp(-dx * dx * 50);
+            v += fade * (0.15 + pulse * 0.6);
+          }
+        }
+        // Node dots at intersections of active lines.
+        for (const hi of hLineActive) {
+          for (const vi of vLineActive) {
+            const nx = ((vi + 1) / gridSize) * 2 - 1;
+            const ny = ((hi + 1) / gridSize) * 2 - 1;
+            const d = Math.hypot(x - nx, y - ny);
+            const blink = 0.5 + 0.5 * Math.sin(t * TAU * speed * 3 + hi + vi);
+            const nodeGlow = Math.exp(-d * d * 800);
+            v += nodeGlow * blink * 0.9;
+          }
+        }
+        return samplePalette(palette, clamp01(v));
+      };
+    }
+
+    case 'aurora': {
+      // Aurora boreal: cortinas de luz ondulantes con variación vertical y temporal.
+      const layers = Math.max(2, Math.min(6, Math.round(num(params, 'layers', 4))));
+      const scale = num(params, 'scale', 2);
+      const speed = num(params, 'speed', 0.4);
+      const drift = num(params, 'drift', 1.5);
+      return (px, py) => {
+        const [x, y] = toPlane(px, py);
+        let v = 0;
+        for (let i = 0; i < layers; i++) {
+          const layerY = 0.1 + i * 0.08; // bands in upper half
+          const wave = Math.sin(x * scale * (1 + i * 0.3) + t * TAU * speed + i * 1.2) * drift;
+          const dy = y - layerY - wave * 0.1;
+          const dist = Math.abs(dy);
+          // Vertical curtain: brightest at layerY, fades with distance.
+          const curtain = Math.exp(-dist * dist * (20 - i * 2));
+          // Horizontal shimmer.
+          const shimmer = 0.7 + 0.3 * Math.sin(x * 8 + t * TAU * speed * 1.5 + i);
+          v += curtain * shimmer * (1 - i * 0.15);
+        }
+        return samplePalette(palette, clamp01(0.05 + v * 0.5));
       };
     }
   }
