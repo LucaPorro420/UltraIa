@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getCurrentUser } from '@/lib/server/context';
 import {
-  superShape2D,
+  superShape3D,
   meshToObjText,
   meshToGltf,
 } from '@ultraia/core';
@@ -72,7 +72,8 @@ export async function POST(req: Request) {
   // Optional 3D export via core geometry
   if (body.export === 'obj' || body.export === 'gltf') {
     try {
-      const mesh = superShape2D(m, n1, n2, n3, a, b, 200);
+      const params = { m, n1, n2, n3 };
+      const mesh = superShape3D(params, params, { scale: 1 });
       if (body.export === 'obj') {
         result.obj = meshToObjText(mesh);
       } else {

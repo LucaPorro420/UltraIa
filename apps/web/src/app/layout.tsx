@@ -1,21 +1,22 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import Script from 'next/script';
 import { Toaster } from 'sonner';
 import { inter, jakarta, jetbrains } from '@/lib/fonts';
 import { WebVitalsReporter } from '@/components/performance/web-vitals';
 import './globals.css';
 
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  themeColor: '#8b5cf6',
+};
+
 export const metadata: Metadata = {
   title: 'UltraIa — AI that creates AI and learns from AI',
   description:
     'Describe a task, UltraIa builds a purpose-built AI agent and improves it from real usage feedback, with human approval at every step.',
   manifest: '/manifest.json',
-  themeColor: '#8b5cf6',
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 5,
-  },
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',

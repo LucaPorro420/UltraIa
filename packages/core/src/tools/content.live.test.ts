@@ -1,7 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { searchMusic, searchSfx } from './content';
 
-describe('content tools — live integration (Tunetank MCP)', () => {
+// Skip live integration tests when TUNETANK_MCP_URL is not set (CI, offline)
+const describeLive = process.env.TUNETANK_MCP_URL ? describe : describe.skip;
+
+describeLive('content tools — live integration (Tunetank MCP)', () => {
   it('searches real music tracks', async () => {
     const out = await searchMusic({ query: 'cinematic', maxResults: 3 });
     expect(out.tracks.length).toBeGreaterThan(0);
