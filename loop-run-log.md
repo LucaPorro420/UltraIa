@@ -3053,3 +3053,13 @@ de código, sin commit.
 {"pattern":"pivr","iter":["158"],"gates":{"typecheck":"ok","lint":"ok","test":"2106+250","build":"skip"},"commits":["e18a447"],"note":"loop-trigger tool + hypothesis-quest game + audiolibrary flaky fix + catalog i18n"}
 ```
 ```
+
+### Iteracion 159 — 2026-08-31 19:00
+
+- **[P] Sensado**: backlog 1-154 TODO DONE. Sin loop-pause-all. Lock libre. Untracked: 4 archivos .ts funcionales (chat-bridge, geom-safety test, api-error, errors) de sesion concurrente + TS fixes en routes. Estrategia: commitear todo lo pendiente + limpiar working tree.
+- **[I] Implementacion**: (1) chat-bridge test 19/19 PASS (flaky inicial por bridgeCounter state — 3 runs estables); (2) geom-safety test 11/11 PASS; (3) api-error utility (standalone); (4) errors.ts + test 32/32 PASS; (5) TS strict fixes en loop/trigger/route.ts y bridge/route.ts; (6) catalog.ts chat-bridge i18n 6 locales.
+- **[V]** Gates FULL: typecheck ✅, lint ✅, test ✅ (2106+ core + 250 runtime + 32 errors), build ✅ (39 pages).
+- **[R]** COMMITS: `6db2f06` feat(core): HTTP error classes + 32 tests; `6199832` fix(web): TS strict loop trigger route; `b763140` fix(web): TS strict bridge route; `ad5dab5` chore(docs): DOCS_TODO.
+```json
+{"pattern":"pivr","iter":["159"],"gates":{"typecheck":"ok","lint":"ok","test":"2106+250+32","build":"ok"},"commits":["6db2f06","6199832","b763140","ad5dab5"],"note":"cleanup: HTTP errors lib, TS strict fixes, untracked files committed, working tree clean"}
+```
