@@ -169,11 +169,42 @@ def analyze_loop_run_log() -> dict:
                     if hash_match:
                         commit_hash = hash_match.group(1)
 
-        # If no [R] found, check if it looks like a pendiente
+        # Fallback: detect verdict from prose when [R] is missing or untagged
         if result == "unknown":
-            # Check for "(pendiente" in [R] section
-            r_section = body[body.find("**[R]"):body.find("---", body.find("**[R]") + 5)] if "**[R]" in body else ""
-            if "(pendiente" in r_section.lower():
+            # Strong signal: "DONE `hash`" anywhere in block
+            done_match = re.search(r"DONE\s+`[0-9a-f]{7,40}`", body, re.IGNORECASE)
+            if done_match:
+                result = "done"
+                h = re.search(r"`([0-9a-f]{7,40})`", done_match.group(0))
+                if h:
+                    commit_hash = h.group(1)
+
+        if result == "unknown":
+            # "DONE" without hash but with commit evidence
+            if re.search(r"\bDONE\b", body, re.IGNORECASE) and re.search(r"`[0-9a-f]{7,40}`", body):
+                result = "done"
+                h = re.search(r"`([0-9a-f]{7,40})`", body)
+                if h:
+                    commit_hash = h.group(1)
+
+        if result == "unknown":
+            # Active states → pending
+            if re.search(r"\b(?:EN CURSO|CEDIDA|PAUSADA|WIP|activo)\b", body, re.IGNORECASE):
+                result = "pending"
+
+        if result == "unknown":
+            # Has commit hash + all 4 phases present → likely done
+            if commit_hash and all(f"[{p}]" in body for p in "PIVR"):
+                result = "done"
+
+        if result == "unknown":
+            # Just "DONE" anywhere (last resort)
+            if re.search(r"\bDONE\b", body, re.IGNORECASE):
+                result = "done"
+
+        if result == "unknown":
+            # Future placeholder iterations (planned but not started)
+            if re.search(r"\(futura\)", body, re.IGNORECASE):
                 result = "pending"
 
         # Extract date
@@ -376,13 +407,44 @@ def analyze_loop_health() -> dict:
     if backlog["high_priority"] > 5:
         health["bottlenecks"].append(f"Many high-priority items ({backlog['high_priority']})")
 
-    # Recommendations
-    if health["bottlenecks"]:
-        health["recommendations"].append("Review phase failures for systematic issues")
-    if health["success_rate"] < 50:
-        health["recommendations"].append("Consider simplifying task scope or improving gates")
-    if backlog["pending"] > 15:
-        health["recommendations"].append("Backlog grooming: close stale or deprioritize")
+    # Recommendations (specific, actionable)
+    if health["unknown_iterations"] > 10:
+        health["recommendations"].append(
+            f"Review {health['unknown_iterations']} unclassified iterations — "
+            "add [R] verdicts or archive stale entries"
+        )
+
+    if health["success_rate"] < 60 and health["total_iterations"] > 20:
+        health["recommendations"].append(
+            f"Success rate {health['success_rate']}% — "
+            "consider: (1) smaller task scope, (2) pre-commit gate runner, "
+            "(3) tighter WIP limits"
+        )
+
+    # Phase-specific recommendations
+    pf = loop_data["phase_failures"]
+    if pf.get("P (plan only)", 0) > 5:
+        health["recommendations"].append(
+            "Many iterations died at planning — tasks may be too large; break into smaller chunks"
+        )
+    if pf.get("I (implement incomplete)", 0) > 5:
+        health["recommendations"].append(
+            "Many iterations died at implementation — consider: (1) TDD, "
+            "(2) incremental commits, (3) narrower scope per iteration"
+        )
+    if pf.get("V (verify gate fail)", 0) > 3:
+        health["recommendations"].append(
+            "Gate failures recurring — run `npm run gate --kill` before each commit"
+        )
+
+    if health["pending_iterations"] > 3:
+        health["recommendations"].append(
+            f"{health['pending_iterations']} iterations still pending — "
+            "decide: continue, delegate, or archive"
+        )
+
+    if not health["recommendations"]:
+        health["recommendations"].append("Loop health is good — maintain current practices")
 
     return health
 
