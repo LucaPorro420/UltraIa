@@ -40,9 +40,12 @@ STUDIES/
 # Local dev artifacts
 dev.err
 dev.log
-session-ses_*.md
 __pycache__/
 *.pyc
+
+# Session runtime data ( transcripts in sessions/ are tracked )
+sessions/last_build_check.json
+sessions/improvements.jsonl
 
 # Third-party cloned repos (keep out of this repo)
 FREE-openai-api-keys/
