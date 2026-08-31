@@ -2,14 +2,16 @@
 
 Captura cada interacción (request/response) entre el agente y el usuario en sessions/.
 
-## Uso automático
+## Uso automático (recomendado)
 
-Al inicio de cada sesión, el agente DEBE:
+Al inicio de cada sesión, el agente DEBE ejecutar un solo comando:
 
-1. **Build check** — `python scripts/session_logger.py build-check`
-2. **Start session** — `python scripts/session_logger.py start <session_id>`
-3. **Log each interaction** — después de cada response significativa
-4. **End session** — al cerrar con resumen
+```bash
+python scripts/session_logger.py auto "objetivo de la sesión"
+```
+
+Esto hace: build-check + start session + log goal en un paso.
+El session ID se genera automáticamente (ses-YYYYMMDD-HHMMSS).
 
 ## Uso manual
 

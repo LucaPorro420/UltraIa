@@ -16,6 +16,7 @@ El índice se mantiene en sessions/INDEX.md
 
 import json
 import os
+import re
 import sys
 import subprocess
 from datetime import datetime, timezone
@@ -245,6 +246,41 @@ def cmd_last_check():
         print(f"  {status}: {r['name']}")
 
 
+def _gen_session_id() -> str:
+    """Genera un session ID basado en timestamp: ses-YYYYMMDD-HHMMSS."""
+    return "ses-" + datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
+
+
+def _sanitize_id(raw: str) -> str:
+    """Sanitiza un session ID: espacios -> guiones, solo [a-z0-9_-]."""
+    s = raw.strip().replace(" ", "-")
+    s = re.sub(r"[^a-zA-Z0-9_-]", "", s)
+    return s or _gen_session_id()
+
+
+def cmd_auto(session_id: str = "", goal: str = ""):
+    """
+    Auto-captura: build-check + start session en un solo paso.
+    Si no se provee session_id, se genera uno automático.
+    Retorna (session_id, build_ok).
+    """
+    sid = _sanitize_id(session_id) if session_id else _gen_session_id()
+    print(f"SESSION AUTO: Starting as {sid}")
+
+    # 1. Build check (lightweight: typecheck only)
+    ok = cmd_build_check()
+
+    # 2. Start session
+    cmd_start(sid)
+
+    # 3. Log the goal if provided
+    if goal:
+        cmd_log(sid, "system", f"Session goal: {goal}")
+
+    print(f"\nSESSION AUTO: Ready — session={sid}, build={'PASS' if ok else 'FAIL'}")
+    return sid, ok
+
+
 # ─── Main ────────────────────────────────────────────────────────────────
 
 def main():
@@ -268,6 +304,11 @@ def main():
         sys.exit(0 if ok else 1)
     elif cmd == "last-check":
         cmd_last_check()
+    elif cmd == "auto":
+        session_id = sys.argv[2] if len(sys.argv) >= 3 else ""
+        goal = " ".join(sys.argv[3:]) if len(sys.argv) > 3 else ""
+        sid, ok = cmd_auto(session_id, goal)
+        sys.exit(0 if ok else 1)
     else:
         print(__doc__)
 
