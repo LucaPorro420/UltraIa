@@ -295,7 +295,7 @@ Ciclo de generadores deterministas (sin dependencias, sin red) sobre `packages/c
 | 151 | **Procedural GIF real** - `loop-151-procedural-gif.md`; demo fbm-flow GIF en Task/procedural-fbm-video.ts | Task | FULL(typecheck/lint/test) | DONE (9065986) |
 | 152 | **Observabilidad Agentes** - `loop-152-observability.md`; packages/core observability module | packages/core | FULL(typecheck/lint/test) | DONE |
 | 153 | **Agentic Routing** - `loop-153-agentic.md`; agentic routing module | packages/core | FULL(typecheck/lint/test) | DONE |
-| 154 | **Capability Playground** - `loop-154-capability-playground.md`; /playground page with interactive superfórmula + diagram generator; nav item registered; geometry + diagrams clients (procedural/codevfx/travel placeholder) | apps/web | FULL(typecheck/lint/test/build) | DONE (5d05cc6) |
+| 154 | **Capability Playground** - `loop-154-capability-playground.md`; /playground page with 5 interactive tabs: geometry superfórmula, diagrams SVG, procedural (18 anims), codevfx (9 kinds + particles), travel (Pollinations previews). Nav item registered. | apps/web | FULL(typecheck/lint/test/build) | DONE (5d05cc6 + 9845871) |
 
 ## Pendiente sin plan (agregadas manual)
 

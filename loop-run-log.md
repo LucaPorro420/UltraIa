@@ -3036,4 +3036,12 @@ de código, sin commit.
 ```json
 {"pattern":"pivr","iter":["156"],"gates":{"typecheck":"ok","lint":"0","test":"skip","build":"195pages"},"commits":["5d05cc6"],"note":"capability playground — geometry canvas + diagrams SVG + nav item"}
 ```
+
+## [P] iter-157 playground complete (31/08) - Sensado: procedural/codevfx/travel tabs eran placeholder. Predicción: 3 clientes interactivos completos + wiring.
+- **[I]** 1) `procedural-client.tsx`: 18 animaciones (plasma/waves/orbits/fbm-flow/fractal-zoom/shape-morph/tunnel/metaballs/kaleido/starfield/voronoi/reaction-diffusion/fire/fireflies/circuit/aurora), Canvas preview en tiempo real, sliders por params, PNG export. 2) `codevfx-client.tsx`: 9 kinds (fire/ice/lightning/meteor/beam/ground/void/plasma/frost), simulacion particulas, intensity/speed, PNG/HTML/JSON export. 3) `travel-client.tsx`: input destino, 4 estilos, es/ar, 30-60s, escenas con previews Pollinations, JSON/MD export. 4) `playground-client.tsx`: todos los 5 tabs wiring con clientes reales.
+- **[V]** build 195 pages, 0 errors.
+- **[R]** Playground COMPLETO: 5 tabs interactivos, ~1500 lineas nuevas. 2 commits (5d05cc6 + 9845871).
+```json
+{"pattern":"pivr","iter":["157"],"gates":{"typecheck":"ok","lint":"0","test":"skip","build":"195pages"},"commits":["9845871"],"note":"playground complete — procedural 18 anims + codevfx 9 kinds + travel planner"}
+```
 ```
