@@ -1,0 +1,91 @@
+{
+  "name": "ultraia",
+  "displayName": "UltraIa Autonomous IDE",
+  "description": "AI-powered autonomous coding agent — chat, trigger tasks, and get real-time progress from the UltraIa runtime.",
+  "version": "0.1.0",
+  "publisher": "UltraIa",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": ["AI", "Other"],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "ultraia.chat",
+        "title": "UltraIa: Open Chat Panel"
+      },
+      {
+        "command": "ultraia.trigger",
+        "title": "UltraIa: Trigger Task"
+      },
+      {
+        "command": "ultraia.status",
+        "title": "UltraIa: Show Runtime Status"
+      }
+    ],
+    "views": {
+      "ultraia": [
+        {
+          "id": "ultraia-chat",
+          "name": "Chat",
+          "type": "webview"
+        },
+        {
+          "id": "ultraia-tasks",
+          "name": "Tasks"
+        }
+      ]
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "ultraia",
+          "title": "UltraIa",
+          "icon": "$(robot)"
+        }
+      ]
+    },
+    "keybindings": [
+      {
+        "command": "ultraia.chat",
+        "key": "ctrl+shift+u",
+        "mac": "cmd+shift+u"
+      },
+      {
+        "command": "ultraia.trigger",
+        "key": "ctrl+shift+t",
+        "mac": "cmd+shift+t"
+      }
+    ],
+    "configuration": {
+      "title": "UltraIa",
+      "properties": {
+        "ultraia.serverUrl": {
+          "type": "string",
+          "default": "http://localhost:3000",
+          "description": "URL of the UltraIa web server"
+        },
+        "ultraia.runtimeUrl": {
+          "type": "string",
+          "default": "ws://127.0.0.1:4200/events",
+          "description": "WebSocket URL of the UltraIa runtime (Local API)"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "lint": "eslint src --ext ts"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@types/vscode": "^1.85.0",
+    "typescript": "^5.3.0"
+  }
+}
