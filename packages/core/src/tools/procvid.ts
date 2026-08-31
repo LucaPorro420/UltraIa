@@ -60,6 +60,10 @@ export const PROCVID_ANIMATIONS = [
   'metaballs',
   'kaleido',
   'starfield',
+  // v3 (iter-150): voronoi/reaction-diffusion/fire — patrones orgánicos
+  'voronoi',
+  'reaction-diffusion',
+  'fire',
 ] as const;
 
 export type ProcVidAnimation = (typeof PROCVID_ANIMATIONS)[number];
@@ -146,6 +150,10 @@ const DEFAULT_PALETTE: Record<ProcVidAnimation, string> = {
   metaballs: 'fire',
   kaleido: 'neoViolet',
   starfield: 'ice',
+  // v3 (iter-150): paletas default de las animaciones v3.
+  voronoi: 'neoViolet',
+  'reaction-diffusion': 'fire',
+  fire: 'fire',
 };
 
 /* ------------------------------------------------------------------ */
@@ -477,6 +485,119 @@ export function framePixelFn(spec: NormalizedProcVidSpec, t: number): PixelFn {
           if (glow > best) best = glow;
         }
         return samplePalette(palette, clamp01(best * density + 0.02));
+      };
+    }
+
+    case 'voronoi': {
+      // Voronoi animado: N semillas que se mueven suavemente; cada píxel se
+      // colorea por distancia al sitio más cercano → celdas orgánicas.
+      const sites = Math.max(3, Math.min(30, Math.round(num(params, 'sites', 12))));
+      const speed = num(params, 'speed', 0.6);
+      const edgeWidth = num(params, 'edgeWidth', 0.03);
+      // Hash determinista por índice+seed.
+      const hash2 = (i: number, salt: number): number => {
+        const h = Math.sin((i + 1) * 127.1 + salt * 311.7 + (seed % 89) * 0.6180339) * 43758.5453;
+        return h - Math.floor(h);
+      };
+      // Precomputar centros semilla por frame (determinista).
+      const centers: Array<[number, number]> = [];
+      for (let i = 0; i < sites; i++) {
+        const baseX = hash2(i, 1) * 2 - 1;
+        const baseY = hash2(i, 2) * 2 - 1;
+        const phaseX = hash2(i, 3) * TAU;
+        const phaseY = hash2(i, 4) * TAU;
+        const ampX = hash2(i, 5) * 0.15 + 0.03;
+        const ampY = hash2(i, 6) * 0.15 + 0.03;
+        centers.push([
+          baseX + Math.sin(t * TAU * speed + phaseX) * ampX,
+          baseY + Math.cos(t * TAU * speed * 0.7 + phaseY) * ampY,
+        ]);
+      }
+      return (px, py) => {
+        const [x, y] = toPlane(px, py);
+        let minDist = Infinity;
+        let secondDist = Infinity;
+        for (const [cx, cy] of centers) {
+          const d = Math.hypot(x - cx, y - cy);
+          if (d < minDist) {
+            secondDist = minDist;
+            minDist = d;
+          } else if (d < secondDist) {
+            secondDist = d;
+          }
+        }
+        // Borde de celda: diferencia entre 1ro y 2do más cercano.
+        const edge = secondDist - minDist;
+        const edgeFactor = clamp01(edge / edgeWidth);
+        const siteIndex = centers.findIndex(
+          ([cx, cy]) => Math.hypot(x - cx, y - cy) === minDist,
+        );
+        const hue = ((siteIndex / sites) * 0.8 + 0.1);
+        return samplePalette(palette, clamp01(hue * 0.7 + 0.15 + edgeFactor * 0.15));
+      };
+    }
+
+    case 'reaction-diffusion': {
+      // Reacción-difusión simplificada (Gray-Scott-like): ondas que se expanden
+      // y se inhiben mutamente → patrón de Turing animado. Per-pixel determinista
+      // usando superposición de ondas circulares con fase animada.
+      const waves = Math.max(2, Math.min(8, Math.round(num(params, 'waves', 4))));
+      const freq = num(params, 'freq', 6);
+      const speed = num(params, 'speed', 1);
+      const feed = num(params, 'feed', 0.04);
+      const kill = num(params, 'kill', 0.06);
+      // Centros de reacción (semillas que emiten ondas).
+      const hash3 = (i: number, salt: number): number => {
+        const h = Math.sin((i + 1) * 127.1 + salt * 311.7 + (seed % 89) * 0.6180339) * 43758.5453;
+        return h - Math.floor(h);
+      };
+      const seeds: Array<[number, number]> = [];
+      for (let i = 0; i < waves; i++) {
+        seeds.push([hash3(i, 1) * 2 - 1, hash3(i, 2) * 2 - 1]);
+      }
+      return (px, py) => {
+        const [x, y] = toPlane(px, py);
+        let v = 0;
+        for (let i = 0; i < waves; i++) {
+          const [sx, sy] = seeds[i];
+          const dist = Math.hypot(x - sx, y - sy);
+          // Onda circular: crece con t, se amortigua con distancia.
+          const phase = dist * freq - t * TAU * speed * (1 + i * 0.3);
+          const wave = Math.sin(phase) * Math.exp(-dist * kill * 8);
+          v += wave;
+        }
+        // Normalizar a [0,1] con biased feed.
+        const normalized = clamp01(0.5 + v * (0.3 + feed * 5));
+        return samplePalette(palette, normalized);
+      };
+    }
+
+    case 'fire': {
+      // Fuego procedural: gradiente vertical con turbulencia simplex que simula
+      // llama. La base es oscura (negro→rojo→amarillo→blanco hacia arriba).
+      const scale = num(params, 'scale', 4);
+      const turbulence = num(params, 'turbulence', 2.5);
+      const speed = num(params, 'speed', 1.5);
+      const intensity = num(params, 'intensity', 1);
+      return (px, py) => {
+        const [x, y] = toPlane(px, py);
+        // y ∈ [-0.5, 0.5]; fuego sube: y=0.5 = punta, y=-0.5 = base.
+        const height01 = clamp01(y + 0.5); // 0=base, 1=punta
+        // Turbulencia: desplaza x e y con simplex noise.
+        const turbX = simplexNoise2D(x * scale, y * scale + t * speed, seed) * turbulence;
+        const turbY = simplexNoise2D(x * scale + 100, y * scale + t * speed + 50, seed + 7) * turbulence;
+        const turbDist = Math.hypot(turbX, turbY);
+        // La llama se estrecha hacia arriba y oscila.
+        const flicker = 0.85 + 0.15 * Math.sin(t * TAU * speed * 2.3);
+        const flameWidth = (1 - height01 * 0.7) * flicker;
+        const distFromCenter = Math.abs(x + turbX * 0.3) / (flameWidth + 0.01);
+        // Intensidad: máxima en la base中心, cae con altura y distancia al centro.
+        const baseGlow = Math.exp(-distFromCenter * distFromCenter * 3);
+        const heightFade = Math.exp(-height01 * 3.5) * intensity;
+        const turbBoost = Math.exp(-turbDist * 0.5) * 0.3;
+        const v = clamp01(baseGlow * heightFade + turbBoost);
+        // Mapear a fuego: negro→rojo→amarillo→blanco.
+        return samplePalette(palette, clamp01(v));
       };
     }
   }

@@ -249,8 +249,8 @@ describe('procvid — manifest determinista', () => {
 describe('procvid v2 — animaciones nuevas', () => {
   const NUEVAS = ['tunnel', 'metaballs', 'kaleido', 'starfield', 'fbm-flow'] as const;
 
-  it('catálogo: 11 animaciones con las 5 nuevas', () => {
-    expect(PROCVID_ANIMATIONS).toHaveLength(11);
+  it('catálogo: 14 animaciones con las 5+v3', () => {
+    expect(PROCVID_ANIMATIONS).toHaveLength(14);
     for (const a of NUEVAS) expect(PROCVID_ANIMATIONS).toContain(a);
   });
 
@@ -327,5 +327,106 @@ describe('procvid v2 — planAudioMux', () => {
 
   it('argv degenerado queda intacto (fail-safe)', () => {
     expect(planAudioMux(['ffmpeg'], 'x.wav')).toEqual(['ffmpeg']);
+  });
+});
+
+/* ------------------------------------------------------------------ */
+/* v3 (iter-150): voronoi / reaction-diffusion / fire                  */
+/* ------------------------------------------------------------------ */
+
+describe('procvid v3 — animaciones nuevas', () => {
+  const V3 = ['voronoi', 'reaction-diffusion', 'fire'] as const;
+
+  it('catálogo: 14 animaciones incluye las 3 v3', () => {
+    expect(PROCVID_ANIMATIONS).toHaveLength(14);
+    for (const a of V3) expect(PROCVID_ANIMATIONS).toContain(a);
+  });
+
+  for (const anim of V3) {
+    it(`${anim}: determinista, no estática y dentro de RGB`, () => {
+      const spec = resolveSpec({ animation: anim, width: 64, height: 48, fps: 8, durationSec: 2, seed: 42 });
+      const f0 = framePixelFn(spec, 0);
+      const f0b = framePixelFn(spec, 0);
+      const fHalf = framePixelFn(spec, 0.5);
+
+      let cambia = 0;
+      let determinista = true;
+      for (let y = 0; y < 48; y += 6) {
+        for (let x = 0; x < 64; x += 6) {
+          const a = f0(x, y);
+          const b = f0b(x, y);
+          if (a[0] !== b[0] || a[1] !== b[1] || a[2] !== b[2]) determinista = false;
+          const c = fHalf(x, y);
+          if (a[0] !== c[0] || a[1] !== c[1] || a[2] !== c[2]) cambia++;
+          for (const ch of a) {
+            expect(ch).toBeGreaterThanOrEqual(0);
+            expect(ch).toBeLessThanOrEqual(255);
+            expect(Number.isFinite(ch)).toBe(true);
+          }
+        }
+      }
+      expect(determinista).toBe(true);
+      expect(cambia).toBeGreaterThan(0);
+    });
+  }
+
+  it('voronoi: celdas variadas (más de 1 color distinto)', () => {
+    const spec = resolveSpec({ animation: 'voronoi', width: 64, height: 64, fps: 4, durationSec: 1, params: { sites: 8 } });
+    const f = framePixelFn(spec, 0.3);
+    const colors = new Set<string>();
+    for (let y = 0; y < 64; y += 8) {
+      for (let x = 0; x < 64; x += 8) {
+        const [r, g, b] = f(x, y);
+        colors.add(`${r},${g},${b}`);
+      }
+    }
+    expect(colors.size).toBeGreaterThan(1);
+  });
+
+  it('voronoi: sites configurable y respeta límites', () => {
+    const spec = resolveSpec({ animation: 'voronoi', width: 32, height: 32, fps: 4, durationSec: 1, params: { sites: 30 } });
+    const f = framePixelFn(spec, 0.5);
+    const [r, g, b] = f(16, 16);
+    expect([r, g, b].every(Number.isFinite)).toBe(true);
+  });
+
+  it('reaction-diffusion: patrón no uniforme (variedad espacial)', () => {
+    const spec = resolveSpec({ animation: 'reaction-diffusion', width: 64, height: 64, fps: 4, durationSec: 1, params: { waves: 6 } });
+    const f = framePixelFn(spec, 0.4);
+    let minR = 255, maxR = 0;
+    for (let y = 0; y < 64; y += 4) {
+      for (let x = 0; x < 64; x += 4) {
+        const [r] = f(x, y);
+        if (r < minR) minR = r;
+        if (r > maxR) maxR = r;
+      }
+    }
+    expect(maxR - minR).toBeGreaterThan(10);
+  });
+
+  it('fire: llama visible (centro más brillante que esquinas)', () => {
+    const spec = resolveSpec({ animation: 'fire', width: 64, height: 64, fps: 6, durationSec: 1 });
+    const f = framePixelFn(spec, 0.3);
+    const centro = f(32, 32);
+    const esquina = f(2, 2);
+    const brilloCentro = centro[0] + centro[1] + centro[2];
+    const brilloEsquina = esquina[0] + esquina[1] + esquina[2];
+    expect(brilloCentro).toBeGreaterThan(brilloEsquina);
+  });
+
+  it('fire: intensity y turbulence son configurables', () => {
+    const spec = resolveSpec({ animation: 'fire', width: 32, height: 32, fps: 4, durationSec: 1, params: { intensity: 2, turbulence: 4 } });
+    const f = framePixelFn(spec, 0.5);
+    const [r, g, b] = f(16, 24);
+    expect([r, g, b].every(Number.isFinite)).toBe(true);
+  });
+
+  it('fire: NaN-free en bordes extremos', () => {
+    const spec = resolveSpec({ animation: 'fire', width: 16, height: 16, fps: 4, durationSec: 1 });
+    const f = framePixelFn(spec, 0.999);
+    for (const [x, y] of [[0, 0], [15, 15], [0, 15], [15, 0]] as const) {
+      const [r, g, b] = f(x, y);
+      expect([r, g, b].every(Number.isFinite)).toBe(true);
+    }
   });
 });
