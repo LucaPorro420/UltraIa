@@ -1106,3 +1106,22 @@ Cada commit agrega una sección con fecha y la lista de archivos `.ts/.tsx` toca
 - [ ] apps/web/src/app/layout.tsx
 - [ ] packages/core/src/omag/audiolibrary.test.ts
 - [ ] packages/core/src/tools/content.live.test.ts
+
+## 2026-08-31T18:28:26.790Z
+- [ ] apps/web/src/app/(app)/hypothesis-quest/engine/camera.ts
+- [ ] apps/web/src/app/(app)/hypothesis-quest/engine/chaos.ts
+- [ ] apps/web/src/app/(app)/hypothesis-quest/engine/levels/collatz.ts
+- [ ] apps/web/src/app/(app)/hypothesis-quest/engine/levels/goldbach.ts
+- [ ] apps/web/src/app/(app)/hypothesis-quest/engine/levels/pnp.ts
+- [ ] apps/web/src/app/(app)/hypothesis-quest/engine/levels/riemann.ts
+- [ ] apps/web/src/app/(app)/hypothesis-quest/engine/player.ts
+- [ ] apps/web/src/app/(app)/hypothesis-quest/engine/world.ts
+- [ ] apps/web/src/app/(app)/hypothesis-quest/hypothesis-quest-client.tsx
+- [ ] apps/web/src/app/(app)/hypothesis-quest/page.tsx
+- [ ] apps/web/src/components/ide/nav-items.ts
+- [ ] packages/core/src/ai/llm.ts
+- [ ] packages/core/src/omag/audiolibrary.test.ts
+- [ ] packages/core/src/tools/catalog.ts
+- [ ] packages/core/src/tools/index.ts
+- [ ] packages/core/src/tools/loop-trigger.test.ts
+- [ ] packages/core/src/tools/loop-trigger.ts
