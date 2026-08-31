@@ -25,18 +25,19 @@ let clientInstance: MemoryClientType | null = null;
  * Obtiene el cliente Mem0 (lazy init).
  * Retorna null si MEM0_API_KEY no está configurado.
  */
-function getClient(): MemoryClientType | null {
+async function getClient(): Promise<MemoryClientType | null> {
   if (clientInstance) return clientInstance;
 
   const apiKey = process.env.MEM0_API_KEY;
   if (!apiKey) return null;
 
   try {
-    // Dynamic import para no romper builds sin mem0ai instalado
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const mod = require('mem0ai');
-    const Client = mod.default ?? mod.MemoryClient ?? mod;
-    clientInstance = new Client({ apiKey }) as MemoryClientType;
+    // Dynamic import — Function constructor prevents webpack/TS from resolving at build time.
+    const loadModule = new Function('specifier', 'return import(specifier)') as (s: string) => Promise<{ default?: unknown; MemoryClient?: unknown }>;
+    const mod = await loadModule('mem0ai').catch(() => null);
+    if (!mod) return null;
+    const Client = (mod.default ?? mod.MemoryClient ?? mod) as new (opts: { apiKey: string }) => MemoryClientType;
+    clientInstance = new Client({ apiKey });
     return clientInstance;
   } catch {
     return null;
@@ -48,7 +49,7 @@ function getClient(): MemoryClientType | null {
  * Retorna [] si Mem0 no está disponible o hay error.
  */
 export async function searchMemories(userId: string, query: string): Promise<Mem0Memory[]> {
-  const c = getClient();
+  const c = await getClient();
   if (!c) return [];
   try {
     const results = await c.search(query, { filters: { user_id: userId } });
@@ -69,7 +70,7 @@ export async function storeMemory(
   userId: string,
   messages: Array<{ role: string; content: string }>,
 ): Promise<void> {
-  const c = getClient();
+  const c = await getClient();
   if (!c) return;
   try {
     await c.add(messages, { user_id: userId });
@@ -82,7 +83,7 @@ export async function storeMemory(
  * Obtiene todas las memorias de un usuario.
  */
 export async function getAllMemories(userId: string): Promise<Mem0Memory[]> {
-  const c = getClient();
+  const c = await getClient();
   if (!c) return [];
   try {
     const results = await c.get_all({ filters: { user_id: userId } });
@@ -100,7 +101,7 @@ export async function getAllMemories(userId: string): Promise<Mem0Memory[]> {
  * Elimina una memoria específica.
  */
 export async function deleteMemory(memoryId: string): Promise<void> {
-  const c = getClient();
+  const c = await getClient();
   if (!c) return;
   try {
     await c.delete(memoryId);
@@ -113,7 +114,7 @@ export async function deleteMemory(memoryId: string): Promise<void> {
  * Elimina todas las memorias de un usuario.
  */
 export async function deleteAllMemories(userId: string): Promise<void> {
-  const c = getClient();
+  const c = await getClient();
   if (!c) return;
   try {
     await c.delete_all({ filters: { user_id: userId } });
@@ -125,6 +126,6 @@ export async function deleteAllMemories(userId: string): Promise<void> {
 /**
  * Verifica si Mem0 está configurado y disponible.
  */
-export function isMem0Available(): boolean {
-  return getClient() !== null;
+export async function isMem0Available(): Promise<boolean> {
+  return (await getClient()) !== null;
 }
