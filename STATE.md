@@ -291,3 +291,8 @@ Ciclo de generadores deterministas (sin dependencias, sin red) sobre `packages/c
 | 147 | **Demo ruido procedural real** - `loop-147-procedural-noise-demo.md`; `Task/procedural-noise.ts` -> 5 PNG/GIF reales + manifest (fnv1a determinista idéntico en 2 runs) | Task | FULL(typecheck/lint/test) | DONE (0b3feb4) |
 | 148 | **procvid: animación `fbm-flow`** - `loop-148-procvid-fbm-flow.md`; `procvid.ts` case 'fbm-flow' (import fbm2D, paleta neoViolet); test 10->11 | packages/core | FULL(typecheck/lint/test) | DONE (892227b) |
 | 149 | **Video capstone fbm-flow (GIF real)** - `loop-149-procedural-fbm-video.md`; `Task/procedural-fbm-video.ts` -> fbm-flow.gif real (158027 B, fnv ff2a30c7 idéntico) + poster + manifest | Task | FULL(typecheck/lint/test) | DONE (9065986) |
+| 150 | **Orquestador Autonomo Local** - `loop-150-orchestrator-local.md`; packages/runtime/src/adapters/ollama-router.ts + orchestrator/specialized.ts + coordinator.ts + memory.ts; modelos locales Phi-3/DeepSeek/CodeLlama sin APIs; tests unitarios | packages/runtime | FULL(typecheck/lint/test) | DONE (deabafa) |
+
+## Pendiente sin plan (agregadas manual)
+
+- Orquestador autonomo local (sin APIs, sin tokens) — documentacion en `planificacionImplementar/implementar/ORQUESTADOR-AUTONOMO-LOCAL.md` — NO revisar a menos que el usuario lo pida.
