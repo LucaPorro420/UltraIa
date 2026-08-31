@@ -86,7 +86,7 @@ export async function POST(req: Request) {
         (modoDirective ? `\n\n${modoDirective}` : ''),
       messages,
       tools,
-    userId,
+      userId: user.id,
       onFinish: async ({ text }) => {
         const count = await prisma.message.count({ where: { conversationId } });
         const userSeq = count + 1;
