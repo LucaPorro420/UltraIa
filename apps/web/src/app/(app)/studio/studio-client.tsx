@@ -209,10 +209,10 @@ export function StudioClient({
               ))}
             </div>
 
-            <Group orientation="horizontal" className="mt-6">
+            <Group orientation="horizontal" className="mt-6 overflow-hidden">
               {caps.web && (
                 <>
-                  <Panel minSize={18} className="pr-1">
+                  <Panel minSize={12} className="pr-1">
                     <WebPanel onSaved={notifySaved} />
                   </Panel>
                   <Separator className="resize-handle" />
@@ -220,7 +220,7 @@ export function StudioClient({
               )}
               {caps.image && (
                 <>
-                  <Panel minSize={18} className="px-1">
+                  <Panel minSize={12} className="px-1">
                     <ImageGeneratorCard
                       title="Image generator"
                       glow="glow-video"
@@ -233,7 +233,7 @@ export function StudioClient({
               )}
               {caps.video && (
                 <>
-                  <Panel minSize={18} className="px-1">
+                  <Panel minSize={12} className="px-1">
                     <VideoPanel onSaved={notifySaved} />
                   </Panel>
                   <Separator className="resize-handle" />
@@ -241,7 +241,7 @@ export function StudioClient({
               )}
               {caps.music && (
                 <>
-                  <Panel minSize={18} className="px-1">
+                  <Panel minSize={12} className="px-1">
                     <MusicPanel onSaved={notifySaved} />
                   </Panel>
                   <Separator className="resize-handle" />
@@ -249,7 +249,7 @@ export function StudioClient({
               )}
               {caps.design && (
                 <>
-                  <Panel minSize={18} className="px-1">
+                  <Panel minSize={12} className="px-1">
                     <DesignPanel onSaved={notifySaved} />
                   </Panel>
                   <Separator className="resize-handle" />
@@ -257,7 +257,7 @@ export function StudioClient({
               )}
               {caps.branding && (
                 <>
-                  <Panel minSize={18} className="px-1">
+                  <Panel minSize={12} className="px-1">
                     <ImageGeneratorCard
                       title="Branding (Pomelli)"
                       glow="glow-video"
@@ -271,7 +271,7 @@ export function StudioClient({
                 </>
               )}
               {caps.chat && (
-                <Panel minSize={18} className="pl-1">
+                <Panel minSize={12} className="pl-1">
                   <ChatPanel key={activeCaps.join(',')} capabilities={activeCaps} />
                 </Panel>
               )}

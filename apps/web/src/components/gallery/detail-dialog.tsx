@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { Copy, ExternalLink, Zap } from 'lucide-react';
 import Image from 'next/image';
 import { toast } from 'sonner';
@@ -19,6 +20,7 @@ export function DetailDialog({
   onClose: () => void;
   onUse: (item: PromptItem, sourcePromptId: string | null) => void;
 }) {
+  const [imgFailed, setImgFailed] = useState(false);
   if (!item) return null;
   const tags = parseList(item.tags);
   const models = parseList(item.models);
@@ -46,12 +48,12 @@ export function DetailDialog({
       }
     >
       <div className="space-y-4">
-        {item.imageUrl && (
+        {item.imageUrl && !imgFailed && (
           <div
             className="relative overflow-hidden rounded-xl border border-border-muted shadow-[0_10px_36px_-18px_rgba(0,0,0,0.9)]"
             style={aspectStyle(item.aspectRatio)}
           >
-            <Image src={item.imageUrl} alt={item.prompt} fill sizes="(max-width: 768px) 100vw, 480px" unoptimized className="object-cover" />
+            <Image src={item.imageUrl} alt={item.prompt} fill sizes="(max-width: 768px) 100vw, 480px" unoptimized onError={() => setImgFailed(true)} className="object-cover" />
           </div>
         )}
 

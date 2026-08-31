@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import Image from 'next/image';
 import { Eye, Heart, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -16,24 +17,28 @@ export function PromptCard({
   onDetail: (item: PromptItem) => void;
   onUse: (item: PromptItem) => void;
 }) {
+  const [imgFailed, setImgFailed] = useState(false);
+  const showFallback = !item.imageUrl || imgFailed;
+
   return (
     <div className="card-glow-hover group overflow-hidden rounded-xl border border-border-subtle bg-panel">
       <div className="relative overflow-hidden" style={aspectStyle(item.aspectRatio)}>
-        {item.imageUrl ? (
-          <Image
-            src={item.imageUrl}
-            alt={item.prompt}
-            fill
-            sizes="(max-width: 768px) 50vw, 25vw"
-            unoptimized
-            className="object-cover transition-transform duration-300 ease-out group-hover:scale-[1.02]"
-          />
-        ) : (
+        {showFallback ? (
           <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-panel-header via-panel to-panel-hover">
             <span className="font-mono text-[28px] font-bold uppercase text-neutral-600">
               {item.category.charAt(0)}
             </span>
           </div>
+        ) : (
+          <Image
+            src={item.imageUrl!}
+            alt={item.prompt}
+            fill
+            sizes="(max-width: 768px) 50vw, 25vw"
+            unoptimized
+            onError={() => setImgFailed(true)}
+            className="object-cover transition-transform duration-300 ease-out group-hover:scale-[1.02]"
+          />
         )}
         <div className="absolute inset-x-0 bottom-0 flex items-center justify-between gap-2 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-2.5 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
           <span className="font-mono text-[10px] uppercase tracking-widest text-white/70">
