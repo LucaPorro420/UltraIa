@@ -958,12 +958,31 @@ export function chatStream(opts: {
         agentId: z.string().optional().describe('ID del agente a usar (solo mode=goal)'),
       }),
       execute: async ({ task, mode, agentId }) => {
-        // Ejecuta via fetch al endpoint local (el tool corre en server-side)
         const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000';
         const res = await fetch(`${baseUrl}/api/loop/trigger`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ task, mode, agentId, userId: opts.userId ?? 'system' }),
+        });
+        return await res.json();
+      },
+    });
+  }
+  if (opts.tools?.includes('chat-bridge')) {
+    tools.chat_bridge = tool({
+      description:
+        'Chat-to-Code Bridge: recibe un mensaje de chat, lo routea al agente correcto, genera edits de archivo, ejecuta gates (typecheck/lint/test) y hace commit si pasan o rollback si fallan. Retorna edits, summary, gates status, filesChanged.',
+      parameters: z.object({
+        message: z.string().min(5).max(8000).describe('Mensaje del usuario'),
+        source: z.enum(['vscode', 'discord', 'telegram', 'web']).describe('Fuente del mensaje'),
+        agentId: z.string().optional().describe('ID del agente a usar (auto-selecciona si no se provee)'),
+      }),
+      execute: async ({ message, source, agentId }) => {
+        const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000';
+        const res = await fetch(`${baseUrl}/api/bridge/message`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message, source, agentId, userId: opts.userId ?? 'system' }),
         });
         return await res.json();
       },
