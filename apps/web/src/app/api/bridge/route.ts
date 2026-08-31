@@ -171,7 +171,7 @@ export async function POST(req: NextRequest) {
 
   let input;
   try {
-    input = validateBridgeInput({ ...json, userId: user.id });
+    input = validateBridgeInput({ ...(json as Record<string, unknown>), userId: user.id });
   } catch (err) {
     const message = err instanceof Error ? err.message : 'validation error';
     return NextResponse.json({ error: message }, { status: 400 });
