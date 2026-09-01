@@ -51,6 +51,7 @@ export class UltraIaChatPanel implements vscode.WebviewViewProvider {
         case 'clearHistory':
           this.history = [];
           this.updateWebview();
+          this.persistHistory();
           break;
       }
     });
