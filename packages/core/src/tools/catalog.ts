@@ -520,7 +520,7 @@ function titleCase(id: string): string {
 }
 
 export function getToolCatalog(locale: CatalogLocale = 'es'): ToolCatalogEntry[] {
-  const ids = Object.keys(TOOL_DESCRIPTIONS) as Capability[];
+  const ids = Object.keys(TOOL_DESCRIPTIONS).filter((id) => id in CATALOG_META) as Capability[];
   const maps: Record<string, Partial<Record<Capability, LocalizedTool>>> = { es: ES, pt: PT, it: IT, de: DE, zh: ZH, ru: RU };
   return ids.map((id) => {
     const meta = CATALOG_META[id];
