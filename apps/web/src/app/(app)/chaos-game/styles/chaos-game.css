@@ -1,0 +1,334 @@
+/* chaos-game.css — Dark Obsidian theme for Chaos Game */
+
+.chaos-container {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  background: var(--color-canvas, #08080a);
+  overflow: hidden;
+  font-family: 'Inter', sans-serif;
+}
+
+/* Canvas container */
+.chaos-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+/* Overlay UI */
+.chaos-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.chaos-overlay > * {
+  pointer-events: auto;
+}
+
+/* Top bar */
+.chaos-top-bar {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  right: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.chaos-title {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #e2e8f0;
+  text-shadow: 0 0 20px rgba(139, 92, 246, 0.5);
+}
+
+.chaos-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: rgba(139, 92, 246, 0.15);
+  color: #8b5cf6;
+  border: 1px solid rgba(139, 92, 246, 0.3);
+}
+
+/* Control panel */
+.chaos-controls {
+  position: absolute;
+  top: 60px;
+  left: 16px;
+  width: 280px;
+  background: rgba(17, 17, 21, 0.92);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(31, 31, 42, 0.8);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: calc(100vh - 100px);
+  overflow-y: auto;
+}
+
+.chaos-section-label {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #64748b;
+  margin-bottom: 4px;
+}
+
+/* Attractor selector */
+.chaos-attractor-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.chaos-attractor-btn {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  padding: 8px 6px;
+  border: 1px solid rgba(31, 31, 42, 0.8);
+  border-radius: 8px;
+  background: rgba(17, 17, 21, 0.6);
+  color: #94a3b8;
+  cursor: pointer;
+  transition: all 150ms ease;
+  text-align: center;
+}
+
+.chaos-attractor-btn:hover {
+  border-color: rgba(139, 92, 246, 0.4);
+  color: #e2e8f0;
+}
+
+.chaos-attractor-btn.active {
+  border-color: #8b5cf6;
+  background: rgba(139, 92, 246, 0.15);
+  color: #8b5cf6;
+  box-shadow: 0 0 12px rgba(139, 92, 246, 0.2);
+}
+
+/* Slider rows */
+.chaos-slider-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.chaos-slider-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  color: #64748b;
+  min-width: 20px;
+}
+
+.chaos-slider {
+  flex: 1;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(31, 31, 42, 0.8);
+  outline: none;
+}
+
+.chaos-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #8b5cf6;
+  cursor: pointer;
+  border: 2px solid #08080a;
+  box-shadow: 0 0 6px rgba(139, 92, 246, 0.4);
+}
+
+.chaos-slider-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  color: #94a3b8;
+  min-width: 52px;
+  text-align: right;
+}
+
+/* Divergence indicator */
+.chaos-divergence {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: rgba(17, 17, 21, 0.6);
+  border: 1px solid rgba(31, 31, 42, 0.8);
+}
+
+.chaos-divergence-bar {
+  flex: 1;
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(31, 31, 42, 0.8);
+  overflow: hidden;
+}
+
+.chaos-divergence-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 100ms ease, background 300ms ease;
+}
+
+.chaos-divergence-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  color: #64748b;
+  min-width: 60px;
+}
+
+/* Stats panel */
+.chaos-stats {
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+  display: flex;
+  gap: 12px;
+}
+
+.chaos-stat {
+  background: rgba(17, 17, 21, 0.92);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(31, 31, 42, 0.8);
+  border-radius: 8px;
+  padding: 8px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.chaos-stat-label {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #64748b;
+}
+
+.chaos-stat-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85rem;
+  color: #e2e8f0;
+}
+
+/* Action buttons */
+.chaos-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.chaos-action-btn {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  padding: 6px 12px;
+  border: 1px solid rgba(31, 31, 42, 0.8);
+  border-radius: 6px;
+  background: rgba(17, 17, 21, 0.6);
+  color: #94a3b8;
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+
+.chaos-action-btn:hover {
+  border-color: rgba(139, 92, 246, 0.4);
+  color: #e2e8f0;
+}
+
+.chaos-action-btn.primary {
+  border-color: #8b5cf6;
+  background: rgba(139, 92, 246, 0.15);
+  color: #8b5cf6;
+}
+
+/* Keyboard hints */
+.chaos-hints {
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.chaos-hint {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: rgba(17, 17, 21, 0.8);
+  border: 1px solid rgba(31, 31, 42, 0.6);
+  color: #475569;
+}
+
+.chaos-hint kbd {
+  color: #94a3b8;
+  margin-right: 4px;
+}
+
+/* Pause overlay */
+.chaos-paused {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: rgba(139, 92, 246, 0.6);
+  text-shadow: 0 0 30px rgba(139, 92, 246, 0.3);
+  pointer-events: none;
+}
+
+/* Scrollbar for controls */
+.chaos-controls::-webkit-scrollbar {
+  width: 4px;
+}
+
+.chaos-controls::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.chaos-controls::-webkit-scrollbar-thumb {
+  background: rgba(31, 31, 42, 0.8);
+  border-radius: 2px;
+}
+
+/* Loading */
+.chaos-loading {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 1rem;
+  color: #64748b;
+}
+
+.chaos-loading::after {
+  content: '';
+  animation: dots 1.5s steps(4) infinite;
+}
+
+@keyframes dots {
+  0% { content: ''; }
+  25% { content: '.'; }
+  50% { content: '..'; }
+  75% { content: '...'; }
+}
