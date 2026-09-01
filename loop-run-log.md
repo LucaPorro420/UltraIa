@@ -3063,3 +3063,55 @@ de código, sin commit.
 ```json
 {"pattern":"pivr","iter":["159"],"gates":{"typecheck":"ok","lint":"ok","test":"2106+250+32","build":"ok"},"commits":["6db2f06","6199832","b763140","ad5dab5"],"note":"cleanup: HTTP errors lib, TS strict fixes, untracked files committed, working tree clean"}
 ```
+
+## Iteración 160 — Hypothesis Quest 3D + Fix /herramientas (31/08/2026)
+
+**[P] Plan**
+- Build Hypothesis Quest 3D butterfly effect learning game from `chatDeepseek.md` concept.
+- Fix pre-existing `/herramientas` build crash (CATALOG_META undefined access).
+- Source concept: lines 5366-5446 of `ImportantePAraMi&&Conocimiento/chatDeepseek.md`.
+
+**[I] Commits**
+- 11 new files: `apps/web/src/app/(app)/hypothesis-quest/` — engine/chaos.ts (Lorenz attractor RK4), engine/player.ts (WASD+mouse MOBA), engine/camera.ts (orbit camera), engine/world.ts (world generator), engine/levels/collatz.ts, goldbach.ts, riemann.ts, pnp.ts, hypothesis-quest-client.tsx, page.tsx, styles/hypothesis-quest.css.
+- 1 file edited: `nav-items.ts` — Brain icon + "Hypothesis Quest" entry.
+- 1 file fixed: `packages/core/src/tools/catalog.ts` — defensive `id in CATALOG_META` filter in `getToolCatalog()`.
+
+**[V] Gates**
+- Lint: 0 warnings ✅
+- Tests: 2089 core + runtime PASS ✅
+- Build: 197 pages, all generated ✅ (fixed /herramientas crash that previously blocked build)
+
+**[R] Veredicto**
+- Hypothesis Quest 3D complete: 4 math puzzle levels, Lorenz attractor chaos, Three.js 0.185.1.
+- /herramientas crash fixed: catalog.ts now filters missing CATALOG_META entries defensively.
+- Build unblocked: was failing on /herramientas SSR, now passes (197 pages).
+```json
+{"pattern":"pivr","iter":["160"],"gates":{"typecheck":"ok","lint":"ok","test":"2089+","build":"197pages"},"commits":[],"note":"hypothesis-quest 3D game + catalog.ts /herramientas crash fix"}
+```
+
+## Iteración 161 — Chaos Game: 3D Butterfly Effect Explorer (31/08/2026)
+
+**[P] Plan**
+- Build dedicated 3D chaos theory game focused on butterfly effect visualization.
+- 4 strange attractors: Lorenz, Rössler, Thomas, Halvorsen.
+- Dual trajectory comparison with interactive perturbation sliders.
+- Documentation in `chaos-game/` folder (README + DESIGN).
+- Route: `/chaos-game`, nav entry with Atom icon.
+
+**[I] Commits**
+- `14728bc` feat(web): Chaos Game — 3D butterfly effect explorer with 4 strange attractors.
+  - 8 new files: attractors.ts (4 attractor definitions), integrator.ts (RK4), renderer.ts (Three.js scene), chaos-game-client.tsx (UI), page.tsx, chaos-game.css, README.md, DESIGN.md.
+  - Nav entry: Atom icon + "Chaos Game" in workspace nav.
+
+**[V] Gates**
+- Typecheck: core ✅, web ✅ (0 chaos-game errors, 1 pre-existing catalog.ts error).
+- Lint: 0 warnings ✅.
+- Tests: 250 runtime PASS ✅.
+- Build: ✅ `/chaos-game` 2.98 kB (40 pages total).
+
+**[R] Veredicto**
+- Chaos Game complete: 4 attractors, RK4 integration, dual trajectory comparison, divergence indicator, keyboard shortcuts, Dark Obsidian theme.
+- Documentation in `chaos-game/` folder.
+```json
+{"pattern":"pivr","iter":["161"],"gates":{"typecheck":"ok","lint":"ok","test":"250","build":"ok"},"commits":["14728bc"],"note":"chaos game: 4 attractors, 3D renderer, dual trajectory, docs"}
+```
