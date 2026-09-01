@@ -18,6 +18,7 @@ import { runSkill } from '../tools/skills';
 import { generateParseltongueVariants, computeAutoTuneParams, ultraplinian, godmodeClassic } from '../tools/g0dm0d3';
 import { generateTopicBriefs } from '../tools/topics';
 import { guardarBriefs, listarBriefs, marcarBriefProcesado, marcarBriefDescartado } from '../domain/briefs';
+import { safeJsonParse, safeJsonArray } from '../utils/safe-json';
 import { present } from '../tools/present';
 import { createDefaultPublishers, publishToAll, buildBilingualMetadata } from '../tools/publish';
 import { createHarness, type HarnessRuntime } from '../tools/harness';
@@ -877,7 +878,8 @@ export function chatStream(opts: {
           switch (accion) {
             case 'guardar': {
               if (!briefsJson) throw new Error('guardar requiere briefsJson');
-              const briefs = JSON.parse(briefsJson) as import('../tools/topics').TopicBrief[];
+              const briefs = safeJsonParse<import('../tools/topics').TopicBrief[]>(briefsJson);
+              if (!briefs) throw new Error('briefsJson no es JSON valido');
               return await guardarBriefs(opts.db!, briefs);
             }
             case 'listar':
@@ -959,12 +961,17 @@ export function chatStream(opts: {
       }),
       execute: async ({ task, mode, agentId }) => {
         const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000';
-        const res = await fetch(`${baseUrl}/api/loop/trigger`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ task, mode, agentId, userId: opts.userId ?? 'system' }),
-        });
-        return await res.json();
+        try {
+          const res = await fetch(`${baseUrl}/api/loop/trigger`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ task, mode, agentId, userId: opts.userId ?? 'system' }),
+          });
+          if (!res.ok) return { error: `HTTP ${res.status}: ${res.statusText}` };
+          return await res.json();
+        } catch (err) {
+          return { error: `Fetch failed: ${err instanceof Error ? err.message : String(err)}` };
+        }
       },
     });
   }
@@ -979,12 +986,17 @@ export function chatStream(opts: {
       }),
       execute: async ({ message, source, agentId }) => {
         const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000';
-        const res = await fetch(`${baseUrl}/api/bridge/message`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message, source, agentId, userId: opts.userId ?? 'system' }),
-        });
-        return await res.json();
+        try {
+          const res = await fetch(`${baseUrl}/api/bridge/message`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message, source, agentId, userId: opts.userId ?? 'system' }),
+          });
+          if (!res.ok) return { error: `HTTP ${res.status}: ${res.statusText}` };
+          return await res.json();
+        } catch (err) {
+          return { error: `Fetch failed: ${err instanceof Error ? err.message : String(err)}` };
+        }
       },
     });
   }
@@ -1135,27 +1147,39 @@ export function chatStream(opts: {
       execute: async ({ accion, reframeJson, upscaleJson, lutJson, rotoJson, drawJson, brollJson }) => {
         if (accion === 'reframe') {
           if (!reframeJson) throw new Error('reframe requiere reframeJson');
-          return { accion, plan: planReframe(JSON.parse(reframeJson)) };
+          const p = safeJsonParse<Parameters<typeof planReframe>[0]>(reframeJson);
+          if (!p) throw new Error('reframeJson no es JSON valido');
+          return { accion, plan: planReframe(p) };
         }
         if (accion === 'upscale') {
           if (!upscaleJson) throw new Error('upscale requiere upscaleJson');
-          return { accion, plan: planUpscale(JSON.parse(upscaleJson)) };
+          const p = safeJsonParse<Parameters<typeof planUpscale>[0]>(upscaleJson);
+          if (!p) throw new Error('upscaleJson no es JSON valido');
+          return { accion, plan: planUpscale(p) };
         }
         if (accion === 'lut') {
           if (!lutJson) throw new Error('lut requiere lutJson');
-          return { accion, plan: planLutMatch(JSON.parse(lutJson)) };
+          const p = safeJsonParse<Parameters<typeof planLutMatch>[0]>(lutJson);
+          if (!p) throw new Error('lutJson no es JSON valido');
+          return { accion, plan: planLutMatch(p) };
         }
         if (accion === 'rotoscope') {
           if (!rotoJson) throw new Error('rotoscope requiere rotoJson');
-          return { accion, plan: planRotoscope(JSON.parse(rotoJson)) };
+          const p = safeJsonParse<Parameters<typeof planRotoscope>[0]>(rotoJson);
+          if (!p) throw new Error('rotoJson no es JSON valido');
+          return { accion, plan: planRotoscope(p) };
         }
         if (accion === 'draw') {
           if (!drawJson) throw new Error('draw requiere drawJson');
-          return { accion, plan: planDrawToEdit(JSON.parse(drawJson)) };
+          const p = safeJsonParse<Parameters<typeof planDrawToEdit>[0]>(drawJson);
+          if (!p) throw new Error('drawJson no es JSON valido');
+          return { accion, plan: planDrawToEdit(p) };
         }
         if (accion === 'broll') {
           if (!brollJson) throw new Error('broll requiere brollJson');
-          return { accion, plan: planBroll(JSON.parse(brollJson)) };
+          const p = safeJsonParse<Parameters<typeof planBroll>[0]>(brollJson);
+          if (!p) throw new Error('brollJson no es JSON valido');
+          return { accion, plan: planBroll(p) };
         }
         return { accion, ok: false, error: 'accion desconocida' };
       },
@@ -1176,18 +1200,21 @@ export function chatStream(opts: {
       execute: async ({ accion, muestrasJson, kpisJson, maxExperimentos, canal, signalsJson }) => {
         if (accion === 'profile') {
           if (!muestrasJson) throw new Error('profile requiere muestrasJson');
-          const samples = JSON.parse(muestrasJson) as Array<{ duracionSeg: number; cortes: number; textoPantalla: boolean; hookChars: number }>;
+          const samples = safeJsonParse<Array<{ duracionSeg: number; cortes: number; textoPantalla: boolean; hookChars: number }>>(muestrasJson);
+          if (!samples) throw new Error('muestrasJson no es JSON valido');
           return { accion, perfil: analyzeChannel(samples) };
         }
         if (accion === 'experiments') {
           if (!kpisJson) throw new Error('experiments requiere kpisJson');
-          const kpis = JSON.parse(kpisJson) as Record<string, number>;
-          const perfil = muestrasJson ? analyzeChannel(JSON.parse(muestrasJson) as Array<{ duracionSeg: number; cortes: number; textoPantalla: boolean; hookChars: number }>) : undefined;
+          const kpis = safeJsonParse<Record<string, number>>(kpisJson);
+          if (!kpis) throw new Error('kpisJson no es JSON valido');
+          const perfil = muestrasJson ? analyzeChannel(safeJsonParse<Array<{ duracionSeg: number; cortes: number; textoPantalla: boolean; hookChars: number }>>(muestrasJson) ?? []) : undefined;
           return { accion, perfil, experimentos: planExperiments(perfil ?? { pacingAvgSeg: 0, cutCadence: 0, onScreenTextDensity: 0, hookLengthAvg: 0, thumbnailStyle: 'mixto' }, kpis, maxExperimentos) };
         }
         if (accion === 'playbook') {
           if (!canal || !signalsJson) throw new Error('playbook requiere canal + signalsJson');
-          const signals = JSON.parse(signalsJson) as Array<{ canal: string; variable: 'titulo' | 'hook' | 'thumbnail' | 'duracion' | 'formato'; variante: 'control' | 'test'; kpi: number }>;
+          const signals = safeJsonParse<Array<{ canal: string; variable: 'titulo' | 'hook' | 'thumbnail' | 'duracion' | 'formato'; variante: 'control' | 'test'; kpi: number }>>(signalsJson);
+          if (!signals) throw new Error('signalsJson no es JSON valido');
           return { accion, playbook: buildPlaybook(canal, signals) };
         }
         return { accion, ok: false, error: 'accion desconocida' };
@@ -1206,7 +1233,8 @@ export function chatStream(opts: {
       }),
       execute: async ({ accion, experimentsJson, rulesJson, bottlenecksJson }) => {
         if (!experimentsJson) throw new Error('score/list/cycle requiere experimentsJson');
-        const experiments = JSON.parse(experimentsJson) as PriorityExperiment[];
+        const experiments = safeJsonParse<PriorityExperiment[]>(experimentsJson);
+        if (!experiments) throw new Error('experimentsJson no es JSON valido');
         if (accion === 'score') {
           return {
             accion,
@@ -1220,8 +1248,8 @@ export function chatStream(opts: {
           return { accion, ranked: prioritizeExperiments(experiments) };
         }
         if (accion === 'cycle') {
-          const rules = rulesJson ? (JSON.parse(rulesJson) as Rule[]) : undefined;
-          const bottlenecks = bottlenecksJson ? (JSON.parse(bottlenecksJson) as ModuleBottleneck[]) : undefined;
+          const rules = rulesJson ? safeJsonParse<Rule[]>(rulesJson) : undefined;
+          const bottlenecks = bottlenecksJson ? safeJsonParse<ModuleBottleneck[]>(bottlenecksJson) : undefined;
           return { accion, cycle: autoPrioritizeCycle({ experiments, rules, bottlenecks }) };
         }
         return { accion, ok: false, error: 'accion desconocida' };
@@ -1240,7 +1268,7 @@ export function chatStream(opts: {
       }),
       execute: async ({ accion, query, corpusJson, k }) => {
         const docs = corpusJson
-          ? semanticMemory.loadTruthCorpus(JSON.parse(corpusJson) as semanticMemory.TruthFileLike[])
+          ? semanticMemory.loadTruthCorpus(safeJsonParse<semanticMemory.TruthFileLike[]>(corpusJson) ?? [])
           : (await semanticMemory.loadTruthAuto()).docs;
         if (accion === 'search') {
           if (!query) throw new Error('search requiere query');

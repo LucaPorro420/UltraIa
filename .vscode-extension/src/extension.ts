@@ -7,6 +7,7 @@
  * - Task trigger (command palette)
  * - Status bar indicator
  * - WebSocket connection for real-time events
+ * - Task list auto-refresh
  */
 
 import * as vscode from 'vscode';
@@ -19,11 +20,17 @@ let wsClient: UltraIaWSClient | undefined;
 let statusBar: UltraIaStatusBar | undefined;
 
 export function activate(context: vscode.ExtensionContext) {
-  console.log('UltraIa extension activating...');
+  const outputChannel = vscode.window.createOutputChannel('UltraIa');
+  outputChannel.appendLine('UltraIa extension activating...');
 
   // Status bar
   statusBar = new UltraIaStatusBar();
   context.subscriptions.push(statusBar);
+
+  // Task list provider (with auto-refresh)
+  const taskProvider = new UltraIaTaskProvider();
+  vscode.window.registerTreeDataProvider('ultraia-tasks', taskProvider);
+  context.subscriptions.push(taskProvider);
 
   // WebSocket client
   const config = vscode.workspace.getConfiguration('ultraia');
@@ -33,12 +40,25 @@ export function activate(context: vscode.ExtensionContext) {
     onEvent: (event) => {
       statusBar.updateFromEvent(event);
 
-      // Show notification for completed/failed tasks
-      if (event.type === 'task.completed') {
+      // Auto-refresh task list from events
+      if (event.type === 'task.created') {
+        taskProvider.addTask({
+          id: (event as any).taskId ?? `task-${Date.now()}`,
+          label: (event as any).summary ?? 'New task',
+          status: 'running',
+        });
+      } else if (event.type === 'task.started') {
+        taskProvider.updateTask((event as any).taskId, 'running');
+      } else if (event.type === 'task.completed') {
+        taskProvider.updateTask((event as any).taskId, 'completed');
         vscode.window.showInformationMessage(`UltraIa: Task completed — ${(event as any).summary ?? 'done'}`);
       } else if (event.type === 'task.failed') {
+        taskProvider.updateTask((event as any).taskId, 'failed');
         vscode.window.showWarningMessage(`UltraIa: Task failed — ${(event as any).error ?? 'unknown error'}`);
       }
+
+      // Log to output channel
+      outputChannel.appendLine(`[event] ${event.type}: ${JSON.stringify(event.payload ?? {})}`);
     },
     onStatusChange: (status) => {
       statusBar.updateStatus(status);
@@ -47,16 +67,11 @@ export function activate(context: vscode.ExtensionContext) {
 
   context.subscriptions.push(wsClient);
 
-  // Chat panel
-  const chatPanel = new UltraIaChatPanel(context.extensionUri, wsClient);
+  // Chat panel (with workspaceState for history persistence)
+  const chatPanel = new UltraIaChatPanel(context.extensionUri, wsClient, context.workspaceState);
   context.subscriptions.push(
     vscode.window.registerWebviewViewProvider('ultraia-chat', chatPanel),
   );
-
-  // Task list provider
-  const taskProvider = new UltraIaTaskProvider();
-  vscode.window.registerTreeDataProvider('ultraia-tasks', taskProvider);
-  context.subscriptions.push(taskProvider);
 
   // Commands
   context.subscriptions.push(
@@ -82,8 +97,16 @@ export function activate(context: vscode.ExtensionContext) {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ task, mode: 'auto', userId: 'vscode-user' }),
         });
-        const result = await response.json();
-        vscode.window.showInformationMessage(`UltraIa: Task ${result.taskId} — ${result.status}`);
+        if (!response.ok) {
+          vscode.window.showErrorMessage(`UltraIa: Trigger failed — HTTP ${response.status}`);
+          return;
+        }
+        const result = await response.json() as { taskId?: string; status?: string; error?: string };
+        if (result.error) {
+          vscode.window.showErrorMessage(`UltraIa: ${result.error}`);
+        } else {
+          vscode.window.showInformationMessage(`UltraIa: Task ${result.taskId} — ${result.status}`);
+        }
       } catch (err) {
         vscode.window.showErrorMessage(`UltraIa: Failed to trigger task — ${err}`);
       }
@@ -100,7 +123,7 @@ export function activate(context: vscode.ExtensionContext) {
   // Connect WebSocket
   wsClient.connect();
 
-  console.log('UltraIa extension activated.');
+  outputChannel.appendLine('UltraIa extension activated.');
 }
 
 export function deactivate() {
