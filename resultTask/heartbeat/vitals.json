@@ -1,16 +1,16 @@
 {
-  "fecha": "2026-08-29",
+  "fecha": "2026-08-31",
   "entorno": "github-actions",
   "vitals": {
-    "puntuacion": 40,
+    "puntuacion": 31,
     "estado": "ROJO",
     "signos": [
       {
         "nombre": "gates",
-        "valor": 0.5,
+        "valor": 0.25,
         "peso": 0.35,
         "ok": false,
-        "nota": "2/4 verdes (ROJO: test, build)"
+        "nota": "1/4 verdes (ROJO: typecheck, test, build)"
       },
       {
         "nombre": "tests",
@@ -45,11 +45,11 @@
         "valor": 1,
         "peso": 0.05,
         "ok": true,
-        "nota": "198 commits + 5 lecciones"
+        "nota": "184 commits + 3 lecciones"
       }
     ],
     "razones": [
-      "gates: 2/4 verdes (ROJO: test, build)",
+      "gates: 1/4 verdes (ROJO: typecheck, test, build)",
       "tests: 0/0 tests",
       "backlog: 134/138 accionables cerradas, 4 pendientes, 2 bloqueadas",
       "gaps: 19 gaps abiertos"
@@ -130,11 +130,11 @@
       "pendientes": 4
     },
     "actividad": {
-      "commits": 198,
-      "lecciones": 5
+      "commits": 184,
+      "lecciones": 3
     },
     "gates": {
-      "typecheck": true,
+      "typecheck": false,
       "lint": true,
       "test": false,
       "build": false
@@ -143,9 +143,9 @@
   "regresiones": [],
   "accion": {
     "modo": "reparar",
-    "objetivo": "gates en rojo: test, build",
+    "objetivo": "gates en rojo: typecheck, test, build",
     "razon": "el organismo se esta degradando: reparar antes que avanzar (regla: no commitear con gates rojos)",
     "prioridad": "P0",
-    "comando": "npm run test"
+    "comando": "npm run typecheck"
   }
 }
