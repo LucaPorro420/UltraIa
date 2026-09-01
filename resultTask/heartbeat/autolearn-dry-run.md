@@ -1,6 +1,6 @@
 # PLAN AUTOGENERADO (scripts/autolearn.py)
 
-**Fecha**: 2026-08-31 · **Prioridad**: P1
+**Fecha**: 2026-09-01 · **Prioridad**: P1
 
 ## Objetivo
 Cerrar 1 gaps de aprendizaje priorizados (gap_0)
@@ -36,5 +36,5 @@ Ciclo diario:
 - `backlog_pendiente` — Tarea del backlog en estado pendiente (STATE.md)
 
 ---
-KPIs: lecciones=131 (recientes 1) truth=54 gaps=1 fuentes=27 tasaMejora=0.297
+KPIs: lecciones=131 (recientes 0) truth=54 gaps=1 fuentes=27 tasaMejora=0.292
 enlaces.txt: 5 URLs pendientes de procesar
