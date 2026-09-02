@@ -1,6 +1,6 @@
 import { requireUser } from '@/lib/server/context';
 import { OSS_CATALOG } from '@ultraia/core';
-import { StudioClient } from './studio-client';
+import { StudioClient } from './StudioClientWrapper';
 
 export const metadata = {
   title: 'Studio · UltraIa',

@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
-import { PlaygroundCanvas } from '@/components/ebooks/playground-canvas';
+import { PlaygroundCanvas } from './PlaygroundCanvasWrapper';
 
 export const metadata: Metadata = {
   title: 'Playground 3D · UltraIa',

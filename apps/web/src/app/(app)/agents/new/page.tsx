@@ -1,4 +1,4 @@
-import { CreateAgentForm } from './create-agent-form';
+import { CreateAgentForm } from './CreateAgentFormWrapper';
 
 export default function NewAgentPage() {
   return (
