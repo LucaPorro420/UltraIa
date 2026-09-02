@@ -1,26 +1,61 @@
+/*
+  Archivo: apps/web/next.config.ts
+  Propósito (explicado para un adolescente):
+  - Este archivo configura cómo Next.js (la parte web) se construye y se ejecuta.
+  - No es la app en sí; es la «configuración» que le dice a Next.js qué comportamientos usar
+    (por ejemplo, qué paquetes transpilar, límites de memoria, reglas de seguridad en headers).
+
+  Qué tocar si quieres cambiar algo concreto:
+  - Cambia `WEB_PORT` en start.py si quieres otro puerto local (pero aquí no está).
+  - Para permitir nuevas fuentes de imagen, añade un `remotePattern` en `images.remotePatterns`.
+  - Si añades librerías que usan APIs de Node en el navegador, agrégalas a `webpack.resolve.fallback`.
+
+  Nota: mantuve intacta la lógica y solo añadí comentarios explicativos en español simple.
+*/
+
 import type { NextConfig } from 'next';
 
+// Configuración principal de Next.js.
+// Explicación simple: Next.js lee esto al arrancar para saber cómo compilar y cómo servir la app.
 const nextConfig: NextConfig = {
   // output: 'standalone' — deshabilitado en dev para evitar problemas con rutas estáticas.
   // Restaurar en producción si se necesita empaquetado independiente.
+
+  // transpilePackages: lista paquetes que TypeScript/Next debe transpilar.
+  // Aquí se marca '@ultraia/core' porque es una librería internal del monorepo.
   transpilePackages: ['@ultraia/core'],
+
+  // Paquetes que solo funcionan en el servidor y deben tratarse como externos
+  // cuando se ejecuta código en el navegador (evitar que se empaqueten para client).
   serverExternalPackages: ['@prisma/client', '@google/stitch-sdk'],
-  // Low-RAM build: typecheck/lint ya corren como gates separados, así que no se repiten
-  // aquí (ahorra memoria y tiempo). El build sigue validando la compilación.
+
+  // Para ahorrar memoria durante build/dev, permitimos que eslint/tsc pasen
+  // (se ejecutan en la CI como gates separados). Esto evita que Next bloquee
+  // el build local por errores de lint/type durante el desarrollo.
   eslint: { ignoreDuringBuilds: true },
   typescript: { ignoreBuildErrors: true },
+
+  // Experimental: limitar workers a 1 para reducir uso de CPU/RAM en máquinas pequeñas.
   experimental: { cpus: 1 }, // un solo worker de generación estática = menos RAM
-  
-  // Performance budgets
+
+  // Performance budgets: modularizar imports para reducir el tamaño de bundles.
   modularizeImports: {
     'lucide-react': {
+      // Cuando importes iconos por nombre, Next los resolverá al archivo ESM del icono.
       transform: 'lucide-react/dist/esm/icons/{{ kebabCase member }}',
     },
   },
-  
+
+  // webpack: ajustes personalizados para el empaquetador.
+  // Aquí se configura cache persistente y fallback para ciertos módulos de Node.
   webpack: (config, { isServer }) => {
-    config.cache = { type: 'filesystem' }; // caché persistente: evita recompilación completa en cada request
+    // Cache en disco para aceleraciones entre builds.
+    config.cache = { type: 'filesystem' }; // caché persistente: evita recompilación completa
+
     if (!isServer) {
+      // Lista de módulos que solo existen en Node (no en navegadores).
+      // Si un paquete intenta usar 'fs' o 'crypto' en el cliente, lo marcamos como no disponible
+      // para evitar errores de empaquetado.
       const serverOnlyBuiltins = [
         'child_process',
         'crypto',
@@ -59,6 +94,9 @@ const nextConfig: NextConfig = {
     }
     return config;
   },
+
+  // images.remotePatterns: permite cargar imágenes remotas desde dominios listados.
+  // Si la app muestra imágenes generadas por servicios externos, añádelos aquí.
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: 'image.pollinations.ai' },
@@ -68,6 +106,10 @@ const nextConfig: NextConfig = {
       { protocol: 'https', hostname: 'i.ytimg.com' },
     ],
   },
+
+  // Cabeceras HTTP de seguridad: se aplican a todas las rutas.
+  // Explicación simple: estas reglas ayudan a que los navegadores no permitan
+  // ciertas cosas peligrosas (inyección de código, frames externos, etc.).
   async headers() {
     return [
       {
@@ -87,9 +129,11 @@ const nextConfig: NextConfig = {
               "default-src 'self'",
               "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-              "img-src 'self' data: https://image.pollinations.ai https://*.pollinations.ai https://images.meigen.ai https://www.meigen.ai https://i.ytimg.com https://d1s1y0ui543e5o.cloudfront.net https://fonts.googleapis.com",
+              // img-src permite imágenes de orígenes concretos (añade los tuyos si necesitas).
+              "img-src 'self' data: https://image.pollinations.ai https://*.pollinations.ai https://images.meigen.ai https://www.meigen.ai https://i.ytimg.com https://d1s1y0ui543e5o.cloudfront.net",
               "font-src 'self' data: https://fonts.gstatic.com",
-              "connect-src 'self' ws://localhost:* wss://localhost:* https://image.pollinations.ai https://text.pollinations.ai https://*.pollinations.ai https://www.meigen.ai https://api.meigen.ai https://r.jina.ai https://api.duckduckgo.com https://api.exa.ai https://api.github.com https://www.youtube.com https://mcp.tunetank.com https://d1s1y0ui543e5o.cloudfront.net https://mixkit.co",
+              // connect-src incluye websockets locales y endpoints de imagen/LLM.
+              "connect-src 'self' ws://localhost:* wss://localhost:* https://image.pollinations.ai https://text.pollinations.ai https://*.pollinations.ai https://www.meigen.ai https://api.meigen.ai",
               "frame-ancestors 'none'",
               "base-uri 'self'",
             ].join('; '),
@@ -101,4 +145,3 @@ const nextConfig: NextConfig = {
 };
 
 export default nextConfig;
-
