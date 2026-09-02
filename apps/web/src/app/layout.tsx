@@ -4,6 +4,7 @@ import { Toaster } from 'sonner';
 import { inter, jakarta, jetbrains } from '@/lib/fonts';
 import { WebVitalsReporter } from '@/components/performance/web-vitals';
 import './globals.css';
+import { setupDevCleanup } from './development-cleanup';
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -35,21 +36,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <WebVitalsReporter />
         {children}
         <Toaster theme="dark" position="bottom-right" richColors />
-        {process.env.NODE_ENV === 'development' && (
-          <Script id="dev-cleanup" strategy="afterInteractive">
-            {`(() => {
-              if (typeof window === 'undefined') return;
-              const BLOCKED = ['#aiinhbfoop','[class*="plurality"]','[class*="deepl"]','iframe[src*="chrome-extension"]','script[src*="chrome-extension"]','link[href*="chrome-extension"]'];
-              const remove = () => BLOCKED.forEach(s => document.querySelectorAll(s).forEach(e => e.remove()));
-              remove();
-              new MutationObserver(muts => {
-                for (const m of muts) for (const n of m.addedNodes) {
-                  if (n instanceof HTMLElement && !n.closest('#__next') && ['SCRIPT','LINK','STYLE','IFRAME'].includes(n.tagName)) n.remove();
-                }
-              }).observe(document.documentElement, {childList:true,subtree:true});
-            })();`}
-          </Script>
-        )}
+        {process.env.NODE_ENV === 'development' && setupDevCleanup()}
         <Script id="sw-register" strategy="afterInteractive">
           {`if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
