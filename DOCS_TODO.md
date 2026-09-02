@@ -1155,3 +1155,17 @@ Cada commit agrega una sección con fecha y la lista de archivos `.ts/.tsx` toca
 
 ## 2026-08-31T22:03:47.087Z
 - [ ] apps/web/src/app/api/bridge/route.ts
+
+## 2026-09-02T05:13:39.705Z
+- [ ] packages/core/src/tools/chat-bridge.ts
+- [ ] packages/runtime/src/api/runtime-handlers.ts
+
+## 2026-09-02T05:13:45.163Z
+- [ ] .vscode-extension/src/chat-panel.ts
+- [ ] .vscode-extension/src/extension.ts
+- [ ] .vscode-extension/src/status-bar.ts
+- [ ] .vscode-extension/src/ws-client.ts
+
+## 2026-09-02T05:13:49.597Z
+- [ ] .vscode-extension/src/extension.ts
+- [ ] .vscode-extension/src/tasks-panel.ts
