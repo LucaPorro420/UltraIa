@@ -93,6 +93,7 @@ export * from './designcompose';
 export * from './learn-models';
 // chaos: motor de atractores caóticos (Lorenz, Rössler, Chen, Aizawa) con RK4, TrailBuffer, métricas Lyapunov.
 export * from './chaos';
+export * from './chaos-game';
 // kgraph: `export *` seguro — no re-exporta simbolos de otros modulos (sin colision TS2308).
 export * from './kgraph';
 // brainpage: `export *` seguro Ã¢â‚¬â€ modulo nuevo (port de brain.md); simbolos unicos (normalizeId, initBrain, ...).
