@@ -12,6 +12,7 @@ import * as vscode from 'vscode';
 import { WebSocketClient } from './ws-client';
 import { StatusBar } from './status-bar';
 import { ChatPanel } from './chat-panel';
+import { TasksPanel } from './tasks-panel';
 
 export interface RuntimeConfig {
   wsUrl: string;
@@ -22,6 +23,7 @@ export interface RuntimeConfig {
 let wsClient: WebSocketClient | null = null;
 let statusBar: StatusBar | null = null;
 let chatPanel: ChatPanel | null = null;
+let tasksPanel: TasksPanel | null = null;
 let outputChannel: vscode.LogOutputChannel;
 let config: RuntimeConfig;
 
@@ -100,6 +102,14 @@ async function connect(context: vscode.ExtensionContext): Promise<void> {
     handleRuntimeMessage(data);
   });
 
+  // Initialize tasks panel after connection
+  if (!tasksPanel) {
+    tasksPanel = new TasksPanel(context.extensionUri, config.runtimeUrl, context, wsClient);
+    context.subscriptions.push(
+      vscode.window.registerWebviewViewProvider('ultraia-tasks', tasksPanel)
+    );
+  }
+
   try {
     await wsClient.connect();
   } catch (err) {
@@ -130,6 +140,7 @@ function handleRuntimeMessage(data: unknown): void {
   // Handle task events
   if (msg.topic?.startsWith('task.')) {
     chatPanel?.onTaskEvent(msg.topic, msg.payload);
+    tasksPanel?.onTaskEvent(msg.topic, msg.payload);
     return;
   }
 
@@ -230,6 +241,9 @@ async function disconnect(): Promise<void> {
   if (wsClient) {
     wsClient.disconnect();
     wsClient = null;
+  }
+  if (tasksPanel) {
+    tasksPanel = null;
   }
   setConnectedContext(false);
   statusBar?.setStatus('idle');
@@ -359,6 +373,7 @@ export function deactivate(): void {
     wsClient.disconnect();
     wsClient = null;
   }
+  tasksPanel = null;
   setConnectedContext(false);
   outputChannel?.appendLine('[UltraIa] Extension deactivated');
 }

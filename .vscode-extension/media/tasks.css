@@ -1,0 +1,258 @@
+/**
+ * UltraIa Tasks Panel — Styles.
+ * Dark Obsidian theme matching UltraIa design system.
+ */
+
+:root {
+  --bg-primary: #0c0c10;
+  --bg-panel: #111115;
+  --bg-item: #16161d;
+  --border: #1f1f2a;
+  --text-primary: #e7e7ee;
+  --text-secondary: #9a9aae;
+  --text-muted: #6b6b7b;
+  --accent: #8b5cf6;
+  --accent-hover: #7c4dff;
+  --success: #2ecc71;
+  --error: #ef4444;
+  --warning: #f1c40f;
+  --info: #3498db;
+  --pending: #f39c12;
+  --running: #3498db;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text-primary);
+  background: var(--bg-primary);
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+#tasks-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 8px;
+  gap: 8px;
+}
+
+#tasks-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+#tasks-header h2 {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+#refresh-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 16px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: color 0.15s, background 0.15s;
+}
+
+#refresh-btn:hover {
+  color: var(--text-primary);
+  background: var(--bg-item);
+}
+
+#tasks-list {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+#empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--text-muted);
+  text-align: center;
+  padding: 24px;
+}
+
+#empty-state .hint {
+  font-size: 11px;
+  margin-top: 8px;
+  color: var(--text-muted);
+}
+
+#empty-state.hidden {
+  display: none;
+}
+
+.task-item {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  animation: slideIn 0.2s ease;
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-10px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.task-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.task-icon {
+  font-size: 14px;
+}
+
+.task-type {
+  font-weight: 600;
+  font-size: 13px;
+  flex: 1;
+}
+
+.task-status {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.status-pending { background: rgba(243, 156, 18, 0.2); color: var(--pending); }
+.status-running { background: rgba(52, 152, 219, 0.2); color: var(--running); }
+.status-completed { background: rgba(46, 204, 113, 0.2); color: var(--success); }
+.status-failed { background: rgba(239, 68, 68, 0.2); color: var(--error); }
+.status-cancelled { background: rgba(107, 107, 123, 0.2); color: var(--text-muted); }
+
+.task-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.task-id {
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+.task-message {
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+  padding: 4px 8px;
+  background: var(--bg-item);
+  border-radius: 4px;
+}
+
+.task-progress {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.progress-bar {
+  flex: 1;
+  height: 4px;
+  background: var(--bg-item);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--success));
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+.progress-text {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  min-width: 32px;
+  text-align: right;
+}
+
+.task-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.task-action {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.task-action:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.task-action.cancel:hover {
+  border-color: var(--error);
+  color: var(--error);
+}
+
+.task-action.retry:hover {
+  border-color: var(--success);
+  color: var(--success);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .task-item {
+    animation: none;
+  }
+}
