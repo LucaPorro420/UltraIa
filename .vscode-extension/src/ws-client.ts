@@ -1,154 +1,198 @@
 /**
- * UltraIa WebSocket Client — connects to the runtime Local API.
- *
+ * UltraIa WebSocket Client — connects to Local API runtime.
+ * 
  * Features:
  * - Auto-reconnection with exponential backoff
- * - Filters events: task.*, runtime.*, health.*
- * - Exposes events for status bar and notifications
+ * - Token authentication
+ * - Event emission for connection state and messages
+ * - Message queue for offline scenarios
  */
 
 import * as vscode from 'vscode';
-
-export interface UltraIaEvent {
-  type: string;
-  topic?: string;
-  payload?: Record<string, unknown>;
-  at?: number;
-}
+import WebSocket from 'ws';
+import { EventEmitter } from 'events';
 
 export interface WSClientOptions {
-  onEvent: (event: UltraIaEvent) => void;
-  onStatusChange: (status: 'connected' | 'disconnected' | 'error') => void;
+  url: string;
+  token: string;
+  outputChannel: vscode.LogOutputChannel;
 }
 
-export class UltraIaWSClient implements vscode.Disposable {
-  private ws: WebSocket | undefined;
+type WSMessage = { topic: string; payload: unknown } | { type: string; [key: string]: unknown };
+
+export class WebSocketClient extends EventEmitter {
+  private ws: WebSocket | null = null;
   private url: string;
-  private options: WSClientOptions;
-  private reconnectTimer: ReturnType<typeof setTimeout> | undefined;
+  private token: string;
+  private outputChannel: vscode.LogOutputChannel;
   private reconnectAttempts = 0;
-  private maxReconnectDelay = 30_000;
-  private disposed = false;
-  private _connected = false;
+  private maxReconnectAttempts = 10;
+  private reconnectDelay = 1000; // ms
+  private maxReconnectDelay = 30000; // 30s
+  private reconnectTimer: NodeJS.Timeout | null = null;
+  private messageQueue: WSMessage[] = [];
+  private isConnecting = false;
+  private shouldReconnect = true;
 
-  constructor(url: string, options: WSClientOptions) {
-    this.url = url;
-    this.options = options;
+  constructor(options: WSClientOptions) {
+    super();
+    this.url = options.url;
+    this.token = options.token;
+    this.outputChannel = options.outputChannel;
   }
 
-  isConnected(): boolean {
-    return this._connected;
-  }
-
-  connect(): void {
-    if (this.disposed) return;
-
-    try {
-      // VS Code extensions don't have native WebSocket; use Node.js ws or fetch fallback
-      // For simplicity, we use a polling approach via HTTP as fallback
-      this._connected = true;
-      this.reconnectAttempts = 0;
-      this.options.onStatusChange('connected');
-
-      // Start polling for events via HTTP
-      this.startPolling();
-    } catch (err) {
-      this._connected = false;
-      this.options.onStatusChange('error');
-      this.scheduleReconnect();
+  /**
+   * Connect to the WebSocket server.
+   */
+  async connect(): Promise<void> {
+    if (this.ws?.readyState === WebSocket.OPEN || this.isConnecting) {
+      return;
     }
+
+    this.isConnecting = true;
+    this.shouldReconnect = true;
+
+    const wsUrl = `${this.url}/events${this.token ? `?token=${this.token}` : ''}`;
+    this.outputChannel.appendLine(`[WS] Connecting to ${wsUrl}`);
+
+    return new Promise((resolve, reject) => {
+      try {
+        this.ws = new WebSocket(wsUrl);
+        
+        this.ws.on('open', () => {
+          this.outputChannel.appendLine('[WS] Connection opened');
+          this.isConnecting = false;
+          this.reconnectAttempts = 0;
+          this.reconnectDelay = 1000;
+          this.emit('connected');
+          this.flushQueue();
+          resolve();
+        });
+
+        this.ws.on('message', (data: Buffer) => {
+          try {
+            const msg = JSON.parse(data.toString());
+            this.emit('message', msg);
+          } catch (err) {
+            this.outputChannel.appendLine(`[WS] Parse error: ${err instanceof Error ? err.message : String(err)}`);
+          }
+        });
+
+        this.ws.on('close', (code: number, reason: Buffer) => {
+          this.outputChannel.appendLine(`[WS] Connection closed: ${code} ${reason.toString()}`);
+          this.isConnecting = false;
+          this.emit('disconnected', reason.toString());
+          
+          if (this.shouldReconnect) {
+            this.scheduleReconnect();
+          }
+        });
+
+        this.ws.on('error', (err: Error) => {
+          this.outputChannel.appendLine(`[WS] Error: ${err.message}`);
+          this.emit('error', err);
+          
+          if (this.isConnecting) {
+            this.isConnecting = false;
+            reject(err);
+          }
+        });
+      } catch (err) {
+        this.isConnecting = false;
+        reject(err);
+      }
+    });
   }
 
-  disconnect(): void {
-    this._connected = false;
+  /**
+   * Schedule a reconnection attempt with exponential backoff.
+   */
+  private scheduleReconnect(): void {
     if (this.reconnectTimer) {
       clearTimeout(this.reconnectTimer);
-      this.reconnectTimer = undefined;
     }
-    this.options.onStatusChange('disconnected');
-  }
 
-  dispose(): void {
-    this.disposed = true;
-    this.disconnect();
-  }
+    if (this.reconnectAttempts >= this.maxReconnectAttempts) {
+      this.outputChannel.appendLine('[WS] Max reconnect attempts reached');
+      this.emit('error', new Error('Max reconnection attempts reached'));
+      return;
+    }
 
-  private scheduleReconnect(): void {
-    if (this.disposed) return;
-
-    const delay = Math.min(
-      1000 * Math.pow(2, this.reconnectAttempts),
-      this.maxReconnectDelay,
-    );
     this.reconnectAttempts++;
-
+    const delay = Math.min(this.reconnectDelay * Math.pow(1.5, this.reconnectAttempts - 1), this.maxReconnectDelay);
+    
+    this.outputChannel.appendLine(`[WS] Reconnecting in ${delay}ms (attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts})`);
+    
     this.reconnectTimer = setTimeout(() => {
-      this.connect();
+      this.connect().catch(() => {
+        // Error will trigger another reconnect via 'error' event
+      });
     }, delay);
   }
 
-  private startPolling(): void {
-    // Poll /api/loop/trigger GET for status info
-    // In production, this would use a real WebSocket connection
-    const poll = async () => {
-      if (!this._connected || this.disposed) return;
-
-      try {
-        const config = vscode.workspace.getConfiguration('ultraia');
-        const serverUrl = config.get<string>('serverUrl', 'http://localhost:3000');
-        const response = await fetch(`${serverUrl}/api/loop/trigger`);
-        if (response.ok) {
-          this.options.onStatusChange('connected');
-        }
-      } catch {
-        // Server might be down, continue polling
-      }
-
-      if (this._connected && !this.disposed) {
-        setTimeout(poll, 5000);
-      }
-    };
-
-    poll();
+  /**
+   * Flush queued messages.
+   */
+  private flushQueue(): void {
+    while (this.messageQueue.length > 0 && this.ws?.readyState === WebSocket.OPEN) {
+      const msg = this.messageQueue.shift()!;
+      this.send(msg);
+    }
   }
 
   /**
-   * Send a message to the bridge endpoint.
+   * Send a message to the server.
    */
-  async sendMessage(message: string, source: string = 'vscode'): Promise<unknown> {
-    const config = vscode.workspace.getConfiguration('ultraia');
-    const serverUrl = config.get<string>('serverUrl', 'http://localhost:3000');
-
-    const response = await fetch(`${serverUrl}/api/bridge/message`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        message,
-        source,
-        userId: 'vscode-user',
-      }),
-    });
-
-    return await response.json();
+  send(msg: WSMessage): boolean {
+    const data = JSON.stringify(msg);
+    
+    if (this.ws?.readyState === WebSocket.OPEN) {
+      this.ws.send(data);
+      return true;
+    }
+    
+    // Queue for later
+    this.messageQueue.push(msg);
+    return false;
   }
 
   /**
-   * Trigger a task via the loop trigger endpoint.
+   * Send a bridge.message to the runtime.
    */
-  async triggerTask(task: string, mode: string = 'auto'): Promise<unknown> {
-    const config = vscode.workspace.getConfiguration('ultraia');
-    const serverUrl = config.get<string>('serverUrl', 'http://localhost:3000');
-
-    const response = await fetch(`${serverUrl}/api/loop/trigger`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        task,
-        mode,
-        userId: 'vscode-user',
-      }),
+  sendBridgeMessage(message: string, source: string, agentId?: string, userId?: string): boolean {
+    return this.send({
+      type: 'bridge.message',
+      message,
+      source,
+      agentId,
+      userId
     });
+  }
 
-    return await response.json();
+  /**
+   * Check if connected.
+   */
+  isConnected(): boolean {
+    return this.ws?.readyState === WebSocket.OPEN;
+  }
+
+  /**
+   * Disconnect gracefully.
+   */
+  disconnect(): void {
+    this.shouldReconnect = false;
+    
+    if (this.reconnectTimer) {
+      clearTimeout(this.reconnectTimer);
+      this.reconnectTimer = null;
+    }
+    
+    if (this.ws) {
+      this.ws.close(1000, 'Client disconnect');
+      this.ws = null;
+    }
+    
+    this.messageQueue = [];
+    this.reconnectAttempts = 0;
   }
 }

@@ -1,8 +1,28 @@
-.vscode/**
-.vscode-test/**
-src/**
-node_modules/**
+# VS Code Extension ignore patterns
+# Dependencies
+node_modules/
+# Build output
+out/
+# Source maps (optional, can be included)
+*.map
+# Test files
+.vscode-test/
+# Media files (included in package)
+media/
+# TypeScript source
+src/
+# Config files
 tsconfig.json
-**/*.map
-**/*.ts
-!dist/**
+.eslintrc.json
+# Git
+.git/
+.gitignore
+# OS
+.DS_Store
+Thumbs.db
+# Logs
+*.log
+npm-debug.log*
+# Editor
+.vscode/
+*.vsix

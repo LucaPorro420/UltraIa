@@ -1,69 +1,96 @@
 /**
- * UltraIa Status Bar — shows runtime status in the VS Code status bar.
- *
- * Status indicators:
- * - 🟢 running (connected + task active)
- * - 🟡 idle (connected, no tasks)
- * - 🔴 error (disconnected or error)
+ * UltraIa Status Bar — shows runtime connection state in VS Code status bar.
+ * 
+ * States:
+ * - 🟢 running: Connected, runtime healthy
+ * - 🟡 idle: Disconnected or connecting
+ * - 🔴 error: Connection error or runtime unhealthy
  */
 
 import * as vscode from 'vscode';
-import type { UltraIaEvent } from './ws-client';
 
-export class UltraIaStatusBar implements vscode.Disposable {
+export class StatusBar {
   private item: vscode.StatusBarItem;
-  private status: 'connected' | 'disconnected' | 'error' = 'disconnected';
+  private state: 'running' | 'idle' | 'error' = 'idle';
+  private lastEvent: string = '';
 
   constructor() {
-    this.item = vscode.window.createStatusBarItem(
-      vscode.StatusBarAlignment.Right,
-      100,
-    );
+    this.item = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
     this.item.command = 'ultraia.status';
-    this.updateStatus('disconnected');
+    this.item.tooltip = 'UltraIa Runtime Status — Click for details';
+    this.updateDisplay();
     this.item.show();
   }
 
-  updateStatus(status: 'connected' | 'disconnected' | 'error'): void {
-    this.status = status;
+  /**
+   * Set the connection state.
+   */
+  setStatus(state: 'running' | 'idle' | 'error'): void {
+    this.state = state;
+    this.updateDisplay();
+  }
 
-    switch (status) {
-      case 'connected':
-        this.item.text = '$(robot) UltraIa: 🟡 idle';
-        this.item.tooltip = 'UltraIa runtime connected — idle';
-        this.item.backgroundColor = undefined;
-        break;
-      case 'disconnected':
-        this.item.text = '$(robot) UltraIa: 🔴 disconnected';
-        this.item.tooltip = 'UltraIa runtime disconnected';
-        this.item.backgroundColor = new vscode.ThemeColor('statusBarItem.errorBackground');
-        break;
-      case 'error':
-        this.item.text = '$(robot) UltraIa: 🔴 error';
-        this.item.tooltip = 'UltraIa runtime error';
-        this.item.backgroundColor = new vscode.ThemeColor('statusBarItem.errorBackground');
-        break;
+  /**
+   * Get current state.
+   */
+  getState(): 'running' | 'idle' | 'error' {
+    return this.state;
+  }
+
+  /**
+   * Handle runtime events.
+   */
+  onRuntimeEvent(topic: string, payload: unknown): void {
+    this.lastEvent = topic;
+    
+    if (topic === 'runtime.started' || topic === 'runtime.healthy') {
+      this.setStatus('running');
+    } else if (topic === 'runtime.stopping' || topic === 'runtime.stopped') {
+      this.setStatus('idle');
+    } else if (topic === 'runtime.error') {
+      this.setStatus('error');
     }
   }
 
-  updateFromEvent(event: UltraIaEvent): void {
-    if (event.type.startsWith('task.')) {
-      if (event.type === 'task.started' || event.type === 'task.created') {
-        this.item.text = '$(robot) UltraIa: 🟢 running';
-        this.item.tooltip = `UltraIa: task ${event.type}`;
-        this.item.backgroundColor = new vscode.ThemeColor('statusBarItem.warningBackground');
-      } else if (event.type === 'task.completed') {
-        this.item.text = '$(robot) UltraIa: 🟡 idle';
-        this.item.tooltip = 'UltraIa: task completed';
-        this.item.backgroundColor = undefined;
-      } else if (event.type === 'task.failed') {
-        this.item.text = '$(robot) UltraIa: 🔴 error';
-        this.item.tooltip = 'UltraIa: task failed';
-        this.item.backgroundColor = new vscode.ThemeColor('statusBarItem.errorBackground');
-      }
+  /**
+   * Handle health events.
+   */
+  onHealthEvent(topic: string, payload: unknown): void {
+    this.lastEvent = topic;
+    
+    if (topic === 'health.healthy') {
+      this.setStatus('running');
+    } else if (topic === 'health.degraded') {
+      this.setStatus('idle');
+    } else if (topic === 'health.unhealthy') {
+      this.setStatus('error');
     }
   }
 
+  /**
+   * Update the status bar display.
+   */
+  private updateDisplay(): void {
+    const icons = {
+      running: '$(pass) UltraIa',
+      idle: '$(circle-outline) UltraIa',
+      error: '$(error) UltraIa'
+    };
+
+    const colors = {
+      running: 'statusBarItem.prominentBackground',
+      idle: undefined,
+      error: 'statusBarItem.errorBackground'
+    };
+
+    this.item.text = icons[this.state];
+    this.item.backgroundColor = colors[this.state] ? new vscode.ThemeColor(colors[this.state]!) : undefined;
+    this.item.tooltip = `UltraIa: ${this.state.charAt(0).toUpperCase() + this.state.slice(1)}${this.lastEvent ? ` (${this.lastEvent})` : ''}`;
+  }
+
+  /**
+   * Dispose the status bar item.
+   */
   dispose(): void {
     this.item.dispose();
   }

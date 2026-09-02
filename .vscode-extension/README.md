@@ -1,49 +1,129 @@
-# UltraIa Autonomous IDE — VS Code Extension
+# UltraIa VS Code Extension
 
-AI-powered autonomous coding agent for VS Code / Cursor.
+Connect to UltraIa runtime for autonomous coding, chat-to-code bridge, and real-time task monitoring.
 
 ## Features
 
-- **Chat Panel** — sidebar chat that sends messages to the UltraIa bridge endpoint and receives code edits
-- **Task Trigger** — command palette to trigger autonomous PIVR cycles
-- **Status Bar** — real-time runtime status (🟢 running / 🟡 idle / 🔴 error)
-- **WebSocket** — auto-reconnecting connection to the UltraIa runtime
+- **Chat Panel**: Send tasks to UltraIa agents via `/api/bridge/message`
+- **Autonomous Trigger**: Execute PIVR/goal pipelines via `/api/loop/trigger`
+- **Real-time Status**: Status bar shows runtime connection state (🟢 running / 🟡 idle / 🔴 error)
+- **Task Monitoring**: View active tasks with progress in the side panel
+- **Conversation History**: Persisted across sessions in workspace state
+- **Syntax Highlighting**: Agent responses with code blocks and edit previews
 
-## Setup
+## Installation
 
-1. Have the UltraIa web server running (`npm run dev` or `python start.py`)
-2. Open this directory in VS Code
-3. Run `npm install` in `.vscode-extension/`
-4. Press F5 to launch the Extension Development Host
-5. The UltraIa icon appears in the activity bar
+### From Source (Development)
 
-## Commands
+```bash
+cd .vscode-extension
+npm install
+npm run compile
+```
 
-| Command | Keybinding | Description |
-|---------|-----------|-------------|
-| `UltraIa: Open Chat Panel` | `Ctrl+Shift+U` | Opens the sidebar chat |
-| `UltraIa: Trigger Task` | `Ctrl+Shift+T` | Input a task and trigger autonomous execution |
-| `UltraIa: Show Runtime Status` | — | Shows connection status |
+Then in VS Code:
+1. Press `F5` to launch Extension Development Host
+2. Run command `UltraIa: Connect to Runtime`
+
+### Packaged (.vsix)
+
+```bash
+cd .vscode-extension
+npx vsce package
+code --install-extension ultraia-0.1.0.vsix
+```
 
 ## Configuration
 
 | Setting | Default | Description |
 |---------|---------|-------------|
-| `ultraia.serverUrl` | `http://localhost:3000` | URL of the UltraIa web server |
-| `ultraia.runtimeUrl` | `ws://127.0.0.1:4200/events` | WebSocket URL of the runtime |
+| `ultraia.runtimeUrl` | `http://localhost:3000` | Base URL of UltraIa web runtime |
+| `ultraia.wsUrl` | `ws://127.0.0.1:8100` | WebSocket URL of Local API runtime |
+| `ultraia.token` | `` | Session token (stored in VS Code secrets) |
+| `ultraia.autoConnect` | `true` | Auto-connect on startup |
+| `ultraia.showNotifications` | `true` | Show notifications for task events |
+
+## Commands
+
+| Command | Keybinding | Description |
+|---------|------------|-------------|
+| `UltraIa: Open Chat Panel` | `Ctrl+Shift+U` | Open the chat side panel |
+| `UltraIa: Trigger Autonomous Task` | `Ctrl+Shift+T` | Execute a task via trigger endpoint |
+| `UltraIa: Show Runtime Status` | - | Show connection status |
+| `UltraIa: Connect to Runtime` | - | Connect to WebSocket |
+| `UltraIa: Disconnect from Runtime` | - | Disconnect |
+
+## Usage
+
+### Chat-to-Code Bridge
+
+1. Open the Chat panel (`Ctrl+Shift+U`)
+2. Type a task description (e.g., "Add a dark mode toggle to settings")
+3. Press `Ctrl+Enter` or click Send
+4. UltraIa will:
+   - Route to the appropriate agent
+   - Generate code edits
+   - Run gates (typecheck, lint, test)
+   - Commit if gates pass, rollback if they fail
+
+### Autonomous Trigger
+
+1. Run `UltraIa: Trigger Autonomous Task`
+2. Enter task description
+3. Select mode: `auto` (default), `p-p` (plan only), `p-b` (build), `goal` (content)
+4. Task executes via PIVR loop or goal runner
 
 ## Architecture
 
 ```
-VS Code Extension
-├── extension.ts        — activate/deactivate, command registration
-├── ws-client.ts        — WebSocket client with auto-reconnect
-├── status-bar.ts       — status bar indicator
-├── chat-panel.ts       — WebviewProvider for sidebar chat
-└── task-provider.ts    — TreeDataProvider for task list
+┌─────────────┐     WebSocket      ┌──────────────────┐
+│ VS Code Ext │◄──────────────────►│ UltraIa Runtime  │
+│             │   bridge.message   │ (Local API)      │
+│ - Chat      │   task.* events    │                  │
+│ - Tasks     │   health.* events  │ - EventBus       │
+│ - Status    │   runtime.* events │ - TaskManager    │
+└─────────────┘                    └──────────────────┘
+        │
+        │ HTTP POST /api/bridge/message
+        ▼
+┌──────────────────┐
+│ UltraIa Web API  │
+│ - chatStream     │
+│ - executeBridge  │
+└──────────────────┘
 ```
 
-The extension communicates with the UltraIa backend via:
-- `POST /api/loop/trigger` — trigger autonomous tasks
-- `POST /api/bridge/message` — chat-to-code bridge
-- `GET /api/loop/trigger` — status check (polling)
+## Events
+
+The extension listens to these WebSocket topics:
+
+- `bridge.*` — Bridge pipeline events (started, edits_generated, committed, rolled_back, etc.)
+- `task.*` — Task lifecycle events
+- `runtime.*` — Runtime state changes
+- `health.*` — Health check results
+- `module.*`, `memory.*`, `api.*` — Other runtime events
+
+## Security
+
+- Token stored in VS Code Secret Storage (not plaintext settings)
+- WebSocket connection to localhost only by default
+- CSP enforced on webview (no inline scripts without nonce)
+
+## Development
+
+```bash
+# Watch mode
+npm run watch
+
+# Lint
+npm run lint
+
+# Run tests
+npm test
+```
+
+## Requirements
+
+- VS Code 1.85+
+- UltraIa runtime running (web + Local API)
+- Node.js 20+ for development

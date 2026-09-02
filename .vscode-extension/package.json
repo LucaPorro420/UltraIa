@@ -1,30 +1,60 @@
 {
   "name": "ultraia",
   "displayName": "UltraIa Autonomous IDE",
-  "description": "AI-powered autonomous coding agent — chat, trigger tasks, and get real-time progress from the UltraIa runtime.",
+  "description": "Connect to UltraIa runtime for autonomous coding, chat-to-code bridge, and real-time task monitoring.",
   "version": "0.1.0",
-  "publisher": "UltraIa",
+  "publisher": "ultraia",
   "engines": {
     "vscode": "^1.85.0"
   },
-  "categories": ["AI", "Other"],
+  "categories": [
+    "Other",
+    "Machine Learning",
+    "Programming Languages"
+  ],
+  "keywords": [
+    "ultraia",
+    "autonomous",
+    "ide",
+    "agent",
+    "ai",
+    "chat-to-code"
+  ],
   "activationEvents": [
     "onStartupFinished"
   ],
-  "main": "./dist/extension.js",
+  "main": "./out/extension.js",
   "contributes": {
     "commands": [
       {
         "command": "ultraia.chat",
-        "title": "UltraIa: Open Chat Panel"
+        "title": "UltraIa: Open Chat Panel",
+        "category": "UltraIa",
+        "icon": "$(comment-discussion)"
       },
       {
         "command": "ultraia.trigger",
-        "title": "UltraIa: Trigger Task"
+        "title": "UltraIa: Trigger Autonomous Task",
+        "category": "UltraIa",
+        "icon": "$(play)"
       },
       {
         "command": "ultraia.status",
-        "title": "UltraIa: Show Runtime Status"
+        "title": "UltraIa: Show Runtime Status",
+        "category": "UltraIa",
+        "icon": "$(pulse)"
+      },
+      {
+        "command": "ultraia.connect",
+        "title": "UltraIa: Connect to Runtime",
+        "category": "UltraIa",
+        "icon": "$(plug)"
+      },
+      {
+        "command": "ultraia.disconnect",
+        "title": "UltraIa: Disconnect from Runtime",
+        "category": "UltraIa",
+        "icon": "$(plug)"
       }
     ],
     "views": {
@@ -32,11 +62,14 @@
         {
           "id": "ultraia-chat",
           "name": "Chat",
-          "type": "webview"
+          "icon": "media/chat-icon.svg",
+          "when": "ultraia.connected"
         },
         {
           "id": "ultraia-tasks",
-          "name": "Tasks"
+          "name": "Tasks",
+          "icon": "media/task-icon.svg",
+          "when": "ultraia.connected"
         }
       ]
     },
@@ -45,7 +78,30 @@
         {
           "id": "ultraia",
           "title": "UltraIa",
-          "icon": "$(robot)"
+          "icon": "media/ultraia-icon.svg"
+        }
+      ]
+    },
+    "menus": {
+      "view/title": [
+        {
+          "command": "ultraia.trigger",
+          "when": "view == ultraia-chat",
+          "group": "navigation"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "ultraia.chat",
+          "when": "true"
+        },
+        {
+          "command": "ultraia.trigger",
+          "when": "true"
+        },
+        {
+          "command": "ultraia.status",
+          "when": "true"
         }
       ]
     },
@@ -53,26 +109,43 @@
       {
         "command": "ultraia.chat",
         "key": "ctrl+shift+u",
-        "mac": "cmd+shift+u"
+        "mac": "cmd+shift+u",
+        "when": "editorTextFocus"
       },
       {
         "command": "ultraia.trigger",
         "key": "ctrl+shift+t",
-        "mac": "cmd+shift+t"
+        "mac": "cmd+shift+t",
+        "when": "editorTextFocus"
       }
     ],
     "configuration": {
       "title": "UltraIa",
       "properties": {
-        "ultraia.serverUrl": {
-          "type": "string",
-          "default": "http://localhost:3000",
-          "description": "URL of the UltraIa web server"
-        },
         "ultraia.runtimeUrl": {
           "type": "string",
-          "default": "ws://127.0.0.1:4200/events",
-          "description": "WebSocket URL of the UltraIa runtime (Local API)"
+          "default": "http://localhost:3000",
+          "description": "Base URL of the UltraIa web runtime"
+        },
+        "ultraia.wsUrl": {
+          "type": "string",
+          "default": "ws://127.0.0.1:8100",
+          "description": "WebSocket URL of the UltraIa Local API runtime"
+        },
+        "ultraia.token": {
+          "type": "string",
+          "default": "",
+          "description": "Session token for runtime authentication (stored in VS Code secrets)"
+        },
+        "ultraia.autoConnect": {
+          "type": "boolean",
+          "default": true,
+          "description": "Auto-connect to runtime on startup"
+        },
+        "ultraia.showNotifications": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show VS Code notifications for task events"
         }
       }
     }
@@ -81,11 +154,20 @@
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
-    "lint": "eslint src --ext ts"
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js"
   },
   "devDependencies": {
-    "@types/node": "^20.11.0",
+    "@types/node": "^20.10.0",
     "@types/vscode": "^1.85.0",
+    "@types/ws": "^8.18.1",
+    "@typescript-eslint/eslint-plugin": "^6.13.0",
+    "@typescript-eslint/parser": "^6.13.0",
+    "eslint": "^8.55.0",
     "typescript": "^5.3.0"
+  },
+  "dependencies": {
+    "ws": "^8.14.0"
   }
 }

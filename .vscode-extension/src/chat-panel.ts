@@ -1,272 +1,288 @@
 /**
- * UltraIa Chat Panel — WebviewProvider for the sidebar chat.
- *
+ * UltraIa Chat Panel — WebviewProvider for the side panel chat.
+ * 
  * Features:
- * - Chat input that sends messages via POST /api/bridge/message
- * - Shows agent responses with formatting
- * - "Apply Edits" button to apply proposed changes
- * - "Run Gates" button to execute typecheck/lint/test/build
+ * - Chat input that sends POST /api/bridge/message
+ * - Syntax highlighted agent responses
+ * - Apply Edits / Run Gates buttons
  * - Conversation history persisted in workspaceState
  */
 
 import * as vscode from 'vscode';
-import type { UltraIaWSClient } from './ws-client';
+import * as path from 'path';
 
-export class UltraIaChatPanel implements vscode.WebviewViewProvider {
+export interface ChatMessage {
+  role: 'user' | 'assistant' | 'system';
+  content: string;
+  timestamp: number;
+  edits?: Array<{ file: string; action: string; content?: string }>;
+  gates?: { typecheck: boolean; lint: boolean; test: boolean };
+}
+
+export class ChatPanel implements vscode.WebviewViewProvider {
   public static readonly viewType = 'ultraia-chat';
-  private view?: vscode.WebviewView;
-  private wsClient: UltraIaWSClient;
-  private history: Array<{ role: 'user' | 'assistant'; content: string }> = [];
+  
+  private _view?: vscode.WebviewView;
+  private readonly _extensionUri: vscode.Uri;
+  private _runtimeUrl: string;
+  private _messages: ChatMessage[] = [];
+  private _context: vscode.ExtensionContext;
 
-  constructor(private extensionUri: vscode.Uri, wsClient: UltraIaWSClient) {
-    this.wsClient = wsClient;
+  constructor(extensionUri: vscode.Uri, runtimeUrl: string, context?: vscode.ExtensionContext) {
+    this._extensionUri = extensionUri;
+    this._runtimeUrl = runtimeUrl;
+    this._context = context!; // Will be set via resolveWebviewView
   }
 
+  /**
+   * Resolve the webview view.
+   */
   resolveWebviewView(
     webviewView: vscode.WebviewView,
-    _context: vscode.WebviewViewResolveContext,
-    _token: vscode.CancellationToken,
+    context: vscode.WebviewViewResolveContext,
+    _token: vscode.CancellationToken
   ): void {
-    this.view = webviewView;
-
+    this._view = webviewView;
+    this._context = context as unknown as vscode.ExtensionContext;
+    
     webviewView.webview.options = {
       enableScripts: true,
-      localResourceRoots: [this.extensionUri],
+      localResourceRoots: [this._extensionUri]
     };
 
-    webviewView.webview.html = this.getHtml();
+    webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
+
+    // Load persisted history
+    this._loadHistory();
 
     // Handle messages from the webview
     webviewView.webview.onDidReceiveMessage(async (message) => {
-      switch (message.type) {
+      switch (message.command) {
         case 'sendMessage':
-          await this.handleSendMessage(message.text);
+          await this._handleSendMessage(message.text);
           break;
         case 'applyEdits':
-          await this.handleApplyEdits(message.requestId);
+          await this._handleApplyEdits(message.edits);
           break;
         case 'runGates':
-          await this.handleRunGates();
+          await this._handleRunGates();
           break;
         case 'clearHistory':
-          this.history = [];
-          this.updateWebview();
-          this.persistHistory();
+          await this._clearHistory();
+          break;
+        case 'ready':
+          this._sendHistory();
           break;
       }
     });
   }
 
-  private async handleSendMessage(text: string): Promise<void> {
-    // Add user message to history
-    this.history.push({ role: 'user', content: text });
-    this.updateWebview();
+  /**
+   * Append a message to the chat.
+   */
+  appendMessage(message: ChatMessage): void {
+    this._messages.push(message);
+    this._persistHistory();
+    this._sendToWebview({ command: 'appendMessage', message });
+  }
+
+  /**
+   * Handle task events from runtime.
+   */
+  onTaskEvent(topic: string, payload: unknown): void {
+    this.appendMessage({
+      role: 'system',
+      content: `📋 Task event: ${topic} — ${JSON.stringify(payload)}`,
+      timestamp: Date.now()
+    });
+  }
+
+  /**
+   * Send a user message to the bridge API.
+   */
+  private async _handleSendMessage(text: string): Promise<void> {
+    if (!text.trim()) return;
+
+    // Add user message
+    const userMsg: ChatMessage = {
+      role: 'user',
+      content: text,
+      timestamp: Date.now()
+    };
+    this.appendMessage(userMsg);
 
     try {
-      // Send to bridge endpoint
-      const result = await this.wsClient.sendMessage(text, 'vscode') as {
-        status: string;
-        edits: Array<{ file: string; action: string; content?: string }>;
-        summary: string;
-        gates: { typecheck: boolean; lint: boolean; test: boolean };
-        filesChanged: string[];
-        error?: string;
-      };
-
-      // Format response
-      let response = `**${result.summary}**\n\n`;
-
-      if (result.edits.length > 0) {
-        response += `**Edits (${result.edits.length}):**\n`;
-        for (const edit of result.edits) {
-          response += `- \`${edit.file}\` — ${edit.action}\n`;
-        }
-        response += '\n';
-      }
-
-      if (result.gates) {
-        const gateIcon = (ok: boolean) => ok ? '✅' : '❌';
-        response += `**Gates:** ${gateIcon(result.gates.typecheck)} typecheck ${gateIcon(result.gates.lint)} lint ${gateIcon(result.gates.test)} test\n`;
-      }
-
-      if (result.error) {
-        response += `\n**Error:** ${result.error}\n`;
-      }
-
-      this.history.push({ role: 'assistant', content: response });
-      this.updateWebview();
-    } catch (err) {
-      this.history.push({
-        role: 'assistant',
-        content: `**Error:** Failed to send message — ${err}`,
+      // Send to /api/bridge/message
+      const response = await fetch(`${this._runtimeUrl}/api/bridge/message`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: text,
+          source: 'vscode',
+          userId: 'vscode-user'
+        })
       });
-      this.updateWebview();
+
+      const result = await response.json() as { summary?: string; edits?: Array<{ file: string; action: string; content?: string }>; gates?: { typecheck: boolean; lint: boolean; test: boolean } };
+      
+      // Add assistant response
+      const assistantMsg: ChatMessage = {
+        role: 'assistant',
+        content: result.summary || 'Task completed',
+        timestamp: Date.now(),
+        edits: result.edits,
+        gates: result.gates
+      };
+      this.appendMessage(assistantMsg);
+
+    } catch (err) {
+      const errorMsg: ChatMessage = {
+        role: 'system',
+        content: `❌ Error: ${err instanceof Error ? err.message : String(err)}`,
+        timestamp: Date.now()
+      };
+      this.appendMessage(errorMsg);
     }
   }
 
-  private async handleApplyEdits(_requestId: string): Promise<void> {
-    vscode.window.showInformationMessage('UltraIa: Applying edits...');
-    // The bridge endpoint already applies edits; this is a confirmation action
+  /**
+   * Apply suggested edits to files.
+   */
+  private async _handleApplyEdits(edits: Array<{ file: string; action: string; content?: string }>): Promise<void> {
+    for (const edit of edits) {
+      try {
+        const fileUri = vscode.Uri.file(path.join(vscode.workspace.workspaceFolders?.[0]?.uri.fsPath || '', edit.file));
+        
+        if (edit.action === 'delete') {
+          try {
+            await vscode.workspace.fs.delete(fileUri);
+          } catch {
+            // File might not exist
+          }
+        } else {
+          const content = edit.content || '';
+          const encoder = new TextEncoder();
+          await vscode.workspace.fs.writeFile(fileUri, encoder.encode(content));
+        }
+      } catch (err) {
+        vscode.window.showErrorMessage(`Failed to apply edit to ${edit.file}: ${err instanceof Error ? err.message : String(err)}`);
+      }
+    }
+    vscode.window.showInformationMessage(`Applied ${edits.length} edit(s)`);
   }
 
-  private async handleRunGates(): Promise<void> {
-    vscode.window.showInformationMessage('UltraIa: Running gates...');
-    // Would trigger gate execution via the bridge or loop trigger
-  }
-
-  private updateWebview(): void {
-    if (!this.view) return;
-
-    this.view.webview.postMessage({
-      type: 'updateHistory',
-      history: this.history,
+  /**
+   * Run project gates (typecheck, lint, test).
+   */
+  private async _handleRunGates(): Promise<void> {
+    this.appendMessage({
+      role: 'system',
+      content: '🔍 Running gates...',
+      timestamp: Date.now()
     });
+
+    try {
+      const terminal = vscode.window.createTerminal('UltraIa Gates');
+      terminal.show();
+      terminal.sendText('npm run typecheck && npm run lint && npm run test');
+      
+      this.appendMessage({
+        role: 'system',
+        content: '📋 Gates started in terminal. Check output for results.',
+        timestamp: Date.now()
+      });
+    } catch (err) {
+      vscode.window.showErrorMessage(`Failed to run gates: ${err instanceof Error ? err.message : String(err)}`);
+    }
   }
 
-  private getHtml(): string {
-    return /* html */ `<!DOCTYPE html>
+  /**
+   * Load conversation history from workspaceState.
+   */
+  private _loadHistory(): void {
+    if (!this._context) return;
+    
+    const history = this._context.workspaceState.get<ChatMessage[]>('ultraia.chatHistory', []);
+    this._messages = history.slice(-100); // Keep last 100 messages
+  }
+
+  /**
+   * Persist conversation history to workspaceState.
+   */
+  private _persistHistory(): void {
+    if (!this._context) return;
+    
+    this._context.workspaceState.update('ultraia.chatHistory', this._messages.slice(-100));
+  }
+
+  /**
+   * Send history to webview.
+   */
+  private _sendHistory(): void {
+    this._sendToWebview({ command: 'history', messages: this._messages });
+  }
+
+  /**
+   * Clear conversation history.
+   */
+  private async _clearHistory(): Promise<void> {
+    this._messages = [];
+    this._persistHistory();
+    this._sendToWebview({ command: 'clear' });
+  }
+
+  /**
+   * Send a message to the webview.
+   */
+  private _sendToWebview(message: unknown): void {
+    this._view?.webview.postMessage(message);
+  }
+
+  /**
+   * Generate the HTML for the webview.
+   */
+  private _getHtmlForWebview(webview: vscode.Webview): string {
+    const scriptUri = webview.asWebviewUri(
+      vscode.Uri.joinPath(this._extensionUri, 'media', 'chat.js')
+    );
+    const styleUri = webview.asWebviewUri(
+      vscode.Uri.joinPath(this._extensionUri, 'media', 'chat.css')
+    );
+    const nonce = this._getNonce();
+
+    return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource} 'unsafe-inline'; script-src 'nonce-${nonce}'; font-src ${webview.cspSource};">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="${styleUri}" rel="stylesheet">
   <title>UltraIa Chat</title>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: var(--vscode-font-family);
-      font-size: var(--vscode-font-size);
-      color: var(--vscode-foreground);
-      background: var(--vscode-sideBar-background);
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-    }
-    #history {
-      flex: 1;
-      overflow-y: auto;
-      padding: 8px;
-    }
-    .message {
-      margin-bottom: 8px;
-      padding: 6px 8px;
-      border-radius: 4px;
-      line-height: 1.4;
-    }
-    .message.user {
-      background: var(--vscode-input-background);
-      border: 1px solid var(--vscode-input-border);
-    }
-    .message.assistant {
-      background: var(--vscode-textBlockQuote-background);
-      border-left: 3px solid var(--vscode-textLink-foreground);
-    }
-    .message strong { color: var(--vscode-textLink-foreground); }
-    .message code {
-      background: var(--vscode-textCodeBlock-background);
-      padding: 1px 4px;
-      border-radius: 2px;
-      font-family: var(--vscode-editor-font-family);
-      font-size: 0.9em;
-    }
-    #input-area {
-      padding: 8px;
-      border-top: 1px solid var(--vscode-widget-border);
-    }
-    #input-row {
-      display: flex;
-      gap: 4px;
-    }
-    #input {
-      flex: 1;
-      background: var(--vscode-input-background);
-      color: var(--vscode-input-foreground);
-      border: 1px solid var(--vscode-input-border);
-      border-radius: 4px;
-      padding: 6px 8px;
-      font-family: var(--vscode-font-family);
-      font-size: var(--vscode-font-size);
-      resize: none;
-    }
-    #input:focus { outline: 1px solid var(--vscode-focusBorder); }
-    button {
-      background: var(--vscode-button-background);
-      color: var(--vscode-button-foreground);
-      border: none;
-      border-radius: 4px;
-      padding: 6px 12px;
-      cursor: pointer;
-      font-family: var(--vscode-font-family);
-      font-size: var(--vscode-font-size);
-    }
-    button:hover { background: var(--vscode-button-hoverBackground); }
-    #actions {
-      padding: 4px 8px;
-      display: flex;
-      gap: 4px;
-    }
-    #actions button {
-      background: var(--vscode-secondaryButton-background);
-      color: var(--vscode-secondaryButton-foreground);
-      font-size: 0.85em;
-      padding: 4px 8px;
-    }
-  </style>
 </head>
 <body>
-  <div id="history"></div>
-  <div id="actions">
-    <button onclick="applyEdits()">Apply Edits</button>
-    <button onclick="runGates()">Run Gates</button>
-    <button onclick="clearHistory()">Clear</button>
-  </div>
-  <div id="input-area">
-    <div id="input-row">
-      <textarea id="input" rows="2" placeholder="Describe a task..."></textarea>
-      <button onclick="send()">Send</button>
+  <div id="chat-container">
+    <div id="messages"></div>
+    <div id="input-area">
+      <textarea id="message-input" placeholder="Describe a task for UltraIa..." rows="3"></textarea>
+      <div id="actions">
+        <button id="send-btn" title="Send (Ctrl+Enter)">Send</button>
+        <button id="clear-btn" title="Clear History">Clear</button>
+      </div>
     </div>
   </div>
-  <script>
-    const vscode = acquireVsCodeApi();
+  <script nonce="${nonce}" src="${scriptUri}"></script>
+</body></html>`;
+  }
 
-    function send() {
-      const input = document.getElementById('input');
-      const text = input.value.trim();
-      if (!text) return;
-      vscode.postMessage({ type: 'sendMessage', text });
-      input.value = '';
+  /**
+   * Generate a random nonce for CSP.
+   */
+  private _getNonce(): string {
+    let text = '';
+    const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    for (let i = 0; i < 32; i++) {
+      text += possible.charAt(Math.floor(Math.random() * possible.length));
     }
-
-    function applyEdits() {
-      vscode.postMessage({ type: 'applyEdits', requestId: 'latest' });
-    }
-
-    function runGates() {
-      vscode.postMessage({ type: 'runGates' });
-    }
-
-    function clearHistory() {
-      vscode.postMessage({ type: 'clearHistory' });
-    }
-
-    document.getElementById('input').addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        send();
-      }
-    });
-
-    window.addEventListener('message', (event) => {
-      const msg = event.data;
-      if (msg.type === 'updateHistory') {
-        const history = document.getElementById('history');
-        history.innerHTML = msg.history.map(m =>
-          '<div class="message ' + m.role + '">' + m.content.replace(/\\n/g, '<br>') + '</div>'
-        ).join('');
-        history.scrollTop = history.scrollHeight;
-      }
-    });
-  </script>
-</body>
-</html>`;
+    return text;
   }
 }
