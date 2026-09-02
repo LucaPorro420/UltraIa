@@ -1,41 +1,26 @@
 'use client';
 
-import dynamic from 'next/dynamic';
+import { LazySection } from './LazySection';
 
 type LandingSectionsProps = {
   user: { name?: string | null; email: string } | null;
 };
 
-// Lazy load below-the-fold sections to reduce initial JS bundle
-const LandingFeatures = dynamic(
-  () => import('@/components/landing/landing-features').then((m) => ({ default: m.LandingFeatures })),
-  { ssr: false },
-);
-const LandingDashboard = dynamic(
-  () => import('@/components/landing/landing-dashboard').then((m) => ({ default: m.LandingDashboard })),
-  { ssr: false },
-);
-const LandingEcosystem = dynamic(
-  () => import('@/components/landing/landing-ecosystem').then((m) => ({ default: m.LandingEcosystem })),
-  { ssr: false },
-);
-const LandingPillars = dynamic(
-  () => import('@/components/landing/landing-pillars').then((m) => ({ default: m.LandingPillars })),
-  { ssr: false },
-);
-const LandingCta = dynamic(
-  () => import('@/components/landing/landing-cta').then((m) => ({ default: m.LandingCta })),
-  { ssr: false },
-);
+// Load sections on-demand when they enter viewport
+const importFeatures = () => import('@/components/landing/landing-features').then((m) => ({ default: m.LandingFeatures }));
+const importDashboard = () => import('@/components/landing/landing-dashboard').then((m) => ({ default: m.LandingDashboard }));
+const importEcosystem = () => import('@/components/landing/landing-ecosystem').then((m) => ({ default: m.LandingEcosystem }));
+const importPillars = () => import('@/components/landing/landing-pillars').then((m) => ({ default: m.LandingPillars }));
+const importCta = (user: LandingSectionsProps['user']) => import('@/components/landing/landing-cta').then((m) => ({ default: (props: any) => <m.LandingCta user={user} {...props} /> }));
 
 export function LandingSections({ user }: LandingSectionsProps) {
   return (
     <>
-      <LandingFeatures />
-      <LandingDashboard />
-      <LandingEcosystem />
-      <LandingPillars />
-      <LandingCta user={user} />
+      <LazySection importFn={importFeatures} rootMargin="300px" />
+      <LazySection importFn={importDashboard} rootMargin="300px" />
+      <LazySection importFn={importEcosystem} rootMargin="300px" />
+      <LazySection importFn={importPillars} rootMargin="300px" />
+      <LazySection importFn={() => importCta(user)} rootMargin="300px" />
     </>
   );
 }
