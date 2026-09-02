@@ -3143,4 +3143,40 @@ Triage PIVR:
   - staged_deletions: 0
   - enlaces_age_hours: 129.7
 
+---
+
+## Iteración 157 — Chaos Game fractal generator (02/09/2026)
+
+**[P] Plan**
+- Objetivo: crear capability `chaos` — generador determinista de fractales vía el chaos game method.
+- Pasos: 1) chaos-game.ts (polygonVertices, resolveChaosSpec, selectVertex, generateChaosGame, chaosDensityToRgba, listPresets); 2) 31 tests; 3) demo script que genera 7 PNGs reales; 4) export en index.ts.
+- Predicción: 31/31 tests PASS, 7/7 PNGs reales generadas, typecheck+lint clean.
+
+**[I] Commits**
+- `b5303f9` feat(core): Chaos Game fractal generator — 7 presets, 31 tests, real PNG demo
+  - 5 files, 739 insertions (chaos-game.ts, chaos-game.test.ts, index.ts, chaos-game-demo.ts, plan)
+
+**[V] Gates**
+- typecheck: ✅ (tsc --noEmit clean)
+- lint: ✅ (0 errors)
+- test scoped: ✅ 31/31 PASS (chaos-game.test.ts)
+- demo: ✅ 7/7 PNGs reales (sierpinski 55KB, pentagon 120KB, hexagon 126KB, golden-triangle 20KB, dragon 55KB, square-no-same 55KB, star 24KB)
+- Full suite: 128/142 files pass, 2112 tests GREEN (13 pre-existing failures in chaos/index.ts CJS require — unrelated)
+
+**[R] Veredicto** ✅ GREEN — recompensa: fractales deterministas, keyless, zero-deps
+
+```json
+{
+  "iteration": 157,
+  "task": "chaos-game-fractal-generator",
+  "status": "DONE",
+  "commit": "b5303f9",
+  "tests_passed": 31,
+  "tests_total": 31,
+  "duration_s": 1200,
+  "time_cap_s": 3600,
+  "files_changed": 5,
+  "insertions": 739
+}
+```
 

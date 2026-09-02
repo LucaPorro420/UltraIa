@@ -298,6 +298,7 @@ Ciclo de generadores deterministas (sin dependencias, sin red) sobre `packages/c
 | 154 | **Capability Playground** - `loop-154-capability-playground.md`; /playground page with 5 interactive tabs: geometry superfórmula, diagrams SVG, procedural (18 anims), codevfx (9 kinds + particles), travel (Pollinations previews). Nav item registered. | apps/web | FULL(typecheck/lint/test/build) | DONE (5d05cc6 + 9845871) |
 | 155 | **Hypothesis Quest 3D** - Butterfly effect 3D learning game. `/hypothesis-quest` route with 4 levels based on unsolved math problems (Collatz, Goldbach, Riemann, P vs NP). Lorenz attractor generates unique worlds per playthrough. WASD+mouse controls, Three.js 0.185.1. Plan: `.opencode/plans/loop-hypothesis-quest-3d.md`. Source: `chatDeepseek.md` lines 5366-5446. | apps/web | FULL(typecheck/lint/test/build) | DONE (2026-08-31) |
 | 156 | **Fix /herramientas build crash** - `getToolCatalog` in catalog.ts crashed on SSR when `CATALOG_META[id]` was undefined. Added defensive `id in CATALOG_META` filter. Pre-existing bug that blocked `npm run build`. | packages/core | FULL(test/build) | DONE (2026-08-31) |
+| 157 | **Chaos Game fractal generator** — `loop-157-chaos-game.md`; `chaos-game.ts` (polygonVertices, resolveChaosSpec, selectVertex 5 rules, generateChaosGame, chaosDensityToRgba, listPresets 7 presets) + 31 tests + demo 7 PNGs reales + export index.ts | packages/core + Task | FULL(typecheck/lint/test) | ✅ DONE 02/09/2026 (`b5303f9`, 31/31, 7 PNGs) |
 
 ## Pendiente sin plan (agregadas manual)
 
