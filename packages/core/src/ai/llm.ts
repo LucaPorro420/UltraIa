@@ -1083,12 +1083,13 @@ export function chatStream(opts: {
         // runtime PERSISTENTE por sesion de chat: boot() en una llamada, run/tick en las siguientes
         if (accion === 'boot') {
           if (!pluginsJson) throw new Error('boot requiere pluginsJson');
-          const specs = JSON.parse(pluginsJson) as Array<{
+          const specs = safeJsonParse<Array<{
             id: string;
             kind?: 'tool' | 'observer';
             dependsOn?: string[];
             tools?: Array<{ name: string; echo?: boolean }>;
-          }>;
+          }>>(pluginsJson);
+          if (!specs) throw new Error('pluginsJson no es JSON válido');
           const plugins = specs.map((s) => ({
             id: s.id,
             kind: s.kind ?? 'tool',
@@ -1113,7 +1114,7 @@ export function chatStream(opts: {
         if (!runtime) return { accion, ok: false, error: 'harness sin boot() en esta sesiÃ³n' };
         if (accion === 'run') {
           if (!toolName) throw new Error('run requiere tool');
-          const args = argsJson ? JSON.parse(argsJson) : {};
+          const args = argsJson ? (safeJsonParse<Record<string, unknown>>(argsJson) ?? {}) : {};
           const res = runtime.run({ tool: toolName, args });
           return { accion, ...res };
         }
@@ -1303,7 +1304,7 @@ export function chatStream(opts: {
       }),
       execute: async ({ accion, learningsText, truthDocsJson, backlogText, sourcesJson, razonamientosJson, implementedJson, gapsJson, candidatesJson, objetivo, modo, archivosJson, prediccion }) => {
         const entries = learningsText ? autolearn.parseLearnings(learningsText) : [];
-        const truthDocs = truthDocsJson ? (JSON.parse(truthDocsJson) as Array<{ fuente?: string; tipo?: string; texto?: string }>) : [];
+        const truthDocs = truthDocsJson ? (safeJsonParse<Array<{ fuente?: string; tipo?: string; texto?: string }>>(truthDocsJson) ?? []) : [];
         if (accion === 'scan') {
           const stats = autolearn.scanTruthStats(truthDocs);
           return {
@@ -1314,33 +1315,33 @@ export function chatStream(opts: {
           };
         }
         if (accion === 'metrics') {
-          const gaps = gapsJson ? (JSON.parse(gapsJson) as unknown as autolearn.Gap[]) : [];
+          const gaps = gapsJson ? (safeJsonParse<autolearn.Gap[]>(gapsJson) ?? []) : [];
           return {
             accion,
             metrics: autolearn.learningMetrics({
               entries,
               truthCount: truthDocs.length,
               gaps,
-              sourcesCount: sourcesJson ? (JSON.parse(sourcesJson) as string[]).length : 0,
+              sourcesCount: sourcesJson ? (safeJsonParse<string[]>(sourcesJson) ?? []).length : 0,
             }),
           };
         }
         const gaps = gapsJson
-          ? (JSON.parse(gapsJson) as unknown as autolearn.Gap[])
+          ? (safeJsonParse<autolearn.Gap[]>(gapsJson) ?? [])
           : autolearn.detectGaps({
               learnings: entries,
               truth: truthDocs,
               backlog: backlogText ?? [],
-              sources: sourcesJson ? (JSON.parse(sourcesJson) as string[]) : [],
-              razonamientos: razonamientosJson ? (JSON.parse(razonamientosJson) as string[]) : [],
-              implemented: implementedJson ? (JSON.parse(implementedJson) as string[]) : [],
+              sources: sourcesJson ? (safeJsonParse<string[]>(sourcesJson) ?? []) : [],
+              razonamientos: razonamientosJson ? (safeJsonParse<string[]>(razonamientosJson) ?? []) : [],
+              implemented: implementedJson ? (safeJsonParse<string[]>(implementedJson) ?? []) : [],
             });
         if (accion === 'gaps') {
           return { accion, gaps };
         }
         if (accion === 'plan') {
           const candidates = candidatesJson
-            ? (JSON.parse(candidatesJson) as autolearn.WorkCandidate[])
+            ? (safeJsonParse<autolearn.WorkCandidate[]>(candidatesJson) ?? [])
             : gaps.map((g, i) => ({
                 id: `gap_${i}`,
                 descripcion: g.descripcion,
@@ -1357,7 +1358,7 @@ export function chatStream(opts: {
         if (accion === 'mode_plan') {
           if (!modo) throw new Error('mode_plan requiere modo (P-P | P-B | L-T | S-D)');
           const plan = autolearn.buildModePlan(modo, {
-            archivos: archivosJson ? (JSON.parse(archivosJson) as string[]) : undefined,
+            archivos: archivosJson ? (safeJsonParse<string[]>(archivosJson) ?? []) : undefined,
             prediccion,
           });
           return { accion, modo, plan };
@@ -1391,11 +1392,11 @@ export function chatStream(opts: {
           return { accion, gates: genesis.qualityGates(m), autonomyLevel: genesis.autonomyLevel(m) };
         }
         const state: GenesisState =
-          (stateJson ? (JSON.parse(stateJson) as GenesisState) : { iterations: 0, repairAttempts: 0 });
+          (stateJson ? (safeJsonParse<GenesisState>(stateJson) ?? { iterations: 0, repairAttempts: 0 }) : { iterations: 0, repairAttempts: 0 });
         if (accion === 'stop') {
           return { accion, stop: genesis.checkStopConditions(state, m) };
         }
-        const tasks = tasksJson ? (JSON.parse(tasksJson) as GenesisTask[]) : undefined;
+        const tasks = tasksJson ? (safeJsonParse<GenesisTask[]>(tasksJson) ?? []) : undefined;
         if (accion === 'prioritize') {
           return { accion, prioritized: genesis.prioritizeTasks(tasks ?? []) };
         }
@@ -1413,7 +1414,7 @@ export function chatStream(opts: {
         }
         if (accion === 'eval') {
           const results = resultadosJson
-            ? (JSON.parse(resultadosJson) as Record<string, boolean>)
+            ? (safeJsonParse<Record<string, boolean>>(resultadosJson) ?? {})
             : {};
           return { accion, verdict: genesis.evaluateGates(m, results) };
         }
@@ -1435,7 +1436,7 @@ export function chatStream(opts: {
         disponibles: z.number().int().min(0).optional(),
       }),
       execute: async ({ accion, configJson, disponibles }) => {
-        const parsed = autopub.parseAutopubConfig(configJson ? JSON.parse(configJson) : {});
+        const parsed = autopub.parseAutopubConfig(configJson ? (safeJsonParse<Record<string, unknown>>(configJson) ?? {}) : {});
         if (!parsed.ok) return { accion, ok: false, issues: parsed.issues, config: parsed.config };
         if (accion === 'plan') {
           return { accion, ok: true, plan: autopub.planAutopubCycle(parsed.config, disponibles ?? 0) };

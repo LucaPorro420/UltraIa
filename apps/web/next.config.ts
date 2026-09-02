@@ -18,6 +18,7 @@ import type { NextConfig } from 'next';
 // Configuración principal de Next.js.
 // Explicación simple: Next.js lee esto al arrancar para saber cómo compilar y cómo servir la app.
 const nextConfig: NextConfig = {
+output: 'standalone',
   // output: 'standalone' — deshabilitado en dev para evitar problemas con rutas estáticas.
   // Restaurar en producción si se necesita empaquetado independiente.
 

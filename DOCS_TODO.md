@@ -1156,15 +1156,47 @@ Cada commit agrega una sección con fecha y la lista de archivos `.ts/.tsx` toca
 ## 2026-08-31T22:03:47.087Z
 - [ ] apps/web/src/app/api/bridge/route.ts
 
+## 2026-09-01T00:38:32.347Z
+- [ ] .vscode-extension/src/chat-panel.ts
+- [ ] packages/core/src/utils/safe-json.ts
+
+## 2026-09-01T01:10:49.134Z
+- [ ] apps/web/src/app/(app)/chaos-game/chaos-game-client.tsx
+- [ ] apps/web/src/app/(app)/chaos-game/engine/attractors.ts
+- [ ] apps/web/src/app/(app)/chaos-game/engine/integrator.ts
+- [ ] apps/web/src/app/(app)/chaos-game/engine/renderer.ts
+- [ ] apps/web/src/app/(app)/chaos-game/page.tsx
+- [ ] apps/web/src/components/ide/nav-items.ts
+
+## 2026-09-01T01:25:50.127Z
+- [ ] packages/core/src/tools/catalog.ts
+
+## 2026-09-01T01:28:02.174Z
+- [ ] .vscode-extension/src/extension.ts
+- [ ] apps/web/src/middleware.ts
+- [ ] packages/core/src/ai/llm.ts
+
+## 2026-09-02T02:29:15.089Z
+- [ ] packages/core/src/tools/chat-bridge.ts
+- [ ] packages/runtime/src/api/runtime-handlers.ts
+
+## 2026-09-02T03:54:10.020Z
+- [ ] .vscode-extension/src/chat-panel.ts
+- [ ] .vscode-extension/src/extension.ts
+- [ ] .vscode-extension/src/status-bar.ts
+- [ ] .vscode-extension/src/ws-client.ts
+
+## 2026-09-02T04:48:29.223Z
+- [ ] .vscode-extension/src/extension.ts
+- [ ] .vscode-extension/src/tasks-panel.ts
+
 ## 2026-09-02T05:13:39.705Z
 - [ ] packages/core/src/tools/chat-bridge.ts
 - [ ] packages/runtime/src/api/runtime-handlers.ts
 
 ## 2026-09-02T05:13:45.163Z
 - [ ] .vscode-extension/src/chat-panel.ts
-- [ ] .vscode-extension/src/extension.ts
-- [ ] .vscode-extension/src/status-bar.ts
-- [ ] .vscode-extension/src/ws-client.ts
+- [ ] packages/core/src/utils/safe-json.ts
 
 ## 2026-09-02T05:13:49.597Z
 - [ ] .vscode-extension/src/extension.ts

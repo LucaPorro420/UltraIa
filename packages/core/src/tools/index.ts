@@ -91,7 +91,9 @@ export * from './pdfsearch';
 export * from './netwatch';
 export * from './designcompose';
 export * from './learn-models';
-// kgraph: `export *` seguro Ã¢â‚¬â€ no re-exporta simbolos de otros modulos (sin colision TS2308).
+// chaos: motor de atractores caóticos (Lorenz, Rössler, Chen, Aizawa) con RK4, TrailBuffer, métricas Lyapunov.
+export * from './chaos';
+// kgraph: `export *` seguro — no re-exporta simbolos de otros modulos (sin colision TS2308).
 export * from './kgraph';
 // brainpage: `export *` seguro Ã¢â‚¬â€ modulo nuevo (port de brain.md); simbolos unicos (normalizeId, initBrain, ...).
 export * from './brainpage';
@@ -197,8 +199,16 @@ import * as agenticNs from './agentic';
 import * as zernioNs from './zernio';
 import * as sandboxNs from './sandbox';
 import * as learnModels from './learn-models';
+import * as chaos from './chaos';
 
-export const tools = { web, image, video, music, stitch, reach, skills: { runSkill }, content, g0dm0d3, topics, present: presentTools, publish, enrutador, mediaScore, metrics, memoryFs: { createMemoryFs }, diagram, videoEdit, screenflow, cloud: cloudTools, harness, growth, prioritize, vfx, codevfx, travel, generative, libros, sdf, videoqa, motion, replica, imaging, semanticMemory,   autolearn, learnModels, genesis, creativo, vault: vaultTools, pdfsearch: pdfsearchTools, qdrantMemory: qdrantMemoryTools, kgraph, brainpage, autopub, security, codequality, deps, geom, geometry, pngrender, procvid, physics2d, cadgeo, recordly, cerebro, evo: evoDomain, evolution: evolutionDomain, studio: studioTools, observability: observabilityNs.observability, agentic: agenticNs.agentic, zernio: zernioNs.zernio, sandbox: sandboxNs.sandbox };
+export const tools = { web, image, video, music, stitch, reach, skills: { runSkill }, content, g0dm0d3, topics, present: presentTools, publish, enrutador, mediaScore, metrics, memoryFs: { createMemoryFs }, diagram, videoEdit, screenflow, cloud: cloudTools, harness, growth, prioritize, vfx, codevfx, travel, generative, libros, sdf, videoqa,
+  motion,
+  replica,
+  imaging,
+  semanticMemory,
+  autolearn,
+  learnModels,
+  chaos, genesis, creativo, vault: vaultTools, pdfsearch: pdfsearchTools, qdrantMemory: qdrantMemoryTools, kgraph, brainpage, autopub, security, codequality, deps, geom, geometry, pngrender, procvid, physics2d, cadgeo, recordly, cerebro, evo: evoDomain, evolution: evolutionDomain, studio: studioTools, observability: observabilityNs.observability, agentic: agenticNs.agentic, zernio: zernioNs.zernio, sandbox: sandboxNs.sandbox };
 
 export const TOOL_DESCRIPTIONS: Record<string, string> = {
   calculator: 'Safely evaluate a mathematical expression (math only).',
@@ -338,6 +348,8 @@ export const TOOL_DESCRIPTIONS: Record<string, string> = {
     'Orquestador de modelos (failover automatico): cambia de modelo y modo sin que fallen las respuestas. Recomienda el modelo gratis adecuado por tarea/modo (keyless-first: OpenRouter :free, luego Google/DeepSeek/Qwen/Groq/Mistral/Together/HuggingFace si hay clave), resuelve el LanguageModel construible (route) con degradacion elegante, lista los proveedores disponibles segun claves de entorno, y construye el system prompt con modo (P-P/P-B/L-T/S-D) + estrategia (concise/agentic/reasoning/creative). Usa para no depender de un solo proveedor y para que el agente elija el tier correcto por trabajo.',
   chat_memory:
     'Memoria de chat persistente + grafo (graphity): preserva la consistencia al cambiar de modelo o modo. Crea sesiones, append turnos (user/assistant/system), reconstruye un bloque de contexto compacto (context) inyectable en cualquier modelo, deriva un grafo de entidades (graph) y persiste/reanuda en disco (save/load). Deterministico y keyless. Usa para que el contexto y la intencion del usuario no se pierdan cuando el orquestador cambia de proveedor o de modo operativo.',
+  chaos:
+    'Chaos Game engine (deterministic attractor exploration): 4 classical strange attractors (Lorenz 1963, Rössler 1976, Chen 1999, Aizawa 2009) with RK4 integration (dt=0.005, fixed steps), dual trajectories with configurable ε separation, real-time Lyapunov exponent estimation, and Three.js visualization (BufferGeometry trails with opacity decay). Free Play mode: select attractor, adjust initial conditions, watch butterfly effect unfold. Deterministic, keyless, zero deps. Use to explore deterministic chaos and visualize sensitivity to initial conditions.',
 };
 
 export type Capability =
@@ -412,7 +424,8 @@ export type Capability =
   | 'agentic'
   | 'zernio'
   | 'sandbox'
-  | 'chat_memory';
+  | 'chat_memory'
+  | 'chaos';
 
 export * from './observability';
 export * from './agentic';
