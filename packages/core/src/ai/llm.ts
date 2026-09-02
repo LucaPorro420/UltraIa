@@ -2096,7 +2096,53 @@ export function chatStream(opts: {
       },
     });
   }
-  // QUARANTINED #25 restored 18/08: research.ts/enlaces.ts existen y pasan tests â€” registros activos.
+  if (opts.tools?.includes('chaos-game')) {
+    tools.chaos_game = tool({
+      description:
+        'Deterministic fractal generator via the chaos game method. 7 presets (sierpinski, pentagon, hexagon, golden-triangle, dragon, square-no-same, star) or custom polygon (3-12 sides). Density-based anti-aliased rendering with log-scale palette mapping. Use to generate fractal art entirely from math — no assets, no network, fully seeded/deterministic.',
+      parameters: z.object({
+        accion: z.enum(['generate', 'presets']),
+        preset: z.enum(['sierpinski', 'pentagon', 'hexagon', 'golden-triangle', 'dragon', 'square-no-same', 'star']).optional(),
+        sides: z.number().int().min(3).max(12).optional(),
+        iterations: z.number().int().min(1000).max(1000000).optional(),
+        relaxation: z.number().min(0.1).max(0.9).optional(),
+        rule: z.enum(['random', 'no-same', 'no-adjacent', 'skip-1', 'skip-2']).optional(),
+        seed: z.number().int().optional(),
+        width: z.number().int().min(64).max(2048).optional(),
+        height: z.number().int().min(64).max(2048).optional(),
+        palette: z.enum(['neoViolet', 'obsidian', 'fire', 'ice', 'mono', 'rainbow']).optional(),
+      }),
+      execute: async (params) => {
+        const { generateChaosGame, chaosDensityToRgba, listPresets } = await import('../tools/chaos-game');
+        if (params.accion === 'presets') {
+          return { presets: listPresets() };
+        }
+        const result = generateChaosGame({
+          preset: params.preset,
+          sides: params.sides,
+          iterations: params.iterations,
+          relaxation: params.relaxation,
+          rule: params.rule,
+          seed: params.seed,
+          width: params.width ?? 512,
+          height: params.height ?? 512,
+          palette: params.palette,
+        });
+        const rgba = chaosDensityToRgba(result.density, result.gridWidth, result.gridHeight, result.spec.palette);
+        return {
+          accion: 'generate',
+          preset: params.preset,
+          spec: result.spec,
+          checksum: result.checksum,
+          points: result.points.length,
+          gridWidth: result.gridWidth,
+          gridHeight: result.gridHeight,
+          rgbaBase64: Buffer.from(rgba).toString('base64'),
+        };
+      },
+    });
+  }
+  // QUARANTINED #25 restored 18/08: research.ts/enlaces.ts existen y pasan tests â€" registros activos.
   if (opts.tools?.includes('research')) {
     tools.research_search = tool({
       description:

@@ -351,6 +351,8 @@ export const TOOL_DESCRIPTIONS: Record<string, string> = {
     'Memoria de chat persistente + grafo (graphity): preserva la consistencia al cambiar de modelo o modo. Crea sesiones, append turnos (user/assistant/system), reconstruye un bloque de contexto compacto (context) inyectable en cualquier modelo, deriva un grafo de entidades (graph) y persiste/reanuda en disco (save/load). Deterministico y keyless. Usa para que el contexto y la intencion del usuario no se pierdan cuando el orquestador cambia de proveedor o de modo operativo.',
   chaos:
     'Chaos Game engine (deterministic attractor exploration): 4 classical strange attractors (Lorenz 1963, Rössler 1976, Chen 1999, Aizawa 2009) with RK4 integration (dt=0.005, fixed steps), dual trajectories with configurable ε separation, real-time Lyapunov exponent estimation, and Three.js visualization (BufferGeometry trails with opacity decay). Free Play mode: select attractor, adjust initial conditions, watch butterfly effect unfold. Deterministic, keyless, zero deps. Use to explore deterministic chaos and visualize sensitivity to initial conditions.',
+  chaos_game:
+    'Deterministic fractal generator via the chaos game method: 7 presets (sierpinski, pentagon, hexagon, golden-triangle, dragon, square-no-same, star) or custom polygon (3-12 sides) with 5 vertex-selection rules. Density-based anti-aliased rendering with log-scale palette mapping (neoViolet/obsidian/fire/ice/mono/rainbow). Fully seeded/deterministic, keyless, zero deps. Use to generate fractal art from pure math.',
 };
 
 export type Capability =
@@ -426,7 +428,8 @@ export type Capability =
   | 'zernio'
   | 'sandbox'
   | 'chat_memory'
-  | 'chaos';
+  | 'chaos'
+  | 'chaos-game';
 
 export * from './observability';
 export * from './agentic';
