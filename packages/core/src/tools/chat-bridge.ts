@@ -89,6 +89,28 @@ export type CreateCommit = (message: string, files: string[], workspaceRoot: str
 /** Función que revierte archivos (inyectable). */
 export type RollbackFiles = (files: string[], workspaceRoot: string) => Promise<void>;
 
+/** Función que emite eventos del bridge al EventBus (inyectable). */
+export type EmitBridgeEvent = (event: BridgeEvent) => void;
+
+/** Eventos que el bridge puede emitir para WS clients. */
+export type BridgeEventType = 
+  | 'bridge.started' 
+  | 'bridge.edits_generated' 
+  | 'bridge.edits_applied' 
+  | 'bridge.gates_started' 
+  | 'bridge.gates_completed' 
+  | 'bridge.committed' 
+  | 'bridge.rolled_back' 
+  | 'bridge.failed'
+  | 'bridge.completed';
+
+export interface BridgeEvent {
+  type: BridgeEventType;
+  requestId: string;
+  timestamp: number;
+  payload: Record<string, unknown>;
+}
+
 /* ------------------------------------------------------------------ */
 /* Validation                                                          */
 /* ------------------------------------------------------------------ */
@@ -168,6 +190,7 @@ export async function executeBridge(
     runGates: RunGates;
     createCommit: CreateCommit;
     rollbackFiles: RollbackFiles;
+    emitBridgeEvent?: EmitBridgeEvent;
   },
   opts?: { workspaceRoot?: string },
 ): Promise<BridgeResult> {
@@ -175,14 +198,36 @@ export async function executeBridge(
   const requestId = generateRequestId();
   const workspaceRoot = opts?.workspaceRoot ?? input.workspaceRoot ?? process.cwd();
 
+  const emit = deps.emitBridgeEvent ?? (() => {});
+
   try {
     // 1. Generate edits from the message
+    emit({
+      type: 'bridge.started',
+      requestId,
+      timestamp: Date.now(),
+      payload: { message: input.message, source: input.source, agentId: input.agentId },
+    });
+
     const edits = await deps.generateEdits(input.message, {
       agentId: input.agentId,
       userId: input.userId,
     });
 
+    emit({
+      type: 'bridge.edits_generated',
+      requestId,
+      timestamp: Date.now(),
+      payload: { editsCount: edits.length, files: edits.map(e => e.file) },
+    });
+
     if (edits.length === 0) {
+      emit({
+        type: 'bridge.completed',
+        requestId,
+        timestamp: Date.now(),
+        payload: { summary: 'No code changes needed' },
+      });
       return {
         requestId,
         status: 'completed',
@@ -201,8 +246,29 @@ export async function executeBridge(
       filesChanged.push(edit.file);
     }
 
+    emit({
+      type: 'bridge.edits_applied',
+      requestId,
+      timestamp: Date.now(),
+      payload: { filesChanged },
+    });
+
     // 3. Run gates
+    emit({
+      type: 'bridge.gates_started',
+      requestId,
+      timestamp: Date.now(),
+      payload: {},
+    });
+
     const gates = await deps.runGates(workspaceRoot);
+
+    emit({
+      type: 'bridge.gates_completed',
+      requestId,
+      timestamp: Date.now(),
+      payload: { gates },
+    });
 
     const allGreen = gates.typecheck && gates.lint && gates.test;
 
@@ -210,6 +276,20 @@ export async function executeBridge(
       // 4a. Gates GREEN → commit
       const commitMsg = `feat(bridge): ${input.message.slice(0, 72)}`;
       await deps.createCommit(commitMsg, filesChanged, workspaceRoot);
+
+      emit({
+        type: 'bridge.committed',
+        requestId,
+        timestamp: Date.now(),
+        payload: { commitMsg, filesChanged },
+      });
+
+      emit({
+        type: 'bridge.completed',
+        requestId,
+        timestamp: Date.now(),
+        payload: { summary: `Applied ${edits.length} edit(s)` },
+      });
 
       return {
         requestId,
@@ -225,9 +305,23 @@ export async function executeBridge(
     // 4b. Gates RED → rollback
     await deps.rollbackFiles(filesChanged, workspaceRoot);
 
+    emit({
+      type: 'bridge.rolled_back',
+      requestId,
+      timestamp: Date.now(),
+      payload: { gates },
+    });
+
     const failedGates = Object.entries(gates)
       .filter(([, ok]) => !ok)
       .map(([name]) => name);
+
+    emit({
+      type: 'bridge.failed',
+      requestId,
+      timestamp: Date.now(),
+      payload: { error: `Gates failed: ${failedGates.join(', ')}` },
+    });
 
     return {
       requestId,
@@ -240,6 +334,14 @@ export async function executeBridge(
       durationMs: Date.now() - start,
     };
   } catch (err) {
+    const errorMsg = err instanceof Error ? err.message : String(err);
+    emit({
+      type: 'bridge.failed',
+      requestId,
+      timestamp: Date.now(),
+      payload: { error: errorMsg },
+    });
+
     return {
       requestId,
       status: 'error',
@@ -247,7 +349,7 @@ export async function executeBridge(
       summary: 'Bridge execution failed.',
       gates: { typecheck: false, lint: false, test: false },
       filesChanged: [],
-      error: err instanceof Error ? err.message : String(err),
+      error: errorMsg,
       durationMs: Date.now() - start,
     };
   }

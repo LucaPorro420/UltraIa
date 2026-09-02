@@ -2,6 +2,9 @@ import { ApiError } from './server';
 import type { ApiHandlers } from './server';
 import type { MemoryType, TaskPriority } from '../types';
 import type { UltraRuntime } from '../runtime';
+import { execFile } from 'node:child_process';
+import { promisify } from 'node:util';
+import path from 'node:path';
 
 const MEMORY_TYPES: readonly MemoryType[] = [
   'PROJECT',
@@ -17,7 +20,7 @@ const MEMORY_TYPES: readonly MemoryType[] = [
 ];
 
 /** Topics streamed to WS clients. Anything else stays in-process. */
-const EVENT_FILTER = /^(module|task|health|resource|memory|runtime|api)\./;
+const EVENT_FILTER = /^(module|task|health|resource|memory|runtime|api|bridge)\./;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null;
@@ -37,6 +40,52 @@ function parsePriority(raw: unknown): TaskPriority | undefined {
 function parseBudgetChars(raw: unknown): number | undefined {
   if (typeof raw !== 'number' || !Number.isFinite(raw) || raw <= 0) return undefined;
   return Math.floor(raw);
+}
+
+const execFileAsync = promisify(execFile);
+
+const ROOT = path.resolve(process.cwd(), '..', '..');
+
+/**
+ * Handler for bridge.message — executes chat-to-code bridge via the web API.
+ * This allows VS Code extension to send messages via runtime WS.
+ */
+async function handleBridgeMessage(body: unknown, runtime: UltraRuntime): Promise<{ requestId: string; status: string }> {
+  if (typeof body !== 'object' || body === null) throw new ApiError(400, 'body must be object');
+  const b = body as Record<string, unknown>;
+  const message = typeof b.message === 'string' ? b.message : '';
+  const source = typeof b.source === 'string' ? b.source : 'vscode';
+  const agentId = typeof b.agentId === 'string' ? b.agentId : undefined;
+  const userId = typeof b.userId === 'string' ? b.userId : 'vscode-user';
+
+  if (!message || message.length < 5) throw new ApiError(400, 'message too short');
+
+  // Emit bridge.started event
+  runtime.events.emit('bridge.message', { type: 'bridge.started', message, source, agentId, userId, timestamp: Date.now() });
+
+  try {
+    // Call the web API bridge endpoint
+    const webApiUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000';
+    const response = await fetch(`${webApiUrl}/api/bridge/message`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message, source, agentId, userId }),
+    });
+
+    if (!response.ok) {
+      const error = await response.text();
+      runtime.events.emit('bridge.message', { type: 'bridge.failed', error, timestamp: Date.now() });
+      throw new ApiError(502, `Bridge API error: ${error}`);
+    }
+
+    const result = await response.json();
+    runtime.events.emit('bridge.message', { type: 'bridge.completed', result, timestamp: Date.now() });
+    return { requestId: result.requestId, status: result.status };
+  } catch (err) {
+    const errorMsg = err instanceof Error ? err.message : String(err);
+    runtime.events.emit('bridge.message', { type: 'bridge.failed', error: errorMsg, timestamp: Date.now() });
+    throw new ApiError(500, `Bridge execution failed: ${errorMsg}`);
+  }
 }
 
 /**
@@ -119,6 +168,8 @@ export function runtimeApiHandlers(runtime: UltraRuntime): ApiHandlers {
       }),
 
     configSummary: () => runtime.config.toPublicView(),
+
+    bridgeMessage: (body) => handleBridgeMessage(body, runtime),
 
     subscribeEvents: (listener) =>
       runtime.events.on('*', (payload, topic) => {
