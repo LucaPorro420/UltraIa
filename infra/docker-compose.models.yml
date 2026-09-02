@@ -1,0 +1,64 @@
+version: '3.8'
+# docker-compose template to run model server + vector DB + gen-engine locally.
+# NOTES:
+# - This is a template that expects you to have cloned the model/webui repo into tools/
+#   (e.g. via tools/setup_repos.sh). Adjust 'build' or 'image' sections to match
+#   the actual server you choose (text-generation-webui, gpt4all, or TGI).
+# - The compose intentionally avoids auto-downloading model weights. Download models
+#   manually into the model server's expected folder and then start the service.
+# - Example usage:
+#     docker compose -f infra/docker-compose.models.yml up qdrant gen-engine
+# - You can enable the model-server service after preparing the model files.
+
+services:
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: qdrant
+    ports:
+      - "6333:6333"
+    volumes:
+      - qdrant_storage:/qdrant/storage
+    restart: unless-stopped
+
+  # gen-engine: runs the FastAPI service present in the repo at ./gen-engine
+  gen-engine:
+    image: python:3.11-slim
+    container_name: ultraia-gen-engine
+    working_dir: /app
+    volumes:
+      - ./gen-engine:/app:rw
+      - ./gen-engine/.venv:/app/.venv
+    ports:
+      - "8100:8100"
+    command: ["/bin/sh", "-c", "pip install -r requirements.txt || true && python -m uvicorn app.main:app --host 0.0.0.0 --port 8100"]
+    environment:
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped
+    depends_on:
+      - qdrant
+
+  # model-server placeholder
+  # Recommended flow: clone text-generation-webui to tools/text-generation-webui and
+  # run it (or gpt4all server). This service shows an example using a local build
+  # from tools/text-generation-webui. Edit the command to match the webui's launcher.
+  model-server:
+    image: python:3.11-slim
+    container_name: ultraia-model-server
+    working_dir: /app
+    volumes:
+      - ./tools/text-generation-webui:/app:rw
+      - ./tools/models:/models:rw
+    ports:
+      - "7860:7860"
+    command: ["/bin/sh", "-c", "cd /app && ./.venv/bin/pip install -r requirements.txt || true && python server.py || (python launch.py --listen) || sleep 3600"]
+    environment:
+      - MODEL_DIR=/models
+    restart: "on-failure"
+    # only start model-server once you have the repo and model files in tools/
+    depends_on:
+      - qdrant
+
+volumes:
+  qdrant_storage:
+
+# End of compose file. Edit services.commands as needed for your chosen model server.
