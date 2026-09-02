@@ -1,0 +1,77 @@
+/* ═══════════════════════════════════════════════════════════════════
+   globals-motion.css — Keyframes and animations
+   ═══════════════════════════════════════════════════════════════════ */
+
+@theme {
+  /* Motion tokens (also defined in globals-base.css for reference) */
+  --ease-ultra: cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-aurora: aurora 18s ease-in-out infinite alternate;
+  --animate-grid-drift: grid-drift 60s linear infinite;
+  --animate-glow-pulse: glow-pulse 2.4s ease-in-out infinite;
+  --animate-typing: typing-bounce 1.2s ease-in-out infinite;
+  --animate-stream-cursor: stream-cursor 1s steps(2, jump-none) infinite;
+  --animate-shimmer: shimmer 2.2s linear infinite;
+  --animate-chat-enter: chat-enter 0.3s ease-out both;
+}
+
+/* Keyframes */
+
+@keyframes aurora {
+  0% { transform: translate3d(-4%, -2%, 0) scale(1); opacity: 0.55; }
+  50% { transform: translate3d(3%, 4%, 0) scale(1.15); opacity: 0.85; }
+  100% { transform: translate3d(-2%, -5%, 0) scale(1.05); opacity: 0.6; }
+}
+
+@keyframes grid-drift {
+  0% { background-position: 0 0; }
+  100% { background-position: 96px 64px; }
+}
+
+@keyframes glow-pulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+@keyframes typing-bounce {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+  30% { transform: translateY(-4px); opacity: 1; }
+}
+
+@keyframes stream-cursor {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes chat-enter {
+  0% { opacity: 0; transform: translateY(6px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-out {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(-4px); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Reduced motion overrides */
+@media (prefers-reduced-motion: reduce) {
+  *, .grid-dots, .ide-sep::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none !important;
+  }
+}

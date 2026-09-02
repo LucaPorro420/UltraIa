@@ -1,0 +1,129 @@
+/* ═══════════════════════════════════════════════════════════════════
+   globals-base.css — Design tokens, resets, typography, root vars
+   ═══════════════════════════════════════════════════════════════════ */
+
+@import "tailwindcss";
+
+/* Design tokens — Dark Obsidian + Neo Violet (DESIGN.md §2) */
+
+@theme {
+  /* Surfaces */
+  --color-canvas: #08080a;
+  --color-panel: #111115;
+  --color-panel-header: #18181f;
+  --color-panel-hover: #22222c;
+  --color-input-active: #0d0d11;
+  --color-border-subtle: #1f1f2a;
+  --color-border-muted: #2e2e3d;
+  --color-border-active: #6366f1;
+  --color-primary: #8b5cf6;
+  --color-accent: #f472b6;
+  --color-destructive: #f87171;
+
+  /* Neo Violet palette */
+  --color-neo-100: #f69dee;
+  --color-neo-200: #ee9ced;
+  --color-neo-300: #d09ae6;
+  --color-neo-400: #988cdb;
+  --color-neo-500: #7578d3;
+  --color-neo-600: #5167cb;
+  --color-neo-700: #1854a1;
+
+  /* Typography */
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-jakarta), var(--font-inter), ui-sans-serif, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, "Cascadia Code", monospace;
+
+  /* IDE density */
+  --spacing-ide-header: 38px;
+  --spacing-ide-activitybar: 48px;
+  --spacing-ide-sidebar: 280px;
+
+  /* Motion tokens */
+  --ease-ultra: cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-aurora: aurora 18s ease-in-out infinite alternate;
+  --animate-grid-drift: grid-drift 60s linear infinite;
+  --animate-glow-pulse: glow-pulse 2.4s ease-in-out infinite;
+  --animate-typing: typing-bounce 1.2s ease-in-out infinite;
+  --animate-stream-cursor: stream-cursor 1s steps(2, jump-none) infinite;
+  --animate-shimmer: shimmer 2.2s linear infinite;
+  --animate-chat-enter: chat-enter 0.3s ease-out both;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   @layer base — resets, root vars, body
+   ═══════════════════════════════════════════════════════════════════ */
+
+@layer base {
+  :root {
+    --agent-video: #a855f7;
+    --agent-audio: #06b6d4;
+    --agent-text: #f59e0b;
+    --agent-code: #10b981;
+    --agent-web: #6366f1;
+    --status-thinking: #3b82f6;
+    --status-streaming: #10b981;
+    --status-error: #ef4444;
+  }
+
+  body {
+    @apply bg-canvas text-neutral-100 antialiased;
+    font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  }
+
+  ::selection {
+    background: color-mix(in srgb, var(--color-primary) 40%, transparent);
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-border-muted) transparent;
+  }
+
+  :where(a, button, input, textarea, select, summary, [tabindex]):focus-visible {
+    outline: 2px solid color-mix(in srgb, var(--color-primary) 70%, transparent);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   View Transitions API — smooth page navigation (2026 baseline)
+   ═══════════════════════════════════════════════════════════════════ */
+
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition-old(root) {
+  animation: fade-out 150ms ease-out;
+}
+::view-transition-new(root) {
+  animation: fade-in 200ms ease-in;
+}
+
+@keyframes fade-out {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(-4px); }
+}
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   Reduced motion
+   ══════════════════════════════════════════════════════════════════ */
+
+@media (prefers-reduced-motion: reduce) {
+  *, .grid-dots, .ide-sep::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none !important;
+  }
+}

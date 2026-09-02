@@ -18,7 +18,7 @@ import type { NextConfig } from 'next';
 // Configuración principal de Next.js.
 // Explicación simple: Next.js lee esto al arrancar para saber cómo compilar y cómo servir la app.
 const nextConfig: NextConfig = {
-output: 'standalone',
+  output: 'standalone',
   // output: 'standalone' — deshabilitado en dev para evitar problemas con rutas estáticas.
   // Restaurar en producción si se necesita empaquetado independiente.
 
@@ -45,15 +45,55 @@ output: 'standalone',
       // Cuando importes iconos por nombre, Next los resolverá al archivo ESM del icono.
       transform: 'lucide-react/dist/esm/icons/{{ kebabCase member }}',
     },
+    'three': {
+      // Tree shaking para Three.js: imports granulares evitan bundle completo
+      transform: 'three/src/{{ kebabCase member }}.js',
+    },
   },
 
   // webpack: ajustes personalizados para el empaquetador.
-  // Aquí se configura cache persistente y fallback para ciertos módulos de Node.
+  // Aquí se configura cache persistente, splitChunks y fallback para módulos de Node.
   webpack: (config, { isServer }) => {
     // Cache en disco para aceleraciones entre builds.
     config.cache = { type: 'filesystem' }; // caché persistente: evita recompilación completa
 
     if (!isServer) {
+      // splitChunks: consolidar chunks pequeños para menos requests HTTP
+      config.optimization.splitChunks = {
+        chunks: 'all',
+        minSize: 20000,
+        maxSize: 250000,
+        minChunks: 1,
+        maxAsyncRequests: 30,
+        maxInitialRequests: 30,
+        cacheGroups: {
+          default: false,
+          vendors: false,
+          // Three.js separado por ser pesado
+          three: {
+            test: /[\\/]node_modules[\\/]three[\\/]/,
+            name: 'three',
+            chunks: 'all',
+            priority: 20,
+          },
+          // Vendor libraries
+          vendor: {
+            test: /[\\/]node_modules[\\/]/,
+            name: 'vendor',
+            chunks: 'all',
+            priority: 10,
+          },
+          // Common chunks
+          common: {
+            name: 'common',
+            minChunks: 2,
+            chunks: 'all',
+            priority: 5,
+            reuseExistingChunk: true,
+          },
+        },
+      };
+
       // Lista de módulos que solo existen en Node (no en navegadores).
       // Si un paquete intenta usar 'fs' o 'crypto' en el cliente, lo marcamos como no disponible
       // para evitar errores de empaquetado.
@@ -108,7 +148,7 @@ output: 'standalone',
     ],
   },
 
-  // Cabeceras HTTP de seguridad: se aplican a todas las rutas.
+  // Cabeceras HTTP de seguridad y compresión: se aplican a todas las rutas.
   // Explicación simple: estas reglas ayudan a que los navegadores no permitan
   // ciertas cosas peligrosas (inyección de código, frames externos, etc.).
   async headers() {
@@ -139,6 +179,28 @@ output: 'standalone',
               "base-uri 'self'",
             ].join('; '),
           },
+        ],
+      },
+      // Compresión gzip/brotli para assets estáticos
+      {
+        source: '/_next/static/:path*',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+          { key: 'Content-Encoding', value: 'br, gzip' },
+        ],
+      },
+      {
+        source: '/_next/image/:path*',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+          { key: 'Content-Encoding', value: 'br, gzip' },
+        ],
+      },
+      {
+        source: '/:path*.(js|css|woff|woff2|png|jpg|jpeg|gif|svg|ico|webp|avif)',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+          { key: 'Content-Encoding', value: 'br, gzip' },
         ],
       },
     ];
