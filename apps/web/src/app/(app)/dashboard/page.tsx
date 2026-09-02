@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { EmptyState } from '@/components/ui/empty-state';
 import { SkillPipeline } from '@/components/app-shell/skill-pipeline';
 import { AssistantChat } from '@/components/assistant-chat';
+import { VirtualizedAgentList } from './VirtualizedAgentList';
 
 /** Server component — agent list with streaming via Suspense. */
 async function AgentList({ workspaceId }: { workspaceId: string }) {
@@ -47,41 +48,8 @@ async function AgentList({ workspaceId }: { workspaceId: string }) {
     );
   }
 
-  return (
-    <ul className="grid gap-4 md:grid-cols-2">
-      {blueprints.map((bp, i) => {
-        const active = bp.versions[0];
-        const score = active?.evalRuns[0]?.avgScore;
-        return (
-          <li key={bp.id} style={{ animationDelay: `${Math.min(i * 60, 480)}ms` }}>
-            <Link
-              href={`/agents/${bp.id}`}
-              className="block rounded-lg border border-border-subtle bg-panel p-5 transition-colors duration-150 [animation:var(--animate-chat-enter)] hover:border-border-muted hover:bg-panel-hover"
-            >
-              <div className="flex items-center justify-between gap-2">
-                <h2 className="font-display text-sm font-semibold text-neutral-100">{bp.name}</h2>
-                <span className="flex shrink-0 items-center gap-1.5">
-                  <Badge className="bg-panel-header font-mono text-[10px] uppercase tracking-widest text-neutral-400">
-                    v{active?.versionNumber ?? '?'}
-                  </Badge>
-                  {typeof score === 'number' && (
-                    <Badge
-                      className={`font-mono text-[10px] uppercase tracking-widest ${
-                        score >= 0.6 ? 'bg-emerald-900/60 text-emerald-300' : 'bg-amber-900/60 text-amber-300'
-                      }`}
-                    >
-                      eval {score.toFixed(2)}
-                    </Badge>
-                  )}
-                </span>
-              </div>
-              <p className="mt-2 line-clamp-2 text-[13px] text-neutral-400">{bp.taskDescription}</p>
-            </Link>
-          </li>
-        );
-      })}
-    </ul>
-  );
+  // Pass blueprints to virtualized client component
+  return <VirtualizedAgentList blueprints={blueprints} />;
 }
 
 /** Skeleton loader for agent list — streams immediately while DB query runs. */
