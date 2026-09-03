@@ -19,7 +19,7 @@
   `DESIGN.md`, `docs/design-dna.json`, `.opencode/skills/ultraia-design-system/`.
 - **UI kit** en `apps/web/src/components/ui/` (button, card, dialog, tabs, switch, badge, input,
   textarea, label, skeleton, tooltip, stat-card, empty-state, kbd).
-- **App shell IDE** en `components/ide/ide-shell.tsx` + `components/ide/nav-items.ts`.
+- **App shell IDE** en `components/app-shell/` (layout.tsx + nav.tsx).
 - **`/lab` YA EXISTE** (`app/(app)/lab/page.tsx` + `components/lab-client.tsx`) como navegador de
   demos de capacidades (SDF, CodeVFX, imaging, growth). Es la semilla exacta del sandbox visual.
 - **Conexiones** ya es un Centro de integraciones (47 entradas, 11 categorías, estado en vivo).
@@ -61,7 +61,7 @@ inicio:
 | Iconos | `lucide-react` |
 | Tipografía | Inter (funcional), Plus Jakarta Sans (display/chat), JetBrains Mono (mono) |
 | Tema | Dark Obsidian (`#08080a` canvas, `#111115` panel, `#8b5cf6` primary) + Neo Violet |
-| Shell | IDE: sidebar 280px (`components/ide/ide-shell.tsx`), mobile-first |
+| Shell | IDE: sidebar 280px (`components/app-shell/`), mobile-first |
 | A11y | `role`/`aria` en diagramas, focus-visible rings, contraste AA |
 | Móvil | `apps/mobile` (Expo) consume la API REST web vía `getCurrentUser(req)` |
 | Keyless-first | UI no hace llamadas externas salvo token del usuario; fail-soft |
@@ -101,8 +101,7 @@ inicio:
 
 ### 3.2 App shell + navegación (dónde añadir rutas)
 - `apps/web/src/app/(app)/layout.tsx` — envuelve en `IdeShell`.
-- `apps/web/src/components/ide/ide-shell.tsx` — shell IDE (sidebar 280px).
-- `apps/web/src/components/ide/nav-items.ts` — **lista de enlaces del nav** (añadir "Lab / Diseño" aquí).
+- `apps/web/src/components/app-shell/` — shell IDE (sidebar 280px, nav.tsx con enlaces).
 
 ### 3.3 UI Kit (galería de componentes reutilizables)
 - `apps/web/src/components/ui/button.tsx`, `card.tsx`, `dialog.tsx`, `tabs.tsx`, `switch.tsx`,
@@ -169,7 +168,7 @@ inicio:
    - `ultraia-design-system` (consistencia), `design-shotgun` (variantes), `design-html` (finalizar),
    - o pedir a otra IA pegándole §3 + §4 de este documento.
 3. **Hacer el cambio** en el archivo correcto (mapeado en §3): componente en `components/ui/`,
-   página en `app/(app)/<area>/`, ruta de nav en `components/ide/nav-items.ts`.
+   página en `app/(app)/<area>/`, ruta de nav en `components/app-shell/nav.tsx`.
 4. **Verificar gates** (producción, no el lab):
    `npm run typecheck → npm run lint → npm run test → npm run build`.
    El `/lab` es sandbox seguro; las páginas de producción pasan gates antes de commitear.
@@ -192,7 +191,7 @@ inicio:
 
 ## 7. PRÓXIMO PASO SUGERIDO (implementable ahora)
 Extender `/lab` en un **Design Lab** completo:
-- `components/ide/nav-items.ts`: añadir entrada "Lab / Diseño".
+- `components/app-shell/nav.tsx`: añadir entrada "Lab / Diseño".
 - `app/(app)/lab/page.tsx` + `components/lab-client.tsx`: secciones
   (Tokens · Galería UI · Prototipos · Pedir rediseño) usando el UI kit y los prototipos de §3.7.
 - Mantener sandbox aislado (no afecta gates de producción).

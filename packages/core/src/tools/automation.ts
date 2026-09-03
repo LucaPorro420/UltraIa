@@ -153,9 +153,16 @@ export function nextAction(state: AutomationState, result: { status: PhaseStatus
 /** Aplica la acción al estado (mutación acotada, determinista). */
 export function advanceState(state: AutomationState, action: NextAction): AutomationState {
   state.currentPhase = action.phase;
-  state.attempts[action.phase] = action.attempt;
+  // Don't overwrite attempts for new-phase runs — nextAction only set attempts for the OLD phase.
+  // Only set attempts for retry/resume where nextAction already computed the correct count.
+  if (action.kind === 'retry' || action.kind === 'resume') {
+    state.attempts[action.phase] = action.attempt;
+  }
   if (action.kind === 'give-up') state.status = 'failed';
-  if (action.kind === 'resume' || action.kind === 'run') state.status = 'running';
+  // Only set 'running' if not already 'done' (nextAction sets 'done' on last phase ok)
+  if ((action.kind === 'resume' || action.kind === 'run') && state.status !== 'done') {
+    state.status = 'running';
+  }
   state.updatedAt = new Date().toISOString();
   return state;
 }

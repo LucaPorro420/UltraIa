@@ -45,7 +45,7 @@ UltraIa/
     src/app/           -> pantallas y rutas API
     src/components/    -> piezas reutilizadas (botones, header)
     src/lib/           -> utilidades y la carpeta shared/ (copias explicadas)
-    src/data/          -> tech-radar.ts (datos del roadmap)
+    src/components/app-shell/ -> shell IDE (sidebar + nav)
   packages/core/       -> LOGICA pura (sin pantallas)
     src/ai/            -> IA (gateway, modelo, esquemas, bucle)
     src/domain/        -> reglas de negocio (crear/mejorar/evaluar agentes)
@@ -90,7 +90,7 @@ UltraIa/
 25. `src/app/api/*` — las "puertas" internas que usan las herramientas y el chat.
 
 ### Nivel 3 — Datos y guías
-26. `apps/web/src/data/tech-radar.ts` — datos del roadmap.
+26. `apps/web/src/components/app-shell/nav.tsx` — navegación del sidebar.
 27. `apps/web/src/lib/shared/*` y `packages/core/src/shared/*` — copias explicadas.
 28. `docs/roadmap-mockup.html` — mockup imprimible a PDF.
 29. `DOCS_TODO.md` — pendientes de documentar (generado por el hook).

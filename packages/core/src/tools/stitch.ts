@@ -24,8 +24,15 @@ export async function generateUiScreen(prompt: string): Promise<UiScreen> {
     );
   }
 
-  const { stitch } = await import(/* webpackIgnore: true */ '@google/stitch-sdk');
-  const project = await stitch.createProject('UltraIa');
+  let stitchModule: { stitch: { createProject: (name: string) => Promise<{ projectId: string; generate: (prompt: string) => Promise<{ screenId: string; getImage: () => Promise<string>; getHtml: () => Promise<string> }> }> } };
+  try {
+    stitchModule = await import(/* webpackIgnore: true */ '@google/stitch-sdk') as typeof stitchModule;
+  } catch {
+    throw new Error(
+      'Package @google/stitch-sdk is not installed. Run: npm install @google/stitch-sdk',
+    );
+  }
+  const project = await stitchModule.stitch.createProject('UltraIa');
   const screen = await project.generate(p);
   const [imageUrl, htmlUrl] = await Promise.all([screen.getImage(), screen.getHtml()]);
 

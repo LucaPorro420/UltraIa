@@ -7,7 +7,7 @@ Las extensiones de Chrome como **Plurality**, **DeepL**, **aiinhbfoop** y otras 
 - Interfieren con las herramientas de desarrollo
 
 ## Solución implementada
-El proyecto incluye un script de limpieza automático en desarrollo (`apps/web/src/app/development-cleanup.ts`) que:
+El proyecto incluye un script de limpieza automático en desarrollo (middleware de hidratación) que:
 1. Elimina nodos inyectados por extensiones conocidas al cargar la página
 2. Observa mutaciones del DOM y elimina nuevos nodos ajenos en tiempo real
 3. Solo se ejecuta en `NODE_ENV === 'development'`
