@@ -3703,6 +3703,104 @@ export function chatStream(opts: {
     });
   }
 
+  // --- Creativo: creative coding physics engine ---
+  if (opts.tools?.includes('creativo')) {
+    tools.creativity_run = tool({
+      description:
+        'Creative coding physics engine: bounce simulation (gravity, restitution, collisions), scene planning (random ball placement), impact sound synthesis (sine+noise envelope), and HTML5 canvas rendering. Deterministic, seeded, keyless. Use to create interactive physics-based visual art.',
+      parameters: z.object({
+        accion: z.enum(['simulate', 'scene', 'sound', 'render']),
+        ballJson: z.string().optional(),
+        count: z.number().int().min(1).max(50).optional(),
+        seed: z.number().int().optional(),
+        width: z.number().int().min(64).max(2048).optional(),
+        height: z.number().int().min(64).max(2048).optional(),
+        intensity: z.number().min(0).max(1).optional(),
+        durationSec: z.number().min(0.01).max(5).optional(),
+      }),
+      execute: async ({ accion, ballJson, count, seed, width, height, intensity, durationSec }) => {
+        const { simulateBall, planScene, soundImpact, renderCanvasHtml } = await import('../tools/creativo');
+        switch (accion) {
+          case 'simulate': {
+            const ball = ballJson ? JSON.parse(ballJson) : { x: 100, y: 50, vx: 3, vy: 0, r: 12, mass: 1 };
+            return simulateBall(ball);
+          }
+          case 'scene':
+            return planScene({ count, seed, width, height });
+          case 'sound':
+            return soundImpact(intensity ?? 0.5, { durationSec });
+          case 'render': {
+            const scene = planScene({ count, seed, width, height });
+            return { html: renderCanvasHtml(scene, { width, height }) };
+          }
+          default:
+            return { ok: false, error: 'unknown accion' };
+        }
+      },
+    });
+  }
+
+  // --- Chaos: attractor exploration engine ---
+  if (opts.tools?.includes('chaos')) {
+    tools.chaos_attractor = tool({
+      description:
+        'Deterministic chaos attractor engine: Lorenz, Rössler, Chen, Aizawa with RK4 integration, dual trajectories (butterfly effect), and divergence metrics. Select an attractor, adjust initial conditions, watch sensitivity to initial conditions unfold. Deterministic, keyless, zero deps.',
+      parameters: z.object({
+        accion: z.enum(['list', 'evaluate', 'trajectory']),
+        attractor: z.string().optional(),
+        stateJson: z.string().optional(),
+        dt: z.number().min(0.001).max(0.1).optional(),
+        steps: z.number().int().min(100).max(50000).optional(),
+        epsilon: z.number().min(0.0001).max(1).optional(),
+      }),
+      execute: async ({ accion, attractor, stateJson, dt, steps, epsilon }) => {
+        const { listAttractors, evaluateAttractor, createSecondaryIC, isValidState } = await import('../tools/chaos/attractors');
+        const { createDualTrailBuffer } = await import('../tools/chaos/trajectory');
+        switch (accion) {
+          case 'list':
+            return { attractors: listAttractors() };
+          case 'evaluate': {
+            const state = stateJson ? JSON.parse(stateJson) : [0.1, 0, 0];
+            if (!isValidState(state)) return { ok: false, error: 'invalid state vector' };
+            return { next: evaluateAttractor(attractor ?? 'lorenz', state) };
+          }
+          case 'trajectory': {
+            const state = stateJson ? JSON.parse(stateJson) : [0.1, 0, 0];
+            if (!isValidState(state)) return { ok: false, error: 'invalid state vector' };
+            const config = {
+              attractor: attractor ?? 'lorenz',
+              dt: dt ?? 0.005,
+              stepsPerFrame: 10,
+              maxTrailPoints: Math.min(steps ?? 5000, 50000),
+              opacityDecayWindow: 500,
+            };
+            const buffer = createDualTrailBuffer(config);
+            const eps = epsilon ?? 0.001;
+            const secondaryIC = createSecondaryIC(state, eps);
+            const attractorFn = (await import('../tools/chaos/attractors')).evaluateAttractor;
+            let s1 = state;
+            let s2 = secondaryIC;
+            const n = Math.min(steps ?? 5000, config.maxTrailPoints);
+            for (let i = 0; i < n; i++) {
+              s1 = attractorFn(config.attractor, s1);
+              s2 = attractorFn(config.attractor, s2);
+              buffer.pushPrimary(s1[0], s1[1], s1[2]);
+              buffer.pushSecondary(s2[0], s2[1], s2[2]);
+            }
+            return {
+              attractor: config.attractor,
+              primaryPoints: buffer.getPrimaryCount(),
+              secondaryPoints: buffer.getSecondaryCount(),
+              note: 'Use the Three.js chaos-game UI for full visualization with Lyapunov estimation.',
+            };
+          }
+          default:
+            return { ok: false, error: 'unknown accion' };
+        }
+      },
+    });
+  }
+
   // --- Cache check ---
   const lastUserMsg = [...opts.messages].reverse().find((m) => m.role === 'user');
   const cacheKey = JSON.stringify(opts.messages);
