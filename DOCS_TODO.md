@@ -1201,3 +1201,80 @@ Cada commit agrega una sección con fecha y la lista de archivos `.ts/.tsx` toca
 ## 2026-09-02T05:13:49.597Z
 - [ ] .vscode-extension/src/extension.ts
 - [ ] .vscode-extension/src/tasks-panel.ts
+
+## 2026-09-02T05:22:26.143Z
+- [ ] apps/web/next.config.ts
+- [ ] apps/web/src/app/(app)/hypothesis-quest/hypothesis-quest-client.tsx
+- [ ] apps/web/src/instrumentation.ts
+- [ ] packages/core/src/ai/llm.ts
+- [ ] packages/core/src/tools/catalog.ts
+- [ ] packages/core/src/tools/index.ts
+
+## 2026-09-02T06:52:12.722Z
+- [ ] apps/web/next.config.ts
+
+## 2026-09-02T07:50:17.839Z
+- [ ] apps/web/src/app/(app)/agents/new/CreateAgentFormWrapper.tsx
+- [ ] apps/web/src/app/(app)/agents/new/page.tsx
+- [ ] apps/web/src/app/(app)/ebooks/playground/PlaygroundCanvasWrapper.tsx
+- [ ] apps/web/src/app/(app)/ebooks/playground/page.tsx
+- [ ] apps/web/src/app/(app)/studio/StudioClientWrapper.tsx
+- [ ] apps/web/src/app/(app)/studio/page.tsx
+
+## 2026-09-02T08:15:58.070Z
+- [ ] apps/web/src/app/development-cleanup.ts
+- [ ] apps/web/src/app/layout.tsx
+
+## 2026-09-02T08:40:23.161Z
+- [ ] apps/web/src/app/(app)/dashboard/VirtualizedAgentList.tsx
+- [ ] apps/web/src/app/(app)/dashboard/page.tsx
+
+## 2026-09-02T09:26:07.446Z
+- [ ] apps/web/src/components/landing/LazySection.tsx
+- [ ] apps/web/src/components/landing/landing-sections.tsx
+
+## 2026-09-02T23:05:02.539Z
+- [ ] Task/chaos-game-demo.ts
+- [ ] packages/core/src/tools/chaos-game.test.ts
+- [ ] packages/core/src/tools/chaos-game.ts
+- [ ] packages/core/src/tools/index.ts
+
+## 2026-09-02T23:47:52.969Z
+- [ ] packages/core/src/ai/llm.ts
+- [ ] packages/core/src/tools/index.ts
+
+## 2026-09-03T01:14:35.869Z
+- [ ] apps/web/src/app/(app)/hypothesis-quest/engine/levels/consciousness.ts
+- [ ] apps/web/src/app/(app)/hypothesis-quest/engine/levels/halting.ts
+- [ ] apps/web/src/app/(app)/hypothesis-quest/engine/levels/navier-stokes.ts
+- [ ] apps/web/src/app/(app)/hypothesis-quest/engine/levels/post-quantum-crypto.ts
+- [ ] apps/web/src/app/(app)/hypothesis-quest/engine/levels/protein-folding.ts
+- [ ] apps/web/src/app/(app)/hypothesis-quest/engine/levels/time-arrow.ts
+
+## 2026-09-03T01:24:19.312Z
+- [ ] packages/core/src/tools/chaos/index.ts
+
+## 2026-09-03T15:38:16.033Z
+- [ ] .vscode-extension/src/code-lens.ts
+- [ ] .vscode-extension/src/extension.ts
+- [ ] packages/core/src/tools/catalog.ts
+
+## 2026-09-03T16:00:47.737Z
+- [ ] apps/web/src/app/api/bridge/route.ts
+
+## 2026-09-03T17:15:07.229Z
+- [ ] apps/web/src/components/chaos-game/ChaosGameClient.tsx
+- [ ] apps/web/src/components/chaos-game/DivergenceIndicator.tsx
+- [ ] apps/web/src/components/chaos-game/LiveMetrics.tsx
+
+## 2026-09-03T17:16:05.239Z
+- [ ] apps/web/src/components/chaos-game/AttractorSelect.tsx
+- [ ] apps/web/src/components/chaos-game/ChaosCanvas.tsx
+- [ ] apps/web/src/components/chaos-game/InitialConditionSliders.tsx
+
+## 2026-09-03T17:22:11.042Z
+- [ ] apps/web/src/app/(app)/dashboard/page.tsx
+- [ ] apps/web/src/app/(app)/hypothesis-quest/engine/levels/halting.ts
+- [ ] apps/web/src/app/layout.tsx
+- [ ] apps/web/src/components/chaos-game/ChaosSidebar.tsx
+- [ ] packages/core/src/tools/catalog.ts
