@@ -44,7 +44,7 @@ export class HaltingLevel {
   private state: HaltingLevelState;
   private instructionMeshes: THREE.Mesh[] = [];
   private pcMarker: THREE.Mesh;
-  private pathLine: THREE.Line;
+  private pathLine: THREE.Line = null as unknown as THREE.Line;
 
   constructor(scene: THREE.Scene, seed: number = Date.now()) {
     this.scene = scene;

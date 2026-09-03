@@ -23,7 +23,7 @@ async function AgentList({ workspaceId }: { workspaceId: string }) {
             where: { status: 'COMPLETED' },
             orderBy: { createdAt: 'desc' },
             take: 1,
-            select: { avgScore: true },
+            select: { avgScore: true, status: true },
           },
         },
       },

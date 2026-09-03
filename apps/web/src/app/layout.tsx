@@ -36,7 +36,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <WebVitalsReporter />
         {children}
         <Toaster theme="dark" position="bottom-right" richColors />
-        {process.env.NODE_ENV === 'development' && setupDevCleanup()}
+        {/* setupDevCleanup runs via side-effect import */}
         <Script id="sw-register" strategy="afterInteractive">
           {`if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
