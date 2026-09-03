@@ -100,6 +100,7 @@ import { classifyEnlaces, contentChecksum } from '../tools/enlaces';
 import { buscarLibros, librosPorSeccion, categoriasLibros, validarPropuestaLibro } from '../tools/libros';
 import { sdf } from '../tools/sdf';
 import { geom, type GeomVec3 } from '../tools/geom';
+import { isSafeMathExpression } from './geom-safety';
 import * as videoqa from '../tools/videoqa';
 import * as motion from '../tools/motion';
 import * as replica from '../tools/replica';
@@ -2332,13 +2333,22 @@ export function chatStream(opts: {
           case 'box': return { accion, vertices: geom.box3D(P.w || 1, P.h || 1, P.d || 1).positions.length, faces: geom.box3D(P.w || 1, P.h || 1, P.d || 1).faces.length };
           case 'cylinder': return { accion, faces: geom.cylinder3D(P.radius || 1, P.height || 2, P.seg || 8).faces.length };
           case 'helix': return { accion, points: geom.helix3D(P.turns || 3, P.radius || 1, P.height || 4, P.samples || 50) };
-          case 'parametric': return { accion, faces: geom.parametricSurface3D((P.fn ? new Function('u', 'v', 'return ' + P.fn) : (u, v) => [Math.cos(u * 2 * Math.PI) * (1 + 0.3 * Math.cos(v * 2 * Math.PI)), Math.sin(u * 2 * Math.PI) * (1 + 0.3 * Math.cos(v * 2 * Math.PI)), 0.3 * Math.sin(v * 2 * Math.PI)]) as (u: number, v: number) => GeomVec3, P.segU || 24, P.segV || 8).faces.length };
+          case 'parametric': {
+            const fnExpr = P.fn || 'Math.cos(u * 2 * Math.PI) * (1 + 0.3 * Math.cos(v * 2 * Math.PI)), Math.sin(u * 2 * Math.PI) * (1 + 0.3 * Math.cos(v * 2 * Math.PI)), 0.3 * Math.sin(v * 2 * Math.PI)';
+            if (P.fn && !isSafeMathExpression(P.fn)) return { accion, ok: false, error: 'unsafe parametric expression rejected by geom-safety' };
+            return { accion, faces: geom.parametricSurface3D((P.fn ? new Function('u', 'v', 'return ' + fnExpr) : (u, v) => [Math.cos(u * 2 * Math.PI) * (1 + 0.3 * Math.cos(v * 2 * Math.PI)), Math.sin(u * 2 * Math.PI) * (1 + 0.3 * Math.cos(v * 2 * Math.PI)), 0.3 * Math.sin(v * 2 * Math.PI)]) as (u: number, v: number) => GeomVec3, P.segU || 24, P.segV || 8).faces.length };
+          }
           case 'obj': return { accion, obj: geom.meshToOBJ(geom.sphere3D(P.radius || 1, P.segU || 4, P.segV || 6)) };
           case 'stl': return { accion, stl: geom.meshToSTL(geom.box3D(1, 1, 1)).slice(0, 200) };
           case 'project': { const m = geom.sphere3D(1, 12, 16); const mat = geom.mat4Multiply(geom.mat4LookAt([0, 0, 4], [0, 0, 0], [0, 1, 0]), geom.mat4RotationY(P.angle || 0.4)); return { accion, svg: geom.projectMeshSvg(m, mat) }; }
           case 'timeline': { const tl = P.timeline || { x: [{ t: 0, value: 0 }, { t: 1, value: 10 }] }; return { accion, sample: geom.sampleTimeline(tl, P.t || 0.5) }; }
           case 'anim': return { accion, html: geom.renderGeomHtml({ mode: P.mode || '2d', preset: P.preset || 'lissajous', params: P.params || {}, width: width || 720, height: height || 480 }) };
-          case 'implicit': { const field = (P.field ? new Function('p', 'return ' + P.field) : (p) => Math.hypot(p[0], p[1], p[2]) - 1) as (p: GeomVec3) => number; return { accion, points: geom.implicitPointCloud(field, { bounds: (P.bounds || [[-1.5, -1.5, -1.5], [1.5, 1.5, 1.5]]) as [GeomVec3, GeomVec3], step: P.step || 0.1, eps: P.eps || 0.09 }).length }; }
+          case 'implicit': {
+            const fieldExpr = P.field || 'Math.hypot(p[0], p[1], p[2]) - 1';
+            if (P.field && !isSafeMathExpression(P.field)) return { accion, ok: false, error: 'unsafe implicit field expression rejected by geom-safety' };
+            const field = (P.field ? new Function('p', 'return ' + fieldExpr) : (p) => Math.hypot(p[0], p[1], p[2]) - 1) as (p: GeomVec3) => number;
+            return { accion, points: geom.implicitPointCloud(field, { bounds: (P.bounds || [[-1.5, -1.5, -1.5], [1.5, 1.5, 1.5]]) as [GeomVec3, GeomVec3], step: P.step || 0.1, eps: P.eps || 0.09 }).length };
+          }
           default:
             return { accion, ok: false, error: 'accion desconocida' };
         }
