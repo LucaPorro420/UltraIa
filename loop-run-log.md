@@ -3276,3 +3276,42 @@ Triage PIVR:
 }
 ```
 
+---
+
+## Iteración 161 — Chaos Game UI completion + dev server cleanup (03/09/2026)
+
+**Fecha**: 03/09/2026
+**Tarea**: Fix pre-existing TS errors in chaos-game components (missing LiveMetrics, DivergenceIndicator, readonly StateVector) + commit all untracked chaos-game UI files.
+
+**[P] Plan**
+- 5 untracked chaos-game component files caused TS errors (missing modules, readonly tuple mutation)
+- `productionSourceMaps` already removed from next.config.ts (plan loop-dev-server-fix was stale)
+- Plan: create missing components, fix readonly issue, commit all chaos-game UI files
+
+**[I] Implementación**
+- Created `LiveMetrics.tsx` (48 lines): 6-metric grid display (distance, Lyapunov, time, FPS, point counts)
+- Created `DivergenceIndicator.tsx` (36 lines): green/red status badge with distance readout
+- Fixed `ChaosGameClient.tsx`: removed unused `ChaosSidebar` import, replaced mutable tuple spread with explicit conditional construction for readonly `StateVector`
+- Committed all 6 chaos-game UI components (ChaosGameClient, LiveMetrics, DivergenceIndicator, AttractorSelect, InitialConditionSliders, ChaosCanvas)
+
+**[V] Verificación**
+- typecheck web: ✅ EXIT 0 (0 errors — all chaos-game TS errors resolved)
+- lint: ✅ (1 pre-existing warning in ChaosCanvas useEffect deps)
+- Tests: ✅ 50/50 (chaos-game 31 + chat-bridge 19)
+
+**[R] Veredicto** ✅ GREEN — Chaos Game UI complete, no TS errors
+
+**Presupuesto**:
+```json
+{
+  "iteration": 161,
+  "task": "chaos-game-ui-completion",
+  "status": "DONE",
+  "commits": ["ed69fd0", "5e2efed"],
+  "duration_s": 600,
+  "time_cap_s": 3600,
+  "files_changed": 6,
+  "insertions": 804
+}
+```
+
