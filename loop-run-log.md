@@ -3180,3 +3180,18 @@ Triage PIVR:
 }
 ```
 
+---
+
+## Continuación sesión 02/09/2026 — Limpieza de WIP + wiring + fixes
+
+**[I] Commits adicionales (misma sesión)**
+- `57632e4` feat(core): wire chaos-game capability into agent system (llm.ts + index.ts Capability union + TOOL_DESCRIPTIONS)
+- `8a54a2f` feat(web): add 6 new Hypothesis Quest 3D levels (consciousness, halting, navier-stokes, post-quantum-crypto, protein-folding, time-arrow — 1910 insertions)
+- `a775c5c` fix(core): replace CJS require() with ESM imports in chaos/index.ts (resolves 13 wiring test failures)
+
+**[V] Gates**
+- typecheck: ✅ (tsc --noEmit clean after all 3 commits)
+- chaos wiring tests: ✅ (kgraph.wiring.test.ts now PASS — was FAIL before chaos/index.ts fix)
+
+**[R] Veredicto** ✅ GREEN — WIP committed, chaos module fixed, capability wired
+
