@@ -13,6 +13,7 @@ import { WebSocketClient } from './ws-client';
 import { StatusBar } from './status-bar';
 import { ChatPanel } from './chat-panel';
 import { TasksPanel } from './tasks-panel';
+import { UltraIaCodeLensProvider, registerCodeLensCommands } from './code-lens';
 
 export interface RuntimeConfig {
   wsUrl: string;
@@ -24,6 +25,7 @@ let wsClient: WebSocketClient | null = null;
 let statusBar: StatusBar | null = null;
 let chatPanel: ChatPanel | null = null;
 let tasksPanel: TasksPanel | null = null;
+let codeLensProvider: UltraIaCodeLensProvider | null = null;
 let outputChannel: vscode.LogOutputChannel;
 let config: RuntimeConfig;
 
@@ -112,6 +114,8 @@ async function connect(context: vscode.ExtensionContext): Promise<void> {
 
   try {
     await wsClient.connect();
+    // Wire CodeLens provider to the WebSocket client
+    codeLensProvider?.setWsClient(wsClient);
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     outputChannel.appendLine(`[UltraIa] Connection failed: ${msg}`);
@@ -242,6 +246,7 @@ async function disconnect(): Promise<void> {
     wsClient.disconnect();
     wsClient = null;
   }
+  codeLensProvider?.setWsClient(null);
   if (tasksPanel) {
     tasksPanel = null;
   }
@@ -266,6 +271,36 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
   context.subscriptions.push(
     vscode.window.registerWebviewViewProvider('ultraia-chat', chatPanel)
   );
+
+  // Initialize CodeLens provider
+  codeLensProvider = new UltraIaCodeLensProvider(outputChannel);
+  context.subscriptions.push(
+    vscode.languages.registerCodeLensProvider(
+      { scheme: 'file', language: 'typescript' },
+      codeLensProvider,
+    ),
+  );
+  context.subscriptions.push(
+    vscode.languages.registerCodeLensProvider(
+      { scheme: 'file', language: 'typescriptreact' },
+      codeLensProvider,
+    ),
+  );
+  context.subscriptions.push(
+    vscode.languages.registerCodeLensProvider(
+      { scheme: 'file', language: 'javascript' },
+      codeLensProvider,
+    ),
+  );
+  context.subscriptions.push(
+    vscode.languages.registerCodeLensProvider(
+      { scheme: 'file', language: 'javascriptreact' },
+      codeLensProvider,
+    ),
+  );
+
+  // Register CodeLens commands
+  registerCodeLensCommands(context, codeLensProvider, outputChannel);
 
   // Register commands
   context.subscriptions.push(
