@@ -3353,3 +3353,40 @@ Triage PIVR:
 }
 ```
 
+---
+
+## Iteración 163 — Catalog fix: chaos_game Capability + alias (03/09/2026)
+
+**Fecha**: 03/09/2026
+**Tarea**: Fix catalog test failure — `TOOL_DESCRIPTIONS` uses `chaos_game` (underscore) but `Capability` type only had `chaos-game` (hyphen), causing TS2561 and catalog test failure.
+
+**[P] Plan**
+- catalog.test.ts fails: "missing catalog entry for chaos_game" (iter-162 removed duplicate catalog entry but `TOOL_DESCRIPTIONS` still uses underscore key)
+- TS2561: `chaos_game` not in `Capability` type → catalog can't have it
+
+**[I] Implementación**
+- Added `chaos_game` to `Capability` type union in `index.ts`
+- Added `chaos_game` catalog entries (CATALOG_META + ES locale) in `catalog.ts`
+- Committed verify_design.py + check-db-users.js scripts
+
+**[V] Verificación**
+- typecheck core: ✅ EXIT 0
+- catalog test: ✅ 3/3
+- chaos-game + chat-bridge + chaos tests: ✅ 53/53
+
+**[R] Veredicto** ✅ GREEN
+
+**Presupuesto**:
+```json
+{
+  "iteration": 163,
+  "task": "catalog-chaos-game-fix",
+  "status": "DONE",
+  "commits": ["0684e91", "4c811e5", "7e17001"],
+  "duration_s": 180,
+  "time_cap_s": 3600,
+  "files_changed": 4,
+  "insertions": 50
+}
+```
+
