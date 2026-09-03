@@ -14,9 +14,11 @@ import {
   validateBridgeInput,
   executeBridge,
   selectAgent,
+  resolveModel,
   type FileEdit,
   type BridgeResult,
 } from '@ultraia/core';
+import { generateText } from 'ai';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { readFile, writeFile, rename, mkdir } from 'node:fs/promises';
@@ -35,9 +37,9 @@ const ROOT = path.resolve(process.cwd(), '..', '..');
 /* ------------------------------------------------------------------ */
 
 /**
- * Genera edits dado un mensaje. En producción esto llamaría al LLM
- * con tools de file_edit/file_create. Por ahora usa un mapa simple
- * de templates para demostrar el flujo.
+ * Genera edits dado un mensaje usando el LLM.
+ * El agente seleccionado provee el system prompt; el LLM responde con JSON
+ * que se parsea como FileEdit[]. Si el LLM no produce edits, retorna [].
  */
 async function generateEdits(
   message: string,
@@ -45,11 +47,45 @@ async function generateEdits(
 ): Promise<FileEdit[]> {
   const agent = selectAgent(message, opts.agentId);
 
-  // En producción: llamar al LLM con el agente seleccionado
-  // y tools de file_edit/file_create/file_delete.
-  // Por ahora, retornar edits vacíos (el agente decide que no hay cambios).
-  // TODO: integrar con chatStream de llm.ts usando el agent
-  return [];
+  const system = `You are a code assistant embedded in the UltraIa bridge.
+The user sends a message describing a code change they want.
+Analyze the message and produce file edits as a JSON array.
+
+Rules:
+- Each edit: { "file": "relative/path", "action": "create"|"update"|"delete", "content"?: "string" }
+- For "update", include "startLine" and "endLine" (1-indexed, inclusive) for partial edits, or omit for full-file replace.
+- Only produce edits if the message clearly describes a code change.
+- If the message is a question or doesn't require code changes, return an empty array: []
+- Paths must be relative to the project root (e.g. "packages/core/src/tools/foo.ts").
+- Never edit .env, auth/, payments/, secrets/, or node_modules/.
+- Respond ONLY with the JSON array, no markdown, no explanation.`;
+
+  try {
+    const { text } = await generateText({
+      model: resolveModel(),
+      system,
+      prompt: message,
+      maxTokens: 4096,
+    });
+
+    // Parse JSON array from LLM response (strip markdown fences if present)
+    const cleaned = text.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim();
+    const parsed = JSON.parse(cleaned);
+
+    if (!Array.isArray(parsed)) return [];
+
+    // Validate each edit has required fields
+    return parsed.filter((e): e is FileEdit =>
+      typeof e === 'object' &&
+      e !== null &&
+      typeof e.file === 'string' &&
+      ['create', 'update', 'delete'].includes(e.action) &&
+      (e.action !== 'delete' ? typeof e.content === 'string' && e.content.length > 0 : true)
+    );
+  } catch {
+    // LLM unavailable, invalid JSON, or parse error — return empty (fail-soft)
+    return [];
+  }
 }
 
 /**
