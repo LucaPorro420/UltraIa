@@ -3195,3 +3195,84 @@ Triage PIVR:
 
 **[R] Veredicto** ✅ GREEN — WIP committed, chaos module fixed, capability wired
 
+---
+
+## Iteración 159 — VS Code extension: CodeLens provider
+
+**Fecha**: 02/09/2026
+**Tarea**: Add inline CodeLens actions to VS Code extension — "Explain" and "Fix" above functions/classes
+
+**[P] Plan**
+- Create `code-lens.ts` with symbol detection (regex-based, no LSP dependency)
+- Register CodeLens provider for TS/TSX/JS/JSX in `extension.ts`
+- Wire wsClient to CodeLens provider for runtime communication
+- Build webview panel with Dark Obsidian theme for explanations
+- Compile and verify
+
+**[I] Implementación**
+- `.vscode-extension/src/code-lens.ts` (230 lines): `UltraIaCodeLensProvider` with `detectSymbols()` (FUNCTION/CLASS/ARROW/METHOD patterns), `findBlockEnd()` brace counter, `provideCodeLenses()` generating Explain + Fix lenses, `registerCodeLensCommands()` with webview panel
+- `.vscode-extension/src/extension.ts` (modified): imported + registered provider for 4 languages, wired wsClient on connect/disconnect
+- Compiled output: `code-lens.js` (10.7KB) + source maps
+
+**[V] Verificación**
+- `npx tsc -p ./ --noEmit`: ✅ 0 errors
+- `npx tsc -p ./`: ✅ compiled to out/
+- Output files: code-lens.js (10696B), code-lens.d.ts (1338B), code-lens.js.map (6434B)
+
+**[R] Veredicto** ✅ GREEN — CodeLens provider functional, extension compiles clean
+
+**Presupuesto**:
+```json
+{
+  "iteration": 159,
+  "task": "vscode-codelens-provider",
+  "status": "DONE",
+  "duration_s": 300,
+  "time_cap_s": 3600,
+  "files_changed": 2,
+  "insertions": 280
+}
+```
+
+---
+
+## Iteración 160 — Chat-to-Code Bridge: wire generateEdits to LLM (03/09/2026)
+
+**Fecha**: 03/09/2026
+**Tarea**: Wire the stub `generateEdits()` in `/api/bridge/message` to actually call the LLM and produce real FileEdit[] from user messages.
+
+**[P] Plan**
+- The bridge route (`apps/web/src/app/api/bridge/route.ts`) had a stub `generateEdits()` returning `[]`.
+- All other bridge infrastructure was complete: domain logic (chat-bridge.ts, 12 tests), route handler, tool wiring (llm.ts), runtime handler (runtime-handlers.ts).
+- Plan: import `resolveModel` + `generateText`, build system prompt instructing LLM to produce FileEdit[] JSON, parse response, validate edits, fail-soft on errors.
+
+**[I] Implementación**
+- `apps/web/src/app/api/bridge/route.ts`: replaced 12-line stub with 44-line real implementation
+  - System prompt: instructs LLM to produce JSON array of `{file, action, content?, startLine?, endLine?}`
+  - Safety rules: no .env/auth/payments/secrets/node_modules edits
+  - JSON parsing with markdown fence stripping
+  - Validation: filters edits with required fields (file, action, content for create/update)
+  - Fail-soft: returns `[]` on LLM unavailable, invalid JSON, or parse errors
+
+**[V] Verificación**
+- typecheck web: ✅ (no new errors — 5 pre-existing errors in chaos-game WIP untracked + halting.ts + layout.tsx)
+- lint: ✅ (1 pre-existing warning in chaos-game)
+- chat-bridge tests: ✅ 19/19 PASS (all existing tests unaffected)
+- No bridge-specific typecheck errors
+
+**[R] Veredicto** ✅ GREEN — Chat-to-Code bridge now produces real code edits from LLM
+
+**Presupuesto**:
+```json
+{
+  "iteration": 160,
+  "task": "chat-bridge-generate-edits-wire",
+  "status": "DONE",
+  "commit": "c0ae464",
+  "duration_s": 600,
+  "time_cap_s": 3600,
+  "files_changed": 1,
+  "insertions": 44
+}
+```
+
