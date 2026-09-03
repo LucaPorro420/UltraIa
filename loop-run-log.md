@@ -3315,3 +3315,41 @@ Triage PIVR:
 }
 ```
 
+---
+
+## Iteración 162 — Chaos module commit + catalog fix + utility scripts (03/09/2026)
+
+**Fecha**: 03/09/2026
+**Tarea**: Commit untracked chaos module files (types, constants, attractors, rk4, trajectory) that were imported by tracked index.ts but never committed. Fix duplicate `chaos_game` entry in catalog.ts. Commit utility scripts.
+
+**[P] Plan**
+- 5 chaos module files untracked but imported by committed index.ts → module incomplete in git
+- catalog.ts had duplicate `chaos_game` (underscore) entries alongside correct `chaos-game` (hyphen)
+- Utility scripts (check-db-users.js, clean-vitest-cache.js) untracked
+
+**[I] Implementación**
+- Committed 5 chaos module files: types.ts, constants.ts, attractors.ts, rk4.ts, trajectory.ts (795 insertions)
+- Removed duplicate `chaos_game` entries from CATALOG_META and ES locale in catalog.ts
+- Committed check-db-users.js utility script
+
+**[V] Verificación**
+- typecheck core: ✅ EXIT 0
+- typecheck web: ✅ EXIT 0
+- lint: ✅ (1 pre-existing warning)
+
+**[R] Veredicto** ✅ GREEN — Chaos module complete in git, catalog clean
+
+**Presupuesto**:
+```json
+{
+  "iteration": 162,
+  "task": "chaos-module-commit + catalog-fix",
+  "status": "DONE",
+  "commits": ["8f6464c", "62c75e2"],
+  "duration_s": 300,
+  "time_cap_s": 3600,
+  "files_changed": 7,
+  "insertions": 800
+}
+```
+
