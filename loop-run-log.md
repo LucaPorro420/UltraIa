@@ -3464,3 +3464,40 @@ Triage PIVR:
 }
 ```
 
+---
+
+## Iteración 167 — JSON.parse safety hardening (03/09/2026)
+
+**Fecha**: 03/09/2026
+**Tarea**: Replace bare `JSON.parse()` calls in tool execute handlers with `parseJson` helper that catches SyntaxError → prevents unhandled promise rejections crashing the agent loop.
+
+**[P] Plan**
+- ~14 tool handlers used raw `JSON.parse` on LLM-supplied strings → SyntaxError = unhandled rejection
+- Affected: videoqa_metrics (6), motion_analyze (4), replica_run (2), creativity_run (1), chaos_attractor (2)
+- Also: removed unused `safeJsonArray` import from llm.ts
+
+**[I] Implementación**
+- Added local `parseJson<T>(s, d)` helper (try/catch → return default) in each affected handler
+- Replaced all bare `JSON.parse` calls in videoqa, motion, replica, creativo, chaos handlers
+- Removed unused `safeJsonArray` import
+
+**[V] Verificación**
+- typecheck core: ✅ EXIT 0
+- Tests: ✅ 119/119 (videoqa + motion + replica + creativo + chaos-game)
+
+**[R] Veredicto** ✅ GREEN — crash risk eliminated in 15 tool handlers
+
+**Presupuesto**:
+```json
+{
+  "iteration": 167,
+  "task": "json-parse-safety",
+  "status": "DONE",
+  "commits": ["4c8720d"],
+  "duration_s": 300,
+  "time_cap_s": 3600,
+  "files_changed": 1,
+  "insertions": 10
+}
+```
+

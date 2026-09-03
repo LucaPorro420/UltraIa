@@ -308,6 +308,7 @@ Ciclo de generadores deterministas (sin dependencias, sin red) sobre `packages/c
 | 164 | **Utility scripts** — committed test-webapp.py (Playwright health test). All gates green (205/205 tests across 9 suites). | scripts | FULL(typecheck/lint/test) | ✅ DONE 03/09/2026 (`c25f879`) |
 | 165 | **Task scripts** — committed debug-503.js + visual-review.js (Playwright utilities). | Task | FULL(typecheck/lint) | ✅ DONE 03/09/2026 (`ee6c8e6`) |
 | 166 | **RCE fix + tool activation** — wired `isSafeMathExpression` into `geom_program` new Function() (VULN-001 RCE prevention). Activated dead `creativo` tool (creativity_run) and `chaos` attractor tool (chaos_attractor). Removed duplicate zernio export. Typecheck + 54/54 tests green. | packages/core | FULL(typecheck/lint/test) | ✅ DONE 03/09/2026 (`636626c` + `a849014`) |
+| 167 | **JSON.parse safety** — replaced bare `JSON.parse()` in 5 tool handlers (videoqa/motion/replica/creativo/chaos) with `parseJson` try/catch helper → prevents unhandled SyntaxError crashes. Removed unused `safeJsonArray` import. 119/119 tests green. | packages/core | FULL(typecheck/lint/test) | ✅ DONE 03/09/2026 (`4c8720d`) |
 
 ## Pendiente sin plan (agregadas manual)
 
