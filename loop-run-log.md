@@ -3390,3 +3390,34 @@ Triage PIVR:
 }
 ```
 
+---
+
+## Iteración 164 — Utility scripts + Playwright test (03/09/2026)
+
+**Fecha**: 03/09/2026
+**Tarea**: Commit remaining untracked utility scripts (verify_design.py already done in 163, test-webapp.py added).
+
+**[I] Implementación**
+- Committed `test-webapp.py` — Playwright-based web app health test (checks /api/health, login page, console errors)
+
+**[V] Verificación**
+- typecheck: ✅ EXIT 0
+- lint: ✅ (1 pre-existing warning)
+- Key tests: ✅ (chaos-game + chat-bridge + catalog + chaos: 53/53; cloud + publish + growth + telegram: 81/81; vault + pdfsearch + video-edit: 71/71)
+
+**[R] Veredicto** ✅ GREEN
+
+**Presupuesto**:
+```json
+{
+  "iteration": 164,
+  "task": "utility-scripts",
+  "status": "DONE",
+  "commits": ["c25f879"],
+  "duration_s": 60,
+  "time_cap_s": 3600,
+  "files_changed": 1,
+  "insertions": 84
+}
+```
+
