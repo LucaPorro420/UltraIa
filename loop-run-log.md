@@ -3421,3 +3421,46 @@ Triage PIVR:
 }
 ```
 
+---
+
+## Iteración 165-166 — Security fix + tool activation + cleanup (03/09/2026)
+
+**Fecha**: 03/09/2026
+**Tarea**: P0 RCE fix (geom_program), activate dead tools (creativo, chaos attractors), code cleanup.
+
+**[P] Plan**
+- `geom_program` in llm.ts used `new Function()` with LLM input without calling `isSafeMathExpression()` → RCE vulnerability (VULN-001)
+- `creativo` capability registered in TOOL_DESCRIPTIONS but no execution block in llm.ts → dead tool
+- `chaos` (attractors) same — imported but never wired → dead tool
+- Duplicate `export * from './zernio'` in index.ts
+
+**[I] Implementación**
+- Imported `isSafeMathExpression` from `./geom-safety` in llm.ts
+- Added safety validation before both `new Function()` calls in `parametric` and `implicit` geom_program cases
+- Added `creativity_run` tool block for `creativo` capability (simulate/scene/sound/render)
+- Added `chaos_attractor` tool block for `chaos` capability (list/evaluate/trajectory)
+- Removed duplicate zernio export from index.ts
+- Committed Task scripts (debug-503.js, visual-review.js)
+
+**[V] Verificación**
+- typecheck core: ✅ EXIT 0
+- typecheck web: ✅ EXIT 0
+- lint: ✅ (1 pre-existing warning)
+- Tests: ✅ 54/54 (creativo + chaos-game + catalog)
+
+**[R] Veredicto** ✅ GREEN — RCE patched, 2 dead tools activated, cleanup done
+
+**Presupuesto**:
+```json
+{
+  "iteration": "165-166",
+  "task": "security-fix + tool-activation",
+  "status": "DONE",
+  "commits": ["ee6c8e6", "636626c", "a849014"],
+  "duration_s": 600,
+  "time_cap_s": 3600,
+  "files_changed": 5,
+  "insertions": 260
+}
+```
+

@@ -306,6 +306,8 @@ Ciclo de generadores deterministas (sin dependencias, sin red) sobre `packages/c
 | 162 | **Chaos module commit + catalog fix** — committed 5 untracked chaos module files (types, constants, attractors, rk4, trajectory) that were imported by tracked index.ts. Removed duplicate `chaos_game` entries from catalog.ts. Committed check-db-users.js utility. | packages/core + scripts | FULL(typecheck/lint) | ✅ DONE 03/09/2026 (`8f6464c` + `62c75e2`) |
 | 163 | **Catalog fix: chaos_game Capability** — added `chaos_game` to Capability type union + catalog alias. TOOL_DESCRIPTIONS uses underscore but Capability only had hyphen → TS2561 + catalog test failure. Fixed + verified (53/53 tests, typecheck clean). | packages/core | FULL(typecheck/lint/test) | ✅ DONE 03/09/2026 (`0684e91` + `4c811e5` + `7e17001`) |
 | 164 | **Utility scripts** — committed test-webapp.py (Playwright health test). All gates green (205/205 tests across 9 suites). | scripts | FULL(typecheck/lint/test) | ✅ DONE 03/09/2026 (`c25f879`) |
+| 165 | **Task scripts** — committed debug-503.js + visual-review.js (Playwright utilities). | Task | FULL(typecheck/lint) | ✅ DONE 03/09/2026 (`ee6c8e6`) |
+| 166 | **RCE fix + tool activation** — wired `isSafeMathExpression` into `geom_program` new Function() (VULN-001 RCE prevention). Activated dead `creativo` tool (creativity_run) and `chaos` attractor tool (chaos_attractor). Removed duplicate zernio export. Typecheck + 54/54 tests green. | packages/core | FULL(typecheck/lint/test) | ✅ DONE 03/09/2026 (`636626c` + `a849014`) |
 
 ## Pendiente sin plan (agregadas manual)
 
