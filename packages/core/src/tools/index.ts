@@ -429,7 +429,8 @@ export type Capability =
   | 'sandbox'
   | 'chat_memory'
   | 'chaos'
-  | 'chaos-game';
+  | 'chaos-game'
+  | 'chaos_game';
 
 export * from './observability';
 export * from './agentic';
