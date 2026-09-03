@@ -2463,13 +2463,17 @@ export function chatStream(opts: {
         cfgJson: z.string().optional(), // {maxIterations?, targetScore?, improvementThreshold?, patience?, theta[], stepSize?, timeoutMs?}
       }),
       execute: async ({ accion, targetJson, cfgJson }) => {
+        const parseJson = <T>(s: string | undefined, d: T): T => {
+          if (!s) return d;
+          try { return JSON.parse(s) as T; } catch { return d; }
+        };
         switch (accion) {
           case 'analizar': {
-            const target = JSON.parse(targetJson ?? '[]');
+            const target = parseJson<number[]>(targetJson, []);
             return { accion, stats: replica.analyzeTarget(target) };
           }
           case 'plan': {
-            const cfg = cfgJson ? JSON.parse(cfgJson) : { theta: [1] };
+            const cfg = parseJson<Record<string, unknown>>(cfgJson, { theta: [1] });
             const parsed = replica.replicaConfigSchema.parse(cfg);
             return {
               accion,
