@@ -1342,7 +1342,7 @@ Cada commit agrega una sección con fecha y la lista de archivos `.ts/.tsx` toca
 - [ ] apps/web/src/app/api/publications/publish-due/route.ts
 - [ ] apps/web/src/app/api/tools/web/route.ts
 - [ ] apps/web/src/app/api/tools/web/screenshot/route.ts
-- [ ] apps/web/src/lib/server/sanitize-error.ts
+- [x] apps/web/src/lib/server/sanitize-error.ts (already has JSDoc)
 - [ ] packages/core/src/domain/connections.ts
 
 ## 2026-09-04T03:47:47.288Z
@@ -1365,16 +1365,16 @@ Cada commit agrega una sección con fecha y la lista de archivos `.ts/.tsx` toca
 - [ ] packages/core/src/tools/content.ts (already has good JSDoc)
 
 ## 2026-09-04T05:42:43.365Z
-- [ ] apps/web/src/lib/server/context.ts
-- [ ] apps/web/src/middleware.ts
-- [ ] packages/core/src/auth/session.ts
+- [x] apps/web/src/lib/server/context.ts (already has bilingual JSDoc)
+- [x] apps/web/src/middleware.ts (already has bilingual JSDoc)
+- [ ] packages/core/src/auth/session.ts (already has bilingual JSDoc)
 
 ## 2026-09-04T06:27:53.838Z
 - [ ] apps/web/src/app/api/assets/[id]/download/route.ts
 - [ ] apps/web/src/app/api/assets/[id]/route.ts
 - [ ] apps/web/src/app/api/auth/login/route.ts
-- [ ] apps/web/src/lib/server/brute-force.ts
-- [ ] apps/web/src/lib/server/download-token.ts
+- [x] apps/web/src/lib/server/brute-force.ts (already has JSDoc)
+- [x] apps/web/src/lib/server/download-token.ts (already has JSDoc)
 
 ## 2026-09-04T06:59:41.879Z
 - [ ] packages/core/src/tools/connections-catalog.ts
@@ -1443,3 +1443,8 @@ Cada commit agrega una sección con fecha y la lista de archivos `.ts/.tsx` toca
 - [ ] packages/core/src/prompt/languages.ts
 - [ ] packages/core/src/tools/gen-engine.ts
 - [ ] packages/core/src/tools/music.ts
+
+## 2026-09-04T21:35:52.805Z
+- [ ] packages/runtime/src/index.ts
+- [ ] packages/runtime/src/runtime.ts
+- [ ] packages/runtime/src/types.ts
