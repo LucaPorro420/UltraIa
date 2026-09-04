@@ -1,5 +1,6 @@
 'use server';
 
+//! Server actions for the app shell — logout only for now.
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { SESSION_COOKIE, destroySession, prisma } from '@ultraia/core';
