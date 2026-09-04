@@ -12,13 +12,13 @@
 | Severity | Total | Fixed | Remaining |
 |----------|-------|-------|-----------|
 | **Critical** | 4 | 4 | 0 |
-| **High** | 9 | 5 | 4 |
-| **Medium** | 13 | 9 | 4 |
+| **High** | 9 | 6 | 3 |
+| **Medium** | 13 | 10 | 3 |
 | **Low** | 6 | 1 | 5 |
 
 **Positive foundations:** bcrypt cost 12, `crypto.randomBytes(32)` tokens, timing-safe comparison, Zod validation on all endpoints, loopback-only local API, Prisma parameterized queries, `isPublicUrl()` guard in `web.ts`.
 
-**Fixed across 4 security batches (2026-09-04):** C01 (env keys), C02 (admin creds), C03 (session hashing), C04 (path traversal), H01 (logout session destruction), H02 (library SSRF), H03 (auth header bypass), H05 (readWeb SSRF), H06 (parseRss SSRF), H07 (derive SSRF), H08 (workflow eval), M03 (IP spoof), M05 (cookie secure), M07 (CSP align), M08 (CSRF), M09 (bridge path traversal), M10 (execFileSync), M11 (derivation salt), M12 (CORS), M13 (TS/ESLint build), L03 (error sanitization).
+**Fixed across 5 security batches (2026-09-04):** C01 (env keys), C02 (admin creds), C03 (session hashing), C04 (path traversal), H01 (logout session destruction), H02 (library SSRF), H03 (auth header bypass), H04 (download tokens), H05 (readWeb SSRF), H06 (parseRss SSRF), H07 (derive SSRF), H08 (workflow eval), M03 (IP spoof), M04 (brute-force lockout), M05 (cookie secure), M07 (CSP align), M08 (CSRF), M09 (bridge path traversal), M10 (execFileSync), M11 (derivation salt), M12 (CORS), M13 (TS/ESLint build), L03 (error sanitization).
 
 ---
 
@@ -82,11 +82,12 @@
 - **Fix:** Use ONLY `x-ultraia-session` for mobile, cookies for web. Remove `Authorization` as a session source.
 - **Resolution (2026-09-04):** Removed `Authorization` header lookup. Only `x-ultraia-session` header is accepted for mobile auth.
 
-### H04 — Session Token in URL Query Parameter (Logged)
+### H04 — Session Token in URL Query Parameter (Logged) ✅ FIXED
 
 - **Files:** `apps/web/src/app/api/assets/[id]/route.ts`, `download/route.ts`
 - **Issue:** Asset routes accept `?session=<token>` for mobile webview access. Tokens appear in server logs, proxy logs, and browser history.
 - **Fix:** Use short-lived, single-use download tokens (60s TTL) instead of session tokens.
+- **Resolution (2026-09-04):** Created `download-token.ts` (HMAC-SHA256 signed, 60s TTL, timing-safe verification). Both asset routes now accept `?dl=<token>` instead of `?session=<token>`. Session tokens no longer appear in URLs.
 
 ### H05 — SSRF in `reach.ts readWeb` — No IP Filtering
 
@@ -140,11 +141,12 @@
 - **Fix:** Only read `x-forwarded-for` when behind a trusted proxy. Add `TRUST_PROXY` env check.
 - **Resolution (2026-09-04):** Added `TRUST_PROXY` env check. Without it, always uses `127.0.0.1` (safe default for local dev).
 
-### M04 — No Brute-Force Lockout on Failed Logins
+### M04 — No Brute-Force Lockout on Failed Logins ✅ FIXED
 
 - **File:** `apps/web/src/app/api/auth/login/route.ts`
 - **Issue:** No account lockout after N failed attempts. Combined with M03, effectively unlimited attempts.
 - **Fix:** Add `failedAttempts` counter. Lock after 5 failures. Progressive delay.
+- **Resolution (2026-09-04):** Created `brute-force.ts` (in-memory, per IP + identifier, 5 attempts → 15 min lockout, timing-safe). Login route checks lockout before verifying credentials, records failures, clears on success.
 
 ### M05 — Cookie `secure` Flag Disabled Outside Production
 
