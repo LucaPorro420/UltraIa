@@ -1,3 +1,15 @@
+//! AI Gateway — the brain of UltraIa.
+// This file is the central orchestration layer that connects LLM providers
+// (OpenAI, Google, Ollama, LMStudio, DeepSeek) with 180+ tool capabilities.
+// It defines:
+// - Provider resolution (resolveModel)
+// - Tool registration (ALL tools wired here)
+// - Agent definitions (bp-* agents with capabilities, memory, skills)
+// - Chat/text generation with tool dispatch
+// - Structured generation for schemas
+// - Response caching, memory integration, and streaming
+//
+// Key exports: `createAiGateway`, `resolveModel`, agent definitions
 import { generateObject, generateText, streamText, tool, type LanguageModel, type Tool } from 'ai';
 import { createOpenAI } from '@ai-sdk/openai';
 import { createGoogleGenerativeAI } from '@ai-sdk/google';
