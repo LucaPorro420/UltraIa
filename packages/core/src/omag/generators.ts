@@ -1,3 +1,7 @@
+//! OMAG Generators — pluggable media generation adapters.
+// Each generator handles one modality (image/video/music/audio/vfx/design).
+// Generators are deterministic adapters (keyless by default) that produce
+// artifacts from MediaField context. The orchestrator calls them in sequence.
 import type { MediaField, Modality } from './mediafield';
 import { generateImage } from '../tools/image';
 import { generateMusic, type MusicResult } from '../tools/music';

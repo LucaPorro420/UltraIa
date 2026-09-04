@@ -40,22 +40,22 @@ Cada commit agrega una sección con fecha y la lista de archivos `.ts/.tsx` toca
 - [ ] packages/core/src/ai/llm.ts
 - [ ] packages/core/src/index.ts
 - [ ] packages/core/src/omag/audiolibrary.test.ts
-- [ ] packages/core/src/omag/audiolibrary.ts
+- [ ] packages/core/src/omag/audiolibrary.ts (already has good JSDoc)
 - [ ] packages/core/src/omag/critics.test.ts
-- [ ] packages/core/src/omag/critics.ts
+- [x] packages/core/src/omag/critics.ts (header: quality evaluation critics)
 - [ ] packages/core/src/omag/generators.test.ts
-- [ ] packages/core/src/omag/generators.ts
-- [ ] packages/core/src/omag/index.ts
+- [x] packages/core/src/omag/generators.ts (header: pluggable media generators)
+- [x] packages/core/src/omag/index.ts (header: OMAG world engine re-exports)
 - [ ] packages/core/src/omag/mediafield.test.ts
-- [ ] packages/core/src/omag/mediafield.ts
+- [x] packages/core/src/omag/mediafield.ts (header: core OMAG data model)
 - [ ] packages/core/src/omag/memory.test.ts
-- [ ] packages/core/src/omag/memory.ts
+- [x] packages/core/src/omag/memory.ts (header: working + specialized memory)
 - [ ] packages/core/src/omag/orchestrator.test.ts
-- [ ] packages/core/src/omag/orchestrator.ts
+- [x] packages/core/src/omag/orchestrator.ts (header: main generation loop)
 - [ ] packages/core/src/omag/project.test.ts
-- [ ] packages/core/src/omag/project.ts
+- [ ] packages/core/src/omag/project.ts (already has good JSDoc)
 - [ ] packages/core/src/omag/sound.test.ts
-- [ ] packages/core/src/omag/sound.ts
+- [ ] packages/core/src/omag/sound.ts (already has good JSDoc)
 - [ ] packages/core/src/omag/timeline.test.ts
 - [ ] packages/core/src/omag/timeline.ts
 - [ ] packages/core/src/omag/tts.test.ts
@@ -1418,3 +1418,10 @@ Cada commit agrega una sección con fecha y la lista de archivos `.ts/.tsx` toca
 
 ## 2026-09-04T20:48:12.602Z
 - [ ] packages/core/src/ai/llm.ts
+
+## 2026-09-04T21:27:10.966Z
+- [ ] packages/core/src/auth/password.ts
+- [ ] packages/core/src/prompt/director.ts
+- [ ] packages/core/src/tools/stitch.ts
+- [ ] packages/core/src/tools/web.ts
+- [ ] packages/runtime/src/api/server.ts

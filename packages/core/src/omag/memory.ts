@@ -1,3 +1,7 @@
+//! OMAG Memory — working + specialized memory stores for the orchestrator.
+// WorkingMemory holds the current MediaField + memory hits. Specialized stores
+// (Scene, Character, Style, Error) track patterns across iterations. Memory
+// is populated at each orchestrator iteration for correction loop feedback.
 import type { Entity, MediaField } from './mediafield';
 
 export interface ErrorRecord {

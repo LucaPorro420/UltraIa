@@ -1,3 +1,7 @@
+//! OmagOrchestrator — the main OMAG generation loop.
+// Takes an idea → Director plan → MediaField → generators → critics →
+// correction loop (max 5 iterations). Uses quality thresholds (fast .5,
+// balanced .6, high .75) and populates memory at each iteration.
 import type { AiGateway } from '../ai/gateway';
 import { adaptToMediaPlan, type DirectorPlan } from '../prompt/director';
 import { loadTruthCorpus, searchTruth, type TruthFileLike } from '../tools/semantic-memory';
