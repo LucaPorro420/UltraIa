@@ -1,28 +1,19 @@
 {
   "compilerOptions": {
-    "target": "ES2022",
     "module": "commonjs",
+    "target": "ES2022",
     "lib": ["ES2022"],
-    "outDir": "./out",
-    "rootDir": "./src",
+    "outDir": "out",
+    "rootDir": "src",
+    "sourceMap": true,
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "declaration": true,
-    "declarationMap": true,
-    "sourceMap": true,
-    "moduleResolution": "node",
-    "allowSyntheticDefaultImports": true,
-    "noImplicitAny": true,
-    "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true,
-    "noUncheckedIndexedAccess": true,
-    "noImplicitOverride": true,
-    "allowUnreachableCode": false,
-    "allowUnusedLabels": false
+    "declarationMap": true
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "out", "media", ".vscode-test"]
+  "exclude": ["node_modules", "out"]
 }

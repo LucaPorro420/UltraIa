@@ -1,24 +1,17 @@
 {
   "name": "ultraia",
-  "displayName": "UltraIa Autonomous IDE",
-  "description": "Connect to UltraIa runtime for autonomous coding, chat-to-code bridge, and real-time task monitoring.",
-  "version": "0.1.0",
+  "displayName": "UltraIa — AI Product Development Suite",
+  "description": "VS Code extension for the UltraIa monorepo: run gates, browse capabilities, manage the PIVR loop, and monitor project health.",
+  "version": "1.0.0",
   "publisher": "ultraia",
   "engines": {
-    "vscode": "^1.85.0"
+    "vscode": "^1.90.0"
   },
   "categories": [
     "Other",
-    "Machine Learning",
-    "Programming Languages"
-  ],
-  "keywords": [
-    "ultraia",
-    "autonomous",
-    "ide",
-    "agent",
-    "ai",
-    "chat-to-code"
+    "Programming Languages",
+    "Linters",
+    "Testing"
   ],
   "activationEvents": [
     "onStartupFinished"
@@ -27,125 +20,128 @@
   "contributes": {
     "commands": [
       {
-        "command": "ultraia.chat",
-        "title": "UltraIa: Open Chat Panel",
-        "category": "UltraIa",
-        "icon": "$(comment-discussion)"
+        "command": "ultraia.gateTypecheck",
+        "title": "UltraIa: Run Typecheck"
       },
       {
-        "command": "ultraia.trigger",
-        "title": "UltraIa: Trigger Autonomous Task",
-        "category": "UltraIa",
-        "icon": "$(play)"
+        "command": "ultraia.gateLint",
+        "title": "UltraIa: Run Lint"
       },
       {
-        "command": "ultraia.status",
-        "title": "UltraIa: Show Runtime Status",
-        "category": "UltraIa",
-        "icon": "$(pulse)"
+        "command": "ultraia.gateTest",
+        "title": "UltraIa: Run Tests"
       },
       {
-        "command": "ultraia.connect",
-        "title": "UltraIa: Connect to Runtime",
-        "category": "UltraIa",
-        "icon": "$(plug)"
+        "command": "ultraia.gateBuild",
+        "title": "UltraIa: Run Build"
       },
       {
-        "command": "ultraia.disconnect",
-        "title": "UltraIa: Disconnect from Runtime",
-        "category": "UltraIa",
-        "icon": "$(plug)"
+        "command": "ultraia.gateAll",
+        "title": "UltraIa: Run All Gates (typecheck → lint → test → build)"
+      },
+      {
+        "command": "ultraia.projectStatus",
+        "title": "UltraIa: Project Status"
+      },
+      {
+        "command": "ultraia.openState",
+        "title": "UltraIa: Open STATE.md"
+      },
+      {
+        "command": "ultraia.openRunLog",
+        "title": "UltraIa: Open loop-run-log.md"
+      },
+      {
+        "command": "ultraia.openConstraints",
+        "title": "UltraIa: Open loop-constraints.md"
+      },
+      {
+        "command": "ultraia.browseCapabilities",
+        "title": "UltraIa: Browse Capabilities"
+      },
+      {
+        "command": "ultraia.searchTools",
+        "title": "UltraIa: Search Tools"
+      },
+      {
+        "command": "ultraia.openDashboard",
+        "title": "UltraIa: Open Dashboard (localhost:3000)"
+      },
+      {
+        "command": "ultraia.startDev",
+        "title": "UltraIa: Start Dev Server"
+      },
+      {
+        "command": "ultraia.stopDev",
+        "title": "UltraIa: Stop Dev Server"
+      },
+      {
+        "command": "ultraia.runStartPy",
+        "title": "UltraIa: Run start.py (full stack)"
+      },
+      {
+        "command": "ultraia.clearVitestCache",
+        "title": "UltraIa: Clear Vitest Cache"
+      },
+      {
+        "command": "ultraia.showRecentCommits",
+        "title": "UltraIa: Show Recent Commits"
+      },
+      {
+        "command": "ultraia.copyRepomix",
+        "title": "UltraIa: Generate Repomix (LLM context)"
       }
     ],
-    "views": {
-      "ultraia": [
-        {
-          "id": "ultraia-chat",
-          "name": "Chat",
-          "icon": "media/chat-icon.svg",
-          "when": "ultraia.connected"
-        },
-        {
-          "id": "ultraia-tasks",
-          "name": "Tasks",
-          "icon": "media/task-icon.svg",
-          "when": "ultraia.connected"
-        }
-      ]
-    },
     "viewsContainers": {
       "activitybar": [
         {
           "id": "ultraia",
           "title": "UltraIa",
-          "icon": "media/ultraia-icon.svg"
+          "icon": "$(rocket)"
         }
       ]
     },
-    "menus": {
-      "view/title": [
+    "views": {
+      "ultraia": [
         {
-          "command": "ultraia.trigger",
-          "when": "view == ultraia-chat",
-          "group": "navigation"
-        }
-      ],
-      "commandPalette": [
-        {
-          "command": "ultraia.chat",
-          "when": "true"
+          "type": "webview",
+          "id": "ultraia.dashboard",
+          "name": "Dashboard"
         },
         {
-          "command": "ultraia.trigger",
-          "when": "true"
+          "type": "tree",
+          "id": "ultraia.capabilities",
+          "name": "Capabilities"
         },
         {
-          "command": "ultraia.status",
-          "when": "true"
+          "type": "tree",
+          "id": "ultraia.gates",
+          "name": "Gates"
         }
       ]
     },
-    "keybindings": [
-      {
-        "command": "ultraia.chat",
-        "key": "ctrl+shift+u",
-        "mac": "cmd+shift+u",
-        "when": "editorTextFocus"
-      },
-      {
-        "command": "ultraia.trigger",
-        "key": "ctrl+shift+t",
-        "mac": "cmd+shift+t",
-        "when": "editorTextFocus"
-      }
-    ],
     "configuration": {
       "title": "UltraIa",
       "properties": {
-        "ultraia.runtimeUrl": {
+        "ultraia.nodePath": {
           "type": "string",
-          "default": "http://localhost:3000",
-          "description": "Base URL of the UltraIa web runtime"
+          "default": "node",
+          "description": "Path to Node.js executable"
         },
-        "ultraia.wsUrl": {
+        "ultraia.pythonPath": {
           "type": "string",
-          "default": "ws://127.0.0.1:8100",
-          "description": "WebSocket URL of the UltraIa Local API runtime"
+          "default": "py -3.12",
+          "description": "Path to Python 3.12 executable"
         },
-        "ultraia.token": {
-          "type": "string",
-          "default": "",
-          "description": "Session token for runtime authentication (stored in VS Code secrets)"
+        "ultraia.webPort": {
+          "type": "number",
+          "default": 3000,
+          "description": "Dev server port"
         },
-        "ultraia.autoConnect": {
+        "ultraia.showStatusBar": {
           "type": "boolean",
           "default": true,
-          "description": "Auto-connect to runtime on startup"
-        },
-        "ultraia.showNotifications": {
-          "type": "boolean",
-          "default": true,
-          "description": "Show VS Code notifications for task events"
+          "description": "Show UltraIa status bar item"
         }
       }
     }
@@ -154,20 +150,11 @@
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
-    "pretest": "npm run compile && npm run lint",
-    "lint": "eslint src --ext ts",
-    "test": "node ./out/test/runTest.js"
+    "lint": "eslint src --ext ts"
   },
   "devDependencies": {
-    "@types/node": "^20.10.0",
-    "@types/vscode": "^1.85.0",
-    "@types/ws": "^8.18.1",
-    "@typescript-eslint/eslint-plugin": "^6.13.0",
-    "@typescript-eslint/parser": "^6.13.0",
-    "eslint": "^8.55.0",
-    "typescript": "^5.3.0"
-  },
-  "dependencies": {
-    "ws": "^8.14.0"
+    "@types/node": "^20.19.43",
+    "@types/vscode": "^1.136.0",
+    "typescript": "^5.9.3"
   }
 }
