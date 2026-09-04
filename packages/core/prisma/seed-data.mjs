@@ -316,7 +316,7 @@ export const AGENTS = [
       '3) Integra los resultados y resuelve dependencias entre tareas.\n' +
       '4) Entrega el resultado final o itera hasta completar el objetivo.',
   },
-  // ── NEW SPECIALIZED AGENTS (iter-174) ──────────────────────────────────────
+  // --- NEW SPECIALIZED AGENTS (iter-174) ---
   {
     id: 'bp-seguridad',
     name: 'Auditor de Seguridad',
