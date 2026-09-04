@@ -1,3 +1,6 @@
+//! API key management — generate, hash, verify, revoke.
+// Keys are random 24-byte base64url tokens (ua_* prefix). Stored as SHA-256
+// hashes in the database. Timing-safe verification via constant-time comparison.
 import type { Db } from '../db/client';
 
 export async function generateApiKey(): Promise<{ key: string; keyHash: string }> {

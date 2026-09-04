@@ -1,3 +1,7 @@
+//! Music generation and search — Tunetank MCP (keyless) + composition.
+// Provides searchMusic (royalty-free tracks by mood/genre/duration),
+// searchSfx (sound effects), and composeMusic (structured composition
+// output). Falls back to first-token queries (Tunetank single-word lesson).
 export interface MusicSection {
   name: string;
   description: string;

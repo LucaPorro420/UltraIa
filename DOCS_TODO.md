@@ -1425,3 +1425,11 @@ Cada commit agrega una sección con fecha y la lista de archivos `.ts/.tsx` toca
 - [ ] packages/core/src/tools/stitch.ts
 - [ ] packages/core/src/tools/web.ts
 - [ ] packages/runtime/src/api/server.ts
+
+## 2026-09-04T21:31:10.280Z
+- [ ] packages/core/src/omag/critics.ts
+- [ ] packages/core/src/omag/generators.ts
+- [ ] packages/core/src/omag/index.ts
+- [ ] packages/core/src/omag/mediafield.ts
+- [ ] packages/core/src/omag/memory.ts
+- [ ] packages/core/src/omag/orchestrator.ts

@@ -1,3 +1,6 @@
+//! OMAG Timeline — multi-track timeline for video/audio/events/camera.
+// Builds TrackSpan arrays from MediaField events, checks synchronization
+// (audio-video offset >0.1s), and aligns effects to causal events.
 import type { MediaField } from './mediafield';
 
 export type TrackKind = 'video' | 'audio' | 'music' | 'camera' | 'events' | 'light';

@@ -1,3 +1,6 @@
+//! @ultraia/core — public API surface.
+// Re-exports all subsystems: AI gateway, auth, DB, domain logic, OMAG,
+// prompt, tools, and utilities. Import from '@ultraia/core' in apps/web.
 export * from './ai/gateway';
 export * from './ai/llm';
 export * from './ai/loop';
