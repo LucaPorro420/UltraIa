@@ -2,13 +2,24 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 /**
- * Middleware de UltraIa — rate limiting + security headers + logging.
+ * Middleware de UltraIa — rate limiting + security headers + nonce CSP + logging.
  *
  * Rate limiting: sliding window counter per IP (in-memory, resets on restart).
  * For production, use Redis-backed rate limiting (Upstash, Cloudflare KV).
  *
  * Security headers: OWASP 2026 baseline.
+ * M06 FIX: nonce-based CSP to remove unsafe-eval.
  */
+
+/** Generate a cryptographically random nonce using Web Crypto API (edge-compatible). */
+function generateNonce(): string {
+  const bytes = new Uint8Array(16);
+  crypto.getRandomValues(bytes);
+  // Convert to base64url without Buffer (edge-compatible)
+  let binary = '';
+  for (const b of bytes) binary += String.fromCharCode(b);
+  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
 
 /* ------------------------------------------------------------------ */
 /* Rate Limiting                                                       */
@@ -83,10 +94,11 @@ export function middleware(request: NextRequest) {
   const startTime = performance.now();
   const { pathname } = request.nextUrl;
 
+  // Skip rate limiting for truly static assets (not API routes).
+  // L04 FIX: only skip _next/image/favicon — not any path with a dot.
   if (
     pathname.startsWith('/_next') ||
-    pathname.startsWith('/favicon') ||
-    pathname.includes('.')
+    pathname.startsWith('/favicon')
   ) {
     return NextResponse.next();
   }
@@ -127,6 +139,17 @@ export function middleware(request: NextRequest) {
   }
 
   response.headers.set('X-Request-Start', startTime.toString());
+
+  // M06 FIX: Generate nonce per request for CSP (Web Crypto API, edge-compatible).
+  // Store in cookie so layout can read it (headers() breaks SSG).
+  const nonce = generateNonce();
+  response.cookies.set('__Secure-nonce', nonce, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+    path: '/',
+    maxAge: 60, // 60 seconds — same as CSP lifetime
+  });
 
   // Security headers (OWASP 2026 baseline)
   response.headers.set('X-Content-Type-Options', 'nosniff');
@@ -175,12 +198,13 @@ export function middleware(request: NextRequest) {
     );
   }
 
-  // M06/M07 FIX: CSP aligned with next.config.ts strict allowlists (no wildcard HTTPS).
+  // M06 FIX: CSP with nonce — 'unsafe-inline' kept as fallback for Next.js internal scripts
+  // (hydration, routing) which we cannot add nonces to. 'unsafe-eval' removed.
   response.headers.set(
     'Content-Security-Policy',
     [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+      `script-src 'self' 'nonce-${nonce}' 'unsafe-inline'`,
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "img-src 'self' data: https://image.pollinations.ai https://*.pollinations.ai https://images.meigen.ai https://www.meigen.ai https://i.ytimg.com https://d1s1y0ui543e5o.cloudfront.net",
       "font-src 'self' data: https://fonts.gstatic.com",
