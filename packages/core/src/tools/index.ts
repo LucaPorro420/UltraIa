@@ -84,6 +84,8 @@ export type {
 export * from './replica';
 // orchestrator-unified: connects web, mobile, VSCode, runtime into single coordination layer.
 export * from './orchestrator-unified';
+// learning-tracker: bridges orchestration events to verified truths for cross-app learning.
+export * from './learning-tracker';
 export * from './imaging';
 export * from './semantic-memory';
 export * from './autolearn';
@@ -363,6 +365,8 @@ export const TOOL_DESCRIPTIONS: Record<string, string> = {
     'Chaos Game engine (deterministic attractor exploration): 4 classical strange attractors (Lorenz 1963, Rössler 1976, Chen 1999, Aizawa 2009) with RK4 integration (dt=0.005, fixed steps), dual trajectories with configurable ε separation, real-time Lyapunov exponent estimation, and Three.js visualization (BufferGeometry trails with opacity decay). Free Play mode: select attractor, adjust initial conditions, watch butterfly effect unfold. Deterministic, keyless, zero deps. Use to explore deterministic chaos and visualize sensitivity to initial conditions.',
   chaos_game:
     'Deterministic fractal generator via the chaos game method: 7 presets (sierpinski, pentagon, hexagon, golden-triangle, dragon, square-no-same, star) or custom polygon (3-12 sides) with 5 vertex-selection rules. Density-based anti-aliased rendering with log-scale palette mapping (neoViolet/obsidian/fire/ice/mono/rainbow). Fully seeded/deterministic, keyless, zero deps. Use to generate fractal art from pure math.',
+  cognitive:
+    'Cognitive Agent System: 4-layer memory (working/episodic/semantic/metacognitive), decision memory with confidence calibration, belief system with contradiction detection, HEXACO personality vector, and 5-phase cognitive cycle (PERCEIVE→ASSESS→PLAN→EXECUTE→REFLECT). Orchestrated by CognitiveAgent. Inspired by AgentOS, Nous, Draagon AI, and Agent Brain. Use to build agents with persistent memory, self-reflection, and adaptive decision-making.',
 };
 
 export type Capability =
@@ -448,7 +452,8 @@ export type Capability =
   | 'tech-debt'
   | 'feedback-analyzer'
   | 'release-manager'
-  | 'competitive-intel';
+  | 'competitive-intel'
+  | 'cognitive';
 
 export * from './observability';
 export * from './agentic';
