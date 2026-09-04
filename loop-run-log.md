@@ -3501,3 +3501,33 @@ Triage PIVR:
 }
 ```
 
+---
+
+### Iteracion 166 — Security batch 1: SSRF + path traversal + logout (04/09/2026) - DONE
+
+- **P**: seguridad: audit SECURITY-AUDIT.md, 32 findings. Batch 1: SSRF guards, path traversal, session destruction.
+- **I**: reach.ts readWeb/parseRss isPublicUrl() guard; bridge/route.ts path.resolve + prefix check; actions.ts destroySession on logout; derive/route.ts isPublicUrl(); library.ts saveBinary SSRF check; .env gitignore.
+- **V**: gates FULL typecheck/lint/test/build GREEN.
+- **R**: Commit 89e274a. H05/H06/H07/C04 fixed.
+
+### Iteracion 167 — JSON.parse safety + security batch 2 (04/09/2026) - DONE
+
+- **P**: replace bare JSON.parse in tool handlers + security batch 2 (env creds, password policy, execFileSync, CORS).
+- **I**: ~68 bare JSON.parse replaced with parseJson<T>() helper in llm.ts; isSafeMathExpression wired into geom_program; creativity_run + chaos_attractor activated; seed-data.mjs/seed-admin.mjs env-based passwords; coordinator.ts execFileSync; worker.ts CORS fix; .env gitignore.
+- **V**: gates FULL GREEN.
+- **R**: Commits 4a452a9 + 7e16e99. C01/C02/C04/H08/M10/M12 fixed.
+
+### Iteracion 168 — JSON.parse comprehensive sweep (04/09/2026) - DONE
+
+- **P**: finish all remaining bare JSON.parse in llm.ts (~68 handlers).
+- **I**: manual fixes for evo population ternary, videoqa FlowVector type cast, observability/chaos handlers; parseJson hoisted to module scope; bridgeMessage typed in ApiHandlers.
+- **V**: gates FULL GREEN (2271/2271 tests).
+- **R**: Commits 372ac8c + 31543e2. Concurrent session fix.
+
+### Iteracion 169 — Security batch 4: session hashing + CSRF + CSP + build (04/09/2026) - DONE
+
+- **P**: C03 (session tokens plaintext), H03 (auth header bypass), M03 (IP spoof), M07 (CSP align), M08 (CSRF), M13 (TS/ESLint build).
+- **I**: session.ts hashToken() SHA-256, createSession/getSessionUser/destroySession all hash; context.ts removed Authorization header lookup; middleware.ts TRUST_PROXY env, Origin/Referer CSRF validation POST/PUT/DELETE/PATCH, CSP aligned with next.config strict allowlists.
+- **V**: typecheck ✅ → lint ✅ → test 2271/2271 ✅ → build ✅.
+- **R**: Commits e688b48 + 73320ac. Security: 4 Critical FIXED, 5/9 High fixed, 9/13 Medium fixed. Remaining: H04 (session in URL), M04 (brute-force), M06 (unsafe-inline/eval), M13 was fixed by concurrent session.
+
