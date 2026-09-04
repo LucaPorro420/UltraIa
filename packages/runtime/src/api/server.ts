@@ -21,6 +21,8 @@ export interface ApiHandlers {
   storeMemory(body: Record<string, unknown>): unknown | Promise<unknown>;
   queryMemory(query?: string, types?: string, budgetChars?: number): unknown | Promise<unknown>;
   configSummary(): unknown;
+  /** Forward a bridge message to the runtime. */
+  bridgeMessage(body: Record<string, unknown>): unknown | Promise<unknown>;
   /** Subscribe to runtime events for WS broadcasting. Returns an unsubscribe fn. */
   subscribeEvents(listener: (topic: string, payload: unknown) => void): () => void;
   /** Called when the server closes (reserved for host cleanup). */

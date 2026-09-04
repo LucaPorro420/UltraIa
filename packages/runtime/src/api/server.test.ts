@@ -36,6 +36,7 @@ function makeFake(): FakeApi {
       budgetChars: budgetChars ?? null,
     }),
     configSummary: () => ({ api_key: '***', theme: 'dark' }),
+    bridgeMessage: async (body) => ({ ok: true, body }),
     subscribeEvents: (listener) => {
       listeners.add(listener);
       return () => listeners.delete(listener);

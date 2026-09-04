@@ -78,9 +78,9 @@ async function handleBridgeMessage(body: unknown, runtime: UltraRuntime): Promis
       throw new ApiError(502, `Bridge API error: ${error}`);
     }
 
-    const result = await response.json();
+    const result = (await response.json()) as { requestId?: string; status?: string };
     runtime.events.emit('bridge.message', { type: 'bridge.completed', result, timestamp: Date.now() });
-    return { requestId: result.requestId, status: result.status };
+    return { requestId: result.requestId ?? '', status: result.status ?? 'unknown' };
   } catch (err) {
     const errorMsg = err instanceof Error ? err.message : String(err);
     runtime.events.emit('bridge.message', { type: 'bridge.failed', error: errorMsg, timestamp: Date.now() });

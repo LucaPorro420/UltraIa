@@ -167,6 +167,12 @@ import { ModelOrchestrator } from './orchestrator';
 import { ChatSessionMemory } from './chat-memory';
 import { FREE_MODEL_CATALOG } from './model-catalog';
 
+/** Safe JSON parse with default — never throws. Used in tool execute handlers. */
+const parseJson = <T>(s: string | undefined, d: T): T => {
+  if (!s) return d;
+  try { return JSON.parse(s) as T; } catch { return d; }
+};
+
 const modelCache = new Map<string, LanguageModel>();
 
 // --- Model request reliability: a hard timeout so a slow or unreachable local model
@@ -1820,8 +1826,8 @@ export function chatStream(opts: {
         editorJson: z.string().optional(), // manifest/plan: RecordlyEditorState
       }),
       execute: async ({ accion, telemetriaJson, duracionMs, presetId, ancho, alto, calidad, aspecto, regionesJson, sourcePath, editorJson }) => {
-        const editorState = editorJson ? (JSON.parse(editorJson) as RecordlyEditorState) : undefined;
-        const samples = telemetriaJson ? (JSON.parse(telemetriaJson) as CursorSample[]) : [];
+        const editorState = parseJson<RecordlyEditorState | undefined>(editorJson, undefined);
+        const samples = parseJson<CursorSample[]>(telemetriaJson, []);
         switch (accion) {
           case 'plan': {
             const src = sourcePath ?? 'recording.mp4';
@@ -1848,14 +1854,12 @@ export function chatStream(opts: {
             return { accion, dims };
           }
           case 'timeline': {
-            const regions = regionesJson
-              ? (JSON.parse(regionesJson) as {
-                  zoomRegions?: ZoomRegion[];
-                  clipRegions?: ClipRegion[];
-                  annotationRegions?: AnnotationRegion[];
-                  audioRegions?: AudioRegion[];
-                })
-              : {};
+            const regions = parseJson<{
+              zoomRegions?: ZoomRegion[];
+              clipRegions?: ClipRegion[];
+              annotationRegions?: AnnotationRegion[];
+              audioRegions?: AudioRegion[];
+            }>(regionesJson, {});
             return { accion, items: buildRegionTimeline(regions) };
           }
           case 'manifest': {
@@ -2463,10 +2467,6 @@ export function chatStream(opts: {
         cfgJson: z.string().optional(), // {maxIterations?, targetScore?, improvementThreshold?, patience?, theta[], stepSize?, timeoutMs?}
       }),
       execute: async ({ accion, targetJson, cfgJson }) => {
-        const parseJson = <T>(s: string | undefined, d: T): T => {
-          if (!s) return d;
-          try { return JSON.parse(s) as T; } catch { return d; }
-        };
         switch (accion) {
           case 'analizar': {
             const target = parseJson<number[]>(targetJson, []);
