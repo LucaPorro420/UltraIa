@@ -1,3 +1,6 @@
+//! Supported languages for UltraIa content generation.
+// 14 languages with BCP-47 codes, edge-tts voice defaults, RTL flags,
+// alphabet scripts (for non-Latin), and stopwords (for auto-detection).
 export interface LanguageInfo {
   code: string; // BCP-47 corto (es, ar, zh...)
   name: string;

@@ -1,3 +1,7 @@
+//! WorldTransitionEngine — state mutation for OMAG worlds.
+// W_{t+1} = F(W_t, E_t, A_t): applies events to the MediaField, mutating
+// entity state based on event params. advanceTime integrates velocity.
+// validateState checks for dangling entity references.
 import { findEntity, type Entity, type MediaField } from './mediafield';
 
 export interface StateIssue {

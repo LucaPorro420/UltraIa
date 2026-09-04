@@ -1,3 +1,7 @@
+//! Gen-Engine client — self-hosted video/music generation.
+// Connects to gen-engine/ (FastAPI on GEN_ENGINE_URL, default :8100).
+// Health-checks on boot; falls back to keyless providers (Pollinations,
+// Tunetank) when the engine is unavailable. Registers as video/music provider.
 import type { VideoClip, VideoProvider } from './video';
 import type { MusicTrack, MusicProvider } from './music';
 import { setMusicProvider } from './music';
