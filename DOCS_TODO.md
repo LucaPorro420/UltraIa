@@ -1476,3 +1476,8 @@ Cada commit agrega una sección con fecha y la lista de archivos `.ts/.tsx` toca
 ## 2026-09-04T22:17:18.222Z
 - [ ] apps/web/src/components/ide/nav-items.ts
 - [ ] apps/web/src/types/web-vitals.d.ts
+
+## 2026-09-04T22:24:54.129Z
+- [ ] apps/web/src/app/api/orchestrator/route.ts
+- [ ] packages/core/src/tools/index.ts
+- [ ] packages/core/src/tools/orchestrator-unified.ts
