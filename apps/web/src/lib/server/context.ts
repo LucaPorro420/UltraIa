@@ -4,16 +4,16 @@ import { redirect } from 'next/navigation';
 import { prisma, SESSION_COOKIE, getSessionUser } from '@ultraia/core';
 
 const HEADER_TOKEN = 'x-ultraia-session';
-const BEARER_PREFIX = 'bearer ';
 
 // QUÉ ES: extrae el token de sesión de un Request (móvil) o de la cookie httpOnly (web).
 // PARA QUÉ: la app móvil (Expo) autentica con header x-ultraia-session porque no puede
 // usar cookies httpOnly; el navegador sigue usando la cookie. Mismo token (createSession).
 // POR QUÉ: una sola sesión sirve a ambos clientes sin duplicar la lógica de auth.
+// H03 FIX: Authorization header eliminado — solo x-ultraia-session para móvil.
 function tokenFromRequest(req?: Request): string | null {
   if (req) {
-    const header = req.headers.get(HEADER_TOKEN) ?? req.headers.get('authorization');
-    if (header) return header.toLowerCase().startsWith(BEARER_PREFIX) ? header.slice(BEARER_PREFIX.length).trim() : header.trim();
+    const header = req.headers.get(HEADER_TOKEN);
+    if (header) return header.trim();
   }
   return null;
 }

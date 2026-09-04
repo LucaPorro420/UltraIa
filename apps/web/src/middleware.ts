@@ -93,9 +93,14 @@ export function middleware(request: NextRequest) {
 
   // Rate limiting
   cleanupRateLimits();
-  const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
-    ?? request.headers.get('x-real-ip')
-    ?? '127.0.0.1';
+  // M03 FIX: Only trust x-forwarded-for when behind a known proxy (TRUST_PROXY env).
+  // Without this, attackers can set a fake IP per request and bypass all rate limits.
+  const trustProxy = process.env.TRUST_PROXY === '1';
+  const ip = trustProxy
+    ? (request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
+        ?? request.headers.get('x-real-ip')
+        ?? '127.0.0.1')
+    : '127.0.0.1';
 
   const { allowed, remaining, resetAt } = checkRateLimit(ip, pathname);
 
@@ -132,6 +137,37 @@ export function middleware(request: NextRequest) {
   response.headers.set('Cross-Origin-Opener-Policy', 'same-origin');
   response.headers.set('Cross-Origin-Resource-Policy', 'same-origin');
 
+  // M08 CSRF: Validate Origin/Referer on state-changing methods.
+  // Prevents cross-site request forgery without requiring CSRF tokens.
+  const method = request.method.toUpperCase();
+  if (method === 'POST' || method === 'PUT' || method === 'DELETE' || method === 'PATCH') {
+    if (pathname.startsWith('/api/')) {
+      const origin = request.headers.get('origin');
+      const referer = request.headers.get('referer');
+      const host = request.headers.get('host');
+      // Allow requests without Origin (same-origin, non-CORS, curl) or with matching Origin/Referer.
+      if (origin) {
+        try {
+          const originHost = new URL(origin).host;
+          if (host && originHost !== host) {
+            return NextResponse.json({ error: 'CSRF: origin mismatch' }, { status: 403 });
+          }
+        } catch {
+          return NextResponse.json({ error: 'CSRF: invalid origin' }, { status: 403 });
+        }
+      } else if (referer) {
+        try {
+          const refererHost = new URL(referer).host;
+          if (host && refererHost !== host) {
+            return NextResponse.json({ error: 'CSRF: referer mismatch' }, { status: 403 });
+          }
+        } catch {
+          // Invalid referer — allow (could be a privacy-restricted browser)
+        }
+      }
+    }
+  }
+
   if (process.env.NODE_ENV === 'production' || process.env.ENABLE_HSTS === '1') {
     response.headers.set(
       'Strict-Transport-Security',
@@ -139,15 +175,16 @@ export function middleware(request: NextRequest) {
     );
   }
 
+  // M06/M07 FIX: CSP aligned with next.config.ts strict allowlists (no wildcard HTTPS).
   response.headers.set(
     'Content-Security-Policy',
     [
       "default-src 'self'",
       "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
-      "style-src 'self' 'unsafe-inline'",
-      "img-src 'self' https: data: blob:",
-      "font-src 'self' https:",
-      "connect-src 'self' https: wss:",
+      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+      "img-src 'self' data: https://image.pollinations.ai https://*.pollinations.ai https://images.meigen.ai https://www.meigen.ai https://i.ytimg.com https://d1s1y0ui543e5o.cloudfront.net",
+      "font-src 'self' data: https://fonts.gstatic.com",
+      "connect-src 'self' ws://localhost:* wss://localhost:* https://image.pollinations.ai https://text.pollinations.ai https://*.pollinations.ai https://www.meigen.ai https://api.meigen.ai",
       "frame-ancestors 'none'",
       "base-uri 'self'",
       "form-action 'self'",
