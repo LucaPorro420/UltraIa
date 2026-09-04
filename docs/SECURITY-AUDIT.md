@@ -14,11 +14,11 @@
 | **Critical** | 4 | 4 | 0 |
 | **High** | 9 | 6 | 3 |
 | **Medium** | 13 | 11 | 2 |
-| **Low** | 6 | 2 | 4 |
+| **Low** | 6 | 4 | 2 |
 
 **Positive foundations:** bcrypt cost 12, `crypto.randomBytes(32)` tokens, timing-safe comparison, Zod validation on all endpoints, loopback-only local API, Prisma parameterized queries, `isPublicUrl()` guard in `web.ts`.
 
-**Fixed across 6 security batches (2026-09-04):** C01 (env keys), C02 (admin creds), C03 (session hashing), C04 (path traversal), H01 (logout session destruction), H02 (library SSRF), H03 (auth header bypass), H04 (download tokens), H05 (readWeb SSRF), H06 (parseRss SSRF), H07 (derive SSRF), H08 (workflow eval), M03 (IP spoof), M04 (brute-force lockout), M05 (cookie secure), M06 (nonce CSP, unsafe-eval removed), M07 (CSP align), M08 (CSRF), M09 (bridge path traversal), M10 (execFileSync), M11 (derivation salt), M12 (CORS), M13 (TS/ESLint build), L03 (error sanitization), L04 (rate limit bypass).
+**Fixed across 7 security batches (2026-09-04):** C01 (env keys), C02 (admin creds), C03 (session hashing), C04 (path traversal), H01 (logout session destruction), H02 (library SSRF), H03 (auth header bypass), H04 (download tokens), H05 (readWeb SSRF), H06 (parseRss SSRF), H07 (derive SSRF), H08 (workflow eval), M03 (IP spoof), M04 (brute-force lockout), M05 (cookie secure), M06 (nonce CSP, unsafe-eval removed), M07 (CSP align), M08 (CSRF), M09 (bridge path traversal), M10 (execFileSync), M11 (derivation salt), M12 (CORS), M13 (TS/ESLint build), L02 (SVG sanitization), L03 (error sanitization), L04 (rate limit bypass).
 
 ---
 
@@ -214,15 +214,17 @@
 - **File:** `packages/core/src/auth/session.ts`
 - **Issue:** Fixed 30-day TTL, no sliding window, no invalidation on password change.
 
-### L02 — `dangerouslySetInnerHTML` for SVG Diagrams
+### L02 — `dangerouslySetInnerHTML` for SVG Diagrams ✅ FIXED
 
 - **File:** `apps/web/src/app/(app)/playground/diagrams-client.tsx`, line 180
 - **Issue:** SVG injected via `dangerouslySetInnerHTML`. Currently safe (locally generated), but fragile.
+- **Resolution (2026-09-04):** Added `sanitizeSvg()` — strips `<script>` tags and `on*` event handlers before injection.
 
-### L03 — Error Message Information Disclosure
+### L03 — Error Message Information Disclosure ✅ FIXED
 
 - **Files:** Multiple endpoints (`omag`, `publications`, `bridge`, `derive`)
 - **Issue:** Raw `(err as Error).message` returned to client. May leak internals.
+- **Resolution (2026-09-04):** `sanitizeError()` helper in batch 3 + 10 additional endpoints fixed in batch 7 (feedback, cloud/files, cloud/upload, loop/trigger, prioritize, agents/chat, agents/approve, agents/improve, agents/evals, bridge). All now return safe generic messages.
 
 ### L04 — Rate Limiting Bypassed for Static Assets ✅ FIXED
 
