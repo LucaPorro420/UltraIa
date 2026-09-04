@@ -20,7 +20,12 @@ export async function GET(req: Request) {
 
   // Merge insights from both systems
   const insights = [
-    ...dashboard.learning.byCategory,
+    ...Object.entries(dashboard.learning.byCategory).map(([cat, count]) => ({
+      pattern: cat,
+      count,
+      apps: [] as string[],
+      recommendation: `Category "${cat}" has ${count} events`,
+    })),
     ...learningSummary.insights.map(i => ({
       pattern: i.pattern,
       count: i.frequency,
