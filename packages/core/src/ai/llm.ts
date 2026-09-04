@@ -18,7 +18,7 @@ import { runSkill } from '../tools/skills';
 import { generateParseltongueVariants, computeAutoTuneParams, ultraplinian, godmodeClassic } from '../tools/g0dm0d3';
 import { generateTopicBriefs } from '../tools/topics';
 import { guardarBriefs, listarBriefs, marcarBriefProcesado, marcarBriefDescartado } from '../domain/briefs';
-import { safeJsonParse, safeJsonArray } from '../utils/safe-json';
+import { safeJsonParse } from '../utils/safe-json';
 import { present } from '../tools/present';
 import { createDefaultPublishers, publishToAll, buildBilingualMetadata } from '../tools/publish';
 import { createHarness, type HarnessRuntime } from '../tools/harness';
@@ -1504,11 +1504,11 @@ export function chatStream(opts: {
       }),
       execute: async ({ accion, query, k, url, corpusJson, remoteIdsJson }) => {
         const docs = corpusJson
-          ? semanticMemory.loadTruthCorpus(JSON.parse(corpusJson) as semanticMemory.TruthFileLike[])
+          ? semanticMemory.loadTruthCorpus(parseJson<semanticMemory.TruthFileLike[]>(corpusJson, []))
           : (await semanticMemory.loadTruthAuto()).docs;
         const client = qdrantMemory.createQdrantClient(url ?? qdrantMemory.QDRANT_DEFAULT_URL);
         if (accion === 'plan') {
-          const remoteIds = remoteIdsJson ? (JSON.parse(remoteIdsJson) as number[]) : [];
+          const remoteIds = parseJson<number[]>(remoteIdsJson, []);
           const plan = qdrantMemory.planMemorySync(docs, remoteIds);
           return {
             accion,
@@ -1565,7 +1565,7 @@ export function chatStream(opts: {
       execute: async ({ accion, filesJson, path }) => {
         let files: kgraph.GraphInputFile[] = [];
         if (filesJson) {
-          files = JSON.parse(filesJson) as kgraph.GraphInputFile[];
+          files = parseJson<kgraph.GraphInputFile[]>(filesJson, []);
         } else if (path) {
           const fs = await import('node:fs/promises');
           const stat = await fs.stat(path);
@@ -1728,7 +1728,7 @@ export function chatStream(opts: {
         distancia: z.number().min(1).max(100).optional(), // para perspectiva
       }),
       execute: async ({ accion, kind, opcionesJson, coloresJson, hex, curvatura, capas, distancia }) => {
-        const opts = opcionesJson ? (JSON.parse(opcionesJson) as Record<string, unknown>) : {};
+        const opts = parseJson<Record<string, unknown>>(opcionesJson, {});
         switch (accion) {
           case 'plan': {
             if (!kind) throw new Error('plan requiere kind');
@@ -1736,7 +1736,7 @@ export function chatStream(opts: {
           }
           case 'colorimetria': {
             if (!coloresJson) throw new Error('colorimetria requiere coloresJson');
-            return { accion, reporte: colorimetryAnalyze(JSON.parse(coloresJson) as string[]) };
+            return { accion, reporte: colorimetryAnalyze(parseJson<string[]>(coloresJson, [])) };
           }
           case 'curvatura': {
             if (!hex) throw new Error('curvatura requiere hex');
@@ -1865,7 +1865,7 @@ export function chatStream(opts: {
           case 'manifest': {
             if (!sourcePath) throw new Error('manifest requiere sourcePath');
             const manifest = buildRecordlyManifest({ sourcePath, editorState: editorState ?? {}, durationMs: duracionMs });
-            return { accion, manifest: JSON.parse(manifest) };
+            return { accion, manifest: parseJson(manifest, {}) };
           }
           default:
             return { accion, ok: false, error: 'accion desconocida' };
@@ -1885,11 +1885,9 @@ export function chatStream(opts: {
         workdir: z.string().optional(), // para schedule
       }),
       execute: async ({ accion, configJson, estadoJson, semilla, workdir }) => {
-        const cfgInput = configJson ? (JSON.parse(configJson) as Record<string, unknown>) : {};
+        const cfgInput = parseJson<Record<string, unknown>>(configJson, {});
         const config = resolveCerebroConfig(cfgInput);
-        const state = estadoJson
-          ? parseBrainState(JSON.parse(estadoJson))
-          : parseBrainState(undefined);
+        const state = parseBrainState(parseJson(estadoJson, undefined));
         switch (accion) {
           case 'plan': {
             return { accion, plan: planBrainCycle(cfgInput, state), config };
@@ -1962,12 +1960,12 @@ export function chatStream(opts: {
           }
           case 'toma': {
             if (!tomaJson) throw new Error('toma requiere tomaJson');
-            return { accion, manifest: buildTakeManifest(JSON.parse(tomaJson)) };
+            return { accion, manifest: buildTakeManifest(parseJson<any>(tomaJson, {})) };
           }
           case 'render': {
             if (!planJson) throw new Error('render requiere planJson');
-            const plan = JSON.parse(planJson) as TravelPlan;
-            const opts = opcionesJson ? (JSON.parse(opcionesJson) as Record<string, unknown>) : {};
+            const plan = parseJson<TravelPlan>(planJson, {} as TravelPlan);
+            const opts = parseJson<Record<string, unknown>>(opcionesJson, {});
             const render = buildTravelRender(plan, {
               imagenesDir: opts.imagenesDir as string | undefined,
               narracionMp3: opts.narracionMp3 === undefined ? null : (opts.narracionMp3 as string | null),
@@ -1978,13 +1976,13 @@ export function chatStream(opts: {
           }
           case 'replicar': {
             if (!promptBase) throw new Error('replicar requiere promptBase');
-            const opts = opcionesJson ? (JSON.parse(opcionesJson) as { variaciones?: number; seed?: number }) : {};
+            const opts = parseJson<{ variaciones?: number; seed?: number }>(opcionesJson, {});
             return { accion, replicas: replicateLandscape(promptBase, opts) };
           }
           case 'lead': {
             if (!planJson) throw new Error('lead requiere planJson');
-            const plan = JSON.parse(planJson) as TravelPlan;
-            const opts = opcionesJson ? (JSON.parse(opcionesJson) as { width?: number; height?: number; seed?: number }) : {};
+            const plan = parseJson<TravelPlan>(planJson, {} as TravelPlan);
+            const opts = parseJson<{ width?: number; height?: number; seed?: number }>(opcionesJson, {});
             return { accion, imagen: travelLeadImage(plan, opts) };
           }
           default:
@@ -2025,7 +2023,7 @@ export function chatStream(opts: {
         keyframesJson: z.string().optional(), // para keyframes [{t, value[]}]
       }),
       execute: async ({ medio, accion, ancho, alto, opcionesJson, patronJson, keyframesJson }) => {
-        const opts = opcionesJson ? (JSON.parse(opcionesJson) as Record<string, any>) : {};
+        const opts = parseJson<Record<string, any>>(opcionesJson, {});
         const w = ancho ?? 128;
         const h = alto ?? 128;
         switch (accion) {
@@ -2038,7 +2036,7 @@ export function chatStream(opts: {
           case 'flujo':
             return { accion, campo: Array.from(flowField(w, h, opts)) };
           case 'lsystem': {
-            const p = patronJson ? (JSON.parse(patronJson) as { axioma?: string; reglas?: Record<string, string>; iteraciones?: number }) : {};
+            const p = parseJson<{ axioma?: string; reglas?: Record<string, string>; iteraciones?: number }>(patronJson, {});
             const s = lSystem(p.axioma ?? 'F', p.reglas ?? { F: 'F+F--F+F' }, p.iteraciones ?? 3);
             return { accion, cadena: s, checksum: contentChecksum(s) };
           }
@@ -2049,7 +2047,7 @@ export function chatStream(opts: {
             return { accion, svg };
           }
           case 'keyframes': {
-            const kfs = keyframesJson ? (JSON.parse(keyframesJson) as Array<{ t: number; value: number[] }>) : [{ t: 0, value: [0] }, { t: 1, value: [1] }];
+            const kfs = parseJson<Array<{ t: number; value: number[] }>>(keyframesJson, [{ t: 0, value: [0] }, { t: 1, value: [1] }]);
             const t = opts.t ?? 0.5;
             return { accion, valores: interpolateKeyframes(kfs, t, opts.metodo === 'cubic' ? 'cubic' : 'linear') };
           }
@@ -2085,7 +2083,7 @@ export function chatStream(opts: {
             return { accion, kind: r.kind, duracionSec: r.durationSec, samples: r.pcm.length, pcm: Array.from(r.pcm.slice(0, 512)) };
           }
           case 'secuencia': {
-            const p = patronJson ? (JSON.parse(patronJson) as { pattern: Array<{ step: number; freq: number; type?: string }> }) : { pattern: [{ step: 0, freq: 220 }] };
+            const p = parseJson<{ pattern: Array<{ step: number; freq: number; type?: string }> }>(patronJson, { pattern: [{ step: 0, freq: 220 }] });
             const r = sequenceNotes({ ...opts, pattern: p.pattern.map((n) => ({ ...n, type: n.type as 'sine' | 'square' | 'saw' | 'triangle' | undefined })) });
             return { accion, kind: r.kind, duracionSec: r.durationSec, samples: r.pcm.length, pcm: Array.from(r.pcm.slice(0, 512)) };
           }
@@ -2252,7 +2250,7 @@ export function chatStream(opts: {
             return { accion, categorias: categoriasLibros() };
           case 'proponer': {
             if (!propuestaJson) throw new Error('proponer requiere propuestaJson');
-            const r = validarPropuestaLibro(JSON.parse(propuestaJson));
+            const r = validarPropuestaLibro(parseJson<any>(propuestaJson, {}));
             return { accion, ...r };
           }
           default:
@@ -2272,7 +2270,7 @@ export function chatStream(opts: {
         height: z.number().int().min(90).max(1080).optional(), // para html
       }),
       execute: async ({ accion, escenaJson, width, height }) => {
-        const escena = escenaJson ? JSON.parse(escenaJson) : { primitives: [{ kind: 'sphere', pos: [0, 0, 0], color: '#8b5cf6', params: { radius: 1 } }] };
+        const escena = parseJson(escenaJson, { primitives: [{ kind: 'sphere', pos: [0, 0, 0], color: '#8b5cf6', params: { radius: 1 } }] }) as Parameters<typeof sdf.planSdfScene>[0];
         const plan = sdf.planSdfScene(escena);
         switch (accion) {
           case 'plan':
@@ -2306,9 +2304,9 @@ export function chatStream(opts: {
         height: z.number().int().min(90).max(1080).optional(),
       }),
       execute: async ({ accion, A, B, params, width, height }) => {
-        const P = params ? JSON.parse(params) : {};
-        const vA = A ? JSON.parse(A) : undefined;
-        const vB = B ? JSON.parse(B) : undefined;
+        const P = parseJson<Record<string, any>>(params, {});
+        const vA = parseJson<any>(A, undefined);
+        const vB = parseJson<any>(B, undefined);
         switch (accion) {
           case 'v2add': return { accion, result: geom.v2add(vA, vB) };
           case 'v2sub': return { accion, result: geom.v2sub(vA, vB) };
@@ -2375,9 +2373,9 @@ export function chatStream(opts: {
       execute: async ({ accion, referenceJson, distortedJson, flowJson, semanticError, umbralesJson, runnerJson }) => {
         switch (accion) {
           case 'metricas': {
-            const reference = JSON.parse(referenceJson ?? '[]');
-            const distorted = JSON.parse(distortedJson ?? '[]');
-            const flow = flowJson ? JSON.parse(flowJson) : {};
+            const reference = parseJson(referenceJson, []);
+            const distorted = parseJson(distortedJson, []);
+            const flow = parseJson(flowJson, {}) as { flowReference?: import('../tools/videoqa').FlowVector[]; flowDistorted?: import('../tools/videoqa').FlowVector[] };
             const mseValue = videoqa.mse(reference, distorted);
             return {
               accion,
@@ -2392,14 +2390,14 @@ export function chatStream(opts: {
             };
           }
           case 'veredicto': {
-            const reference = JSON.parse(referenceJson ?? '[]');
-            const distorted = JSON.parse(distortedJson ?? '[]');
-            const flow = flowJson ? JSON.parse(flowJson) : {};
-            const umbrales = umbralesJson ? JSON.parse(umbralesJson) : {};
+            const reference = parseJson(referenceJson, []);
+            const distorted = parseJson(distortedJson, []);
+            const flow = parseJson(flowJson, {}) as { flowReference?: import('../tools/videoqa').FlowVector[]; flowDistorted?: import('../tools/videoqa').FlowVector[] };
+            const umbrales = parseJson<{ psnrMin: number; ssimMin: number; eTotalMax: number }>(umbralesJson, { psnrMin: 40, ssimMin: 0.95, eTotalMax: 0.4 });
             return { accion, ...videoqa.verdictVideo({ reference, distorted, flowReference: flow.flowReference, flowDistorted: flow.flowDistorted, semanticError }, umbrales) };
           }
           case 'vmaf': {
-            const runner = runnerJson ? JSON.parse(runnerJson) : {};
+            const runner = parseJson<{ model: string; size: string; reference: string; distorted: string; features: ('psnr' | 'ssim' | 'vmaf')[]; ffmpegPath: string }>(runnerJson, { model: 'vmaf-0.6.1', size: '1920x1080', reference: '', distorted: '', features: ['psnr', 'ssim', 'vmaf'], ffmpegPath: 'ffmpeg' });
             return { accion, argv: videoqa.buildVmafArgv(runner), nota: 'argv listo; no ejecutado' };
           }
           default:
@@ -2422,11 +2420,11 @@ export function chatStream(opts: {
       execute: async ({ accion, campoJson, puntosJson, t, cfgJson }) => {
         switch (accion) {
           case 'stats': {
-            const campo = campoJson ? JSON.parse(campoJson) : { width: 1, height: 1, vectors: [] };
+            const campo = parseJson(campoJson, { width: 1, height: 1, vectors: [] });
             return { accion, stats: motion.flowStats(campo) };
           }
           case 'descomponer': {
-            const campo = campoJson ? JSON.parse(campoJson) : { width: 1, height: 1, vectors: [] };
+            const campo = parseJson(campoJson, { width: 1, height: 1, vectors: [] });
             const d = motion.decomposeMotion(campo);
             return {
               accion,
@@ -2442,12 +2440,12 @@ export function chatStream(opts: {
             };
           }
           case 'trayectoria': {
-            const puntos = puntosJson ? JSON.parse(puntosJson) : [];
+            const puntos = parseJson(puntosJson, []);
             const tr = motion.trajectoryFit(puntos);
             return { accion, puntos: tr.controlPoints, longitud: tr.length, evaluacion: t !== undefined ? tr.evaluate(t) : null };
           }
           case 'runner': {
-            const cfg = cfgJson ? JSON.parse(cfgJson) : {};
+            const cfg = parseJson(cfgJson, {});
             const p = motion.planFlowAnalysis(cfg);
             return { accion, argv: p.argv, summary: p.summary };
           }
@@ -2512,8 +2510,8 @@ export function chatStream(opts: {
       }),
       execute: async ({ accion, imagenJson, imagenBJson, operacion, parametro, incluirDatos }) => {
         const parse = (raw: string) => {
-          const o = JSON.parse(raw);
-          return imaging.imageFrom(o.width, o.height, o.data);
+          const o = parseJson<Record<string, unknown>>(raw, {});
+          return imaging.imageFrom(o.width as number, o.height as number, o.data as number[]);
         };
         const img = parse(imagenJson);
         const salida = (out: imaging.GrayImage) => ({
@@ -2626,7 +2624,7 @@ export function chatStream(opts: {
         switch (accion) {
           case 'crear': {
             if (!paqueteJson || !canal) throw new Error('crear requiere paqueteJson + canal');
-            const paquete = JSON.parse(paqueteJson);
+            const paquete = parseJson<any>(paqueteJson, {});
             const res = await createPublication(opts.db!, {
               paquete,
               canal,
@@ -2667,7 +2665,7 @@ export function chatStream(opts: {
         duracionSeg: z.number().int().min(60).max(180).optional(),
       }),
       execute: async ({ briefJson, dryRun, tipo, idioma, tts, duracionSeg }) => {
-        const brief = JSON.parse(briefJson) as import('../tools/topics').TopicBrief;
+        const brief = parseJson<import('../tools/topics').TopicBrief>(briefJson, {} as import('../tools/topics').TopicBrief);
         const res = await generarContenido(brief, {
           dryRun: dryRun ?? false,
           tipo,
@@ -2852,7 +2850,7 @@ export function chatStream(opts: {
         segmentsJson: z.string().min(1).max(100000), // TranscriptSegment[] JSON
       }),
       execute: async ({ segmentsJson }) => {
-        const segments = JSON.parse(segmentsJson) as import('../tools/video-edit').TranscriptSegment[];
+        const segments = parseJson<import('../tools/video-edit').TranscriptSegment[]>(segmentsJson, []);
         return packTranscript(segments);
       },
     });
@@ -2866,7 +2864,7 @@ export function chatStream(opts: {
         warnOnly: z.boolean().optional(),
       }),
       execute: async ({ title, cutsJson, grade, warnOnly }) => {
-        const cuts = JSON.parse(cutsJson) as import('../tools/video-edit').EdlCut[];
+        const cuts = parseJson<import('../tools/video-edit').EdlCut[]>(cutsJson, []);
         const { edl, warnings } = buildEdl({ title, cuts, grade }, { warnOnly });
         return { edl, warnings };
       },
@@ -2881,7 +2879,7 @@ export function chatStream(opts: {
         preview: z.boolean().optional(),
       }),
       execute: async ({ edlJson, outDir, outName, preview }) => {
-        const edl = JSON.parse(edlJson) as import('../tools/video-edit').Edl;
+        const edl = parseJson<import('../tools/video-edit').Edl>(edlJson, {} as import('../tools/video-edit').Edl);
         const { shell, steps, argv } = renderFfmpeg(edl, { outDir, outName, preview });
         return { shell, steps, argv, hardRules: HARD_RULES.map((h) => h.rule) };
       },
@@ -2896,8 +2894,8 @@ export function chatStream(opts: {
         attempt: z.number().int().min(1).max(MAX_SELF_EVAL_ATTEMPTS).optional(),
       }),
       execute: async ({ edlJson, expectedDurationSec, silenceGapsMsJson, attempt }) => {
-        const edl = JSON.parse(edlJson) as import('../tools/video-edit').Edl;
-        const silenceGapsMs = silenceGapsMsJson ? (JSON.parse(silenceGapsMsJson) as number[]) : undefined;
+        const edl = parseJson<import('../tools/video-edit').Edl>(edlJson, {} as import('../tools/video-edit').Edl);
+        const silenceGapsMs = parseJson<number[] | undefined>(silenceGapsMsJson, undefined);
         return selfEvalEdl(edl, { expectedDurationSec, silenceGapsMs }, attempt ?? 1);
       },
     });
@@ -2912,8 +2910,8 @@ export function chatStream(opts: {
         width: z.number().int().min(400).max(2000).optional(),
       }),
       execute: async ({ title, durationSec, markersJson, silencesJson, width }) => {
-        const markers = JSON.parse(markersJson) as import('../tools/video-edit').TimelineViewSpec['markers'];
-        const silences = silencesJson ? (JSON.parse(silencesJson) as import('../tools/video-edit').TimelineViewSpec['silences']) : undefined;
+        const markers = parseJson<import('../tools/video-edit').TimelineViewSpec['markers']>(markersJson, []);
+        const silences = parseJson<import('../tools/video-edit').TimelineViewSpec['silences']>(silencesJson, undefined);
         return timelineViewSvg({ title, durationSec, markers, silences }, width);
       },
     });
@@ -2928,7 +2926,7 @@ export function chatStream(opts: {
         actionsPerRun: z.number().int().min(1).max(50).optional(),
       }),
       execute: async ({ scriptJson, actionsPerRun }) => {
-        const script = JSON.parse(scriptJson) as import('../tools/screenflow').ActionScript;
+        const script = parseJson<import('../tools/screenflow').ActionScript>(scriptJson, [] as unknown as import('../tools/screenflow').ActionScript);
         const v = validateActionScript(script);
         const runs = v.ok ? planRuns(script, { actionsPerRun }) : [];
         return { ...v, runs };
@@ -2966,7 +2964,7 @@ export function chatStream(opts: {
         previousJson: z.string().max(5000).optional(), // RunState JSON | null
       }),
       execute: async ({ previousJson }) => {
-        const previous: RunState | null = previousJson ? (JSON.parse(previousJson) as RunState) : null;
+        const previous: RunState | null = parseJson<RunState | null>(previousJson, null);
         const r = resolveState(previous, new Date().toISOString());
         return { ...r, maxRetries: MAX_RETRIES, maxRunDurationMin: MAX_RUN_DURATION_MIN };
       },
@@ -3014,7 +3012,7 @@ export function chatStream(opts: {
         samples: z.number().int().min(8).max(1024).optional(),
       }),
       execute: async ({ accion, preset, paramsJson, translate, rotate, scale, samples }) => {
-        const p = paramsJson ? (JSON.parse(paramsJson) as Record<string, unknown>) : {};
+        const p = parseJson<Record<string, unknown>>(paramsJson, {});
         const pr = preset ?? 'supershape3d';
         if (accion === 'shape2d') {
           const pts = geometry.superShape2D(
@@ -3160,7 +3158,7 @@ export function chatStream(opts: {
         seed: args.seed,
         outName: args.outName,
         palette: args.palette,
-        params: args.paramsJson ? (JSON.parse(args.paramsJson) as Record<string, unknown>) : undefined,
+        params: parseJson<Record<string, unknown> | undefined>(args.paramsJson, undefined),
       });
     };
     const procvidSpecShape = {
@@ -3274,7 +3272,7 @@ export function chatStream(opts: {
 
   if (opts.tools?.includes('cadgeo')) {
     const ptsFrom = (raw: string | undefined, fallback: Array<[number, number]>): Array<[number, number]> =>
-      raw ? JSON.parse(raw) as Array<[number, number]> : fallback;
+      parseJson<Array<[number, number]>>(raw, fallback);
     tools.cadgeo_compute = tool({
       description:
         'Computational geometry toolkit (Motor Evolutivo M2, pure math): Delaunay triangulation (Bowyer-Watson, empty-circle property), Voronoi cells via half-plane clipping (partition the bounding box exactly), BVH median-split build with AABB and ray queries (slab method, identical results to brute force), point quadtree with circular range queries, clamped uniform B-spline evaluation (de Boor, degree<=5, optional rational weights) and CAD-lite extrudeMesh/revolveMesh producing standard GeoMesh exportable as OBJ/glTF 2.0. Deterministic, keyless, zero deps. Use for spatial analysis, mesh generation and computational geometry from code.',
@@ -3299,12 +3297,12 @@ export function chatStream(opts: {
           return { accion, cells: cells.map((c) => ({ site: c.site, vertices: c.polygon.length })) , polygons: cells.map((c) => c.polygon) };
         }
         if (accion === 'bvh') {
-          const boxes = JSON.parse(boxesJson ?? '[]') as cadgeo.BvhBox[];
+          const boxes = parseJson<cadgeo.BvhBox[]>(boxesJson, []);
           const root = cadgeo.bvhBuild(boxes);
-          const q = queryJson ? (JSON.parse(queryJson) as cadgeo.BvhBox) : { minX: -1e9, minY: -1e9, maxX: 1e9, maxY: 1e9 };
+          const q = parseJson<cadgeo.BvhBox>(queryJson, { minX: -1e9, minY: -1e9, maxX: 1e9, maxY: 1e9 });
           const base: Record<string, unknown> = { accion, nodes: boxes.length };
           if (rayJson) {
-            const [ox, oy, dx, dy] = JSON.parse(rayJson) as [number, number, number, number];
+            const [ox, oy, dx, dy] = parseJson<[number, number, number, number]>(rayJson, [0, 0, 1, 0]);
             base.rayHits = cadgeo.bvhRayQuery(root, boxes, ox, oy, dx, dy);
           } else {
             base.aabbHits = cadgeo.bvhAabbQuery(root, boxes, q);
@@ -3315,7 +3313,7 @@ export function chatStream(opts: {
           const pts = ptsFrom(pointsJson, squarePts);
           const qt = cadgeo.quadtreeCreate(-1000, -1000, 2000, 4, 12);
           pts.forEach((p, i) => qt.insert(p[0], p[1], i));
-          const c = queryJson ? (JSON.parse(queryJson) as { cx: number; cy: number; r: number }) : { cx: 1, cy: 1, r: 3 };
+          const c = parseJson<{ cx: number; cy: number; r: number }>(queryJson, { cx: 1, cy: 1, r: 3 });
           return { accion, inserted: pts.length, hits: qt.query(c.cx, c.cy, c.r) };
         }
         if (accion === 'bspline') {
@@ -3349,21 +3347,19 @@ export function chatStream(opts: {
           return { accion, bestFitness: r.bestFitness, reachedAtGeneration: r.reachedAtGeneration, bestGenesPreview: r.bestGenes.slice(0, 4) };
         }
         if (accion === 'stats') {
-          const pop = (populationJson ? JSON.parse(populationJson) : [{ genes: [0, 0] }, { genes: [1, 1] }]) as evoDomain.Individual[];
+          const pop = parseJson<evoDomain.Individual[]>(populationJson, [{ genes: [0, 0] }, { genes: [1, 1] }]);
           return { accion, stats: evoDomain.statsEvolution(pop) };
         }
         // evolve: usa una función de fitness declarativa segura (suma ponderada de genes)
         let weights: number[] = [1];
         try {
-          const parsed = fitnessJson ? (JSON.parse(fitnessJson) as { weights?: number[] }) : {};
+          const parsed = parseJson<{ weights?: number[] }>(fitnessJson, {});
           if (parsed.weights && parsed.weights.every((w) => Number.isFinite(w))) weights = parsed.weights;
         } catch {
           /* fallback default */
         }
         const fitnessFn = (genes: readonly number[]) => genes.reduce((a, g, i) => a - g * (weights[i % weights.length] ?? 1), 0);
-        const initial = populationJson
-          ? (JSON.parse(populationJson) as evoDomain.IndividualInput[])
-          : evoDomain.spherePopulation(20, weights.length || 4, 5, seed ?? 42);
+        const initial = parseJson<evoDomain.IndividualInput[]>(populationJson, evoDomain.spherePopulation(20, weights.length || 4, 5, seed ?? 42));
         const r = evoDomain.runGa(initial, Math.min(generations ?? 20, 200), fitnessFn, {
           seed: seed ?? 42,
           elite: 2,
@@ -3462,15 +3458,15 @@ export function chatStream(opts: {
         });
         if (accion === 'trace') {
           if (!name) throw new Error('trace requiere name');
-          const input = inputJson ? JSON.parse(inputJson) : undefined;
-          const output = outputJson ? JSON.parse(outputJson) : undefined;
+          const input = parseJson(inputJson, undefined);
+          const output = parseJson(outputJson, undefined);
           const id = tracer.traceStep({ name, input, output });
           return { id, buffered: tracer.buffered.length, enabled: tracer.enabled };
         }
         if (accion === 'generation') {
           if (!name) throw new Error('generation requiere name');
-          const input = inputJson ? JSON.parse(inputJson) : undefined;
-          const output = outputJson ? JSON.parse(outputJson) : undefined;
+          const input = parseJson(inputJson, undefined);
+          const output = parseJson(outputJson, undefined);
           const id = tracer.traceGeneration({ name, model, input, output });
           return { id, buffered: tracer.buffered.length, enabled: tracer.enabled };
         }
@@ -3499,15 +3495,15 @@ export function chatStream(opts: {
       }),
       execute: async ({ capa, specJson, intent }) => {
         if (capa === 'graph') {
-          const spec = specJson ? JSON.parse(specJson) : { entry: 'start', nodes: [{ id: 'start', kind: 'router' }], edges: [] };
+          const spec = parseJson<any>(specJson, { entry: 'start', nodes: [{ id: 'start', kind: 'router' }], edges: [] });
           return planAgenticGraph(spec);
         }
         if (capa === 'crew') {
-          const spec = specJson ? JSON.parse(specJson) : { roles: [{ name: 'researcher', goal: 'investigar' }], tasks: [{ id: 't1', role: 'researcher', objective: 'buscar' }] };
+          const spec = parseJson<any>(specJson, { roles: [{ name: 'researcher', goal: 'investigar' }], tasks: [{ id: 't1', role: 'researcher', objective: 'buscar' }] });
           return planCrew(spec);
         }
         if (capa === 'rag') {
-          const spec = specJson ? JSON.parse(specJson) : { loaders: ['web'], chunk: { size: 1000, overlap: 100 }, embed: 'local', store: 'qdrant' };
+          const spec = parseJson<any>(specJson, { loaders: ['web'], chunk: { size: 1000, overlap: 100 }, embed: 'local', store: 'qdrant' });
           return planRagPipeline(spec);
         }
         if (capa === 'route') {
@@ -3515,15 +3511,15 @@ export function chatStream(opts: {
           return routeIntent(intent);
         }
         if (capa === 'lcel') {
-          const steps = specJson ? JSON.parse(specJson) : [{ kind: 'prompt', name: 'template' }, { kind: 'model', name: 'gpt-4o-mini' }];
+          const steps = parseJson<any>(specJson, [{ kind: 'prompt', name: 'template' }, { kind: 'model', name: 'gpt-4o-mini' }]);
           return planLcelChain(steps);
         }
         if (capa === 'sandbox') {
-          const spec = specJson ? JSON.parse(specJson) : { lang: 'python', code: 'print("hello")' };
+          const spec = parseJson<any>(specJson, { lang: 'python', code: 'print("hello")' });
           return planSandbox(spec);
         }
         if (capa === 'memory') {
-          const spec = specJson ? JSON.parse(specJson) : { kind: 'semantic', query: 'buscar' };
+          const spec = parseJson<any>(specJson, { kind: 'semantic', query: 'buscar' });
           return planMemory(spec);
         }
         throw new Error(`capa desconocida: ${capa}`);
@@ -3726,7 +3722,7 @@ export function chatStream(opts: {
         const { simulateBall, planScene, soundImpact, renderCanvasHtml } = await import('../tools/creativo');
         switch (accion) {
           case 'simulate': {
-            const ball = ballJson ? JSON.parse(ballJson) : { x: 100, y: 50, vx: 3, vy: 0, r: 12, mass: 1 };
+            const ball = parseJson(ballJson, { x: 100, y: 50, vx: 3, vy: 0, r: 12, mass: 1 });
             return simulateBall(ball);
           }
           case 'scene':
@@ -3764,12 +3760,12 @@ export function chatStream(opts: {
           case 'list':
             return { attractors: listAttractors() };
           case 'evaluate': {
-            const state = stateJson ? JSON.parse(stateJson) : [0.1, 0, 0];
+            const state = parseJson(stateJson, [0.1, 0, 0]) as readonly [number, number, number];
             if (!isValidState(state)) return { ok: false, error: 'invalid state vector' };
             return { next: evaluateAttractor(attractor ?? 'lorenz', state) };
           }
           case 'trajectory': {
-            const state = stateJson ? JSON.parse(stateJson) : [0.1, 0, 0];
+            const state = parseJson(stateJson, [0.1, 0, 0]) as readonly [number, number, number];
             if (!isValidState(state)) return { ok: false, error: 'invalid state vector' };
             const config = {
               attractor: attractor ?? 'lorenz',
