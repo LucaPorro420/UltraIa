@@ -6,7 +6,7 @@ import { z } from 'zod';
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
-export type TaskStatus = 'pending' | 'running' | 'completed' | 'failed' | 'skipped';
+export type TaskStatus = 'pending' | 'running' | 'completed' | 'failed' | 'skipped' | 'retrying';
 
 export interface BatchTask {
   id: string;
@@ -27,6 +27,14 @@ export interface BatchTask {
   error?: string;
   /** Actual duration in ms. */
   actualMs?: number;
+  /** Max retry attempts (default 0 = no retry). */
+  maxRetries: number;
+  /** Current retry count. */
+  retryCount: number;
+  /** Timeout in ms (0 = no timeout). */
+  timeoutMs: number;
+  /** Priority (higher = runs first in wave). */
+  priority: number;
 }
 
 export interface BatchPlan {
@@ -52,14 +60,37 @@ export interface BatchStats {
 
 // ── Planning ─────────────────────────────────────────────────────────────────
 
+/** Input type for planBatch — required fields are name; everything else optional. */
+export interface BatchTaskInput {
+  id?: string;
+  name: string;
+  description?: string | undefined;
+  inputs?: Record<string, string>;
+  estimatedMs?: number;
+  agent?: string;
+  dependsOn?: string[];
+  maxRetries?: number;
+  timeoutMs?: number;
+  priority?: number;
+}
+
 let _idCounter = 0;
 
-export function planBatch(name: string, tasks: Omit<BatchTask, 'id' | 'status'>[]): BatchPlan {
+export function planBatch(name: string, tasks: BatchTaskInput[]): BatchPlan {
   const id = `batch-${++_idCounter}`;
   const fullTasks: BatchTask[] = tasks.map((t, i) => ({
-    ...t,
-    id: `task-${i}`,
+    id: t.id || `task-${i}`,
+    name: t.name,
+    description: t.description ?? '',
+    inputs: t.inputs,
+    estimatedMs: t.estimatedMs ?? 1000,
+    agent: t.agent,
+    dependsOn: t.dependsOn ?? [],
     status: 'pending' as TaskStatus,
+    maxRetries: t.maxRetries ?? 0,
+    retryCount: 0,
+    timeoutMs: t.timeoutMs ?? 0,
+    priority: t.priority ?? 0,
   }));
 
   // Topological sort into waves (Kahn's algorithm)
@@ -101,6 +132,12 @@ function computeWaves(tasks: BatchTask[]): string[][] {
       waves.push(remaining.map(t => t.id));
       break;
     }
+    // Sort wave by priority (higher first)
+    wave.sort((a, b) => {
+      const ta = tasks.find(t => t.id === a);
+      const tb = tasks.find(t => t.id === b);
+      return (tb?.priority ?? 0) - (ta?.priority ?? 0);
+    });
     waves.push(wave);
     for (const id of wave) completed.add(id);
   }
@@ -145,8 +182,14 @@ export function markTaskComplete(plan: BatchPlan, taskId: string, result: string
 export function markTaskFailed(plan: BatchPlan, taskId: string, error: string): BatchPlan {
   const task = plan.tasks.find(t => t.id === taskId);
   if (!task) return plan;
-  task.status = 'failed';
   task.error = error;
+  if (task.retryCount < task.maxRetries) {
+    task.retryCount++;
+    task.status = 'retrying';
+    task.error = `[retry ${task.retryCount}/${task.maxRetries}] ${error}`;
+  } else {
+    task.status = 'failed';
+  }
   return plan;
 }
 
@@ -159,12 +202,35 @@ export function markTaskSkipped(plan: BatchPlan, taskId: string): BatchPlan {
 
 export function getReadyTasks(plan: BatchPlan): BatchTask[] {
   return plan.tasks.filter(t => {
-    if (t.status !== 'pending') return false;
+    if (t.status !== 'pending' && t.status !== 'retrying') return false;
     return t.dependsOn.every(d => {
       const dep = plan.tasks.find(tt => tt.id === d);
       return dep && dep.status === 'completed';
     });
   });
+}
+
+export function getTimedOutTasks(plan: BatchPlan, nowMs: number): BatchTask[] {
+  return plan.tasks.filter(t => {
+    if (t.status !== 'running') return false;
+    if (t.timeoutMs <= 0) return false;
+    if (!t.actualMs) return false;
+    return nowMs > t.timeoutMs;
+  });
+}
+
+export function exportPlan(plan: BatchPlan): string {
+  return JSON.stringify(plan, null, 2);
+}
+
+export function importPlan(json: string): BatchPlan | null {
+  try {
+    const plan = JSON.parse(json) as BatchPlan;
+    if (!plan.id || !plan.tasks || !plan.waves) return null;
+    return plan;
+  } catch {
+    return null;
+  }
 }
 
 export function getBatchStats(plan: BatchPlan): BatchStats {
@@ -192,7 +258,7 @@ export function getBatchStats(plan: BatchPlan): BatchStats {
 // ── Tool Schema ──────────────────────────────────────────────────────────────
 
 export const batchExecutorSchema = z.object({
-  action: z.enum(['plan', 'ready', 'complete', 'fail', 'skip', 'stats']),
+  action: z.enum(['plan', 'ready', 'complete', 'fail', 'skip', 'stats', 'reset', 'export', 'import']),
   planId: z.string().optional(),
   planName: z.string().optional().describe('Name for new batch plan'),
   tasks: z.array(z.object({
@@ -203,14 +269,18 @@ export const batchExecutorSchema = z.object({
     estimatedMs: z.number().default(1000),
     agent: z.string().optional(),
     dependsOn: z.array(z.string()).default([]),
+    maxRetries: z.number().default(0),
+    timeoutMs: z.number().default(0),
+    priority: z.number().default(0),
   })).optional().describe('Tasks for plan action'),
   taskId: z.string().optional().describe('Task ID for complete/fail/skip'),
   result: z.string().optional().describe('Result for complete action'),
   error: z.string().optional().describe('Error for fail action'),
   actualMs: z.number().optional().describe('Actual duration for complete action'),
+  planJson: z.string().optional().describe('JSON for import action'),
 });
 
-export type BatchExecutorInput = z.infer<typeof batchExecutorSchema>;
+export type BatchExecutorInput = z.input<typeof batchExecutorSchema>;
 
 // ── Plans Store ──────────────────────────────────────────────────────────────
 
@@ -256,6 +326,23 @@ export async function batchExecutorTool(input: BatchExecutorInput): Promise<unkn
       const plan = _plans.get(input.planId);
       if (!plan) return { error: 'plan not found' };
       return getBatchStats(plan);
+    }
+    case 'reset': {
+      _plans.clear();
+      return { ok: true, message: 'All plans cleared' };
+    }
+    case 'export': {
+      if (!input.planId) return { error: 'planId required' };
+      const plan = _plans.get(input.planId);
+      if (!plan) return { error: 'plan not found' };
+      return { json: exportPlan(plan) };
+    }
+    case 'import': {
+      if (!input.planJson) return { error: 'planJson required' };
+      const plan = importPlan(input.planJson);
+      if (!plan) return { error: 'invalid plan JSON' };
+      _plans.set(plan.id, plan);
+      return plan;
     }
   }
 }
