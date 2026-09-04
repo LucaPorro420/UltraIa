@@ -1312,6 +1312,10 @@ Cada commit agrega una sección con fecha y la lista de archivos `.ts/.tsx` toca
 - [ ] packages/memory-engine/src/api/memory-client.ts
 - [ ] packages/memory-engine/src/background/loop.ts
 
+## 2026-09-04T13:50:49.457Z (catalog + index)
+- [x] packages/core/src/tools/catalog.ts (header comment: tool catalog with i18n)
+- [x] packages/core/src/tools/index.ts (header comment: tool registry re-exports)
+
 ## 2026-09-04T00:17:51.783Z
 - [ ] apps/web/src/app/(app)/actions.ts
 - [ ] apps/web/src/app/api/assets/[id]/derive/route.ts
@@ -1411,3 +1415,6 @@ Cada commit agrega una sección con fecha y la lista de archivos `.ts/.tsx` toca
 ## 2026-09-04T20:47:41.713Z
 - [ ] packages/core/src/tools/catalog.ts
 - [ ] packages/core/src/tools/index.ts
+
+## 2026-09-04T20:48:12.602Z
+- [ ] packages/core/src/ai/llm.ts
