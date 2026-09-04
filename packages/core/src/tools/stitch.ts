@@ -1,3 +1,7 @@
+//! Google Stitch UI generation — text-to-UI mockup.
+// Uses Google Stitch SDK (free Labs experiment) to generate high-fidelity
+// UI screens from text prompts. Requires STITCH_API_KEY. Returns screenshot
+// URL + editable HTML URL. Fail-soft: throws on missing key or API errors.
 export interface UiScreen {
   prompt: string;
   imageUrl: string;

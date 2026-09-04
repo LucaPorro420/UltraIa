@@ -1,3 +1,8 @@
+//! Director — LLM-powered plan generator for video/audio production.
+// Takes a natural language idea and produces a structured DirectorPlan:
+// language, script, image prompts per shot, camera motions, BGM, style.
+// Uses the configured AI gateway (OpenAI/Google) with JSON mode.
+// Deterministic fallback when LLM is unavailable (template-based plans).
 import type { AiGateway } from '../ai/gateway';
 import { LANGUAGES, languageInfo, normalizeLanguage } from './languages';
 import { safeJsonParseOrThrow } from '../utils/safe-json';
