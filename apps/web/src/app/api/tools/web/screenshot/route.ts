@@ -1,3 +1,4 @@
+//! POST /api/tools/web/screenshot — capture website screenshots via Playwright.
 import { z } from 'zod';
 import { prisma, slugifyPrompt } from '@ultraia/core';
 import { getCurrentUser } from '@/lib/server/context';

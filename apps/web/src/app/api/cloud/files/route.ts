@@ -1,3 +1,4 @@
+//! GET/DELETE /api/cloud/files — list + manifest, delete by path.
 import { getCurrentUser } from '@/lib/server/context';
 import { CloudService } from '@ultraia/cloud';
 import { localCloudAdapter } from '../providers';

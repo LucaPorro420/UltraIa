@@ -1,3 +1,5 @@
+//! POST /api/chat — agent chat endpoint with streaming + guardrails.
+// Routes to configured agent, applies safety guardrails, streams tokens via SSE.
 import {
   chatStream,
   guardrailsBlock,

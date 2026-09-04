@@ -1,3 +1,4 @@
+//! POST /api/tools/content/music — search royalty-free music via Tunetank MCP.
 import { z } from 'zod';
 import { searchMusic } from '@ultraia/core';
 import { getCurrentUser } from '@/lib/server/context';

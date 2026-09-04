@@ -1,3 +1,4 @@
+//! POST /api/travel — travel video plan generation with Ken Burns scenes.
 import { NextResponse } from 'next/server';
 import { getCurrentUser } from '@/lib/server/context';
 

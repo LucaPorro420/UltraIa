@@ -1,3 +1,4 @@
+//! GET /api/content/list — list all generated content files with metadata.
 import { getCurrentUser } from '@/lib/server/context';
 import { listContentFiles, getContentStats, readContentFile } from '@ultraia/core';
 

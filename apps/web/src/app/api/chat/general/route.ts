@@ -1,3 +1,5 @@
+//! POST /api/chat/general — general-purpose chat endpoint (no agent context).
+// Streams AI responses without agent-specific tools or guardrails.
 import { chatStream, AiUnavailableError } from '@ultraia/core';
 import { z } from 'zod';
 import { getCurrentUser } from '@/lib/server/context';

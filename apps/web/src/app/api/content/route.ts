@@ -1,3 +1,4 @@
+//! POST /api/content — generate derived content from sources (blog/video/social/thread).
 import { z } from 'zod';
 import { generateDerivedContent, generateBatch, ALL_CONTENT_SOURCES } from '@ultraia/core';
 import { getCurrentUser } from '@/lib/server/context';

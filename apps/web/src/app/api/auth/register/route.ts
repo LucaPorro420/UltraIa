@@ -1,3 +1,5 @@
+//! POST /api/auth/register — new user registration endpoint.
+// Validates with zod, hashes password, creates workspace + session, returns token.
 import { z } from 'zod';
 import { assertStrongPassword, createSession, createWorkspace, hashPassword, prisma } from '@ultraia/core';
 

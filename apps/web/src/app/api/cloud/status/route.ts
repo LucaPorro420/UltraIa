@@ -1,3 +1,4 @@
+//! GET /api/cloud/status — cloud provider status + budget (no secrets exposed).
 import { getCurrentUser } from '@/lib/server/context';
 import { cloudProviders } from '../providers';
 

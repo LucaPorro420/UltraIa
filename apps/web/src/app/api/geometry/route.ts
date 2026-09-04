@@ -1,3 +1,4 @@
+//! POST /api/geometry — 3D geometry generation (superformula, mesh ops, glTF/OBJ export).
 import { NextResponse } from 'next/server';
 import { getCurrentUser } from '@/lib/server/context';
 import {
