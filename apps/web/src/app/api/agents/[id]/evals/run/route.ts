@@ -30,7 +30,7 @@ export async function POST(req: Request) {
     });
     return Response.json(summary);
   } catch (err) {
-    return new Response(err instanceof Error ? err.message : 'Eval run failed', { status: 400 });
+    return new Response('Eval run failed', { status: 400 });
   }
 }
 

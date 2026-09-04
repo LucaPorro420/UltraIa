@@ -92,7 +92,7 @@ async function runPivCycle(
     return {
       status: 'error',
       output: '',
-      error: err instanceof Error ? err.message : String(err),
+      error: 'Internal error',
     };
   }
 }
@@ -140,7 +140,7 @@ async function runGoalCycle(
     return {
       status: 'error',
       output: '',
-      error: err instanceof Error ? err.message : String(err),
+      error: 'Internal error',
     };
   }
 }

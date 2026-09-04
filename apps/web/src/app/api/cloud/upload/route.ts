@@ -26,6 +26,6 @@ export async function POST(req: Request) {
     return Response.json({ file: saved, files, manifest }, { status: 201 });
   } catch (err) {
     if (err instanceof CloudError) return Response.json({ error: err.message }, { status: 400 });
-    return Response.json({ error: err instanceof Error ? err.message : 'error de subida' }, { status: 500 });
+    return Response.json({ error: 'Upload failed' }, { status: 500 });
   }
 }

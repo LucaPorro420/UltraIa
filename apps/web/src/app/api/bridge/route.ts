@@ -229,7 +229,7 @@ export async function POST(req: NextRequest) {
   try {
     input = validateBridgeInput({ ...(json as Record<string, unknown>), userId: user.id });
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'validation error';
+    const message = err instanceof Error ? 'Invalid bridge input' : 'validation error';
     return NextResponse.json({ error: message }, { status: 400 });
   }
 

@@ -135,9 +135,17 @@ export function DiagramsClient() {
     setSteps(PRESET_STEPS[k]);
   }
 
+  /** L02 FIX: Strip script tags and on* event handlers from SVG before injection. */
+  function sanitizeSvg(svg: string): string {
+    return svg
+      .replace(/<script[\s\S]*?<\/script>/gi, '')
+      .replace(/\son\w+\s*=\s*["'][^"']*["']/gi, '')
+      .replace(/\son\w+\s*=\s*[^\s>]+/gi, '');
+  }
+
   function generateSvg(): string {
-    if (kind === 'timeline') return generateTimelineSvg(steps, color);
-    return generateFlowSvg(steps, color);
+    if (kind === 'timeline') return sanitizeSvg(generateTimelineSvg(steps, color));
+    return sanitizeSvg(generateFlowSvg(steps, color));
   }
 
   function exportSvg() {

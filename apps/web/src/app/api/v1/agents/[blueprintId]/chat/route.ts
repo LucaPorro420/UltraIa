@@ -91,6 +91,6 @@ export async function POST(
     });
     return Response.json({ text });
   } catch (err) {
-    return new Response(err instanceof Error ? err.message : 'Agent call failed', { status: 502 });
+    return new Response('Agent call failed', { status: 502 });
   }
 }

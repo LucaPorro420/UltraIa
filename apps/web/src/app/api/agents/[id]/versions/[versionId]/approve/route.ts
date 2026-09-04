@@ -35,7 +35,7 @@ export async function POST(req: Request) {
     });
     return Response.json(outcome);
   } catch (err) {
-    return new Response(err instanceof Error ? err.message : 'Approval failed', { status: 400 });
+    return new Response('Approval failed', { status: 400 });
   }
 }
 

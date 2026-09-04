@@ -32,7 +32,7 @@ export async function POST(req: Request) {
   try {
     await recordFeedback(prisma, parsed.data);
   } catch (err) {
-    return new Response(err instanceof Error ? err.message : 'Feedback failed', { status: 400 });
+    return new Response('Feedback failed', { status: 400 });
   }
   return Response.json({ ok: true });
 }

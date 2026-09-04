@@ -39,6 +39,6 @@ export async function POST(req: Request) {
       changeSummary: proposal.changeSummary,
     });
   } catch (err) {
-    return new Response(err instanceof Error ? err.message : 'Improvement failed', { status: 400 });
+    return new Response('Improvement failed', { status: 400 });
   }
 }

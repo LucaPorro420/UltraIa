@@ -29,6 +29,6 @@ export async function DELETE(req: Request) {
     const removed = await service().remove(path);
     return Response.json({ removed, path });
   } catch (err) {
-    return Response.json({ error: err instanceof Error ? err.message : 'error' }, { status: 400 });
+    return Response.json({ error: 'error' }, { status: 400 });
   }
 }
