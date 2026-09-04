@@ -1,5 +1,6 @@
 import { prisma, rejectPublication } from '@ultraia/core';
 import { getCurrentUser } from '@/lib/server/context';
+import { sanitizeError } from '@/lib/server/sanitize-error';
 
 /** POST /api/publications/[id]/reject — rechazo humano del paquete (DRAFT → REJECTED). */
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -17,6 +18,6 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     const estado = await rejectPublication(prisma, id);
     return Response.json({ id, estado });
   } catch (err) {
-    return Response.json({ error: (err as Error).message }, { status: 409 });
+    return Response.json({ error: sanitizeError(err) }, { status: 409 });
   }
 }

@@ -1,6 +1,7 @@
 import { computeChannelKpis, fetchChannelAnalytics, mergeAnalyticsIntoKpis } from '@ultraia/core';
 import { prisma } from '@ultraia/core';
 import { getCurrentUser } from '@/lib/server/context';
+import { sanitizeError } from '@/lib/server/sanitize-error';
 
 /**
  * GET /api/publications/metrics — KPIs por canal (AutoPub F5). Requiere ADMIN.
@@ -32,6 +33,6 @@ export async function GET(req: Request) {
     const kpisConAnalytics = mergeAnalyticsIntoKpis(kpis, [analytics]);
     return Response.json({ ok: true, ...kpisConAnalytics, analytics });
   } catch (err) {
-    return Response.json({ ok: false, error: (err as Error).message }, { status: 500 });
+    return Response.json({ ok: false, error: sanitizeError(err) }, { status: 500 });
   }
 }

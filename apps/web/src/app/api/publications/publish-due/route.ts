@@ -1,5 +1,6 @@
 import { prisma, publishDue } from '@ultraia/core';
 import { getCurrentUser } from '@/lib/server/context';
+import { sanitizeError } from '@/lib/server/sanitize-error';
 
 /**
  * POST /api/publications/publish-due — dispara la publicación programada (calendario).
@@ -15,6 +16,6 @@ export async function POST() {
     const res = await publishDue(prisma);
     return Response.json({ ...res, ok: true });
   } catch (err) {
-    return Response.json({ ok: false, error: (err as Error).message }, { status: 500 });
+    return Response.json({ ok: false, error: sanitizeError(err) }, { status: 500 });
   }
 }

@@ -1,5 +1,6 @@
 import { prisma, registrarFeedback } from '@ultraia/core';
 import { getCurrentUser } from '@/lib/server/context';
+import { sanitizeError } from '@/lib/server/sanitize-error';
 
 /**
  * POST /api/publications/[id]/feedback — señal post-publicación (AutoPub F5).
@@ -27,6 +28,6 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
     });
     return Response.json({ ok: true, senales });
   } catch (err) {
-    return Response.json({ ok: false, error: (err as Error).message }, { status: 500 });
+    return Response.json({ ok: false, error: sanitizeError(err) }, { status: 500 });
   }
 }

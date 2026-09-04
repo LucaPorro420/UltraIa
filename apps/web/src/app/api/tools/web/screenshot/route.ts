@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { prisma, slugifyPrompt } from '@ultraia/core';
 import { getCurrentUser } from '@/lib/server/context';
 import { getStudioCloud } from '@/lib/server/studio-assets';
+import { sanitizeError } from '@/lib/server/sanitize-error';
 
 const bodySchema = z.object({
   url: z.string().url(),
@@ -70,7 +71,7 @@ export async function POST(req: Request) {
       msg.includes('Executable') || msg.includes('browserType.launch')
         ? 'Instala el navegador: npx playwright install chromium'
         : 'No se pudo capturar la página (timeout o bloqueo)';
-    return Response.json({ ok: false, error: msg.slice(0, 300), hint }, { status: 503 });
+    return Response.json({ ok: false, error: sanitizeError(err), hint }, { status: 503 });
   }
 }
 

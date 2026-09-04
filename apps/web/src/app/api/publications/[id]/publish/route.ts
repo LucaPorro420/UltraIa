@@ -1,6 +1,7 @@
 import { prisma, markPublished, markFailed } from '@ultraia/core';
 import { createDefaultPublishers, publishToAll, buildBilingualMetadata } from '@ultraia/core';
 import { getCurrentUser } from '@/lib/server/context';
+import { sanitizeError } from '@/lib/server/sanitize-error';
 
 /** POST /api/publications/[id]/publish — publica ahora el paquete (fail-soft sin tokens). */
 export async function POST(_req: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -34,7 +35,7 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
     await markFailed(prisma, id, razon);
     return Response.json({ id, estado: 'FAILED', error: razon, resultado }, { status: 502 });
   } catch (err) {
-    await markFailed(prisma, id, (err as Error).message);
-    return Response.json({ id, estado: 'FAILED', error: (err as Error).message }, { status: 502 });
+    await markFailed(prisma, id, sanitizeError(err));
+    return Response.json({ id, estado: 'FAILED', error: sanitizeError(err) }, { status: 502 });
   }
 }

@@ -6,6 +6,7 @@ import { join } from 'node:path';
 import { buildSlideshowFfmpegArgv, generateImage, prisma, renderCompositionWav, slugifyPrompt, assertPublicUrl } from '@ultraia/core';
 import { getCurrentUser } from '@/lib/server/context';
 import { effectiveExt, getStudioCloud } from '@/lib/server/studio-assets';
+import { sanitizeError } from '@/lib/server/sanitize-error';
 
 const bodySchema = z.discriminatedUnion('op', [
   z.object({
@@ -174,6 +175,6 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       rm(tmp, { recursive: true, force: true }).catch(() => undefined);
     }
   } catch (err) {
-    return Response.json({ ok: false, error: (err as Error).message }, { status: 502 });
+    return Response.json({ ok: false, error: sanitizeError(err) }, { status: 502 });
   }
 }

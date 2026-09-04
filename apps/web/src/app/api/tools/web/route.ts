@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { spawnSync } from 'node:child_process';
 import { fetchWebContent, planWebHarvestArgv } from '@ultraia/core';
 import { getCurrentUser } from '@/lib/server/context';
+import { sanitizeError } from '@/lib/server/sanitize-error';
 
 const bodySchema = z.object({
   url: z.string().url(),
@@ -54,7 +55,7 @@ function runWebHarvest(url: string): { ok: true; payload: WebPayload; tried: num
       lastError = (err as Error).message;
     }
   }
-  return { ok: false, error: lastError, tried: candidates.length };
+  return { ok: false, error: 'Web fetch failed after all attempts', tried: candidates.length };
 }
 
 export async function POST(req: Request) {
@@ -70,7 +71,7 @@ export async function POST(req: Request) {
     const r = runWebHarvest(url);
     if (!r.ok) {
       return Response.json(
-        { error: `webharvest: ${r.error}`, hint: 'Instala el scraper local: pip install webharvest', tried: r.tried },
+        { error: 'Web fetch failed', hint: 'Instala el scraper local: pip install webharvest', tried: r.tried },
         { status: 503 },
       );
     }
@@ -84,9 +85,6 @@ export async function POST(req: Request) {
   } catch (remoteErr) {
     const r = runWebHarvest(url);
     if (r.ok) return Response.json(r.payload);
-    return new Response(
-      `${(remoteErr as Error).message || 'Fetch failed'} · webharvest fallback: ${r.error}`,
-      { status: 502 },
-    );
+    return new Response('Web fetch failed', { status: 502 });
   }
 }

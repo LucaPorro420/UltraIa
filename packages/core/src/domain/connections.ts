@@ -18,13 +18,25 @@ const scryptAsync = promisify(scrypt);
 async function deriveKey(): Promise<Buffer> {
   const secret = process.env.CONNECTIONS_SECRET;
   if (!secret) {
-    // Modo efímero: clave aleatoria por proceso + salt fijo.
+    // Modo efímero: clave aleatoria por proceso.
     // Tokens NO sobreviven reinicio. Solo para dev sin configurar.
     const ephemeral = randomBytes(32);
     console.warn('[connections] CONNECTIONS_SECRET no definido — usando clave efímera (tokens no persisten tras reinicio)');
     return ephemeral;
   }
-  // PBKDF2-like: scrypt(secret, salt, 32) — salt fijo por proyecto.
+  // Two-step derivation: salt derived from secret itself (unique per deployment,
+  // no extra env var). Static salt v1 removed (M11).
+  const derivedSalt = (await scryptAsync(secret, Buffer.from('ultraia-salt-derive-v1', 'utf8'), 32)) as Buffer;
+  return (await scryptAsync(secret, derivedSalt, 32)) as Buffer;
+}
+
+/**
+ * Legacy key derivation (static salt v1) for backward compatibility.
+ * Tokens encrypted before M11 can still be decrypted.
+ */
+async function deriveKeyLegacy(): Promise<Buffer> {
+  const secret = process.env.CONNECTIONS_SECRET;
+  if (!secret) return randomBytes(32); // won't match anything
   const salt = Buffer.from('ultraia-connections-salt-v1', 'utf8');
   return (await scryptAsync(secret, salt, 32)) as Buffer;
 }
@@ -40,18 +52,27 @@ export async function cifrarToken(plain: string): Promise<string> {
   return Buffer.concat([iv, authTag, ciphertext]).toString('base64');
 }
 
-/** Descifra un token cifrado (base64) → string plano. */
+/** Descifra un token cifrado (base64) → string plano.
+ *  Intenta nueva derivación (M11) primero; si falla, legacy (salt v1). */
 export async function descifrarToken(cifrado: string): Promise<string> {
-  const key = await deriveKey();
   const data = Buffer.from(cifrado, 'base64');
   if (data.length < 28) throw new Error('Token cifrado inválido (muy corto)');
   const iv = data.subarray(0, 12);
   const authTag = data.subarray(12, 28);
   const ciphertext = data.subarray(28);
-  const decipher = createDecipheriv('aes-256-gcm', key, iv);
-  decipher.setAuthTag(authTag);
-  const plain = Buffer.concat([decipher.update(ciphertext), decipher.final()]);
-  return plain.toString('utf8');
+  // Try new key derivation first
+  try {
+    const key = await deriveKey();
+    const decipher = createDecipheriv('aes-256-gcm', key, iv);
+    decipher.setAuthTag(authTag);
+    return Buffer.concat([decipher.update(ciphertext), decipher.final()]).toString('utf8');
+  } catch {
+    // Fallback: legacy static salt (pre-M11 tokens)
+    const key = await deriveKeyLegacy();
+    const decipher = createDecipheriv('aes-256-gcm', key, iv);
+    decipher.setAuthTag(authTag);
+    return Buffer.concat([decipher.update(ciphertext), decipher.final()]).toString('utf8');
+  }
 }
 
 /** Máscara para logs/UI: solo últimos 4 chars. */
