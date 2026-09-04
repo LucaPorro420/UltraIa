@@ -1,3 +1,7 @@
+//! MediaField — the core data model for OMAG worlds.
+// Entities have persistent identity, relations form a world graph, and events
+// are first-class objects with causal effects. The field serializes to JSON
+// and drives the WorldTransitionEngine, Timeline, and Critics.
 import { z } from 'zod';
 import { safeJsonParseOrThrow } from '../utils/safe-json';
 

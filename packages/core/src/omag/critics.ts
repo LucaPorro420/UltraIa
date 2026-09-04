@@ -1,3 +1,7 @@
+//! OMAG Critics — quality evaluation for generated media.
+// Four built-in critics: TemporalSync (audio-video alignment), Identity
+// (entity persistence), Causal (event causality), Multimodal (cross-modality
+// coherence). fuseCritiques merges scores with dynamic priority weights.
 import type { MediaField } from './mediafield';
 import type { GenerationResult } from './generators';
 import { checkSynchronization } from './timeline';
