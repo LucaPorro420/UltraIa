@@ -9,14 +9,16 @@
 
 ## Executive Summary
 
-| Severity | Count | Action Required |
-|----------|-------|-----------------|
-| **Critical** | 4 | Fix immediately |
-| **High** | 9 | Fix before any production deployment |
-| **Medium** | 13 | Fix before public launch |
-| **Low** | 6 | Harden as defense-in-depth |
+| Severity | Total | Fixed | Remaining |
+|----------|-------|-------|-----------|
+| **Critical** | 4 | 4 | 0 |
+| **High** | 9 | 5 | 4 |
+| **Medium** | 13 | 9 | 4 |
+| **Low** | 6 | 1 | 5 |
 
 **Positive foundations:** bcrypt cost 12, `crypto.randomBytes(32)` tokens, timing-safe comparison, Zod validation on all endpoints, loopback-only local API, Prisma parameterized queries, `isPublicUrl()` guard in `web.ts`.
+
+**Fixed across 4 security batches (2026-09-04):** C01 (env keys), C02 (admin creds), C03 (session hashing), C04 (path traversal), H01 (logout session destruction), H02 (library SSRF), H03 (auth header bypass), H05 (readWeb SSRF), H06 (parseRss SSRF), H07 (derive SSRF), H08 (workflow eval), M03 (IP spoof), M05 (cookie secure), M07 (CSP align), M08 (CSRF), M09 (bridge path traversal), M10 (execFileSync), M11 (derivation salt), M12 (CORS), M13 (TS/ESLint build), L03 (error sanitization).
 
 ---
 
@@ -36,12 +38,13 @@
 - **Impact:** Any deployment running the seed script has a trivially compromised admin account with full ADMIN role and all 8 agent blueprints.
 - **Fix:** Read passwords from env vars (`ADMIN_PASSWORD`). Refuse to seed in production with default credentials.
 
-### C03 — `AUTH_SECRET` Unused; Session Tokens Stored as Plaintext in DB
+### C03 — `AUTH_SECRET` Unused; Session Tokens Stored as Plaintext in DB ✅ FIXED
 
 - **Files:** `apps/web/.env` (line 7), `packages/core/src/auth/session.ts` (lines 6-12)
 - **Issue:** `AUTH_SECRET` is defined but never referenced in session creation/validation. Session tokens are opaque DB-stored strings — not HMAC-signed. SQLite file compromise yields all active sessions.
 - **Impact:** DB file theft = full session hijack for up to 30 days.
 - **Fix:** Either HMAC-sign tokens with `AUTH_SECRET` (stateless validation) or store SHA-256 hashes of tokens in the DB.
+- **Resolution (2026-09-04):** SHA-256 hash of tokens stored in DB via `hashToken()` helper. `createSession`, `getSessionUser`, `destroySession` all hash before DB operations. Existing sessions invalidated (users re-login once).
 
 ### C04 — Path Traversal in Chat-to-Code Bridge (Arbitrary File Write)
 
@@ -72,11 +75,12 @@
 - **Issue:** `assertStrongPassword` only checks `password.length < 8`. Passwords like `12345678` pass.
 - **Fix:** Check against top 10,000 common passwords. Consider NIST 800-63B guidelines.
 
-### H03 — Session Accepted from `Authorization` Header (Bypasses httpOnly)
+### H03 — Session Accepted from `Authorization` Header (Bypasses httpOnly) ✅ FIXED
 
 - **File:** `apps/web/src/lib/server/context.ts`, lines 13-18
 - **Issue:** `tokenFromRequest` accepts tokens from `Authorization` header, bypassing the `httpOnly` cookie protection. Any CORS misconfiguration or XSS on any subdomain allows token theft via header.
 - **Fix:** Use ONLY `x-ultraia-session` for mobile, cookies for web. Remove `Authorization` as a session source.
+- **Resolution (2026-09-04):** Removed `Authorization` header lookup. Only `x-ultraia-session` header is accepted for mobile auth.
 
 ### H04 — Session Token in URL Query Parameter (Logged)
 
@@ -129,11 +133,12 @@
 - **Issue:** No password change endpoint exists. If one is added, all prior sessions remain valid.
 - **Fix:** Add `DELETE FROM Session WHERE userId = ?` in any future password change flow.
 
-### M03 — IP-Based Rate Limiting Spoofable via `X-Forwarded-For`
+### M03 — IP-Based Rate Limiting Spoofable via `X-Forwarded-For` ✅ FIXED
 
 - **File:** `apps/web/src/middleware.ts`, lines 96-98
 - **Issue:** Rate limit key derived from `x-forwarded-for` without trust verification. Attacker can set a fake IP per request, bypassing all limits.
 - **Fix:** Only read `x-forwarded-for` when behind a trusted proxy. Add `TRUST_PROXY` env check.
+- **Resolution (2026-09-04):** Added `TRUST_PROXY` env check. Without it, always uses `127.0.0.1` (safe default for local dev).
 
 ### M04 — No Brute-Force Lockout on Failed Logins
 
@@ -153,16 +158,18 @@
 - **Issue:** `script-src 'self' 'unsafe-inline' 'unsafe-eval'` negates XSS protection.
 - **Fix:** Use nonce-based CSP. Remove `unsafe-eval` by eliminating dynamic evaluation.
 
-### M07 — Middleware CSP More Permissive Than next.config
+### M07 — Middleware CSP More Permissive Than next.config ✅ FIXED
 
 - **File:** `apps/web/src/middleware.ts`, lines 148-150
 - **Issue:** Middleware uses `img-src 'self' https: data: blob:` (wildcard HTTPS). Next.config has strict allowlists. Middleware overrides the stricter config.
 - **Fix:** Align middleware CSP with next.config strict allowlists.
+- **Resolution (2026-09-04):** Middleware CSP now matches next.config.ts exactly: same allowlists for img-src, font-src, connect-src, style-src.
 
-### M08 — No CSRF Protection on State-Changing API Routes
+### M08 — No CSRF Protection on State-Changing API Routes ✅ FIXED
 
 - **Issue:** All POST endpoints rely solely on session cookies. No CSRF tokens validated.
 - **Fix:** Add CSRF token validation or verify `Origin`/`Referer` headers.
+- **Resolution (2026-09-04):** Middleware validates `Origin` and `Referer` headers on POST/PUT/DELETE/PATCH to `/api/*`. Returns 403 on mismatch. Same-origin and non-CORS requests (no Origin header) pass through.
 
 ### M09 — Path Traversal in Bridge commit/rollback
 
@@ -188,11 +195,12 @@
 - **Issue:** Default `Access-Control-Allow-Origin: '*'` when `CLOUD_ALLOWED_ORIGINS` is unset.
 - **Fix:** Default to restrictive CORS. Require explicit origin configuration.
 
-### M13 — TypeScript/ESLint Ignored During Build
+### M13 — TypeScript/ESLint Ignored During Build ✅ FIXED
 
 - **File:** `apps/web/next.config.ts`, lines 36-37
 - **Issue:** `ignoreDuringBuilds: true` for both ESLint and TypeScript. Builds succeed with type errors.
 - **Fix:** Remove overrides for production builds.
+- **Resolution (2026-09-04):** Removed `eslint: { ignoreDuringBuilds: true }` and `typescript: { ignoreBuildErrors: true }`. Build now validates types and lint during production build.
 
 ---
 
