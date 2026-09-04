@@ -1,3 +1,4 @@
+//! Type declarations for web-vitals package (CLS, FID, FCP, LCP, TTFB).
 declare module 'web-vitals' {
   type Metric = {
     name: string;

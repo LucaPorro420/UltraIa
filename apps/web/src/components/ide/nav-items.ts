@@ -1,3 +1,4 @@
+//! Navigation items for the IDE sidebar — icons, labels, and routes.
 import {
   LayoutDashboard,
   Sparkles,
