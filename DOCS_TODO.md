@@ -1481,3 +1481,7 @@ Cada commit agrega una sección con fecha y la lista de archivos `.ts/.tsx` toca
 - [ ] apps/web/src/app/api/orchestrator/route.ts
 - [ ] packages/core/src/tools/index.ts
 - [ ] packages/core/src/tools/orchestrator-unified.ts
+
+## 2026-09-04T22:28:06.733Z
+- [ ] packages/core/src/tools/index.ts
+- [ ] packages/core/src/tools/learning-tracker.ts
