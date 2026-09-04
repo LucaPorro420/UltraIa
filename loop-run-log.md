@@ -3531,3 +3531,10 @@ Triage PIVR:
 - **V**: typecheck ✅ → lint ✅ → test 2271/2271 ✅ → build ✅.
 - **R**: Commits e688b48 + 73320ac. Security: 4 Critical FIXED, 5/9 High fixed, 9/13 Medium fixed. Remaining: H04 (session in URL), M04 (brute-force), M06 (unsafe-inline/eval), M13 was fixed by concurrent session.
 
+### Iteracion 170 — Security batch 5: H04 download tokens + M04 brute-force (04/09/2026) - DONE
+
+- **P**: H04 (session tokens in URL query params), M04 (no brute-force lockout).
+- **I**: download-token.ts (HMAC-SHA256 signed, 60s TTL, timing-safe verify); brute-force.ts (in-memory, per IP+identifier, 5 attempts → 15min lockout); asset routes updated to `?dl=<token>`; login route checks lockout before verify, records failures, clears on success.
+- **V**: typecheck ✅ → lint ✅ → test 2271/2271 ✅ → build ✅.
+- **R**: Commits 5f8afe7 + ca78442. Security: 6/9 High fixed, 10/13 Medium fixed. Remaining: M06 (unsafe-inline/eval), L01-L06 (low).
+
