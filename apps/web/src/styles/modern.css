@@ -1,0 +1,19 @@
+/* ═══════════════════════════════════════════════════════════════════
+   MODERN CSS — bleeding-edge features (progressive enhancement)
+   
+   These features have broad 2025+ browser support but are safe to
+   ignore in older browsers. No functionality breaks if unsupported.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── View Transitions API — smooth page navigation ── */
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition-old(root) {
+  animation: fade-out 150ms ease-out;
+}
+
+::view-transition-new(root) {
+  animation: fade-in 200ms ease-in;
+}

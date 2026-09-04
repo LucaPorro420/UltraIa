@@ -1,0 +1,36 @@
+/* ═══════════════════════════════════════════════════════════════════
+   BASE LAYER — resets, root variables, body defaults
+   ═══════════════════════════════════════════════════════════════════ */
+
+@layer base {
+  :root {
+    --agent-video: #a855f7;
+    --agent-audio: #06b6d4;
+    --agent-text: #f59e0b;
+    --agent-code: #10b981;
+    --agent-web: #6366f1;
+    --status-thinking: #3b82f6;
+    --status-streaming: #10b981;
+    --status-error: #ef4444;
+  }
+
+  body {
+    @apply bg-canvas text-neutral-100 antialiased;
+    font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  }
+
+  ::selection {
+    background: color-mix(in srgb, var(--color-primary) 40%, transparent);
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-border-muted) transparent;
+  }
+
+  :where(a, button, input, textarea, select, summary, [tabindex]):focus-visible {
+    outline: 2px solid color-mix(in srgb, var(--color-primary) 70%, transparent);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+}
