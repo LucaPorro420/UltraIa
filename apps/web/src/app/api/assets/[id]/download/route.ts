@@ -1,18 +1,26 @@
-import { prisma, getSessionUser, slugifyPrompt } from '@ultraia/core';
+import { prisma, slugifyPrompt } from '@ultraia/core';
 import { getCurrentUser } from '@/lib/server/context';
 import { getStudioCloud, MIME_BY_EXT, resolveAssetBytes } from '@/lib/server/studio-assets';
+import { verifyDownloadToken } from '@/lib/server/download-token';
 
 /**
  * GET /api/assets/[id]/download — descarga el binario con Content-Disposition.
- * Auth: header/cookie O `?session=<token>` (móvil, loop-108).
+ * Auth: header/cookie O `?dl=<token>&assetId=<id>` (HMAC-signed, 60s TTL).
+ * H04 FIX: session tokens removed from URLs — use short-lived download tokens instead.
  * Cloud primero (durable); proxy a la URL externa como fallback.
  */
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   let userId: string | null = null;
-  const qs = new URL(req.url).searchParams.get('session');
-  if (qs) {
-    const u = await getSessionUser(prisma, qs);
-    if (u) userId = u.id;
+
+  const sp = new URL(req.url).searchParams;
+  const dlToken = sp.get('dl');
+  if (dlToken) {
+    const u = await getCurrentUser(req);
+    if (u) {
+      const result = verifyDownloadToken(dlToken, id, u.id);
+      if (result.valid) userId = u.id;
+    }
   }
   if (!userId) {
     const u = await getCurrentUser(req);
@@ -20,7 +28,6 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
   }
   if (!userId) return new Response('Unauthorized', { status: 401 });
 
-  const { id } = await params;
   const asset = await prisma.generatedAsset.findFirst({ where: { id, userId } });
   if (!asset) return new Response('Not found', { status: 404 });
 

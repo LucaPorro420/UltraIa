@@ -1,19 +1,28 @@
 import { z } from 'zod';
-import { getSessionUser, prisma } from '@ultraia/core';
+import { prisma } from '@ultraia/core';
 import { getCurrentUser } from '@/lib/server/context';
 import { getStudioCloud, resolveAssetBytes } from '@/lib/server/studio-assets';
+import { verifyDownloadToken } from '@/lib/server/download-token';
 
 /**
- * Auth del GET: header/cookie (web) O `?session=<token>` — la app móvil abre
- * imágenes/audio/vídeo en el navegador del sistema, donde no puede mandar
- * headers (loop-108). PATCH/DELETE siguen por getCurrentUser estándar.
+ * Auth del GET: header/cookie (web) O `?dl=<token>` (HMAC-signed, 60s TTL).
+ * H04 FIX: session tokens removed from URLs — use short-lived download tokens instead.
+ * PATCH/DELETE siguen por getCurrentUser estándar.
  */
 async function getUserForRead(req: Request): Promise<{ id: string } | null> {
   const sp = new URL(req.url).searchParams;
-  const qs = sp.get('session');
-  if (qs) {
-    const u = await getSessionUser(prisma, qs);
-    if (u) return { id: u.id };
+  const dlToken = sp.get('dl');
+  if (dlToken) {
+    // Extract assetId from the URL path — we need it for token verification.
+    // The caller must pass assetId in the query or we extract it from the path.
+    const assetId = sp.get('assetId') ?? '';
+    // First get the user from cookie/header to get userId for token verification.
+    const u = await getCurrentUser(req);
+    if (u) {
+      const result = verifyDownloadToken(dlToken, assetId, u.id);
+      if (result.valid) return { id: u.id };
+    }
+    return null;
   }
   const u = await getCurrentUser(req);
   return u ? { id: u.id } : null;
