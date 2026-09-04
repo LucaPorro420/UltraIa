@@ -1,6 +1,8 @@
 import { z } from 'zod';
 import { assertStrongPassword, createSession, createWorkspace, hashPassword, prisma } from '@ultraia/core';
 
+export const dynamic = 'force-dynamic';
+
 const registerSchema = z.object({
   name: z.string().trim().max(100).optional(),
   email: z.string().trim().email('Enter a valid email'),

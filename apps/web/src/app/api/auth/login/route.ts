@@ -2,6 +2,8 @@ import { z } from 'zod';
 import { assertStrongPassword, createSession, createWorkspace, hashPassword, prisma, verifyPassword } from '@ultraia/core';
 import { isLockedOut, recordFailedAttempt, clearAttempts, getClientIp } from '@/lib/server/brute-force';
 
+export const dynamic = 'force-dynamic';
+
 const credentialsSchema = z.object({
   email: z.string().trim().min(1, 'Email or username is required'),
   password: z.string().min(1, 'Password is required'),

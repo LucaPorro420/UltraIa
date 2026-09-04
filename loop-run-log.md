@@ -3538,3 +3538,10 @@ Triage PIVR:
 - **V**: typecheck ✅ → lint ✅ → test 2271/2271 ✅ → build ✅.
 - **R**: Commits 5f8afe7 + ca78442. Security: 6/9 High fixed, 10/13 Medium fixed. Remaining: M06 (unsafe-inline/eval), L01-L06 (low).
 
+### Iteracion 171 — Qwen provider unblocked + connections catalog + push (04/09/2026) - DONE
+
+- **P**: Task #142 (Qwen provider) was BLOCKED by concurrent session WIP on llm.ts — now clean. Provider already fully implemented in llm.ts (qwenModel, qwenFetch, QWEN_MODELS, switch cases, 3 tests). Missing: connections-catalog.ts entry. Also: push 25 unpushed commits, check enlaces.txt pending items.
+- **I**: Added Qwen to connections-catalog.ts (ai category, DASHSCOPE_API_KEY env, description). Pushed 25 commits to GitHub (dd2c08a..860e99f). Verified enlaces.txt Instagram post is behind login wall (blocked).
+- **V**: typecheck ✅ → connections-catalog tests 7/7 ✅ → qwen-provider tests 3/3 ✅.
+- **R**: Commit 47ae8a9. Task #142 DONE. Enlaces.txt Instagram blocked (needs manual auth). All backlog 1-167 DONE.
+

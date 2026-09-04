@@ -154,11 +154,12 @@
 - **Issue:** `secure: process.env.NODE_ENV === 'production'` sends tokens over plaintext HTTP in staging/dev.
 - **Fix:** Use `APP_URL?.startsWith('https')` instead of `NODE_ENV`.
 
-### M06 — CSP Allows `'unsafe-inline'` + `'unsafe-eval'`
+### M06 — CSP Allows `'unsafe-inline'` + `'unsafe-eval'` ✅ FIXED
 
 - **Files:** `apps/web/src/middleware.ts` (line 146), `next.config.ts` (line 171)
 - **Issue:** `script-src 'self' 'unsafe-inline' 'unsafe-eval'` negates XSS protection.
 - **Fix:** Use nonce-based CSP. Remove `unsafe-eval` by eliminating dynamic evaluation.
+- **Resolution (2026-09-04):** `unsafe-eval` removed from both middleware and next.config. Nonce generated per-request via Web Crypto API (edge-compatible), stored in `__Secure-nonce` cookie. CSP uses `nonce-<base64>` directive. `unsafe-inline` retained as fallback for Next.js internal hydration scripts (cannot add nonces to those).
 
 ### M07 — Middleware CSP More Permissive Than next.config ✅ FIXED
 
@@ -223,10 +224,11 @@
 - **Files:** Multiple endpoints (`omag`, `publications`, `bridge`, `derive`)
 - **Issue:** Raw `(err as Error).message` returned to client. May leak internals.
 
-### L04 — Rate Limiting Bypassed for Static Assets
+### L04 — Rate Limiting Bypassed for Static Assets ✅ FIXED
 
 - **File:** `apps/web/src/middleware.ts`, lines 86-92
 - **Issue:** Any pathname with a dot bypasses rate limiting.
+- **Resolution (2026-09-04):** Only `_next` and `favicon` paths bypass rate limiting. Paths with dots (e.g., `/api/v1.0/data`) are no longer exempt.
 
 ### L05 — In-Memory Rate Limiting Not Persistent
 

@@ -1278,3 +1278,103 @@ Cada commit agrega una sección con fecha y la lista de archivos `.ts/.tsx` toca
 - [ ] apps/web/src/app/layout.tsx
 - [ ] apps/web/src/components/chaos-game/ChaosSidebar.tsx
 - [ ] packages/core/src/tools/catalog.ts
+
+## 2026-09-03T17:58:51.819Z
+- [ ] packages/core/src/tools/catalog.ts
+- [ ] packages/core/src/tools/chaos/attractors.ts
+- [ ] packages/core/src/tools/chaos/constants.ts
+- [ ] packages/core/src/tools/chaos/rk4.ts
+- [ ] packages/core/src/tools/chaos/trajectory.ts
+- [ ] packages/core/src/tools/chaos/types.ts
+
+## 2026-09-03T21:17:04.264Z
+- [ ] packages/core/src/tools/catalog.ts
+
+## 2026-09-03T21:25:40.031Z
+- [ ] packages/core/src/tools/index.ts
+
+## 2026-09-03T22:46:38.224Z
+- [ ] packages/core/src/ai/llm.ts
+
+## 2026-09-03T23:00:28.803Z
+- [ ] packages/core/src/ai/llm.ts
+- [ ] packages/core/src/tools/index.ts
+
+## 2026-09-03T23:43:54.385Z
+- [ ] packages/core/src/ai/llm.ts
+
+## 2026-09-03T23:50:13.552Z
+- [ ] packages/core/src/tools/automation.test.ts
+- [ ] packages/core/src/tools/automation.ts
+- [ ] packages/core/src/tools/model-memory.test.ts
+- [ ] packages/core/src/tools/recorder.test.ts
+- [ ] packages/core/src/tools/stitch.ts
+- [ ] packages/memory-engine/src/api/memory-client.ts
+- [ ] packages/memory-engine/src/background/loop.ts
+
+## 2026-09-04T00:17:51.783Z
+- [ ] apps/web/src/app/(app)/actions.ts
+- [ ] apps/web/src/app/api/assets/[id]/derive/route.ts
+- [ ] apps/web/src/app/api/bridge/route.ts
+- [ ] apps/web/src/app/api/library/assets/route.ts
+- [ ] packages/core/src/tools/reach.test.ts
+- [ ] packages/core/src/tools/reach.ts
+- [ ] packages/core/src/tools/web.test.ts
+- [ ] packages/core/src/tools/web.ts
+
+## 2026-09-04T01:27:18.642Z
+- [ ] cloudflare/worker.ts
+- [ ] packages/core/src/auth/password.test.ts
+- [ ] packages/core/src/auth/password.ts
+- [ ] packages/runtime/src/orchestrator/coordinator.ts
+
+## 2026-09-04T02:35:46.358Z
+- [ ] apps/web/src/app/api/assets/[id]/derive/route.ts
+- [ ] apps/web/src/app/api/publications/[id]/approve/route.ts
+- [ ] apps/web/src/app/api/publications/[id]/feedback/route.ts
+- [ ] apps/web/src/app/api/publications/[id]/publish/route.ts
+- [ ] apps/web/src/app/api/publications/[id]/reject/route.ts
+- [ ] apps/web/src/app/api/publications/metrics/route.ts
+- [ ] apps/web/src/app/api/publications/publish-due/route.ts
+- [ ] apps/web/src/app/api/tools/web/route.ts
+- [ ] apps/web/src/app/api/tools/web/screenshot/route.ts
+- [ ] apps/web/src/lib/server/sanitize-error.ts
+- [ ] packages/core/src/domain/connections.ts
+
+## 2026-09-04T03:47:47.288Z
+- [ ] packages/core/src/ai/llm.ts
+- [ ] packages/runtime/src/api/runtime-handlers.ts
+- [ ] packages/runtime/src/api/server.test.ts
+- [ ] packages/runtime/src/api/server.ts
+
+## 2026-09-04T04:06:29.247Z
+- [ ] packages/core/src/ai/llm.ts
+
+## 2026-09-04T05:33:46.601Z
+- [ ] apps/web/next.config.ts
+- [ ] apps/web/src/app/(app)/chaos-game/engine/renderer.ts
+- [ ] packages/core/src/ai/chat-memory.ts
+- [ ] packages/core/src/ai/provider-stats.ts
+- [ ] packages/core/src/domain/briefs.ts
+- [ ] packages/core/src/omag/mediafield.ts
+- [ ] packages/core/src/prompt/director.ts
+- [ ] packages/core/src/tools/content.ts
+
+## 2026-09-04T05:42:43.365Z
+- [ ] apps/web/src/lib/server/context.ts
+- [ ] apps/web/src/middleware.ts
+- [ ] packages/core/src/auth/session.ts
+
+## 2026-09-04T06:27:53.838Z
+- [ ] apps/web/src/app/api/assets/[id]/download/route.ts
+- [ ] apps/web/src/app/api/assets/[id]/route.ts
+- [ ] apps/web/src/app/api/auth/login/route.ts
+- [ ] apps/web/src/lib/server/brute-force.ts
+- [ ] apps/web/src/lib/server/download-token.ts
+
+## 2026-09-04T06:59:41.879Z
+- [ ] packages/core/src/tools/connections-catalog.ts
+
+## 2026-09-04T08:27:27.886Z
+- [ ] apps/web/next.config.ts
+- [ ] apps/web/src/middleware.ts

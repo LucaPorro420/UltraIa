@@ -22,6 +22,9 @@
  *   --web-dir <ruta>  modo prototipo: arranca la web standalone (server.js) como child y
  *                     la ventana abre la app REAL en http://127.0.0.1:<web-port>.
  *   --web-port N   puerto de la web standalone (default 3000).
+ *   --biblio         abre TECH-LIBRARY/index.html en ventana nativa (app de estudio
+ *                     offline: biblioteca + curso + guardados + agente local;
+ *                     no arranca runtime ni proxy).
  *
  * El token de la Local API vive solo en este proceso; el proxy lo inyecta.
  * El renderer (WebView2/Edge) solo ve http://127.0.0.1:<port>/ — sin secretos.
@@ -365,6 +368,19 @@ setInterval(refresh, 3000);
 }
 
 async function main() {
+  if (args.includes('--biblio')) {
+    // App de estudio offline: el index.html es autocontenido (file://) y persiste en
+    // localStorage; no necesita runtime/proxy. Solo abre la ventana nativa.
+    const biblio = path.join(REPO_ROOT, 'TECH-LIBRARY', 'index.html');
+    if (!fs.existsSync(biblio)) {
+      log(`FATAL: no existe ${biblio}`);
+      process.exit(1);
+    }
+    const url = 'file:///' + biblio.replace(/\\/g, '/');
+    log(`biblioteca offline: ${url}`);
+    if (!NO_WINDOW) openWindow(url);
+    return;
+  }
   if (!NO_BUILD && (!fs.existsSync(path.join(DIST, 'packages', 'runtime', 'src', 'runtime.js')) || fs.existsSync(TSCONFIG) && isStale(DIST, TSCONFIG))) {
     build();
   }

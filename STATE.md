@@ -3,7 +3,7 @@
 
 > ÃƒÆ’Ã‚Â¢Ãƒâ€¦Ã¢â‚¬Å“ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦ **ESTADO 18/08/2026 (sesiÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â³n principal, ciclos 56-62)** ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â iteraciones 47-55 DONE (movil E2E, LinkedIn, WebView2, codevfxÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢OMAG, screenflow hot, IA generativa, harness self-improvement). Banner "ITERACIÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œN 46 PAUSADA" OBSOLETO ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â eliminado por state-doctor/plan loop-56. Iter-55 (libros-programacion) CERRADA por la sesiÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â³n r54 (commit 6b7e13d; r55-OVERRIDE cediÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â³ la tarea vÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â­a lock status CEDIDA ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â aportÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â³ wiring llm.ts/index.ts + doc RAZONAMIENTO + fuente cruda + lecciÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â³n LEARNINGS). Esta sesiÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â³n ejecuta el plan aprobado 18/08 (fuente FundamentosDeLaProgramacion ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ capabilities sdf/videoqa/motion/replica + harness ultraia-request + skills audit) con tareas 56-62 (renumeradas para no colisionar con el 55 de la sesiÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â³n libros). PatrÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â³n: bucle IA 4 fases (Sensado/Razonamiento/AcciÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â³n/Aprendizaje) ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â 3 pasadas por tarea (C1 base/C2 ajuste/C3 consolidaciÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â³n) ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â decisiÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â³n usuario 18/08.
 
-Last run: 04/09/2026 - Iteracion 170 (Security batch 5: H04 download tokens, M04 brute-force lockout — all gates GREEN 2271/2271)
+Last run: 04/09/2026 - Iteracion 170 (Qwen provider unblocked + connections catalog entry + push 25 commits + enlaces.txt blocked)
 ÃƒÆ’Ã†â€™Ãƒâ€¦Ã‚Â¡ltima triage: 15/08/2026 (report-only ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â sin ediciÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â³n de cÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â³digo)
 
 ## Backlog priorizado (orden de ejecuciÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â³n)
@@ -279,7 +279,7 @@ Triage de planes colisionados: los IDs 121/122/123/126/127 tenian DOS planes cad
 | 139 | **React 19 docs** - renombrado desde `loop-122-react19-docs.md`; React 19 ya en web+mobile; docs OK | docs | - | DONE |
 | 140 | **Conexiones codigo via mail** - renombrado desde `loop-123-connections-email.md`; `tools/emailCode.ts` wired | core+web | FULL | DONE |
 | 141 | **Design Lab (/lab extension)** - YA IMPLEMENTADO en `lab-client.tsx`: `TokensSection` (lee CSS vars globals.css) + `UiGallery` (UI Kit Gallery) + `PrototypesSection`. Las 3 zonas del plan presentes. typecheck/lint OK. | apps/web | FULL(typecheck/lint) | DONE (ya implementado) |
-| 142 | **Proveedor Qwen** - renombrado desde `loop-127-qwen-provider.md`. BLOQUEADO: requiere editar `packages/core/src/ai/llm.ts` (`qwenModel()` + `qwenFetch`, `ULTRAIA_PROVIDER=qwen`) y crear `tools/qwen.ts`; `llm.ts` es WIP de la sesion concurrente (no tocar). `tools/qwen.ts` NO existe. | core | - | BLOQUEADO (WIP ajeno llm.ts) |
+| 142 | **Proveedor Qwen** - renombrado desde `loop-127-qwen-provider.md`. Provider YA estaba completo en llm.ts (qwenModel + qwenFetch + QWEN_MODELS + switch cases). Faltaba entrada en connections-catalog.ts. Commit `47ae8a9`. | core | FULL(typecheck/lint/test) | ✅ DONE 04/09/2026 (`47ae8a9`) |
 
 ## Librerías procedurales (loop-146→149, 28/08/2026) - DONE
 
