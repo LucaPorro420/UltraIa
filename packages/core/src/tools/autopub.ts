@@ -1,3 +1,7 @@
+//! AutoPub — autonomous content pipeline orchestrator.
+// F1 (topics) → F2 (content) → F3 (presentation) → F4 (publish queue).
+// Coordinates brief generation, content routing, package building, and
+// publication queueing. Runs headless via schtasks/cron or cerebro-cycle.
 import { z } from 'zod';
 import { generateTopicBriefs } from './topics';
 import type { TopicBrief, TopicChannel, TopicFormat, TopicTone } from './topics';

@@ -1448,3 +1448,7 @@ Cada commit agrega una sección con fecha y la lista de archivos `.ts/.tsx` toca
 - [ ] packages/runtime/src/index.ts
 - [ ] packages/runtime/src/runtime.ts
 - [ ] packages/runtime/src/types.ts
+
+## 2026-09-04T21:44:13.534Z
+- [ ] packages/core/src/tools/enrutador.ts
+- [ ] packages/core/src/tools/skills.ts
