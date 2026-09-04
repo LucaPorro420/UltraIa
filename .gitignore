@@ -141,3 +141,63 @@ VideoTask&Memory/
 desktop/bin/
 desktop/obj/
 desktop/dist/
+
+# User data / personal docs (not part of the app)
+BussinesModel/
+Act-UltraIA/
+Instagram/
+ImportantePAraMi&&Conocimiento/
+InfoPeticion.txt
+Genesis AI.txt
+mi-app/
+ultraia-session-*.tar.gz
+ultraia-session-export/
+freebuff/
+openspec/
+start.py.txt
+build-output.txt
+roadmapProgrammingTotally.jpg
+session-ses_*.md
+skills-lock.json
+
+# ResultTask outputs (regenerable demos)
+resultTask/agentic/
+resultTask/chaos-game/
+resultTask/editor-qa/
+resultTask/orchestrator-smoke/
+resultTask/procedural-fbm-video/
+resultTask/procedural-noise/
+resultTask/triage-results.json
+resultTask/zernio/
+
+# Frame images (regenerable)
+docs/frame_*.jpg
+docs/frames/
+docs/video-frames-embedded.html
+docs/superpowers/
+
+# Temp vendor files
+vendor/**/.tmp-*
+
+# Design system (local dev)
+packages/ultraia-design-system/
+
+# Tech library reference subdirs (large, regenerable)
+TECH-LIBRARY/01-FRONTEND/
+TECH-LIBRARY/02-BACKEND/
+TECH-LIBRARY/03-DATABASE/
+TECH-LIBRARY/04-AI-ML/
+TECH-LIBRARY/05-MOBILE/
+TECH-LIBRARY/06-ANIMATION-3D/
+TECH-LIBRARY/07-TESTING/
+TECH-LIBRARY/08-INFRASTRUCTURE/
+TECH-LIBRARY/09-REALTIME/
+TECH-LIBRARY/10-SECURITY/
+TECH-LIBRARY/11-DEVOPS/
+TECH-LIBRARY/12-TOOLS/
+TECH-LIBRARY/Completo/
+
+# Other untracked dirs
+.ultraia/
+IMAGE-INTEGRATIONS/
+ImplementSolutions/
