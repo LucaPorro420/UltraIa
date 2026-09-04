@@ -1,3 +1,6 @@
+//! Skill pipeline — plan → build → test → review → ship → simplify.
+// Each skill is a deterministic prompt template that calls the configured LLM.
+// The pipeline is used by the agent system and the skill-pipeline UI component.
 import { generateText } from 'ai';
 import { resolveModel } from '../ai/llm';
 

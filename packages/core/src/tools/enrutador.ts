@@ -1,3 +1,9 @@
+//! Content router — maps topic briefs to finished content packages.
+// redactar() generates bilingual (es/ar) articles, guionizar() produces
+// storyboard scripts with OMAG camera motions, enrutarBrief() picks the
+// right format by channel (9:16 → script, 16:9/1:1 → text), and
+// generarContenido() writes manifest + files to .ultraia/content/<briefId>/.
+// TTS via edge-tts is optional and keyless.
 import { mkdir, rename, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { normalizeMotion, type Motion } from '../prompt/director';
