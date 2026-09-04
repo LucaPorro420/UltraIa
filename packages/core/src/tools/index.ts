@@ -430,12 +430,28 @@ export type Capability =
   | 'chat_memory'
   | 'chaos'
   | 'chaos-game'
-  | 'chaos_game';
+  | 'chaos_game'
+  | 'complexity-router'
+  | 'blackboard'
+  | 'batch-executor'
+  | 'perf-optimizer'
+  | 'tech-debt'
+  | 'feedback-analyzer'
+  | 'release-manager'
+  | 'competitive-intel';
 
 export * from './observability';
 export * from './agentic';
 export * from './zernio';
 export * from './sandbox';
+export * as complexityRouter from './complexity-router';
+export * as blackboardNs from './blackboard';
+export * as batchExecutor from './batch-executor';
+export * as perfOptimizer from './perf-optimizer';
+export * as techDebtNs from './tech-debt';
+export * as feedbackAnalyzerNs from './feedback-analyzer';
+export * as releaseManagerNs from './release-manager';
+export * as competitiveIntelNs from './competitive-intel';
 export * from './emailCode';
 export * from './smtp';
 export * from './catalog';

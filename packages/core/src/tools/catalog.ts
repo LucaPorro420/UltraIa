@@ -93,6 +93,14 @@ const CATALOG_META: Record<Capability, { category: ToolCategory; route: string; 
   zernio: { category: 'contenido-cms', route: '/dashboard', related: ['publish', 'autopub', 'metrics'], consolidates: [] },
   sandbox: { category: 'codigo-dev', route: '/studio', related: ['harness', 'genesis'], consolidates: [] },
   'chat-bridge': { category: 'automatizacion', route: '/studio', related: ['goal', 'orchestrator'], consolidates: [] },
+  'complexity-router': { category: 'automatizacion', route: '/dashboard', related: ['batch-executor', 'blackboard'], consolidates: [] },
+  'blackboard': { category: 'datos-backend', route: '/dashboard', related: ['complexity-router', 'batch-executor'], consolidates: [] },
+  'batch-executor': { category: 'automatizacion', route: '/dashboard', related: ['complexity-router', 'blackboard'], consolidates: [] },
+  'perf-optimizer': { category: 'codigo-dev', route: '/dashboard', related: ['tech-debt', 'codequality'], consolidates: [] },
+  'tech-debt': { category: 'codigo-dev', route: '/dashboard', related: ['perf-optimizer', 'codequality'], consolidates: [] },
+  'feedback-analyzer': { category: 'contenido-cms', route: '/dashboard', related: ['growth', 'topics'], consolidates: [] },
+  'release-manager': { category: 'automatizacion', route: '/dashboard', related: ['security', 'batch-executor'], consolidates: [] },
+  'competitive-intel': { category: 'ia-ml', route: '/dashboard', related: ['research', 'topics'], consolidates: [] },
 };
 
 

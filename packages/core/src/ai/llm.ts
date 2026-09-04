@@ -3801,6 +3801,182 @@ export function chatStream(opts: {
     });
   }
 
+  // --- Complexity Router: meta-cognitive query classifier ---
+  if (opts.tools?.includes('complexity-router')) {
+    tools.complexity_route = tool({
+      description: 'Meta-cognitive complexity router: classifies query complexity into reflex/deliberate/meta tiers for fast-path vs slow-path routing. Based on SOFAI/CODA dual-process architecture.',
+      parameters: z.object({
+        action: z.enum(['classify', 'batch', 'stats']),
+        query: z.string().optional(),
+        queries: z.array(z.string()).optional(),
+      }),
+      execute: async (input) => {
+        const { complexityRouterTool } = await import('../tools/complexity-router');
+        return complexityRouterTool(input as any);
+      },
+    });
+  }
+
+  // --- Blackboard: shared knowledge space ---
+  if (opts.tools?.includes('blackboard')) {
+    tools.blackboard_manage = tool({
+      description: 'Shared knowledge space for cross-agent coordination. Agents write findings, hypotheses, solutions, lessons. Other agents read and build on them. Implements the Blackboard pattern.',
+      parameters: z.object({
+        action: z.enum(['write', 'read', 'query', 'supersede', 'resolve', 'dismiss', 'compact', 'graph', 'reset']),
+        entryId: z.string().optional(),
+        supersederId: z.string().optional(),
+        newContent: z.string().optional(),
+        write: z.object({
+          type: z.enum(['finding', 'hypothesis', 'solution', 'metric', 'lesson', 'task']),
+          author: z.string(),
+          topic: z.string(),
+          content: z.string(),
+          confidence: z.number().min(0).max(1).optional(),
+          tags: z.array(z.string()).optional(),
+          dependsOn: z.array(z.string()).optional(),
+        }).optional(),
+        query: z.object({
+          type: z.enum(['finding', 'hypothesis', 'solution', 'metric', 'lesson', 'task']).optional(),
+          status: z.enum(['active', 'resolved', 'superseded', 'dismissed']).optional(),
+          author: z.string().optional(),
+          topic: z.string().optional(),
+          tags: z.array(z.string()).optional(),
+          limit: z.number().optional(),
+        }).optional(),
+      }),
+      execute: async (input) => {
+        const { blackboardTool } = await import('../tools/blackboard');
+        return blackboardTool(input as any);
+      },
+    });
+  }
+
+  // --- Batch Executor: parallel fan-out/fan-in ---
+  if (opts.tools?.includes('batch-executor')) {
+    tools.batch_execute = tool({
+      description: 'Parallel fan-out/fan-in task execution. Plans parallel waves of independent tasks, tracks results, handles partial failures. Based on Google ADK ParallelAgent pattern.',
+      parameters: z.object({
+        action: z.enum(['plan', 'ready', 'complete', 'fail', 'skip', 'stats']),
+        planId: z.string().optional(),
+        planName: z.string().optional(),
+        tasks: z.array(z.object({
+          id: z.string().optional(),
+          name: z.string(),
+          description: z.string().default(''),
+          inputs: z.record(z.string()).optional(),
+          estimatedMs: z.number().default(1000),
+          agent: z.string().optional(),
+          dependsOn: z.array(z.string()).default([]),
+        })).optional(),
+        taskId: z.string().optional(),
+        result: z.string().optional(),
+        error: z.string().optional(),
+        actualMs: z.number().optional(),
+      }),
+      execute: async (input) => {
+        const { batchExecutorTool } = await import('../tools/batch-executor');
+        return batchExecutorTool(input as any);
+      },
+    });
+  }
+
+  // --- Perf Optimizer: performance analysis ---
+  if (opts.tools?.includes('perf-optimizer')) {
+    tools.perf_analyze = tool({
+      description: 'Performance analysis and optimization: scans code for anti-patterns (sync fs, serial awaits, barrel imports, N+1 queries), estimates Core Web Vitals budgets, suggests fixes. Keyless, deterministic.',
+      parameters: z.object({
+        action: z.enum(['scan', 'budget', 'suggest']),
+        dir: z.string().optional(),
+        ignore: z.array(z.string()).optional(),
+        maxFiles: z.number().optional(),
+        fileContent: z.string().optional(),
+        ruleId: z.string().optional(),
+      }),
+      execute: async (input) => {
+        const { perfOptimizerTool } = await import('../tools/perf-optimizer');
+        return perfOptimizerTool(input as any);
+      },
+    });
+  }
+
+  // --- Tech Debt: technical debt tracker ---
+  if (opts.tools?.includes('tech-debt')) {
+    tools.debt_scan = tool({
+      description: 'Technical debt tracker: scans code for TODO/FIXME/HACK markers, deprecated APIs, deep nesting, skipped tests, missing docs. Quantifies effort, prioritizes by impact, generates repayment schedules.',
+      parameters: z.object({
+        action: z.enum(['scan', 'repayment', 'prioritize']),
+        dir: z.string().optional(),
+        ignore: z.array(z.string()).optional(),
+        maxFiles: z.number().optional(),
+        maxHoursPerWeek: z.number().optional(),
+        weeks: z.number().optional(),
+      }),
+      execute: async (input) => {
+        const { techDebtTool } = await import('../tools/tech-debt');
+        return techDebtTool(input as any);
+      },
+    });
+  }
+
+  // --- Feedback Analyzer: user feedback analysis ---
+  if (opts.tools?.includes('feedback-analyzer')) {
+    tools.feedback_analyze = tool({
+      description: 'User feedback analysis: sentiment classification, feature request extraction, bug triage, feedback clustering by topic, prioritization by frequency and impact. Keyless, deterministic.',
+      parameters: z.object({
+        action: z.enum(['analyze', 'prioritize', 'trends']),
+        feedback: z.array(z.object({
+          text: z.string(),
+          source: z.string().default('manual'),
+          author: z.string().optional(),
+          timestamp: z.string().optional(),
+        })).optional(),
+        report: z.any().optional(),
+      }),
+      execute: async (input) => {
+        const { feedbackAnalyzerTool } = await import('../tools/feedback-analyzer');
+        return feedbackAnalyzerTool(input as any);
+      },
+    });
+  }
+
+  // --- Release Manager: version and changelog ---
+  if (opts.tools?.includes('release-manager')) {
+    tools.release_manage = tool({
+      description: 'Release management: parses conventional commits, generates changelogs, detects version bumps, checks deployment readiness (tests/lint/build/security), manages release lifecycle.',
+      parameters: z.object({
+        action: z.enum(['plan', 'changelog', 'readiness', 'bump']),
+        version: z.string().optional(),
+        bumpType: z.enum(['major', 'minor', 'patch', 'prerelease']).optional(),
+        commits: z.array(z.string()).optional(),
+        readiness: z.any().optional(),
+      }),
+      execute: async (input) => {
+        const { releaseManagerTool } = await import('../tools/release-manager');
+        return releaseManagerTool(input as any);
+      },
+    });
+  }
+
+  // --- Competitive Intel: market analysis ---
+  if (opts.tools?.includes('competitive-intel')) {
+    tools.competitive_scan = tool({
+      description: 'Competitive intelligence: competitor profiles, feature matrix comparison, SWOT analysis, technology trend tracking, market positioning. Keyless, deterministic.',
+      parameters: z.object({
+        action: z.enum(['add-competitor', 'matrix', 'swot', 'report', 'compare', 'trends']),
+        competitor: z.any().optional(),
+        competitors: z.array(z.any()).optional(),
+        position: z.any().optional(),
+        trends: z.array(z.any()).optional(),
+        featureA: z.string().optional(),
+        featureB: z.string().optional(),
+      }),
+      execute: async (input) => {
+        const { competitiveIntelTool } = await import('../tools/competitive-intel');
+        return competitiveIntelTool(input as any);
+      },
+    });
+  }
+
   // --- Cache check ---
   const lastUserMsg = [...opts.messages].reverse().find((m) => m.role === 'user');
   const cacheKey = JSON.stringify(opts.messages);
