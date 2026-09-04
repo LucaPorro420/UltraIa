@@ -177,6 +177,7 @@ const DEFS: CatalogDef[] = [
   { id: 'gen-engine', category: 'ai', label: 'Gen-Engine (self-host)', authType: 'keyless', keyless: true, envVars: ['GEN_ENGINE_URL'], description: 'Motor de media propio (start.py :8100). Keyless por defecto.', docsUrl: 'https://github.com/LucaPorro420/UltraIa' },
   { id: 'anthropic', category: 'ai', label: 'Anthropic Claude', authType: 'planned', planned: true, envVars: ['ANTHROPIC_API_KEY'], description: 'Previsto como proveedor del gateway (ULTRAIA_PROVIDER=anthropic).', docsUrl: 'https://console.anthropic.com/' },
   { id: 'xai', category: 'ai', label: 'xAI Grok', authType: 'planned', planned: true, envVars: ['XAI_API_KEY'], description: 'Previsto como proveedor del gateway.', docsUrl: 'https://x.ai/api' },
+  { id: 'qwen', category: 'ai', label: 'Qwen (Alibaba DashScope)', authType: 'env', envVars: ['DASHSCOPE_API_KEY'], description: 'Qwen3.8-max-preview (2.4T MoE, 1M ctx, vision+texto, thinking). ULTRAIA_PROVIDER=qwen.', docsUrl: 'https://dashscope.aliyuncs.com/' },
 
   // ---- media ----
   { id: 'pollinations', category: 'media', label: 'Pollinations', authType: 'keyless', keyless: true, description: 'Imagen/video keyless. Siempre disponible sin clave.', docsUrl: 'https://pollinations.ai/' },
