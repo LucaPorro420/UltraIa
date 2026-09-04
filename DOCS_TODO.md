@@ -1455,3 +1455,18 @@ Cada commit agrega una sección con fecha y la lista de archivos `.ts/.tsx` toca
 
 ## 2026-09-04T21:46:55.341Z
 - [ ] packages/core/src/tools/autopub.ts
+
+## 2026-09-04T21:48:50.326Z
+- [ ] apps/mobile/src/hooks/use-color-scheme.ts
+- [ ] apps/mobile/src/hooks/use-color-scheme.web.ts
+- [ ] apps/web/src/app/(app)/actions.ts
+- [ ] apps/web/src/app/api/cloud/providers.ts
+
+## 2026-09-04T21:51:19.817Z
+- [ ] .vscode-extension/src/chat-panel.ts
+- [ ] .vscode-extension/src/code-lens.ts
+- [ ] .vscode-extension/src/extension.ts
+- [ ] .vscode-extension/src/status-bar.ts
+- [ ] .vscode-extension/src/task-provider.ts
+- [ ] .vscode-extension/src/tasks-panel.ts
+- [ ] .vscode-extension/src/ws-client.ts
