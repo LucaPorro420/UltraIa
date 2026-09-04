@@ -352,11 +352,13 @@ function renderBookCard(b,idx) {
 
 function renderTechCard(t) {
   const catInfo=TECH_CATEGORIES[t.category]||{icon:'📦',color:'#6366f1'};
+  const nrec=RECURSOS.filter(r=>r.tech===t.slug).length;
   let h='<div class="card" onclick="openTech(\''+t.slug+'\')">';
   h+='<div class="card-header"><div class="card-title">'+catInfo.icon+' '+esc(t.title)+'</div></div>';
   if(t.version&&t.version!=='-')h+='<div class="card-subtitle">v'+esc(t.version)+'</div>';
   h+='<div class="card-meta">';
   h+='<span class="badge badge-tech">'+esc(t.categoryName)+'</span>';
+  h+='<span class="badge badge-version">📎 '+nrec+'</span>';
   h+='</div>';
   h+='<div class="tag-list">';t.tags.forEach(tag=>h+='<span class="tag">'+esc(tag)+'</span>');h+='</div>';
   h+='<div class="card-actions">';
@@ -475,6 +477,14 @@ function renderTechDetail(slug) {
   h+='<button onclick="toggleTechRead(\''+t.slug+'\',event)" style="border:1px solid var(--border)">'+(isTechRead(t.slug)?'✅ Estudiado':'📖 Marcar estudiado')+'</button>';
   h+='</div>';
 
+  const recs=RECURSOS.map((r,ix)=>({r:r,ix:ix})).filter(o=>o.r.tech===t.slug);
+  if(recs.length){
+   h+='<div class="related-section"><h3>🌐 Recursos verificados <span style="color:var(--text-muted);font-size:0.75rem">'+recs.length+'</span></h3>';
+   recs.forEach(o=>{const ic=o.r.tipo==='video'?'🎬':o.r.tipo==='docs'?'📘':'🧪';
+    h+='<div class="clip"><div class="clip-body" style="display:block;padding:10px 14px"><span style="font-size:0.72rem;color:var(--text-muted)">'+ic+' '+esc(o.r.tipo.toUpperCase())+' · '+esc(o.r.f)+'</span><div style="font-weight:600;color:var(--text);margin:4px 0">'+esc(o.r.ti)+'</div>'+(o.r.n?'<div style="font-size:0.78rem">'+esc(o.r.n)+'</div>':'')+'<div class="form-row"><a href="'+esc(o.r.u)+'" target="_blank" rel="noopener" class="btn">↗ Abrir</a><button class="btn" onclick="guardarRecurso('+o.ix+',event)">🗂️ Guardar</button></div></div></div>';});
+   h+='</div>';
+  }
+
   // Render content sections
   h+='<div class="tech-content">';
   t.sections.forEach((s,si)=>{
@@ -568,6 +578,95 @@ document.addEventListener('keydown',e=>{
 });
 document.getElementById('overlay').addEventListener('click',toggleSidebar);
 
+// ===== RECURSOS VERIFICADOS (manifiesto: TECH-LIBRARY/RECURSOS.md, verif. 2026-09-04) =====
+const RECURSOS=[
+{tech:'nextjs-15',tipo:'docs',ti:'Documentación oficial de Next.js',u:'https://nextjs.org/docs',f:'Next.js',n:'Siempre actualizada'},
+{tech:'nextjs-15',tipo:'video',ti:'Curso completo de Next.js 14 con App Router',u:'https://www.youtube.com/watch?v=s5jPwPZrJhw',f:'Goncy',n:'ES · v14, base App Router vigente'},
+{tech:'nextjs-15',tipo:'web',ti:'Learn Next.js (tutorial oficial)',u:'https://nextjs.org/learn',f:'Next.js'},
+{tech:'react-19',tipo:'docs',ti:'Documentación oficial de React',u:'https://react.dev',f:'React'},
+{tech:'react-19',tipo:'video',ti:'CURSO REACT.JS - Aprende desde cero',u:'https://www.youtube.com/watch?v=7iobxzd_2wY',f:'midulive',n:'ES'},
+{tech:'react-19',tipo:'web',ti:'Aprende React (en español)',u:'https://es.react.dev/learn',f:'React'},
+{tech:'typescript-5',tipo:'docs',ti:'Documentación de TypeScript',u:'https://www.typescriptlang.org/docs/',f:'Microsoft'},
+{tech:'typescript-5',tipo:'video',ti:'Tutorial práctico: React y TypeScript paso a paso',u:'https://www.youtube.com/watch?v=4lAYfsq-2TE',f:'midulive',n:'ES'},
+{tech:'typescript-5',tipo:'web',ti:'TypeScript Playground (practica en el navegador)',u:'https://www.typescriptlang.org/play',f:'Microsoft'},
+{tech:'tailwind-v4',tipo:'docs',ti:'Documentación de Tailwind CSS',u:'https://tailwindcss.com/docs',f:'Tailwind Labs'},
+{tech:'tailwind-v4',tipo:'video',ti:'Tailwind CSS Tutorial for Beginners (2024)',u:'https://www.youtube.com/watch?v=DenUCuq4G04',f:'Lukas',n:'EN · con React+Vite'},
+{tech:'tailwind-v4',tipo:'web',ti:'Tailwind Play (editor en vivo)',u:'https://play.tailwindcss.com',f:'Tailwind Labs'},
+{tech:'tailwind-v4',tipo:'web',ti:'Curso Tailwind desde cero (midu.dev)',u:'https://midu.dev/curso/tailwind-desde-cero',f:'midu.dev',n:'ES · de pago'},
+{tech:'vercel-ai-sdk',tipo:'docs',ti:'Documentación del AI SDK',u:'https://sdk.vercel.ai/docs',f:'Vercel'},
+{tech:'vercel-ai-sdk',tipo:'video',ti:'Vercel AI SDK Crash course 2026',u:'https://www.youtube.com/watch?v=bx3bBKtKb8c',f:'Stav',n:'EN · 2026'},
+{tech:'vercel-ai-sdk',tipo:'web',ti:'Galería de plantillas IA',u:'https://vercel.com/templates/ai',f:'Vercel'},
+{tech:'zod',tipo:'docs',ti:'Documentación de Zod',u:'https://zod.dev',f:'Zod'},
+{tech:'zod',tipo:'video',ti:'Zod Goes Where TypeScript Can\'t',u:'https://www.youtube.com/watch?v=o4h8PUVy5J8',f:'Theo - t3.gg',n:'EN'},
+{tech:'zod',tipo:'web',ti:'Repositorio Zod (ejemplos)',u:'https://github.com/colinhacks/zod',f:'GitHub'},
+{tech:'nodejs-patterns',tipo:'docs',ti:'Documentación de Node.js',u:'https://nodejs.org/en/docs',f:'Node.js'},
+{tech:'nodejs-patterns',tipo:'video',ti:'Nodejs y Mongodb: aplicación completa (Login, Registro, CRUD)',u:'https://www.youtube.com/watch?v=-bI0diefasA',f:'Fazt',n:'ES'},
+{tech:'nodejs-patterns',tipo:'web',ti:'Aprende Node.js',u:'https://nodejs.org/en/learn',f:'Node.js'},
+{tech:'prisma-sqlite',tipo:'docs',ti:'Documentación de Prisma',u:'https://www.prisma.io/docs',f:'Prisma'},
+{tech:'prisma-sqlite',tipo:'video',ti:'Prisma ORM Full Course 2025',u:'https://www.youtube.com/watch?v=gimSKEsWYb4',f:'PedroTech',n:'EN · con Next.js 15'},
+{tech:'prisma-sqlite',tipo:'web',ti:'Ejemplos oficiales Prisma',u:'https://github.com/prisma/prisma-examples',f:'GitHub'},
+{tech:'ai-sdk-providers',tipo:'docs',ti:'Proveedores del AI SDK',u:'https://ai-sdk.dev/providers/ai-sdk-providers',f:'Vercel'},
+{tech:'ai-sdk-providers',tipo:'video',ti:'Build agents with Gemini API',u:'https://www.youtube.com/watch?v=OdrOmc_RX8A',f:'Google for Developers',n:'EN · 2026'},
+{tech:'ai-sdk-providers',tipo:'web',ti:'Google AI Studio (prueba modelos gratis)',u:'https://aistudio.google.com',f:'Google'},
+{tech:'llm-agents',tipo:'docs',ti:'Agentes con el AI SDK',u:'https://sdk.vercel.ai/docs/ai-sdk-core/agents',f:'Vercel'},
+{tech:'llm-agents',tipo:'video',ti:'Build an AI Agent with TypeScript, Vercel AI SDK y MongoDB Atlas',u:'https://www.youtube.com/watch?v=Xgsz1OciANI',f:'MongoDB for Developers',n:'EN · 2026'},
+{tech:'llm-agents',tipo:'web',ti:'OpenAI Cookbook (recetas de agentes)',u:'https://github.com/openai/openai-cookbook',f:'GitHub'},
+{tech:'expo-react-native',tipo:'docs',ti:'Documentación de Expo',u:'https://docs.expo.dev',f:'Expo'},
+{tech:'expo-react-native',tipo:'video',ti:'Building a Twitter Clone with React Native from Scratch',u:'https://www.youtube.com/watch?v=sNixa64aG9Y',f:'notJust.dev',n:'EN · con Expo Router'},
+{tech:'expo-react-native',tipo:'web',ti:'Snack (prueba Expo en el navegador)',u:'https://snack.expo.dev',f:'Expo'},
+{tech:'expo-react-native',tipo:'web',ti:'Proyecto guiado Twitter Clone (Expo Router)',u:'https://www.notjust.dev/projects/twitter',f:'notJust.dev',n:'EN'},
+{tech:'gsap',tipo:'docs',ti:'Documentación GSAP',u:'https://gsap.com/docs/v3/',f:'GreenSock'},
+{tech:'gsap',tipo:'video',ti:'Introducing ScrollTrigger for GSAP',u:'https://www.youtube.com/watch?v=X7IBa7vZjmo',f:'GSAP Learning',n:'EN · canal oficial'},
+{tech:'gsap',tipo:'web',ti:'Recursos y ejemplos GSAP',u:'https://gsap.com/resources/',f:'GreenSock'},
+{tech:'threejs',tipo:'docs',ti:'Documentación Three.js',u:'https://threejs.org/docs/',f:'Three.js'},
+{tech:'threejs',tipo:'video',ti:'Build a Mindblowing 3D Portfolio Website (Three.js Tutorial)',u:'https://www.youtube.com/watch?v=Q7AOvWpIVHU',f:'Fireship',n:'EN · 2025'},
+{tech:'threejs',tipo:'web',ti:'Ejemplos oficiales Three.js',u:'https://threejs.org/examples/',f:'Three.js'},
+{tech:'lottie',tipo:'docs',ti:'Lottie (Airbnb)',u:'https://airbnb.io/lottie/',f:'Airbnb'},
+{tech:'lottie',tipo:'video',ti:'Getting Started With Lottie Animation',u:'https://www.youtube.com/watch?v=Nesm2FTWo9s',f:'Envato Tuts+',n:'EN · 2024'},
+{tech:'lottie',tipo:'web',ti:'Documentación LottieFiles',u:'https://docs.lottiefiles.com',f:'LottieFiles'},
+{tech:'vitest',tipo:'docs',ti:'Documentación de Vitest',u:'https://vitest.dev',f:'Vitest'},
+{tech:'vitest',tipo:'video',ti:'Vitest Crash Course',u:'https://www.youtube.com/watch?v=qtm3wjM2eGI',f:'MasterDotDev',n:'EN · 2026'},
+{tech:'vitest',tipo:'web',ti:'Guía Vitest + React (freeCodeCamp, 2026)',u:'https://www.freecodecamp.org/news/how-to-test-react-applications-with-vitest/',f:'freeCodeCamp'},
+{tech:'playwright',tipo:'docs',ti:'Documentación de Playwright',u:'https://playwright.dev',f:'Microsoft'},
+{tech:'playwright',tipo:'video',ti:'Playwright Tutorial for Beginners (2025)',u:'https://www.youtube.com/watch?v=f0AwyYAAu1g',f:'WishInfinite',n:'EN · 2025'},
+{tech:'playwright',tipo:'web',ti:'Curso oficial Microsoft Learn (módulo + videos)',u:'https://learn.microsoft.com/en-us/training/modules/build-with-playwright/',f:'Microsoft Learn'},
+{tech:'cloudflare-workers',tipo:'docs',ti:'Documentación Workers',u:'https://developers.cloudflare.com/workers/',f:'Cloudflare'},
+{tech:'cloudflare-workers',tipo:'video',ti:'Cloudflare Workers Explained',u:'https://www.youtube.com/watch?v=WDhruDqb5nM',f:'Cloudflare Developers',n:'EN · 2026'},
+{tech:'cloudflare-workers',tipo:'web',ti:'Workers Playground (prueba en vivo)',u:'https://workers.cloudflare.com/playground',f:'Cloudflare'},
+{tech:'docker',tipo:'docs',ti:'Documentación de Docker',u:'https://docs.docker.com',f:'Docker'},
+{tech:'docker',tipo:'video',ti:'Docker, curso práctico para principiantes (desde Linux)',u:'https://www.youtube.com/watch?v=NVvZNmfqg6M',f:'Fazt Code',n:'ES'},
+{tech:'docker',tipo:'web',ti:'Play with Docker (laboratorios gratis)',u:'https://labs.play-with-docker.com',f:'Docker'},
+{tech:'websocket',tipo:'docs',ti:'WebSockets API (MDN)',u:'https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API',f:'MDN'},
+{tech:'websocket',tipo:'video',ti:'Realtime Chat With Users y Rooms - Socket.io, Node y Express',u:'https://www.youtube.com/watch?v=jD7FnbI76Hg',f:'Traversy Media',n:'EN'},
+{tech:'websocket',tipo:'web',ti:'Echo test (prueba WebSockets en vivo)',u:'https://www.websocket.org/echo.html',f:'websocket.org'},
+{tech:'webrtc',tipo:'docs',ti:'WebRTC API (MDN)',u:'https://developer.mozilla.org/en-US/docs/Web/API/WebRTC_API',f:'MDN'},
+{tech:'webrtc',tipo:'video',ti:'WebRTC in 100 Seconds',u:'https://www.youtube.com/watch?v=WmR9IMUD_CY',f:'Fireship',n:'EN'},
+{tech:'webrtc',tipo:'web',ti:'Muestras oficiales WebRTC',u:'https://webrtc.github.io/samples/',f:'WebRTC'},
+{tech:'auth-patterns',tipo:'docs',ti:'OWASP Authentication Cheat Sheet',u:'https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html',f:'OWASP'},
+{tech:'auth-patterns',tipo:'video',ti:'JWT Authentication Tutorial - Node.js',u:'https://www.youtube.com/watch?v=mbsmsi7l3r4',f:'Web Dev Simplified',n:'EN · 1.2M vistas'},
+{tech:'auth-patterns',tipo:'web',ti:'jwt.io (decodifica y verifica tokens)',u:'https://jwt.io',f:'Auth0'},
+{tech:'git-workflows',tipo:'docs',ti:'Documentación de Git',u:'https://git-scm.com/doc',f:'Git'},
+{tech:'git-workflows',tipo:'video',ti:'Curso GIT y GITHUB - Tutorial desde CERO (playlist)',u:'https://www.youtube.com/playlist?list=PLQxX2eiEaqby-qh4raiKfYyb4T7WyHsfW',f:'YouTube',n:'ES · playlist verificada'},
+{tech:'git-workflows',tipo:'web',ti:'Repo y libro Ultimate Git (HolaMundo)',u:'https://github.com/HolaMundoDev/mirepo',f:'HolaMundoDev'},
+{tech:'npm-workspaces',tipo:'docs',ti:'npm workspaces (docs oficiales)',u:'https://docs.npmjs.com/cli/using-npm/workspaces',f:'npm'},
+{tech:'npm-workspaces',tipo:'video',ti:'Building a MonoRepo with NPM Workspaces',u:'https://www.youtube.com/watch?v=4DOBsEGyKF0',f:'Frontend Series',n:'EN'},
+{tech:'npm-workspaces',tipo:'web',ti:'Documentación npm',u:'https://docs.npmjs.com',f:'npm'},
+{tech:'eslint-prettier',tipo:'docs',ti:'Documentación ESLint',u:'https://eslint.org/docs/latest/',f:'ESLint'},
+{tech:'eslint-prettier',tipo:'video',ti:'How to Set Up ESLint 9 with Prettier (Flat Config)',u:'https://www.youtube.com/watch?v=IcCHLLEtiHM',f:'Leela Web Dev',n:'EN · 2025'},
+{tech:'eslint-prettier',tipo:'web',ti:'ESLint Playground (prueba reglas en vivo)',u:'https://eslint.org/play',f:'ESLint'},
+{tech:'repomix',tipo:'docs',ti:'Repomix (sitio oficial)',u:'https://repomix.com',f:'Repomix'},
+{tech:'repomix',tipo:'web',ti:'Repositorio Repomix',u:'https://github.com/yamadashy/repomix',f:'GitHub'}
+];
+const PODCASTS=[
+{cat:'general',ti:'Cosas de programadores (campusMVP)',u:'https://open.spotify.com/show/2X2Hz6UOD4L5Ob6bJLYUDW',f:'Spotify · ES',n:'Episodios en 2026: IA, seguridad, cuántica'},
+{cat:'general',ti:'Programar es una mierda',u:'https://open.spotify.com/show/6crvLebQZ7IS4WGpLPqudm',f:'Spotify · ES',n:'Humor + gestión de proyectos'},
+{cat:'general',ti:'Programación en español (comunidad)',u:'https://open.spotify.com/show/5w0kyXLdWVvYaRfyBxbNUo',f:'Spotify · ES',n:'Vida dev, freelance, bugs'},
+{cat:'frontend',ti:'Programación JS y Desarrollo Web con midudev',u:'https://open.spotify.com/show/1Et8hZk1DwKw6PtBFGpwSD',f:'Spotify · ES',n:'Frontend, JS, tendencias'},
+{cat:'frontend',ti:'Web Reactiva (web + IA)',u:'https://open.spotify.com/show/59878neWF4cPVmpPmvIZTF',f:'Spotify · ES',n:'Ecosistema web + negocio dev (webreactiva.com)'},
+{cat:'general',ti:'Hablando de software (Thoughtworks España)',u:'https://open.spotify.com/show/24TQEIjtFNPA9cHDVZW8yK',f:'Spotify · ES',n:'Arquitectura e infra, dic-2025'},
+{cat:'general',ti:'Syntax',u:'https://syntax.fm',f:'EN · RSS verificado',n:'Episodios sep-2026 · feed: feed.syntax.fm/rss'},
+{cat:'general',ti:'Changelog Podcast',u:'https://changelog.com/podcast',f:'EN · RSS verificado',n:'Episodio 3-sep-2026 · feed: changelog.com/podcast/feed'}
+];
 // ===== CURSO (guiado: recall + SM-2 + test + Feynman + interleaving) =====
 const RUTA=[
  {id:'fundamentos',nombre:'Nivel 1 · Fundamentos',desc:'Base para pensar como programador: Git, Node, Docker y testing.',techs:['git-workflows','nodejs-patterns','docker','vitest']},
@@ -837,6 +936,23 @@ function traducirTexto(texto,dir){
  });
  return{texto:out.trim(),usadas:usadas};
 }
+function guardarRecurso(ix,ev){
+ if(ev)ev.stopPropagation();
+ const r=RECURSOS[ix];if(!r)return;
+ const t=techPorSlug(r.tech);
+ state.clips.push({id:uid('f'),folderId:state.carpetaSel||'root',titulo:('['+r.tipo+'] '+r.ti).slice(0,120),origen:r.f+' · '+(t?t.title:r.tech),cita:r.u+(r.n?' — '+r.n:''),nota:'',ts:Date.now()});
+ saveState();aviso='✅ Recurso guardado en "'+carpetaNombre(state.carpetaSel||'root')+'".';render();
+}
+function recomendar(slug){
+ const t=techPorSlug(slug);if(!t)return'<p>Tema no encontrado.</p>';
+ const recs=RECURSOS.filter(r=>r.tech===slug);
+ const pods=PODCASTS.filter(p=>p.cat===t.category||p.cat==='general').slice(0,3);
+ let h='<h4>🎬 Recursos verificados: '+esc(t.title)+'</h4><ul>';
+ recs.forEach(r=>{const ic=r.tipo==='video'?'🎬':r.tipo==='docs'?'📘':'🧪';h+='<li>'+ic+' <a href="'+esc(r.u)+'" target="_blank" rel="noopener">'+esc(r.ti)+'</a> <span style="color:var(--text-muted)">'+esc(r.f)+'</span></li>';});
+ h+='</ul>';
+ if(pods.length)h+='<h4>🎙️ Para escuchar</h4><ul>'+pods.map(p=>'<li><a href="'+esc(p.u)+'" target="_blank" rel="noopener">'+esc(p.ti)+'</a> <span style="color:var(--text-muted)">'+esc(p.f)+'</span></li>').join('')+'</ul>';
+ return h;
+}
 function agentResponder(q){
  const n=quitarAcentos(q);
  if(/^(hola|ayuda|help|que puedes|quien eres)/.test(n.trim()))return{tipo:'ayuda',html:'<h4>🤖 Soy tu agente local (sin internet)</h4><ul><li><strong>Busca</strong>: «busca react server components»</li><li><strong>Enlaza</strong>: «enlaza nextjs con libros»</li><li><strong>Resume</strong>: «resume docker»</li><li><strong>Explica</strong>: «explica qué es zod»</li><li><strong>Traduce</strong>: «traduce: el servidor renderiza el componente»</li></ul><p style="color:var(--text-muted)">Todo se genera en tu PC con el material de la biblioteca.</p>'};
@@ -863,6 +979,14 @@ function agentResponder(q){
   if(en.rel.length)h+='<p style="color:var(--text-secondary)">Tecnologías afines:</p><ul>'+en.rel.map(r=>'<li><a href="javascript:void(0)" onclick="openTech(\''+r.x.slug+'\')">'+esc(r.x.title)+'</a></li>').join('')+'</ul>';
   if(en.libros.length)h+='<p style="color:var(--text-secondary)">Libros que lo usan:</p><ul>'+en.libros.map(o=>'<li><a href="javascript:void(0)" onclick="openBook('+o.i+')">'+esc(o.b.titulo)+'</a></li>').join('')+'</ul>';
   return{tipo:'tema',slug:tema.slug,html:h};
+ }
+ if(/recomienda|recursos?|videos?|cursos?|podcasts?|documentacion/.test(n)){
+  const tt=tema||(agentTema?techPorSlug(agentTema):null);
+  if(!tt){
+   let h='<h4>🎙️ Podcasts</h4><ul>'+PODCASTS.map(p=>'<li><a href="'+esc(p.u)+'" target="_blank" rel="noopener">'+esc(p.ti)+'</a> <span style="color:var(--text-muted)">'+esc(p.f)+'</span></li>').join('')+'</ul>';
+   return{tipo:'texto',html:'<p>Dime un tema y te recomiendo recursos verificados. Ej: <em>recomienda videos de docker</em></p>'+h};
+  }
+  agentTema=tt.slug;return{tipo:'tema',slug:tt.slug,html:recomendar(tt.slug)};
  }
  const res=buscarTodo(q);
  if(!res.length)return{tipo:'texto',html:'<p>No encontré nada para «'+esc(q)+'». Prueba con: react, docker, git, testing, nextjs… o escribe <em>ayuda</em>.</p>'};
@@ -894,7 +1018,7 @@ function preguntarAgente(slug,si,ev){
 }
 function renderAgenteView(){
  let h='<h2 style="margin-bottom:6px">🤖 Agente IA local</h2><p style="color:var(--text-secondary);font-size:0.85rem;margin-bottom:12px">Busca, enlaza, resume, explica y traduce con el material de tu biblioteca. <strong>Sin internet.</strong>'+(agentTema&&techPorSlug(agentTema)?' Tema actual: <a href="javascript:void(0)" onclick="openTech(\''+agentTema+'\')">'+esc(techPorSlug(agentTema).title)+'</a>':'')+'</p>';
- h+='<div class="chips"><button class="pill" onclick="agentChip(\'busca\')">🔍 Buscar</button><button class="pill" onclick="agentChip(\'resume\')">📝 Resumir</button><button class="pill" onclick="agentChip(\'explica\')">💡 Explicar</button><button class="pill" onclick="agentChip(\'enlaza\')">🔗 Enlazar</button><button class="pill" onclick="agentChip(\'traduce:\')">🌐 Traducir</button><button class="pill'+(agentDir==='es-en'?' active':'')+'" onclick="agentDir=\'es-en\';render()">ES→EN</button><button class="pill'+(agentDir==='en-es'?' active':'')+'" onclick="agentDir=\'en-es\';render()">EN→ES</button></div>';
+ h+='<div class="chips"><button class="pill" onclick="agentChip(\'busca\')">🔍 Buscar</button><button class="pill" onclick="agentChip(\'resume\')">📝 Resumir</button><button class="pill" onclick="agentChip(\'explica\')">💡 Explicar</button><button class="pill" onclick="agentChip(\'enlaza\')">🔗 Enlazar</button><button class="pill" onclick="agentChip(\'traduce:\')">🌐 Traducir</button><button class="pill" onclick="agentChip(\'recomienda\')">🎬 Recursos</button><button class="pill'+(agentDir==='es-en'?' active':'')+'" onclick="agentDir=\'es-en\';render()">ES→EN</button><button class="pill'+(agentDir==='en-es'?' active':'')+'" onclick="agentDir=\'en-es\';render()">EN→ES</button></div>';
  h+='<div class="chat-log" id="chat-log" style="max-height:52vh;overflow-y:auto">';
  if(!agentLog.length)h+='<div class="empty-state"><div class="icon">🤖</div><p>Pregúntame algo. Ej: <em>explica qué es zod</em> · <em>resume docker</em> · <em>enlaza nextjs</em></p></div>';
  agentLog.forEach(m=>{h+='<div class="msg msg-'+m.rol+'">'+m.html+'</div>';});
