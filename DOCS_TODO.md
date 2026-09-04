@@ -1378,3 +1378,28 @@ Cada commit agrega una sección con fecha y la lista de archivos `.ts/.tsx` toca
 ## 2026-09-04T08:27:27.886Z
 - [ ] apps/web/next.config.ts
 - [ ] apps/web/src/middleware.ts
+
+## 2026-09-04T13:50:49.457Z
+- [ ] packages/core/src/ai/llm.ts
+- [ ] packages/core/src/tools/batch-executor.test.ts
+- [ ] packages/core/src/tools/batch-executor.ts
+- [ ] packages/core/src/tools/blackboard.test.ts
+- [ ] packages/core/src/tools/blackboard.ts
+- [ ] packages/core/src/tools/catalog.ts
+- [ ] packages/core/src/tools/competitive-intel.test.ts
+- [ ] packages/core/src/tools/competitive-intel.ts
+- [ ] packages/core/src/tools/complexity-router.test.ts
+- [ ] packages/core/src/tools/complexity-router.ts
+- [ ] packages/core/src/tools/feedback-analyzer.test.ts
+- [ ] packages/core/src/tools/feedback-analyzer.ts
+- [ ] packages/core/src/tools/index.ts
+- [ ] packages/core/src/tools/perf-optimizer.test.ts
+- [ ] packages/core/src/tools/perf-optimizer.ts
+- [ ] packages/core/src/tools/release-manager.test.ts
+- [ ] packages/core/src/tools/release-manager.ts
+- [ ] packages/core/src/tools/tech-debt.test.ts
+- [ ] packages/core/src/tools/tech-debt.ts
+
+## 2026-09-04T20:34:49.408Z
+- [ ] packages/core/src/tools/batch-executor.test.ts
+- [ ] packages/core/src/tools/batch-executor.ts

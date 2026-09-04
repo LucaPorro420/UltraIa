@@ -667,6 +667,42 @@ const PODCASTS=[
 {cat:'general',ti:'Syntax',u:'https://syntax.fm',f:'EN · RSS verificado',n:'Episodios sep-2026 · feed: feed.syntax.fm/rss'},
 {cat:'general',ti:'Changelog Podcast',u:'https://changelog.com/podcast',f:'EN · RSS verificado',n:'Episodio 3-sep-2026 · feed: changelog.com/podcast/feed'}
 ];
+// ===== CHULETA (comandos esenciales del proyecto, del material + AGENTS.md) =====
+const COMANDOS=[
+{cmd:'npm run db:migrate',desc:'Crea y aplica las migraciones Prisma (SQLite)',grupo:'Setup'},
+{cmd:'npm run db:generate',desc:'Regenera el cliente Prisma tras cambiar el schema',grupo:'Setup'},
+{cmd:'npm run dev',desc:'Arranca la web Next.js en desarrollo',grupo:'Desarrollo'},
+{cmd:'npm run mobile',desc:'Arranca la app Expo (móvil) con QR',grupo:'Desarrollo'},
+{cmd:'npm run typecheck',desc:'Verifica tipos TypeScript (core + web + runtime)',grupo:'Calidad'},
+{cmd:'npm run lint',desc:'Pasa el linter (calidad de código)',grupo:'Calidad'},
+{cmd:'npm run test',desc:'Corre los tests Vitest (core + runtime)',grupo:'Calidad'},
+{cmd:'npm run build',desc:'Compila la app web para producción',grupo:'Calidad'},
+{cmd:'npm run gate',desc:'Puerta completa: los 4 gates + tests del harness',grupo:'Calidad'},
+{cmd:'python start.py',desc:'Levanta todo: web + webhooks + gen-engine',grupo:'Automatización'},
+{cmd:'npm run cerebro',desc:'Ejecuta un ciclo del Cerebro (automatización)',grupo:'Automatización'},
+{cmd:'npm run repomix',desc:'Empaqueta el repo en un XML para LLMs',grupo:'Automatización'}
+];
+function copiarComando(txt,ev){if(ev)ev.stopPropagation();const done=()=>{aviso='📋 Copiado: '+txt.slice(0,50);render();};try{if(typeof navigator!=='undefined'&&navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(done,done);}else done();}catch(e){done();}}
+function estudiarComandos(){
+ if(sesion&&sesion.timer)clearInterval(sesion.timer);
+ const base=[];
+ COMANDOS.forEach((c,i)=>{
+  base.push({card:{id:'cmd#'+i+'a',tech:'cmd',sec:i,titulo:c.cmd,tipo:'cmd',q:'¿Qué hace el comando '+c.cmd+'?',a:c.desc},revelada:false,fey:''});
+  base.push({card:{id:'cmd#'+i+'b',tech:'cmd',sec:i,titulo:c.cmd,tipo:'cmd',q:'¿Qué comando hace lo siguiente? '+c.desc,a:c.cmd},revelada:false,fey:''});
+ });
+ sesion={modo:'estudio',items:barajar(base,hoyDia()).slice(0,12),i:0,bien:0,total:0,nivel:null};
+ state.tab='curso';state.view='list';render();window.scrollTo(0,0);
+}
+function renderChuletaView(){
+ const grupos=['Setup','Desarrollo','Calidad','Automatización'];
+ let h='<h2 style="margin-bottom:6px">⌨️ Chuleta UltraIa</h2><p style="color:var(--text-secondary);font-size:0.85rem;margin-bottom:12px">Comandos esenciales del proyecto. <strong>Cópialos o estúdialos</strong> como tarjetas.</p>';
+ h+='<div class="form-row"><button class="btn btn-primary" onclick="estudiarComandos()">🃏 Estudiar comandos (12)</button></div>';
+ grupos.forEach(g=>{
+  h+='<h3 style="font-size:0.9rem;margin:16px 0 8px">'+esc(g)+'</h3>';
+  COMANDOS.filter(c=>c.grupo===g).forEach(c=>{h+='<div class="clip"><div class="clip-body" style="display:block;padding:10px 14px"><code>'+esc(c.cmd)+'</code><div style="font-size:0.82rem;color:var(--text-secondary);margin:4px 0">'+esc(c.desc)+'</div><div class="form-row"><button class="btn" onclick="copiarComando(\''+c.cmd+'\',event)">📋 Copiar</button></div></div></div>';});
+ });
+ return h;
+}
 // ===== CURSO (guiado: recall + SM-2 + test + Feynman + interleaving) =====
 const RUTA=[
  {id:'fundamentos',nombre:'Nivel 1 · Fundamentos',desc:'Base para pensar como programador: Git, Node, Docker y testing.',techs:['git-workflows','nodejs-patterns','docker','vitest']},
@@ -704,7 +740,13 @@ function calificarSM2(id,g){
  state.quizBox[id]={box:nb,next:hoyDia()+INTERVALOS[nb]};
  saveState();
 }
+function hoyStr(){const d=new Date();return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);}
+function leerRacha(){try{const r=JSON.parse(localStorage.getItem('tl_racha')||'{"dias":[]}');return Array.isArray(r.dias)?r.dias:[];}catch(e){return[];}}
+function registrarEstudio(){const dias=leerRacha(),h=hoyStr();if(dias.indexOf(h)<0){dias.push(h);try{localStorage.setItem('tl_racha',JSON.stringify({dias:dias.slice(-365)}));}catch(e){}}}
+function rachaDias(){const dias=leerRacha();if(!dias.length)return 0;let n=0;const d=new Date();const f=()=>d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);if(dias.indexOf(f())<0)d.setDate(d.getDate()-1);while(dias.indexOf(f())>=0){n++;d.setDate(d.getDate()-1);}return n;}
+function ultimoEstudio(){const dias=leerRacha();return dias.length?dias[dias.length-1]:'—';}
 function iniciarSesion(modo,nivel){
+ if(sesion&&sesion.timer)clearInterval(sesion.timer);
  const mazo=elegirMazo(nivel||null);
  if(!mazo.length){aviso='No hay tarjetas disponibles.';render();return;}
  if(modo==='test'){
