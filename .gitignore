@@ -89,6 +89,8 @@ __pycache__/
 # Session runtime data ( transcripts in sessions/ are tracked )
 sessions/last_build_check.json
 sessions/improvements.jsonl
+ULTRAIA_SESSION_REPORT.md
+*.bak
 
 # Third-party cloned repos (keep out of this repo)
 FREE-openai-api-keys/
