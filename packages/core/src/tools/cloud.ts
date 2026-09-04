@@ -1,38 +1,68 @@
 /**
- * UltraIA Cloud — almacenamiento de archivos para agentes y la app web.
+ * ============================================================================
+ * ULTRAIA CLOUD — Tu nube personal de archivos
+ * ============================================================================
  *
- * Dominio puro y determinista (patrón screenflow/video-edit): validaciones de paths y
- * uploads, clasificación por tipo, layout de carpetas, manifest e interfaz de adapters
- * de almacenamiento (local filesystem / R2 vía Worker / in-memory para tests).
+ * [EN] This is your personal cloud storage, like Google Drive or Dropbox, but
+ * free and built into the project. It stores your videos, images, documents,
+ * and everything the AI creates.
  *
- * Keyless-first, sin dependencias nuevas (solo zod + node:fs/promises).
+ * [ES] Esta es tu nube de almacenamiento personal, como Google Drive o Dropbox,
+ * pero gratis y construida en el proyecto. Almacena tus videos, imágenes,
+ * documentos y todo lo que la IA crea.
  *
- * La capability `cloud` se registra en ai/llm.ts como tool `cloud_files` (wiring
- * diferido hasta que el working tree de la sesión concurrente #25 esté commiteado;
- * ver STATE.md High Priority). Este módulo exporta `cloudTools` (schema + description)
- * y `createCloudFilesHandler(adapter)` para que el registro sea un añadido trivial.
+ * [EN] How it works:
+ *   1. Files are organized in folders (publications/, media/, drafts/, etc.)
+ *   2. Each file is validated (correct extension, size under 100 MB)
+ *   3. Files are saved locally or in Cloudflare R2 (free cloud)
+ *   4. The AI can list, upload, read, and delete files
+ *
+ * [ES] Cómo funciona:
+ *   1. Los archivos se organizan en carpetas (publications/, media/, drafts/, etc.)
+ *   2. Cada archivo se valida (extensión correcta, tamaño bajo 100 MB)
+ *   3. Los archivos se guardan localmente o en Cloudflare R2 (nube gratis)
+ *   4. La IA puede listar, subir, leer y eliminar archivos
+ *
+ * [EN] Think of it like your personal hard drive in the cloud that the AI can use.
+ * [ES] Piensa en ello como tu disco duro personal en la nube que la IA puede usar.
  */
+
+// [EN] Zod is a library that validates data (makes sure paths look correct, etc.).
+// [ES] Zod es una biblioteca que valida datos (se asegura de que las rutas se vean correctas, etc.).
 import { z } from 'zod';
+
+// [EN] Import file system operations (read, write, delete files and folders).
+// [ES] Importar operaciones del sistema de archivos (leer, escribir, eliminar archivos y carpetas).
 import { mkdir, readFile, writeFile, rename, rm, stat, readdir } from 'node:fs/promises';
+
+// [EN] Import path utilities (join paths, get file extensions, etc.).
+// [ES] Importar utilidades de rutas (unir rutas, obtener extensiones de archivo, etc.).
 import { join, basename, dirname, extname } from 'node:path';
 
 /* ------------------------------------------------------------------ */
 /* Tipos y constantes                                                  */
 /* ------------------------------------------------------------------ */
 
+// ============================================================================
+// TYPES — Los tipos de archivos que podemos guardar
+// ============================================================================
+
+// [EN] What kind of file is it? Video, audio, image, document, script, or data?
+// [ES] ¿Qué tipo de archivo es? Video, audio, imagen, documento, script, o datos?
 export type CloudFileType = 'video' | 'audio' | 'image' | 'document' | 'script' | 'data' | 'other';
 
+// [EN] Information about a file in the cloud (name, type, size, when it was last changed).
+// [ES] Información sobre un archivo en la nube (nombre, tipo, tamaño, cuándo se cambió por última vez).
 export interface CloudFile {
-  /** Path canónico relativo a la raíz del cloud: `publications/idea-1.mp4`. */
+  /** [EN] Path like "publications/my-video.mp4" / [ES] Ruta como "publications/my-video.mp4" */
   path: string;
-  /** Nombre del archivo (último segmento). */
+  /** [EN] Just the filename: "my-video.mp4" / [ES] Solo el nombre del archivo: "my-video.mp4" */
   name: string;
   type: CloudFileType;
-  sizeBytes: number;
-  mime: string;
+  sizeBytes: number;  // [EN] Size in bytes (1 MB = 1,048,576 bytes) / [ES] Tamaño en bytes
+  mime: string;  // [EN] Like "video/mp4" — tells browsers how to handle it / [ES] Como "video/mp4" — le dice a los navegantes cómo manejarlo
   updatedAt: string;
-  /** URL pública opcional (provider R2 con publicUrl configurado). */
-  url?: string | null;
+  url?: string | null;  // [EN] Public URL if using Cloudflare R2 / [ES] URL pública si se usa Cloudflare R2
 }
 
 export interface CloudLayoutEntry {
@@ -40,7 +70,14 @@ export interface CloudLayoutEntry {
   description: string;
 }
 
-/** Extensiones admitidas por categoría (validación de uploads). */
+// ============================================================================
+// FILE EXTENSIONS — Qué tipos de archivos aceptamos
+// ============================================================================
+
+// [EN] This is a map of file extensions to their types. Only these are allowed.
+// [ES] Este es un mapa de extensiones de archivo a sus tipos. Solo estos están permitidos.
+// [EN] Example: ".mp4" → video, ".png" → image, ".pdf" → document
+// [ES] Ejemplo: ".mp4" → video, ".png" → imagen, ".pdf" → documento
 export const EXT_TYPES: Readonly<Record<string, CloudFileType>> = Object.freeze({
   // video
   mp4: 'video', mov: 'video', webm: 'video', mkv: 'video', avi: 'video', m4v: 'video',
@@ -73,6 +110,14 @@ export const ALLOWED_EXTENSIONS: readonly string[] = Object.keys(EXT_TYPES);
 /** Límite de subida por archivo (100 MiB — la app web local lo maneja sin streaming). */
 export const MAX_UPLOAD_BYTES = 100 * 1024 * 1024;
 
+// ============================================================================
+// FOLDER STRUCTURE — Cómo se organizan los archivos en la nube
+// ============================================================================
+
+// [EN] This is the folder structure. Each folder has a specific purpose.
+// [ES] Esta es la estructura de carpetas. Cada carpeta tiene un propósito específico.
+// [EN] Example: videos go to "publications/", drafts go to "drafts/", etc.
+// [ES] Ejemplo: los videos van a "publications/", los borradores van a "drafts/", etc.
 export const CLOUD_LAYOUT: readonly CloudLayoutEntry[] = Object.freeze([
   { path: 'publications', description: 'Videos finales listos para publicar (cola AutoPub).' },
   { path: 'drafts', description: 'Piezas en edición / borradores de guiones y captions.' },
@@ -88,6 +133,14 @@ export const CLOUD_LAYOUT: readonly CloudLayoutEntry[] = Object.freeze([
 /** Regex de path canónico: minúsculas, dígitos, `.` `_` `-` `/`; sin espacios ni separadores de sistema. */
 const CLOUD_PATH_RE = /^[a-z0-9][a-z0-9._/-]{0,254}$/;
 
+// ============================================================================
+// ERROR HANDLING — Qué pasa cuando algo sale mal
+// ============================================================================
+
+// [EN] If something goes wrong (invalid path, file too large, etc.), we throw
+// a CloudError with a specific code so the caller knows exactly what happened.
+// [ES] Si algo sale mal (ruta inválida, archivo muy grande, etc.), lanzamos
+// un CloudError con un código específico para que el llamador sepa exactamente qué pasó.
 export class CloudError extends Error {
   constructor(
     public readonly code: 'INVALID_PATH' | 'TOO_LARGE' | 'NOT_FOUND' | 'IO' | 'UNSAFE_PATH' | 'BAD_EXTENSION',
