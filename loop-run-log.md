@@ -3538,6 +3538,13 @@ Triage PIVR:
 - **V**: typecheck ✅ → lint ✅ → test 2271/2271 ✅ → build ✅.
 - **R**: Commits 5f8afe7 + ca78442. Security: 6/9 High fixed, 10/13 Medium fixed. Remaining: M06 (unsafe-inline/eval), L01-L06 (low).
 
+### Iteracion 171 — Security batch 6: M06 nonce CSP + L04 rate limit (04/09/2026) - DONE
+
+- **P**: M06 (unsafe-inline/unsafe-eval in CSP), L04 (rate limit bypassed for paths with dots).
+- **I**: middleware.ts nonce generation via Web Crypto API (edge-compatible), stored in `__Secure-nonce` cookie; CSP updated with `nonce-<base64>` directive; `unsafe-eval` removed from middleware + next.config; L04 fixed — only `_next`/`favicon` bypass rate limiting.
+- **V**: typecheck ✅ → lint ✅ → test 2271/2271 ✅ → build ✅ (direct from web dir).
+- **R**: Commits 29690cd + 454b669. Security: 25/32 findings fixed. Remaining: L01 (session rotation), L02 (dangerouslySetInnerHTML), L05 (in-memory rate limit), L06 (public endpoints).
+
 ### Iteracion 171 — Qwen provider unblocked + connections catalog + push (04/09/2026) - DONE
 
 - **P**: Task #142 (Qwen provider) was BLOCKED by concurrent session WIP on llm.ts — now clean. Provider already fully implemented in llm.ts (qwenModel, qwenFetch, QWEN_MODELS, switch cases, 3 tests). Missing: connections-catalog.ts entry. Also: push 25 unpushed commits, check enlaces.txt pending items.
