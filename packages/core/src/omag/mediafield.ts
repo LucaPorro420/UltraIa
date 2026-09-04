@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { safeJsonParseOrThrow } from '../utils/safe-json';
 
 export const vec3Schema = z.tuple([z.number(), z.number(), z.number()]);
 export type Vec3 = z.infer<typeof vec3Schema>;
@@ -87,7 +88,7 @@ export function serializeMediaField(field: MediaField): string {
 }
 
 export function parseMediaField(json: string): MediaField {
-  return mediaFieldSchema.parse(JSON.parse(json));
+  return mediaFieldSchema.parse(safeJsonParseOrThrow(json, 'MediaField JSON'));
 }
 
 export function findEntity(field: MediaField, id: string): Entity | undefined {

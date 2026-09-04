@@ -23,6 +23,7 @@ type Line = THREE_TYPES.Line;
 type Mesh = THREE_TYPES.Mesh;
 type Clock = THREE_TYPES.Clock;
 type BufferGeometry = THREE_TYPES.BufferGeometry;
+type LineBasicMaterial = THREE_TYPES.LineBasicMaterial;
 type BufferAttribute = THREE_TYPES.BufferAttribute;
 type MeshBasicMaterial = THREE_TYPES.MeshBasicMaterial;
 
@@ -151,14 +152,14 @@ export async function createChaosScene(
   // Grid
   const gridHelper = new T.GridHelper(80, 40, COLORS.grid, COLORS.grid);
   gridHelper.position.y = -15;
-  const gridMat = gridHelper.material as any;
+  const gridMat = gridHelper.material as LineBasicMaterial;
   gridMat.transparent = true;
   gridMat.opacity = 0.3;
   scene.add(gridHelper);
 
   // Axes helper (subtle)
   const axes = new T.AxesHelper(20);
-  const axesMat = axes.material as any;
+  const axesMat = axes.material as LineBasicMaterial;
   axesMat.transparent = true;
   axesMat.opacity = 0.15;
   scene.add(axes);

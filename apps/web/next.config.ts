@@ -18,9 +18,8 @@ import type { NextConfig } from 'next';
 // Configuración principal de Next.js.
 // Explicación simple: Next.js lee esto al arrancar para saber cómo compilar y cómo servir la app.
 const nextConfig: NextConfig = {
-  output: 'standalone',
-  // output: 'standalone' — deshabilitado en dev para evitar problemas con rutas estáticas.
-  // Restaurar en producción si se necesita empaquetado independiente.
+  // output: 'standalone' — removed: causes ENOENT on App Router-only projects
+  // (no pages-manifest.json). Not needed for Vercel deployment.
 
   // transpilePackages: lista paquetes que TypeScript/Next debe transpilar.
   // Aquí se marca '@ultraia/core' porque es una librería internal del monorepo.
@@ -30,11 +29,8 @@ const nextConfig: NextConfig = {
   // cuando se ejecuta código en el navegador (evitar que se empaqueten para client).
   serverExternalPackages: ['@prisma/client', '@google/stitch-sdk'],
 
-  // Para ahorrar memoria durante build/dev, permitimos que eslint/tsc pasen
-  // (se ejecutan en la CI como gates separados). Esto evita que Next bloquee
-  // el build local por errores de lint/type durante el desarrollo.
-  eslint: { ignoreDuringBuilds: true },
-  typescript: { ignoreBuildErrors: true },
+  // eslint y typescript se verifican en gates CI separados (typecheck → lint → test → build).
+  // Si el build local falla por un error de tipo/lint, corrígelo antes de commitear.
 
   // Experimental: limitar workers a 1 para reducir uso de CPU/RAM en máquinas pequeñas.
   experimental: { cpus: 1 }, // un solo worker de generación estática = menos RAM
@@ -44,10 +40,6 @@ const nextConfig: NextConfig = {
     'lucide-react': {
       // Cuando importes iconos por nombre, Next los resolverá al archivo ESM del icono.
       transform: 'lucide-react/dist/esm/icons/{{ kebabCase member }}',
-    },
-    'three': {
-      // Tree shaking para Three.js: imports granulares evitan bundle completo
-      transform: 'three/src/{{ kebabCase member }}.js',
     },
   },
 

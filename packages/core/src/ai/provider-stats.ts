@@ -15,7 +15,7 @@ export interface ProviderStats {
 
 export class LatencyTracker {
   private stats = new Map<string, { latencies: number[]; errors: number; total: number; lastUsed: number }>();
-  private health = new Map<string, { status: string; until: number }>();
+  private health = new Map<string, { status: 'healthy' | 'degraded' | 'down'; until: number }>();
 
   record(provider: string, model: string, ms: number, error: boolean) {
     const k = `${provider}:${model}`;
@@ -44,7 +44,7 @@ export class LatencyTracker {
       errorRate: e.total > 0 ? e.errors / e.total : 0,
       totalRequests: e.total,
       lastUsed: e.lastUsed,
-      status: (h?.status as any) ?? 'healthy',
+      status: h?.status ?? 'healthy',
       lastHealthCheck: h?.until ?? 0,
     };
   }

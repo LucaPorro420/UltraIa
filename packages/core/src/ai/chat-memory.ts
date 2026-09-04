@@ -16,6 +16,7 @@
 import { writeFileSync, renameSync, mkdirSync, readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import type { KnowledgeGraph, KNode, KEdge } from '../tools/kgraph';
+import { safeJsonParseOrThrow } from '../utils/safe-json';
 
 export type ChatRole = 'user' | 'assistant' | 'system';
 
@@ -199,11 +200,11 @@ export class ChatSessionMemory {
     const root = opts?.rootDir ?? ChatSessionMemory.defaultRoot();
     const file = join(root, `${sessionId}.json`);
     if (!existsSync(file)) throw new Error(`ChatSessionMemory: sesión no encontrada: ${sessionId}`);
-    const raw = JSON.parse(readFileSync(file, 'utf8')) as {
+    const raw = safeJsonParseOrThrow<{
       sessionId: string;
       turns: ChatTurn[];
       graph?: KnowledgeGraph;
-    };
+    }>(readFileSync(file, 'utf8'), `ChatSessionMemory session ${sessionId}`);
     const mem = new ChatSessionMemory({ sessionId: raw.sessionId, rootDir: root });
     mem.turns = raw.turns || [];
     mem.graph = raw.graph || { nodes: [], edges: [] };

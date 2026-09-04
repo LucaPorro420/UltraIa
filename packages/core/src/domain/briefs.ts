@@ -7,6 +7,7 @@
  *   - listarBriefs: cola priorizada por score desc, filtros por estado/canal.
  *   - marcarBriefProcesado/Descartado: transiciones NUEVO → PROCESADO/DESCARTADO.
  */
+import { safeJsonArray } from '../utils/safe-json';
 
 import type { Db } from '../db/client';
 import type { TopicBrief } from '../tools/topics';
@@ -89,7 +90,7 @@ export async function listarBriefs(db: Db, opts: ListBriefsOptions = {}): Promis
       formato: r.formato,
       tono: r.tono,
       angulo: r.angulo,
-      fuentes: JSON.parse(r.fuentesJson) as string[],
+      fuentes: safeJsonArray<string>(r.fuentesJson),
       score: r.score,
       pubDate: r.pubDate,
       estado: r.estado as BriefEstado,

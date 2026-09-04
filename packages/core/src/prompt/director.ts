@@ -1,5 +1,6 @@
 import type { AiGateway } from '../ai/gateway';
 import { LANGUAGES, languageInfo, normalizeLanguage } from './languages';
+import { safeJsonParseOrThrow } from '../utils/safe-json';
 
 /** Plan estructurado que el director produce desde lenguaje natural. */
 export interface DirectorPlan {
@@ -74,7 +75,7 @@ export function parseDirectorPlan(raw: string): DirectorPlan {
   const start = cleaned.indexOf('{');
   const end = cleaned.lastIndexOf('}');
   if (start === -1 || end === -1) throw new Error('Director output is not JSON');
-  const parsed = JSON.parse(cleaned.slice(start, end + 1)) as Partial<DirectorPlan>;
+  const parsed = safeJsonParseOrThrow<Partial<DirectorPlan>>(cleaned.slice(start, end + 1), 'Director plan output');
   if (!parsed.script || !Array.isArray(parsed.images) || !parsed.images.length) {
     throw new Error('Director output missing script/images');
   }

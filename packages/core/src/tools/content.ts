@@ -20,6 +20,7 @@
  */
 
 import { readWeb } from './reach';
+import { safeJsonParseOrThrow } from '../utils/safe-json';
 
 export interface ContentMusicInput {
   query: string;
@@ -122,11 +123,11 @@ async function callMcp<T>(name: string, args: Record<string, unknown>): Promise<
     ?.slice(5)
     .trim();
   if (!dataLine) throw new Error(`Tunetank MCP ${name}: no data frame in response`);
-  const parsed = JSON.parse(dataLine) as { result?: { content?: { type?: string; text?: string }[] } };
+  const parsed = safeJsonParseOrThrow<{ result?: { content?: { type?: string; text?: string }[] } }>(dataLine, `Tunetank MCP ${name} SSE frame`);
   const content = parsed.result?.content ?? [];
   const text = content.map((c) => c.text ?? '').join('\n').trim();
   if (!text) throw new Error(`Tunetank MCP ${name}: empty result`);
-  return JSON.parse(text) as T;
+  return safeJsonParseOrThrow<T>(text, `Tunetank MCP ${name} result body`);
 }
 
 /** Search royalty-free music (Tunetank MCP, keyless). */
