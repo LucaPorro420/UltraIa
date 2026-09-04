@@ -13,12 +13,12 @@
 |----------|-------|-------|-----------|
 | **Critical** | 4 | 4 | 0 |
 | **High** | 9 | 6 | 3 |
-| **Medium** | 13 | 10 | 3 |
-| **Low** | 6 | 1 | 5 |
+| **Medium** | 13 | 11 | 2 |
+| **Low** | 6 | 2 | 4 |
 
 **Positive foundations:** bcrypt cost 12, `crypto.randomBytes(32)` tokens, timing-safe comparison, Zod validation on all endpoints, loopback-only local API, Prisma parameterized queries, `isPublicUrl()` guard in `web.ts`.
 
-**Fixed across 5 security batches (2026-09-04):** C01 (env keys), C02 (admin creds), C03 (session hashing), C04 (path traversal), H01 (logout session destruction), H02 (library SSRF), H03 (auth header bypass), H04 (download tokens), H05 (readWeb SSRF), H06 (parseRss SSRF), H07 (derive SSRF), H08 (workflow eval), M03 (IP spoof), M04 (brute-force lockout), M05 (cookie secure), M07 (CSP align), M08 (CSRF), M09 (bridge path traversal), M10 (execFileSync), M11 (derivation salt), M12 (CORS), M13 (TS/ESLint build), L03 (error sanitization).
+**Fixed across 6 security batches (2026-09-04):** C01 (env keys), C02 (admin creds), C03 (session hashing), C04 (path traversal), H01 (logout session destruction), H02 (library SSRF), H03 (auth header bypass), H04 (download tokens), H05 (readWeb SSRF), H06 (parseRss SSRF), H07 (derive SSRF), H08 (workflow eval), M03 (IP spoof), M04 (brute-force lockout), M05 (cookie secure), M06 (nonce CSP, unsafe-eval removed), M07 (CSP align), M08 (CSRF), M09 (bridge path traversal), M10 (execFileSync), M11 (derivation salt), M12 (CORS), M13 (TS/ESLint build), L03 (error sanitization), L04 (rate limit bypass).
 
 ---
 
