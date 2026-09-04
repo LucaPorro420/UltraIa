@@ -1,16 +1,16 @@
 {
-  "fecha": "2026-09-03",
+  "fecha": "2026-09-04",
   "entorno": "github-actions",
   "vitals": {
-    "puntuacion": 31,
+    "puntuacion": 48,
     "estado": "ROJO",
     "signos": [
       {
         "nombre": "gates",
-        "valor": 0.25,
+        "valor": 0.75,
         "peso": 0.35,
         "ok": false,
-        "nota": "1/4 verdes (ROJO: typecheck, test, build)"
+        "nota": "3/4 verdes (ROJO: build)"
       },
       {
         "nombre": "tests",
@@ -24,7 +24,7 @@
         "valor": 0.97,
         "peso": 0.15,
         "ok": false,
-        "nota": "141/145 accionables cerradas, 4 pendientes, 2 bloqueadas"
+        "nota": "153/157 accionables cerradas, 4 pendientes, 1 bloqueadas"
       },
       {
         "nombre": "gaps",
@@ -45,13 +45,13 @@
         "valor": 1,
         "peso": 0.05,
         "ok": true,
-        "nota": "172 commits + 0 lecciones"
+        "nota": "151 commits + 0 lecciones"
       }
     ],
     "razones": [
-      "gates: 1/4 verdes (ROJO: typecheck, test, build)",
+      "gates: 3/4 verdes (ROJO: build)",
       "tests: 0/0 tests",
-      "backlog: 141/145 accionables cerradas, 4 pendientes, 2 bloqueadas",
+      "backlog: 153/157 accionables cerradas, 4 pendientes, 1 bloqueadas",
       "gaps: 19 gaps abiertos"
     ]
   },
@@ -124,28 +124,28 @@
       "fuentes": 8
     },
     "backlog": {
-      "total": 147,
-      "done": 141,
-      "bloqueadas": 2,
+      "total": 158,
+      "done": 153,
+      "bloqueadas": 1,
       "pendientes": 4
     },
     "actividad": {
-      "commits": 172,
+      "commits": 151,
       "lecciones": 0
     },
     "gates": {
-      "typecheck": false,
+      "typecheck": true,
       "lint": true,
-      "test": false,
+      "test": true,
       "build": false
     }
   },
   "regresiones": [],
   "accion": {
     "modo": "reparar",
-    "objetivo": "gates en rojo: typecheck, test, build",
+    "objetivo": "gates en rojo: build",
     "razon": "el organismo se esta degradando: reparar antes que avanzar (regla: no commitear con gates rojos)",
     "prioridad": "P0",
-    "comando": "npm run typecheck"
+    "comando": "npm run build"
   }
 }
