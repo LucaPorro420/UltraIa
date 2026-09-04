@@ -1,3 +1,7 @@
+//! Capability `catalog` — tool catalog with i18n, categories, and routes.
+// Pure, deterministic, keyless. Maps every tool (Capability) to a UI route,
+// category, related tools, and localized descriptions. Used by the Studio,
+// Dashboard, and Playgrounds to render tool cards and navigation.
 import { TOOL_DESCRIPTIONS, type Capability } from './index';
 import { SUPPORTED_LANGUAGES } from '../prompt/languages';
 

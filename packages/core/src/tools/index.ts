@@ -1,3 +1,11 @@
+//! Tool registry — re-exports every tool in the UltraIa capabilities system.
+// This file is the single import point for all tools. Each tool module exports:
+// - A zod schema (e.g. `calculatorSchema`)
+// - A tool handler function (e.g. `calculatorTool`)
+// - Domain types and helper functions
+//
+// Namespace exports (`export * as X from`) avoid symbol collisions between
+// tools that share generic names (e.g. `Vec2` in geom vs geometry).
 export * from './calculator';
 export * from './web';
 export * from './image';

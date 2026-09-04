@@ -1403,3 +1403,7 @@ Cada commit agrega una sección con fecha y la lista de archivos `.ts/.tsx` toca
 ## 2026-09-04T20:34:49.408Z
 - [ ] packages/core/src/tools/batch-executor.test.ts
 - [ ] packages/core/src/tools/batch-executor.ts
+
+## 2026-09-04T20:46:00.038Z
+- [ ] apps/web/src/app/api/omag/route.commented.ts
+- [ ] packages/core/src/omag/orchestrator.commented.ts
