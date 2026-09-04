@@ -1,3 +1,4 @@
+//! Web color scheme hook — hydration-safe wrapper for static rendering.
 import { useEffect, useState } from 'react';
 import { useColorScheme as useRNColorScheme } from 'react-native';
 

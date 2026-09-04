@@ -1452,3 +1452,6 @@ Cada commit agrega una sección con fecha y la lista de archivos `.ts/.tsx` toca
 ## 2026-09-04T21:44:13.534Z
 - [ ] packages/core/src/tools/enrutador.ts
 - [ ] packages/core/src/tools/skills.ts
+
+## 2026-09-04T21:46:55.341Z
+- [ ] packages/core/src/tools/autopub.ts

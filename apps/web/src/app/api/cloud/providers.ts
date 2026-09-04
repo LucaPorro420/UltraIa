@@ -1,3 +1,5 @@
+//! Cloud provider adapters for the /api/cloud endpoints.
+// Local adapter uses .ultraia/cloud/ on disk; R2 adapter is env-configured.
 import { LocalCloudAdapter } from '@ultraia/cloud';
 import { join } from 'node:path';
 
