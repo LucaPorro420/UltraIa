@@ -1,3 +1,6 @@
+//! Core types for the UltraIa desktop runtime.
+// Module metadata (UltraModule), status/category/weight enums, task priorities,
+// runtime status, and all shared type definitions for the runtime subsystems.
 export type ModuleCategory =
   | 'ai'
   | 'video'

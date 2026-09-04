@@ -1,3 +1,7 @@
+//! UltraRuntime — the main orchestrator for the desktop runtime.
+// Wires together all subsystems: config, paths, logger, event bus, task manager,
+// module registry/manager, resources, commands, health, recovery, memory,
+// context selector, and local API server. start/stop lifecycle management.
 import * as path from 'node:path';
 import { randomBytes } from 'node:crypto';
 import type { RuntimeStatus, UltraModule } from './types';

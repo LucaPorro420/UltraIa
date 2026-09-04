@@ -1,3 +1,7 @@
+//! @ultraia/runtime — public API surface for the desktop runtime.
+// Re-exports all subsystems: types, config, logger, event bus, task manager,
+// module registry/manager, resources, commands, health, recovery, memory,
+// context, runtime orchestrator, installer, API (HTTP/WS), and adapters.
 export * from './types';
 export * from './config';
 export * from './logger';

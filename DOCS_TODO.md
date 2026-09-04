@@ -1433,3 +1433,13 @@ Cada commit agrega una sección con fecha y la lista de archivos `.ts/.tsx` toca
 - [ ] packages/core/src/omag/mediafield.ts
 - [ ] packages/core/src/omag/memory.ts
 - [ ] packages/core/src/omag/orchestrator.ts
+
+## 2026-09-04T21:34:10.909Z
+- [ ] packages/core/src/auth/apikey.ts
+- [ ] packages/core/src/index.ts
+- [ ] packages/core/src/omag/timeline.ts
+- [ ] packages/core/src/omag/world.ts
+- [ ] packages/core/src/prompt/index.ts
+- [ ] packages/core/src/prompt/languages.ts
+- [ ] packages/core/src/tools/gen-engine.ts
+- [ ] packages/core/src/tools/music.ts
