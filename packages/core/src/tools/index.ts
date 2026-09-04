@@ -82,6 +82,8 @@ export type {
   MotionVector, FlowField, FlowAnalysis, DecomposedMotion, FlowStats, Point2D, Trajectory,
 } from './motion';
 export * from './replica';
+// orchestrator-unified: connects web, mobile, VSCode, runtime into single coordination layer.
+export * from './orchestrator-unified';
 export * from './imaging';
 export * from './semantic-memory';
 export * from './autolearn';
