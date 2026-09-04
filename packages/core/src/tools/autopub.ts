@@ -198,6 +198,31 @@ function msg(e: unknown): string {
   return e instanceof Error ? e.message : String(e);
 }
 
+/** Track autopub cycle event with the unified orchestrator. */
+export function trackAutopubEvent(event: {
+  phase: string;
+  description: string;
+  impact: 'low' | 'medium' | 'high';
+}): void {
+  try {
+    // Dynamic import to avoid circular deps
+    const { getOrchestrator } = require('./orchestrator-unified');
+    const orchestrator = getOrchestrator();
+    orchestrator.trackLearning({
+      id: `autopub-${Date.now()}`,
+      app: 'runtime',
+      timestamp: Date.now(),
+      category: 'improvement',
+      description: `[AutoPub ${event.phase}] ${event.description}`,
+      source: 'autopub.ts',
+      impact: event.impact,
+      verified: false,
+    });
+  } catch {
+    // Fail-soft: orchestrator not available
+  }
+}
+
 /** Ejecuta el ciclo completo (fail-soft por fase y por brief). Nunca lanza. */
 export async function runAutopubCycle(deps: AutopubDeps, config: AutopubConfig): Promise<AutopubCycleReport> {
   const clock = deps.clock ?? (() => new Date());
@@ -214,8 +239,10 @@ export async function runAutopubCycle(deps: AutopubDeps, config: AutopubConfig):
       const g = await deps.guardar(briefs);
       briefsCreados = g.creados;
       duplicados = g.yaExistentes;
+      trackAutopubEvent({ phase: 'F1', description: `Discovered ${temasDescubiertos} topics, created ${briefsCreados} briefs`, impact: 'medium' });
     } catch (e) {
       errores.push(`F1: ${msg(e)}`);
+      trackAutopubEvent({ phase: 'F1', description: `Error: ${msg(e)}`, impact: 'high' });
     }
   }
 
