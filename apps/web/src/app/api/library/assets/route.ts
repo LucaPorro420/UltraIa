@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { buildSavePlan, prisma } from '@ultraia/core';
+import { buildSavePlan, prisma, assertPublicUrl } from '@ultraia/core';
 import { getCurrentUser } from '@/lib/server/context';
 import { effectiveExt, getStudioCloud } from '@/lib/server/studio-assets';
 
@@ -72,6 +72,7 @@ export async function POST(req: Request) {
   let cloudPath: string | null = null;
   if (saveBinary) {
     try {
+      assertPublicUrl(url); // H08: SSRF guard
       const res = await fetch(url, { signal: AbortSignal.timeout(30_000) });
       if (!res.ok) throw new Error(`HTTP ${res.status} al descargar el binario`);
       const bytes = new Uint8Array(await res.arrayBuffer());

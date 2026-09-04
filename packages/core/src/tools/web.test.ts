@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { fetchWebContent } from './web';
+import { fetchWebContent, isPublicUrl, assertPublicUrl } from './web';
 
 const HTML = `<!doctype html><html lang="en"><head>
   <title>Example Page</title>
@@ -58,5 +58,59 @@ describe('fetchWebContent', () => {
     vi.stubGlobal('fetch', fetchMock);
     await expect(fetchWebContent('file:///etc/passwd')).rejects.toThrow(/not allowed/i);
     expect(fetchMock).not.toHaveBeenCalled();
+  });
+});
+
+describe('isPublicUrl', () => {
+  it('allows public URLs', () => {
+    expect(isPublicUrl(new URL('https://example.com'))).toBe(true);
+    expect(isPublicUrl(new URL('https://api.github.com/repos'))).toBe(true);
+    expect(isPublicUrl(new URL('http://8.8.8.8/'))).toBe(true);
+  });
+
+  it('blocks localhost', () => {
+    expect(isPublicUrl(new URL('http://localhost:3000/'))).toBe(false);
+    expect(isPublicUrl(new URL('http://sub.localhost/'))).toBe(false);
+  });
+
+  it('blocks loopback', () => {
+    expect(isPublicUrl(new URL('http://127.0.0.1/'))).toBe(false);
+    expect(isPublicUrl(new URL('http://[::1]/'))).toBe(false);
+  });
+
+  it('blocks private IPs', () => {
+    expect(isPublicUrl(new URL('http://10.0.0.1/'))).toBe(false);
+    expect(isPublicUrl(new URL('http://172.16.0.1/'))).toBe(false);
+    expect(isPublicUrl(new URL('http://192.168.1.1/'))).toBe(false);
+  });
+
+  it('blocks link-local', () => {
+    expect(isPublicUrl(new URL('http://169.254.169.254/'))).toBe(false);
+  });
+
+  it('blocks .internal and .local', () => {
+    expect(isPublicUrl(new URL('http://service.internal/'))).toBe(false);
+    expect(isPublicUrl(new URL('http://machine.local/'))).toBe(false);
+  });
+
+  it('blocks non-http protocols', () => {
+    expect(isPublicUrl(new URL('file:///etc/passwd'))).toBe(false);
+    expect(isPublicUrl(new URL('ftp://example.com/'))).toBe(false);
+  });
+});
+
+describe('assertPublicUrl', () => {
+  it('passes for public URLs', () => {
+    expect(() => assertPublicUrl('https://example.com')).not.toThrow();
+  });
+
+  it('throws for internal URLs', () => {
+    expect(() => assertPublicUrl('http://localhost:3000/')).toThrow(/SSRF blocked/);
+    expect(() => assertPublicUrl('http://169.254.169.254/')).toThrow(/SSRF blocked/);
+    expect(() => assertPublicUrl('http://192.168.1.1/')).toThrow(/SSRF blocked/);
+  });
+
+  it('throws for invalid URLs', () => {
+    expect(() => assertPublicUrl('not-a-url')).toThrow(/Invalid URL/);
   });
 });

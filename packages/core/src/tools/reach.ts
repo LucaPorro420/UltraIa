@@ -11,6 +11,7 @@
  */
 
 import { XMLParser } from 'fast-xml-parser';
+import { assertPublicUrl } from './web';
 
 export interface ReachReadInput {
   url: string;
@@ -143,6 +144,7 @@ function truncate(s: string, max: number): string {
 export async function readWeb(input: ReachReadInput): Promise<ReachReadResult> {
   const url = input.url.trim();
   if (!/^https?:\/\//i.test(url)) throw new Error('Invalid URL — must start with http(s)://');
+  assertPublicUrl(url); // H05: SSRF guard
   const maxLength = input.maxLength ?? 12_000;
 
   // Check cache first
@@ -324,6 +326,7 @@ export async function searchGitHub(input: ReachGithubInput): Promise<ReachGithub
 export async function parseRss(input: ReachRssInput): Promise<ReachRssResult> {
   const url = input.url.trim();
   if (!/^https?:\/\//i.test(url)) throw new Error('Invalid URL — must start with http(s)://');
+  assertPublicUrl(url); // H06: SSRF guard
   const maxItems = input.maxItems ?? 10;
 
   const res = await withTimeout(fetch(url, { headers: { 'user-agent': 'UltraIaBot/1.0' }, redirect: 'follow' }), READ_TIMEOUT_MS, 'RSS fetch');

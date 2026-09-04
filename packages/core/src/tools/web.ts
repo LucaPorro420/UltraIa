@@ -16,11 +16,12 @@ export interface WebContent {
 const MAX_BYTES = 2_000_000;
 const TIMEOUT_MS = 10_000;
 
-function isPublicUrl(url: URL): boolean {
+/** SSRF guard: returns true if the URL points to a public (non-internal) host. */
+export function isPublicUrl(url: URL): boolean {
   if (url.protocol !== 'http:' && url.protocol !== 'https:') return false;
   const host = url.hostname.toLowerCase();
   if (host === 'localhost' || host.endsWith('.localhost')) return false;
-  if (host === '0.0.0.0' || host === '::1') return false;
+  if (host === '0.0.0.0' || host === '::1' || host === '[::1]') return false;
   if (/^\d{1,3}(\.\d{1,3}){3}$/.test(host)) {
     const [a, b] = host.split('.').map(Number);
     if (a === 10) return false;
@@ -31,6 +32,19 @@ function isPublicUrl(url: URL): boolean {
   }
   if (host.endsWith('.internal') || host.endsWith('.local')) return false;
   return true;
+}
+
+/** SSRF guard from a raw URL string. Throws if the URL is invalid or targets an internal host. */
+export function assertPublicUrl(urlStr: string): void {
+  let parsed: URL;
+  try {
+    parsed = new URL(urlStr);
+  } catch {
+    throw new Error(`Invalid URL: ${urlStr}`);
+  }
+  if (!isPublicUrl(parsed)) {
+    throw new Error(`SSRF blocked: ${urlStr} targets an internal/private host`);
+  }
 }
 
 function absolutize(src: string | undefined, base: string): string | null {

@@ -33,6 +33,19 @@ export const dynamic = 'force-dynamic';
 const ROOT = path.resolve(process.cwd(), '..', '..');
 
 /* ------------------------------------------------------------------ */
+/* Security helpers                                                     */
+/* ------------------------------------------------------------------ */
+
+/** Assert that a file path stays within the workspace root (C04/M09 path traversal guard). */
+function assertInsideWorkspace(filePath: string, workspaceRoot: string): void {
+  const resolved = path.resolve(workspaceRoot, filePath);
+  const root = path.resolve(workspaceRoot);
+  if (!resolved.startsWith(root + path.sep) && resolved !== root) {
+    throw new Error(`Path traversal blocked: ${filePath}`);
+  }
+}
+
+/* ------------------------------------------------------------------ */
 /* Dependency implementations (real filesystem + git)                   */
 /* ------------------------------------------------------------------ */
 
@@ -92,6 +105,7 @@ Rules:
  * Aplica un edit al filesystem.
  */
 async function applyEdit(edit: FileEdit, workspaceRoot: string): Promise<void> {
+  assertInsideWorkspace(edit.file, workspaceRoot); // C04: path traversal guard
   const filePath = path.join(workspaceRoot, edit.file);
 
   switch (edit.action) {
@@ -151,6 +165,9 @@ async function createCommit(
 ): Promise<void> {
   if (files.length === 0) return;
 
+  // M09: validate all file paths stay within workspace
+  for (const f of files) assertInsideWorkspace(f, workspaceRoot);
+
   // git add files
   await execFileAsync('git', ['add', ...files], {
     cwd: workspaceRoot,
@@ -169,6 +186,9 @@ async function createCommit(
  */
 async function rollbackFiles(files: string[], workspaceRoot: string): Promise<void> {
   if (files.length === 0) return;
+
+  // M09: validate all file paths stay within workspace
+  for (const f of files) assertInsideWorkspace(f, workspaceRoot);
 
   try {
     await execFileAsync('git', ['checkout', '--', ...files], {

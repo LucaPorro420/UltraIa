@@ -3,7 +3,7 @@ import { spawnSync } from 'node:child_process';
 import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { buildSlideshowFfmpegArgv, generateImage, prisma, renderCompositionWav, slugifyPrompt } from '@ultraia/core';
+import { buildSlideshowFfmpegArgv, generateImage, prisma, renderCompositionWav, slugifyPrompt, assertPublicUrl } from '@ultraia/core';
 import { getCurrentUser } from '@/lib/server/context';
 import { effectiveExt, getStudioCloud } from '@/lib/server/studio-assets';
 
@@ -116,6 +116,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     try {
       const locals: string[] = [];
       for (let i = 0; i < op.frames.length; i++) {
+        assertPublicUrl(op.frames[i].url); // H07: SSRF guard on frame URLs
         const res = await fetch(op.frames[i].url, { signal: AbortSignal.timeout(30_000) });
         if (!res.ok) throw new Error(`HTTP ${res.status} en frame ${i}`);
         const ext = effectiveExt(op.frames[i].url, res.headers.get('content-type') ?? undefined);
