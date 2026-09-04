@@ -1,7 +1,8 @@
-# HOW-TO — Guías paso a paso para tareas comunes
+# HOW-TO — Guías paso a paso para todas las tareas comunes
 
-> **Nivel:** Principiante a intermedio
+> **Nivel:** Principiante a avanzado
 > **Prerrequisitos:** Node.js 20+, Python 3.10+, npm
+> **Categorías:** Páginas, APIs, herramientas, componentes, DB, env, tests, troubleshooting
 
 ---
 
@@ -51,26 +52,40 @@ npm run dev
 // apps/web/app/api/products/route.ts
 
 import { NextResponse } from 'next/server';
+import { getCurrentUser } from '@/lib/server/context';
+import { prisma } from '@ultraia/core';
 
 export async function GET() {
-  const products = [
-    { id: 1, name: 'Plan Básico', price: 0 },
-    { id: 2, name: 'Plan Pro', price: 29 },
-  ];
+  const user = await getCurrentUser();
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+  
+  const products = await prisma.generatedAsset.findMany({
+    where: { type: 'product' },
+  });
   
   return NextResponse.json({ data: products });
 }
 
 export async function POST(request: Request) {
+  const user = await getCurrentUser();
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+  
   const body = await request.json();
   
-  // Guardar en la DB (ejemplo)
-  console.log('Nuevo producto:', body);
+  const product = await prisma.generatedAsset.create({
+    data: {
+      type: 'product',
+      url: body.url,
+      prompt: body.prompt,
+      metadata: JSON.stringify(body.metadata),
+    },
+  });
   
-  return NextResponse.json({ 
-    data: body,
-    message: 'Producto creado' 
-  }, { status: 201 });
+  return NextResponse.json({ data: product }, { status: 201 });
 }
 ```
 
@@ -83,7 +98,7 @@ curl http://localhost:3000/api/products
 # POST
 curl -X POST http://localhost:3000/api/products \
   -H "Content-Type: application/json" \
-  -d '{"name": "Plan Premium", "price": 49}'
+  -d '{"url": "https://ejemplo.com/producto.png", "prompt": "Producto"}'
 ```
 
 ---
@@ -131,7 +146,7 @@ export const calculatorDescription =
   'Realiza operaciones matemáticas básicas. Úsalo cuando el usuario quiera hacer cálculos.';
 ```
 
-**Paso 2:** Registrar
+**Paso 2:** Registrar en `index.ts`
 
 ```typescript
 // packages/core/src/tools/index.ts
@@ -147,6 +162,11 @@ export const TOOL_DESCRIPTIONS = {
   // ... existentes
   calculator: calculatorDescription,
 };
+
+// Agregar al tipo Capability
+export type Capability = 
+  | ... 
+  | 'calculator';
 ```
 
 **Paso 3:** Probar
@@ -252,7 +272,7 @@ const products = await prisma.product.findMany();
 MI_NUEVA_API_KEY=tu-api-key-aqui
 ```
 
-**Paso 2:** Agregar al `.env.example` (para que otros sepan que existe)
+**Paso 2:** Agregar al `.env.example`
 
 ```bash
 # En la raíz del proyecto
@@ -267,134 +287,49 @@ const apiKey = process.env.MI_NUEVA_API_KEY;
 
 ---
 
-## 7. Agregar un nuevo componente de página
+## 7. Agregar un nuevo workspace
 
-### Ejemplo: Crear componente `PricingCard`
+**Paso 1:** Crear la carpeta
 
-**Paso 1:** Crear el archivo
+```bash
+mkdir packages/mi-libreria
+cd packages/mi-libreria
+npm init -y
+```
 
-```tsx
-// apps/web/components/pricing-card.tsx
+**Paso 2:** Configurar `package.json`
 
-import { Button } from '@/components/ui/button';
-
-interface PricingCardProps {
-  nombre: string;
-  precio: number;
-  caracteristicas: string[];
-  recomendado?: boolean;
-}
-
-export function PricingCard({ 
-  nombre, 
-  precio, 
-  caracteristicas, 
-  recomendado = false 
-}: PricingCardProps) {
-  return (
-    <div className={`
-      glass-panel p-6 rounded-lg
-      ${recomendado ? 'ring-2 ring-primary' : ''}
-    `}>
-      {recomendado && (
-        <span className="text-xs font-semibold text-primary">
-          RECOMENDADO
-        </span>
-      )}
-      
-      <h3 className="text-xl font-bold mt-2">{nombre}</h3>
-      <p className="text-3xl font-bold mt-2">
-        ${precio}
-        <span className="text-sm text-text-secondary">/mes</span>
-      </p>
-      
-      <ul className="mt-4 space-y-2">
-        {caracteristicas.map((car, i) => (
-          <li key={i} className="flex items-center gap-2">
-            <span className="text-green-400">✓</span>
-            {car}
-          </li>
-        ))}
-      </ul>
-      
-      <Button className="w-full mt-6">
-        Empezar
-      </Button>
-    </div>
-  );
+```json
+{
+  "name": "@ultraia/mi-libreria",
+  "version": "1.0.0",
+  "main": "src/index.ts",
+  "dependencies": {
+    "zod": "^3.22.0"
+  }
 }
 ```
 
-**Paso 2:** Usarlo en una página
+**Paso 3:** Agregar al root `package.json`
 
-```tsx
-// apps/web/app/pricing/page.tsx
-
-import { PricingCard } from '@/components/pricing-card';
-
-export default function PricingPage() {
-  return (
-    <div className="grid grid-cols-3 gap-8">
-      <PricingCard
-        nombre="Básico"
-        precio={0}
-        caracteristicas={[
-          '5 imágenes/mes',
-          '1 video/mes',
-          'Soporte básico'
-        ]}
-      />
-      
-      <PricingCard
-        nombre="Pro"
-        precio={29}
-        caracteristicas={[
-          '100 imágenes/mes',
-          '20 videos/mes',
-          'Soporte prioritario',
-          'API access'
-        ]}
-        recomendado
-      />
-      
-      <PricingCard
-        nombre="Enterprise"
-        precio={99}
-        caracteristicas={[
-          'Ilimitado',
-          'Soporte 24/7',
-          'SLA 99.9%',
-          'Custom integrations'
-        ]}
-      />
-    </div>
-  );
+```json
+{
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ]
 }
+```
+
+**Paso 4:** Instalar
+
+```bash
+npm install
 ```
 
 ---
 
-## 8. Agregar una nueva dependencia
-
-### Dependencia de producción
-
-```bash
-# Para el workspace web
-npm install nombre-paquete --workspace=@ultraia/web
-
-# Para el workspace core
-npm install nombre-paquete --workspace=@ultraia/core
-```
-
-### Dependencia de desarrollo
-
-```bash
-npm install -D nombre-paquete --workspace=@ultraia/web
-```
-
----
-
-## 9. Ejecutar un solo test
+## 8. Ejecutar un solo test
 
 ```bash
 # Correr tests que coincidan con un patrón
@@ -402,11 +337,14 @@ npm run test -- --grep "calculator"
 
 # Correr tests de un archivo específico
 npm run test -- packages/core/src/tools/calculator.test.ts
+
+# Correr todos los tests
+npm run test
 ```
 
 ---
 
-## 10. Solucionar problemas comunes
+## 9. Solucionar problemas comunes
 
 ### "Module not found"
 
@@ -428,6 +366,9 @@ npm run typecheck
 ```bash
 # Matar procesos en el puerto
 taskkill /F /IM node.exe
+
+# O usar el flag --clean
+python start.py --clean
 ```
 
 ### "Database not found"
@@ -437,13 +378,133 @@ taskkill /F /IM node.exe
 npm run db:migrate
 ```
 
+### "Build falls in Windows"
+
+```bash
+# Correr desde apps/web con más memoria
+cd apps/web
+node --max-old-space-size=4096 ../../node_modules/next/dist/bin/next build
+```
+
+### "Tests fail after editing"
+
+```bash
+# Limpiar caché de vitest
+rm -rf node_modules/.vite
+npm run test
+```
+
+### "ESLint errors"
+
+```bash
+# Auto-fix
+npm run lint -- --fix
+```
+
+### "Prisma client not generated"
+
+```bash
+# Generar cliente
+npx prisma generate
+```
+
+### "CORS error"
+
+```bash
+# Verificar next.config.ts
+# Agregar dominio a images.remotePatterns si es necesario
+```
+
+### "Rate limited"
+
+```bash
+# Esperar 1 minuto o reiniciar el servidor
+```
+
 ---
 
-## 11. Referencias
+## 10. Comandos útiles
+
+```bash
+# Desarrollo
+npm run dev                    # Iniciar dev server
+python start.py                # Todo en un comando
+python start.py --web          # Solo web
+python start.py --hooks        # Solo webhooks
+python start.py --gen-engine   # Solo gen-engine
+python start.py --check-connections  # Verificar todo
+
+# Build
+npm run build                  # Production build
+npm run gate                   # Verificar gates
+
+# Tests
+npm run test                   # Todos los tests
+npm run test -- --grep "auth"  # Tests de auth
+
+# Type checking
+npm run typecheck              # Verificar tipos
+
+# Lint
+npm run lint                   # Verificar código
+npm run lint -- --fix          # Auto-fix
+
+# Database
+npm run db:migrate             # Crear/actualizar DB
+npx prisma studio              # Ver datos
+npx prisma generate            # Generar cliente
+
+# Git
+git add <archivos>             # Agregar archivos específicos
+git commit -m "feat(scope): desc"  # Commit
+git status                     # Ver estado
+git log --oneline -10          # Ver últimos commits
+```
+
+---
+
+## 11. Estructura de archivos
+
+```
+UltraIa/
+├── apps/
+│   ├── web/                   # Next.js app
+│   │   ├── app/               # Pages (App Router)
+│   │   │   ├── (app)/         # Authenticated pages
+│   │   │   ├── api/           # API routes
+│   │   │   └── layout.tsx     # Root layout
+│   │   ├── components/        # React components
+│   │   │   ├── ui/            # UI kit
+│   │   │   └── app-shell/     # Nav, sidebar
+│   │   └── src/lib/server/    # Server utilities
+│   └── mobile/                # React Native app
+├── packages/
+│   ├── core/                  # AI, tools, DB, auth
+│   │   ├── src/
+│   │   │   ├── ai/            # LLM engine
+│   │   │   ├── auth/          # Authentication
+│   │   │   ├── tools/         # 87 tools
+│   │   │   └── db/            # Prisma client
+│   │   └── prisma/            # Schema + migrations
+│   └── runtime/               # Offline engine
+├── scripts/                   # Python scripts
+├── Task/                      # Automated tasks
+├── gen-engine/                # Generation engine
+├── start.py                   # One-command launcher
+├── STATE.md                   # Current state
+├── AGENTS.md                  # Agent rules
+└── ULTRAIA-KNOWLEDGE/         # This documentation
+```
+
+---
+
+## 12. Referencias
 
 - [Next.js docs](https://nextjs.org/docs)
 - [React docs](https://react.dev)
 - [TypeScript docs](https://www.typescriptlang.org/docs)
+- [Prisma docs](https://www.prisma.io/docs)
+- [Tailwind CSS docs](https://tailwindcss.com/docs)
 
 ---
 
