@@ -1,3 +1,7 @@
+//! Password hashing and strength validation.
+// Uses bcrypt (cost 12) for secure one-way hashing. Includes NIST/SecLists
+// common password blocklist (top 20) and structural strength checks (length,
+// uppercase, lowercase, number). Fail-soft: throws on weak passwords.
 import bcrypt from 'bcryptjs';
 
 const COST = 12;

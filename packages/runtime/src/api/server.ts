@@ -1,3 +1,7 @@
+//! Local API server — HTTP + WebSocket for the UltraIa desktop runtime.
+// Binds to 127.0.0.1 with auto-generated token auth, origin validation,
+// rate limiting (120 req/min), body cap (64 KiB), and WebSocket events.
+// Implements ApiHandlers interface (injected by runtime-handlers.ts).
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http';
 import { createHash, timingSafeEqual } from 'node:crypto';
 import type { AddressInfo } from 'node:net';

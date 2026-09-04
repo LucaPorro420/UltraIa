@@ -1,3 +1,7 @@
+//! Web content fetcher with SSRF protection.
+// Pure, deterministic (aside from fetch). Extracts clean text + metadata from
+// any public URL using cheerio (HTML parsing). Includes SSRF guards to prevent
+// requests to internal hosts (localhost, RFC1918, link-local).
 import * as cheerio from 'cheerio';
 
 export interface WebContent {

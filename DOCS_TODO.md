@@ -1305,12 +1305,12 @@ Cada commit agrega una sección con fecha y la lista de archivos `.ts/.tsx` toca
 
 ## 2026-09-03T23:50:13.552Z
 - [ ] packages/core/src/tools/automation.test.ts
-- [ ] packages/core/src/tools/automation.ts
+- [ ] packages/core/src/tools/automation.ts (already has good JSDoc)
 - [ ] packages/core/src/tools/model-memory.test.ts
 - [ ] packages/core/src/tools/recorder.test.ts
-- [ ] packages/core/src/tools/stitch.ts
-- [ ] packages/memory-engine/src/api/memory-client.ts
-- [ ] packages/memory-engine/src/background/loop.ts
+- [x] packages/core/src/tools/stitch.ts (header: Google Stitch UI generation)
+- [ ] packages/memory-engine/src/api/memory-client.ts (FILE NOT FOUND)
+- [ ] packages/memory-engine/src/background/loop.ts (FILE NOT FOUND)
 
 ## 2026-09-04T13:50:49.457Z (catalog + index)
 - [x] packages/core/src/tools/catalog.ts (header comment: tool catalog with i18n)
@@ -1322,14 +1322,14 @@ Cada commit agrega una sección con fecha y la lista de archivos `.ts/.tsx` toca
 - [ ] apps/web/src/app/api/bridge/route.ts
 - [ ] apps/web/src/app/api/library/assets/route.ts
 - [ ] packages/core/src/tools/reach.test.ts
-- [ ] packages/core/src/tools/reach.ts
+- [ ] packages/core/src/tools/reach.ts (already has good JSDoc)
 - [ ] packages/core/src/tools/web.test.ts
-- [ ] packages/core/src/tools/web.ts
+- [x] packages/core/src/tools/web.ts (header: web content fetcher + SSRF guard)
 
 ## 2026-09-04T01:27:18.642Z
 - [ ] cloudflare/worker.ts
 - [ ] packages/core/src/auth/password.test.ts
-- [ ] packages/core/src/auth/password.ts
+- [x] packages/core/src/auth/password.ts (header: bcrypt hashing + strength validation)
 - [ ] packages/runtime/src/orchestrator/coordinator.ts
 
 ## 2026-09-04T02:35:46.358Z
@@ -1349,7 +1349,7 @@ Cada commit agrega una sección con fecha y la lista de archivos `.ts/.tsx` toca
 - [ ] packages/core/src/ai/llm.ts
 - [ ] packages/runtime/src/api/runtime-handlers.ts
 - [ ] packages/runtime/src/api/server.test.ts
-- [ ] packages/runtime/src/api/server.ts
+- [x] packages/runtime/src/api/server.ts (header: Local API HTTP + WS server)
 
 ## 2026-09-04T04:06:29.247Z
 - [ ] packages/core/src/ai/llm.ts
@@ -1357,12 +1357,12 @@ Cada commit agrega una sección con fecha y la lista de archivos `.ts/.tsx` toca
 ## 2026-09-04T05:33:46.601Z
 - [ ] apps/web/next.config.ts
 - [ ] apps/web/src/app/(app)/chaos-game/engine/renderer.ts
-- [ ] packages/core/src/ai/chat-memory.ts
-- [ ] packages/core/src/ai/provider-stats.ts
-- [ ] packages/core/src/domain/briefs.ts
+- [ ] packages/core/src/ai/chat-memory.ts (already has good JSDoc)
+- [ ] packages/core/src/ai/provider-stats.ts (already has good comments)
+- [ ] packages/core/src/domain/briefs.ts (already has good JSDoc)
 - [ ] packages/core/src/omag/mediafield.ts
-- [ ] packages/core/src/prompt/director.ts
-- [ ] packages/core/src/tools/content.ts
+- [x] packages/core/src/prompt/director.ts (header: LLM plan generator for video/audio)
+- [ ] packages/core/src/tools/content.ts (already has good JSDoc)
 
 ## 2026-09-04T05:42:43.365Z
 - [ ] apps/web/src/lib/server/context.ts
