@@ -95,6 +95,7 @@ input:focus,textarea:focus{border-color:var(--primary);box-shadow:0 0 0 2px var(
 .related-section h3{font-size:1rem;font-weight:600;margin-bottom:12px}
 .tech-content{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;margin:16px 0}
 .tech-content h3{font-size:1rem;font-weight:600;margin:16px 0 8px;color:var(--primary)}
+.tech-content h4{font-size:0.9rem;font-weight:600;margin:14px 0 6px;color:var(--text)}
 .tech-content pre{background:var(--canvas);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px;overflow-x:auto;font-size:0.8rem;font-family:var(--font-mono);margin:8px 0}
 .tech-content code{font-family:var(--font-mono);font-size:0.85em;background:var(--canvas);padding:1px 4px;border-radius:3px}
 .tech-content pre code{background:none;padding:0}
@@ -277,7 +278,7 @@ function getFilteredBooks() {
 
 function getFilteredTech() {
   let tech = [...TECHNOLOGIES];
-  if(state.search){const terms=quitarAcentos(state.search).split(/\s+/).filter(Boolean);tech=tech.filter(t=>{const ti=quitarAcentos(t.title),ta=t.tags.join(' '),cat=quitarAcentos(t.categoryName);return terms.every(x=>ti.includes(x)||ta.includes(x)||cat.includes(x))})}
+  if(state.search){const terms=quitarAcentos(state.search).split(/\s+/).filter(Boolean);tech=tech.filter(t=>{const ti=quitarAcentos(t.title),ta=t.tags.join(' '),cat=quitarAcentos(t.categoryName),co=quitarAcentos(t.sections.map(s=>s.title+' '+s.content).join(' ').slice(0,6000));return terms.every(x=>ti.includes(x)||ta.includes(x)||cat.includes(x)||co.includes(x))})}
   if(state.techCategoryFilter)tech=tech.filter(t=>t.category===state.techCategoryFilter);
   return tech;
 }
@@ -411,6 +412,9 @@ function renderStatsView() {
 
   h+='<h3 style="margin:24px 0 12px;color:var(--text-secondary)">Mi Progreso</h3>';
   h+='<div class="stats-grid">';
+  const domCards=mazoCompleto().filter(c=>cajaDe(c.id)>=2).length,totCards=mazoCompleto().length;
+  h+='<div class="stat-card" onclick="switchTab(\'curso\')"><div class="stat-value">'+domCards+'/'+totCards+'</div><div class="stat-label">Tarjetas dominadas</div></div>';
+  h+='<div class="stat-card" onclick="switchTab(\'curso\')"><div class="stat-value">'+tarjetasVencidas()+'</div><div class="stat-label">Repaso pendiente</div></div>';
   h+='<div class="stat-card"><div class="stat-value">'+state.read.length+'</div><div class="stat-label">Libros Leídos</div></div>';
   h+='<div class="stat-card"><div class="stat-value">'+state.favorites.length+'</div><div class="stat-label">Libros Fav</div></div>';
   h+='<div class="stat-card"><div class="stat-value">'+state.techFavorites.length+'</div><div class="stat-label">Tech Fav</div></div>';
@@ -476,15 +480,7 @@ function renderTechDetail(slug) {
   t.sections.forEach((s,si)=>{
     h+='<h3>'+esc(s.title)+'</h3>';
     h+='<div style="display:flex;gap:8px;margin:4px 0 10px;flex-wrap:wrap"><button class="btn" onclick="guardarSeccion(\''+t.slug+'\','+si+',event)">🗂️ Guardar sección</button><button class="btn" onclick="preguntarAgente(\''+t.slug+'\','+si+',event)">🤖 Explicar con el agente</button></div>';
-    const lines=s.content.split('\n');
-    const bt=String.fromCharCode(96); // backtick
-    lines.forEach(line=>{
-      const trimmed=line.trimStart();
-      if(trimmed.indexOf(bt+bt+bt)===0){h+='<pre><code>'}
-      else if(line.startsWith('- '))h+='<li>'+esc(line.substring(2))+'</li>';
-      else if(line.startsWith('# ')){}
-      else if(line.trim())h+='<p>'+esc(line)+'</p>';
-    });
+    h+=renderMD(s.content);
   });
   h+='</div>';
 
@@ -492,6 +488,40 @@ function renderTechDetail(slug) {
   h+='</div>';return h;
 }
 
+// Mini-markdown offline: fences, headings, tablas, citas, listas, inline code/bold
+function renderMD(md){
+ const bt=String.fromCharCode(96);
+ const lines=String(md).split('\n');
+ let h='',inCode=false,inList=false,inTable=false;
+ const inline=(s)=>{
+  const parts=esc(s).split(bt);let o='';
+  for(let i=0;i<parts.length;i++)o+=i%2?'<code>'+parts[i]+'</code>':parts[i].replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>');
+  return o;
+ };
+ lines.forEach(raw=>{
+  const t=raw.trimStart();
+  if(t.slice(0,3)===bt+bt+bt){h+=inCode?'</code></pre>':'<pre><code>';inCode=!inCode;return;}
+  if(inCode){h+=esc(raw)+'\n';return;}
+  if(/^\|.*\|$/.test(t)){
+   const cells=t.split('|').slice(1,-1).map(c=>c.trim());
+   if(cells.length&&cells.every(c=>/^:?-{2,}:?$/.test(c))){if(!inTable){h+='<table class="kv-table">';inTable=true;}return;}
+   if(!inTable){h+='<table class="kv-table">';inTable=true;}
+   h+='<tr>'+cells.map(c=>'<td>'+inline(c)+'</td>').join('')+'</tr>';return;
+  }
+  if(inTable){h+='</table>';inTable=false;}
+  if(t.slice(0,4)==='### '){if(inList){h+='</ul>';inList=false;}h+='<h4>'+inline(t.slice(4))+'</h4>';return;}
+  if(t.slice(0,3)==='## '){if(inList){h+='</ul>';inList=false;}h+='<h4>'+inline(t.slice(3))+'</h4>';return;}
+  if(t[0]==='>'){if(inList){h+='</ul>';inList=false;}h+='<div class="clip-cita">'+inline(t.slice(1).trim())+'</div>';return;}
+  if(t.slice(0,2)==='- '||/^\d+[.)] /.test(t)){if(!inList){h+='<ul>';inList=true;}h+='<li>'+inline(t.replace(/^(- |\d+[.)] )/g,''))+'</li>';return;}
+  if(!t){if(inList){h+='</ul>';inList=false;}return;}
+  if(inList){h+='</ul>';inList=false;}
+  h+='<p>'+inline(raw.trim())+'</p>';
+ });
+ if(inList)h+='</ul>';
+ if(inTable)h+='</table>';
+ if(inCode)h+='</code></pre>';
+ return h;
+}
 // ===== NAVIGATION =====
 function switchTab(tab){state.tab=tab;state.view='list';state.categoryFilter=null;state.sectionFilter=null;state.formatFilter=null;state.techCategoryFilter=null;state.selectedBook=null;state.selectedTech=null;render();renderSidebar();renderFilterPills()}
 function openBook(i){state.view='detail';state.selectedBook=i;state.tab='books';render();window.scrollTo(0,0)}
@@ -755,7 +785,8 @@ function buscarTodo(texto){
  const toks=tokensClave(texto);const res=[];
  TECHNOLOGIES.forEach(t=>{
   let s=0;const ti=quitarAcentos(t.title);
-  toks.forEach(w=>{if(ti.includes(w))s+=3;if(t.tags.join(' ').includes(w))s+=2;if(quitarAcentos(t.categoryName).includes(w))s+=1;});
+  const co=quitarAcentos(t.sections.map(x=>x.title+' '+x.content).join(' ').slice(0,6000));
+  toks.forEach(w=>{if(ti.includes(w))s+=3;if(t.tags.join(' ').includes(w))s+=2;if(quitarAcentos(t.categoryName).includes(w))s+=1;if(co.includes(w))s+=1;});
   if(s>0)res.push({tipo:'tech',s:s,slug:t.slug,titulo:t.title,extra:t.categoryName});
  });
  LIBROS.forEach((b,i)=>{
