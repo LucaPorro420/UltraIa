@@ -1,11 +1,11 @@
 //! Datos compartidos de seed: los 7 especialistas + Orquestador de UltraIa.
 //! Usado por seed-agents.mjs (starter) y seed-admin.mjs (cuenta admin con todos los recursos).
 export const DEMO_EMAIL = 'studio@ultraia.dev';
-export const DEMO_PASSWORD = 'demo12345';
+export const DEMO_PASSWORD = process.env.DEMO_PASSWORD ?? 'demo12345';
 
 export const ADMIN_EMAIL = 'admin@ultraia.local';
 export const ADMIN_NAME = 'admin';
-export const ADMIN_PASSWORD = 'admin';
+export const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD ?? 'admin';
 
 // * Une el prompt base con la seccion de skills y de loop (memoria operativa).
 export function buildPrompt(base, skills, loop) {

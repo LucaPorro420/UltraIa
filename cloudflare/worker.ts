@@ -25,7 +25,6 @@ const MAX_UPLOAD_BYTES = 100 * 1024 * 1024;
 const SAFE_PATH_RE = /^[a-z0-9][a-z0-9._/-]{0,254}$/;
 
 const CORS_HEADERS = {
-  'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET,HEAD,PUT,DELETE,OPTIONS',
   'Access-Control-Allow-Headers': 'Authorization, Content-Type',
   'Access-Control-Max-Age': '86400',
@@ -56,22 +55,16 @@ async function timingSafeEqual(a: string, b: string): Promise<boolean> {
 const RATE_WINDOW_MS = 60_000;
 const RATE_MAX = 120;
 const buckets = new Map<string, { count: number; resetAt: number }>();
-function rateLimit(request: Request): Response | null {
+function checkRateLimit(request: Request): boolean {
   const ip = request.headers.get('CF-Connecting-IP') ?? 'unknown';
   const now = Date.now();
   const b = buckets.get(ip);
   if (!b || now > b.resetAt) {
     buckets.set(ip, { count: 1, resetAt: now + RATE_WINDOW_MS });
-    return null;
+    return false;
   }
   b.count++;
-  if (b.count > RATE_MAX) {
-    return new Response(JSON.stringify({ error: 'rate limited' }), {
-      status: 429,
-      headers: { 'Content-Type': 'application/json', 'Retry-After': '60', ...CORS_HEADERS },
-    });
-  }
-  return null;
+  return b.count > RATE_MAX;
 }
 
 export default {
@@ -93,8 +86,12 @@ export default {
       return new Response(null, { status: 204, headers: { ...CORS_HEADERS, ...allowOrigin } });
     }
 
-    const limited = rateLimit(request);
-    if (limited) return limited;
+    if (checkRateLimit(request)) {
+      return new Response(JSON.stringify({ error: 'rate limited' }), {
+        status: 429,
+        headers: { 'Content-Type': 'application/json', 'Retry-After': '60', ...CORS_HEADERS, ...allowOrigin },
+      });
+    }
 
     // Auth: Bearer token con comparación timing-safe.
     const auth = request.headers.get('Authorization') ?? '';
