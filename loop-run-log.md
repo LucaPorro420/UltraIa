@@ -3545,6 +3545,13 @@ Triage PIVR:
 - **V**: typecheck ✅ → lint ✅ → test 2271/2271 ✅ → build ✅ (direct from web dir).
 - **R**: Commits 29690cd + 454b669. Security: 25/32 findings fixed. Remaining: L01 (session rotation), L02 (dangerouslySetInnerHTML), L05 (in-memory rate limit), L06 (public endpoints).
 
+### Iteracion 172 — Security batch 7: L02 SVG sanitization + L03 error leaks (04/09/2026) - DONE
+
+- **P**: L02 (dangerouslySetInnerHTML for SVG), L03 (error message disclosure in 10+ endpoints).
+- **I**: sanitizeSvg() strips `<script>` + on* handlers before injection; 10 endpoints fixed (feedback, cloud/files, cloud/upload, loop/trigger, prioritize, agents/chat, agents/approve, agents/improve, agents/evals, bridge).
+- **V**: typecheck ✅ → lint ✅ → test 2271/2271 ✅ → build ✅.
+- **R**: Commits e4bb161 + 328c437. Security: 27/32 findings fixed. Remaining: L01 (session rotation), L05 (in-memory rate limit), L06 (public endpoints).
+
 ### Iteracion 171 — Qwen provider unblocked + connections catalog + push (04/09/2026) - DONE
 
 - **P**: Task #142 (Qwen provider) was BLOCKED by concurrent session WIP on llm.ts — now clean. Provider already fully implemented in llm.ts (qwenModel, qwenFetch, QWEN_MODELS, switch cases, 3 tests). Missing: connections-catalog.ts entry. Also: push 25 unpushed commits, check enlaces.txt pending items.
