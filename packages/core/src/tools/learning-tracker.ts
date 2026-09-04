@@ -193,16 +193,17 @@ export class LearningTracker {
   }
 }
 
-// ─── Singleton ──────────────────────────────────────────────────────────────
+// ─── Singleton (globalThis survives across Next.js dev mode requests) ───────
 
-let trackerInstance: LearningTracker | null = null;
+const GLOBAL_KEY = '__ultraia_learning_tracker__';
 
-/** Get or create the singleton learning tracker. */
+/** Get or create the singleton learning tracker (persists via globalThis). */
 export function getLearningTracker(): LearningTracker {
-  if (!trackerInstance) {
-    trackerInstance = new LearningTracker();
+  const g = globalThis as Record<string, unknown>;
+  if (!g[GLOBAL_KEY]) {
+    g[GLOBAL_KEY] = new LearningTracker();
   }
-  return trackerInstance;
+  return g[GLOBAL_KEY] as LearningTracker;
 }
 
 // ─── Tool Definition ────────────────────────────────────────────────────────

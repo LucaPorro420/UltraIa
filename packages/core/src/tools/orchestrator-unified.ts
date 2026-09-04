@@ -214,16 +214,17 @@ export class UnifiedOrchestrator {
   }
 }
 
-// ─── Singleton ──────────────────────────────────────────────────────────────
+// ─── Singleton (globalThis survives across Next.js dev mode requests) ───────
 
-let instance: UnifiedOrchestrator | null = null;
+const GLOBAL_KEY = '__ultraia_orchestrator__';
 
-/** Get or create the singleton orchestrator. */
+/** Get or create the singleton orchestrator (persists via globalThis). */
 export function getOrchestrator(): UnifiedOrchestrator {
-  if (!instance) {
-    instance = new UnifiedOrchestrator();
+  const g = globalThis as Record<string, unknown>;
+  if (!g[GLOBAL_KEY]) {
+    g[GLOBAL_KEY] = new UnifiedOrchestrator();
   }
-  return instance;
+  return g[GLOBAL_KEY] as UnifiedOrchestrator;
 }
 
 // ─── Tool Definition ────────────────────────────────────────────────────────
