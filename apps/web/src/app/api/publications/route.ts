@@ -1,3 +1,4 @@
+//! GET/POST /api/publications — publication queue CRUD with cloud backup.
 import { z } from 'zod';
 import { join } from 'node:path';
 import { after } from 'next/server';

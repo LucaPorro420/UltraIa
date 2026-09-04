@@ -1,3 +1,4 @@
+//! POST /api/studio/chat — studio agent chat with multi-capability tools.
 import { z } from 'zod';
 import { chatStream, AiUnavailableError } from '@ultraia/core';
 import { getCurrentUser } from '@/lib/server/context';

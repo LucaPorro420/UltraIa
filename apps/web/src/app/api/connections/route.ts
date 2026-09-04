@@ -1,3 +1,4 @@
+//! CRUD /api/connections — manage social channel connections (tokens AES-256-GCM).
 import { deleteConnection, listConnections, saveConnection, verifyEmailCode } from '@ultraia/core';
 import { prisma } from '@ultraia/core';
 import { z } from 'zod';

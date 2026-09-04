@@ -1,3 +1,4 @@
+//! POST /api/codevfx — VFX effect planning + HTML5 canvas demo generation.
 import { NextResponse } from 'next/server';
 import { getCurrentUser } from '@/lib/server/context';
 

@@ -1,3 +1,4 @@
+//! POST /api/cloud/upload — multipart file upload with extension/size validation.
 import { getCurrentUser } from '@/lib/server/context';
 import { CloudError, CloudService, MAX_UPLOAD_BYTES, humanSize } from '@ultraia/cloud';
 import { localCloudAdapter } from '../providers';

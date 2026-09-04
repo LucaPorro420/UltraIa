@@ -1,3 +1,4 @@
+//! POST /api/connections/test — test a channel connection (ADMIN only).
 import { getConnection, resolverTokensPorCanal, testConnection } from '@ultraia/core';
 import { prisma } from '@ultraia/core';
 import { z } from 'zod';

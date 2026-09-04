@@ -1,3 +1,4 @@
+//! POST/DELETE /api/library/assets — save/remove generated assets to library + cloud.
 import { z } from 'zod';
 import { buildSavePlan, prisma, assertPublicUrl } from '@ultraia/core';
 import { getCurrentUser } from '@/lib/server/context';

@@ -1,3 +1,4 @@
+//! POST /api/content/generate-due — batch generate content for all/selected sources.
 import { z } from 'zod';
 import { generateBatch, ALL_CONTENT_SOURCES } from '@ultraia/core';
 import { getCurrentUser } from '@/lib/server/context';

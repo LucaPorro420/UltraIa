@@ -1,3 +1,4 @@
+//! POST /api/tools/web — fetch web content with SSRF protection + local fallback.
 import { z } from 'zod';
 import { spawnSync } from 'node:child_process';
 import { fetchWebContent, planWebHarvestArgv } from '@ultraia/core';

@@ -1,3 +1,4 @@
+//! POST /api/omag — OMAG world engine generation (idea → plan → media → critics).
 import { z } from 'zod';
 import { OmagOrchestrator } from '@ultraia/core';
 import { getCurrentUser } from '@/lib/server/context';
