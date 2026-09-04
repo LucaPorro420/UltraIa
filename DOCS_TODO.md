@@ -176,9 +176,6 @@ Cada commit agrega una sección con fecha y la lista de archivos `.ts/.tsx` toca
 - [ ] packages/core/src/tools/publish.ts
 
 ## 2026-08-15T14:51:33.042Z
-- [ ] apps/web/src/app/api/publications/[id]/approve/route.ts
-- [ ] apps/web/src/app/api/publications/[id]/publish/route.ts
-- [ ] apps/web/src/app/api/publications/[id]/reject/route.ts
 - [ ] apps/web/src/app/api/publications/route.ts
 - [ ] packages/core/src/ai/llm.ts
 - [ ] packages/core/src/auth/session.ts
@@ -200,7 +197,6 @@ Cada commit agrega una sección con fecha y la lista de archivos `.ts/.tsx` toca
 - [ ] packages/core/src/tools/index.ts
 
 ## 2026-08-15T21:38:38.629Z
-- [ ] apps/web/src/app/api/publications/[id]/feedback/route.ts
 - [ ] apps/web/src/app/api/publications/metrics/route.ts
 - [ ] packages/core/src/ai/llm.ts
 - [ ] packages/core/src/domain/publications.test.ts
@@ -423,8 +419,6 @@ Cada commit agrega una sección con fecha y la lista de archivos `.ts/.tsx` toca
 - [ ] apps/web/src/app/api/auth/me/route.ts
 - [ ] apps/web/src/app/api/auth/register/route.ts
 - [ ] apps/web/src/app/api/cloud/files/route.ts
-- [ ] apps/web/src/app/api/publications/[id]/approve/route.ts
-- [ ] apps/web/src/app/api/publications/[id]/reject/route.ts
 - [ ] apps/web/src/app/api/publications/metrics/route.ts
 - [ ] apps/web/src/app/api/publications/route.ts
 - [ ] apps/web/src/lib/server/context.ts
@@ -837,9 +831,6 @@ Cada commit agrega una sección con fecha y la lista de archivos `.ts/.tsx` toca
 ## 2026-08-25T14:54:52.449Z
 - [ ] apps/web/src/app/(app)/studio/page.tsx
 - [ ] apps/web/src/app/(app)/studio/studio-client.tsx
-- [ ] apps/web/src/app/api/assets/[id]/derive/route.ts
-- [ ] apps/web/src/app/api/assets/[id]/download/route.ts
-- [ ] apps/web/src/app/api/assets/[id]/route.ts
 - [ ] apps/web/src/app/api/library/assets/route.ts
 - [ ] apps/web/src/app/api/tools/content/music/route.ts
 - [ ] apps/web/src/components/studio/asset-actions.tsx
@@ -907,9 +898,6 @@ Cada commit agrega una sección con fecha y la lista de archivos `.ts/.tsx` toca
 - [ ] apps/web/src/app/(app)/studio/studio-client.tsx
 - [ ] apps/web/src/app/(app)/workspace/page.tsx
 - [ ] apps/web/src/app/(app)/workspace/workspace-client.tsx
-- [ ] apps/web/src/app/api/assets/[id]/derive/route.ts
-- [ ] apps/web/src/app/api/assets/[id]/download/route.ts
-- [ ] apps/web/src/app/api/assets/[id]/route.ts
 - [ ] apps/web/src/app/api/chat/route.ts
 - [ ] apps/web/src/app/api/connections/route.ts
 - [ ] apps/web/src/app/api/connections/test/route.ts
@@ -945,8 +933,6 @@ Cada commit agrega una sección con fecha y la lista de archivos `.ts/.tsx` toca
 
 ## 2026-08-25T23:31:35.421Z
 - [ ] apps/mobile/src/api/types.ts
-- [ ] apps/web/src/app/api/assets/[id]/download/route.ts
-- [ ] apps/web/src/app/api/assets/[id]/route.ts
 - [ ] packages/core/src/tools/reporeview.ts
 
 ## 2026-08-25T23:42:48.038Z
@@ -1309,8 +1295,6 @@ Cada commit agrega una sección con fecha y la lista de archivos `.ts/.tsx` toca
 - [ ] packages/core/src/tools/model-memory.test.ts
 - [ ] packages/core/src/tools/recorder.test.ts
 - [x] packages/core/src/tools/stitch.ts (header: Google Stitch UI generation)
-- [ ] packages/memory-engine/src/api/memory-client.ts (FILE NOT FOUND)
-- [ ] packages/memory-engine/src/background/loop.ts (FILE NOT FOUND)
 
 ## 2026-09-04T13:50:49.457Z (catalog + index)
 - [x] packages/core/src/tools/catalog.ts (header comment: tool catalog with i18n)
@@ -1318,7 +1302,6 @@ Cada commit agrega una sección con fecha y la lista de archivos `.ts/.tsx` toca
 
 ## 2026-09-04T00:17:51.783Z
 - [ ] apps/web/src/app/(app)/actions.ts
-- [ ] apps/web/src/app/api/assets/[id]/derive/route.ts
 - [ ] apps/web/src/app/api/bridge/route.ts
 - [ ] apps/web/src/app/api/library/assets/route.ts
 - [ ] packages/core/src/tools/reach.test.ts
@@ -1333,11 +1316,6 @@ Cada commit agrega una sección con fecha y la lista de archivos `.ts/.tsx` toca
 - [ ] packages/runtime/src/orchestrator/coordinator.ts
 
 ## 2026-09-04T02:35:46.358Z
-- [ ] apps/web/src/app/api/assets/[id]/derive/route.ts
-- [ ] apps/web/src/app/api/publications/[id]/approve/route.ts
-- [ ] apps/web/src/app/api/publications/[id]/feedback/route.ts
-- [ ] apps/web/src/app/api/publications/[id]/publish/route.ts
-- [ ] apps/web/src/app/api/publications/[id]/reject/route.ts
 - [ ] apps/web/src/app/api/publications/metrics/route.ts
 - [ ] apps/web/src/app/api/publications/publish-due/route.ts
 - [ ] apps/web/src/app/api/tools/web/route.ts
@@ -1370,8 +1348,6 @@ Cada commit agrega una sección con fecha y la lista de archivos `.ts/.tsx` toca
 - [ ] packages/core/src/auth/session.ts (already has bilingual JSDoc)
 
 ## 2026-09-04T06:27:53.838Z
-- [ ] apps/web/src/app/api/assets/[id]/download/route.ts
-- [ ] apps/web/src/app/api/assets/[id]/route.ts
 - [ ] apps/web/src/app/api/auth/login/route.ts
 - [x] apps/web/src/lib/server/brute-force.ts (already has JSDoc)
 - [x] apps/web/src/lib/server/download-token.ts (already has JSDoc)
@@ -1470,3 +1446,26 @@ Cada commit agrega una sección con fecha y la lista de archivos `.ts/.tsx` toca
 - [ ] .vscode-extension/src/task-provider.ts
 - [ ] .vscode-extension/src/tasks-panel.ts
 - [ ] .vscode-extension/src/ws-client.ts
+
+## 2026-09-04T21:58:13.191Z
+- [ ] apps/web/src/app/api/auth/register/route.ts
+- [ ] apps/web/src/app/api/chat/general/route.ts
+- [ ] apps/web/src/app/api/chat/route.ts
+- [ ] apps/web/src/app/api/cloud/files/route.ts
+- [ ] apps/web/src/app/api/cloud/status/route.ts
+- [ ] apps/web/src/app/api/cloud/upload/route.ts
+- [ ] apps/web/src/app/api/codevfx/route.ts
+- [ ] apps/web/src/app/api/connections/route.ts
+- [ ] apps/web/src/app/api/connections/test/route.ts
+- [ ] apps/web/src/app/api/content/generate-due/route.ts
+- [ ] apps/web/src/app/api/content/list/route.ts
+- [ ] apps/web/src/app/api/content/route.ts
+- [ ] apps/web/src/app/api/geometry/route.ts
+- [ ] apps/web/src/app/api/library/assets/route.ts
+- [ ] apps/web/src/app/api/omag/route.ts
+- [ ] apps/web/src/app/api/publications/route.ts
+- [ ] apps/web/src/app/api/studio/chat/route.ts
+- [ ] apps/web/src/app/api/tools/content/music/route.ts
+- [ ] apps/web/src/app/api/tools/web/route.ts
+- [ ] apps/web/src/app/api/tools/web/screenshot/route.ts
+- [ ] apps/web/src/app/api/travel/route.ts
