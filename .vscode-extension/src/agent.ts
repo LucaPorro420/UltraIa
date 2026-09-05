@@ -208,7 +208,7 @@ function registerBuiltinTools(registry: ToolRegistry, rootPath: string): void {
     },
     {
       name: 'run_gates',
-      description: 'Run CI gates (typecheck, lint, test, build)',
+      description: 'Run CI gates (typecheck, lint, test, build). With gate=all, runs ALL gates even if some fail, and reports each result separately.',
       category: 'ci',
       parameters: {
         gate: { type: 'string', description: 'Which gate: typecheck, lint, test, build, or all (default: all)' },
@@ -223,15 +223,25 @@ function registerBuiltinTools(registry: ToolRegistry, rootPath: string): void {
         };
         if (gate === 'all') {
           const results: string[] = [];
+          let passCount = 0;
+          let failCount = 0;
           for (const [name, cmd] of Object.entries(gates)) {
             try {
-              await execAsync(cmd, { cwd: rootPath, timeout: 300000 });
-              results.push(`PASS ${name}`);
+              const { stdout } = await execAsync(cmd, { cwd: rootPath, timeout: 300000 });
+              const short = stdout.split('\n').filter(l => l.trim()).slice(-3).join('\n');
+              results.push(`✅ PASS ${name}\n${short}`);
+              passCount++;
             } catch (err: any) {
-              results.push(`FAIL ${name}\n${err.stderr || err.message}`);
+              const output = err.stderr || err.stdout || err.message;
+              const errors = output.split('\n').filter((l: string) =>
+                l.includes('error TS') || l.includes('Error:') || l.includes('FAIL') ||
+                l.includes('✗') || l.includes('×') || l.includes('ERROR')
+              ).slice(0, 20).join('\n');
+              results.push(`❌ FAIL ${name}\n${errors || output.split('\n').slice(0, 15).join('\n')}`);
+              failCount++;
             }
           }
-          return results.join('\n\n');
+          return `GATES: ${passCount}/${passCount + failCount} passed\n\n${results.join('\n\n')}`;
         }
         const cmd = gates[gate];
         if (!cmd) return `Unknown gate: ${gate}. Available: ${Object.keys(gates).join(', ')}`;
@@ -240,6 +250,64 @@ function registerBuiltinTools(registry: ToolRegistry, rootPath: string): void {
           return `PASS ${gate}\n${stdout}`;
         } catch (err: any) {
           return `FAIL ${gate}\n${err.stderr || err.message}`;
+        }
+      },
+    },
+    {
+      name: 'diagnose',
+      description: 'Run a specific gate and extract structured error info (file, line, message). Use this BEFORE trying to fix errors — it tells you exactly what to fix.',
+      category: 'ci',
+      parameters: {
+        gate: { type: 'string', description: 'Which gate: typecheck, lint, test, or build', required: true },
+      },
+      execute: async (args) => {
+        const gate = args.gate as string;
+        const gates: Record<string, string> = {
+          typecheck: 'npx tsc --noEmit 2>&1',
+          lint: 'npm run lint 2>&1',
+          test: 'npm run test 2>&1',
+          build: 'npm run build 2>&1',
+        };
+        const cmd = gates[gate];
+        if (!cmd) return `Unknown gate: ${gate}. Available: ${Object.keys(gates).join(', ')}`;
+        try {
+          const { stdout } = await execAsync(cmd, { cwd: rootPath, timeout: 300000 });
+          return `✅ ${gate} PASS — no errors found`;
+        } catch (err: any) {
+          const output = (err.stderr || err.stdout || err.message) as string;
+          if (gate === 'typecheck') {
+            const errors = output.split('\n')
+              .filter((l: string) => l.includes('error TS'))
+              .map((l: string) => {
+                const m = l.match(/^(.+?)\((\d+),\d+\): error TS\d+:\s*(.+)$/);
+                if (m) return { file: m[1], line: parseInt(m[2]), message: m[3], raw: l };
+                return { file: '?', line: 0, message: l.trim(), raw: l };
+              });
+            if (errors.length === 0) return `❌ ${gate} FAIL (no parseable TS errors)\n${output.split('\n').slice(0, 10).join('\n')}`;
+            const byFile: Record<string, typeof errors> = {};
+            for (const e of errors) { (byFile[e.file] ??= []).push(e); }
+            const summary = Object.entries(byFile).map(([f, errs]) =>
+              `${f}:\n${errs.map(e => `  L${e.line}: ${e.message}`).join('\n')}`
+            ).join('\n\n');
+            return `❌ ${gate} FAIL — ${errors.length} error(s) in ${Object.keys(byFile).length} file(s)\n\n${summary}`;
+          }
+          if (gate === 'lint') {
+            const errors = output.split('\n')
+              .filter((l: string) => l.includes('error ') || l.includes('Warning '))
+              .slice(0, 30);
+            return errors.length > 0
+              ? `❌ ${gate} FAIL — ${errors.length} issue(s):\n${errors.join('\n')}`
+              : `❌ ${gate} FAIL\n${output.split('\n').slice(0, 15).join('\n')}`;
+          }
+          if (gate === 'test') {
+            const fails = output.split('\n')
+              .filter((l: string) => l.includes('FAIL') || l.includes('AssertionError') || l.includes('expected'))
+              .slice(0, 20);
+            return fails.length > 0
+              ? `❌ ${gate} FAIL — test failures:\n${fails.join('\n')}`
+              : `❌ ${gate} FAIL\n${output.split('\n').slice(0, 20).join('\n')}`;
+          }
+          return `❌ ${gate} FAIL\n${output.split('\n').slice(0, 20).join('\n')}`;
         }
       },
     },
@@ -708,9 +776,20 @@ TOOL USAGE:
 - edit_file: Find-and-replace exact text in a file (use read_file to get exact text)
 - run_command: Execute any shell command (npm, git, python, etc.)
 - grep: Search for patterns in code
-- run_gates: Run typecheck/lint/test/build
+- diagnose: Run a gate and extract structured errors (file, line, message) — USE THIS FIRST when fixing errors
+- run_gates: Run typecheck/lint/test/build (reports all results even if some fail)
 - git_status: Check git status
 - project_context: Load project state (AGENTS.md, STATE.md, LEARNINGS.md)
+
+ERROR FIXING WORKFLOW (when user says "there's an error" or "something is broken"):
+1. Run diagnose typecheck → gives you EXACT file:line:error for each TypeScript error
+2. Run diagnose lint → gives lint issues
+3. Run diagnose test → gives failing test names and messages
+4. For EACH error: read_file the file → edit_file the minimal fix → diagnose again to verify it's gone
+5. Repeat until ALL gates pass, then task_complete
+
+NEVER guess at fixes. The diagnose tool tells you EXACTLY what's wrong and where.
+If diagnose says "L42: Type 'string' is not assignable to type 'number'" → read line 42 → fix it.
 
 AUTONOMOUS LOOP:
 When given a task, you MUST:
@@ -721,8 +800,9 @@ When given a task, you MUST:
 5. Report what you did and the result
 
 You are NOT a chatbot. You are an autonomous agent that EXECUTES tasks completely.
-When the user says "fix the bug in X", you: read X → find the bug → fix it → test → done.
+When the user says "fix the bug in X", you: diagnose → read X → find the bug → fix it → diagnose again → done.
 When the user says "add feature Y", you: plan → implement → test → done.
+When the user says "there's an error, I don't know which one": diagnose ALL gates → fix each error → verify → done.
 
 PROJECT: UltraIa — monorepo with apps/web (Next.js 15), packages/core (58+ tools), packages/runtime, apps/mobile.
 ${projectContext}
