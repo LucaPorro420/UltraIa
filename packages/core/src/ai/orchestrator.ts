@@ -19,6 +19,7 @@ import { modelFor, type ProviderName } from './llm';
 import { FREE_MODEL_CATALOG, type FreeModelSpec, type ModelTier } from './model-catalog';
 import { AiUnavailableError } from './gateway';
 import type { OperationalMode } from '../tools/autolearn';
+import type { RoutingSummary } from './contracts';
 
 export type ChatStrategy = 'concise' | 'agentic' | 'reasoning' | 'creative';
 
@@ -182,6 +183,22 @@ export class ModelOrchestrator {
   recommend(req: RouteRequest = {}): { provider: ProviderName; model: string; tier: ModelTier } {
     const c = this.candidatesFor(req)[0];
     return { provider: c.provider, model: c.model, tier: c.spec?.tier ?? 'balanced' };
+  }
+
+  /** Safe, deterministic explanation of the candidate selected before execution. */
+  routingSummary(req: RouteRequest = {}): RoutingSummary {
+    const candidates = this.candidatesFor(req);
+    const available = new Set(this.availableProviders());
+    const selectedIndex = candidates.findIndex((candidate) => available.has(candidate.provider));
+    const selected = candidates[Math.max(0, selectedIndex)];
+    return {
+      strategy: req.mode === 'P-P' || req.mode === 'S-D' ? 'quality' : 'balanced',
+      tier: selected?.spec?.tier ?? req.tier ?? 'balanced',
+      provider: selected?.provider ?? 'unknown',
+      model: selected?.model ?? 'unknown',
+      fallbackCount: selectedIndex > 0 ? selectedIndex : 0,
+      reason: selectedIndex > 0 ? 'preferred_candidate_unavailable' : 'catalog_priority',
+    };
   }
 
   /**
