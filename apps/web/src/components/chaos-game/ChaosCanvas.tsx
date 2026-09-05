@@ -46,6 +46,13 @@ export function ChaosCanvas({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [initialized, setInitialized] = useState(false);
 
+  // Stable callback refs — avoids re-creating the entire Three.js scene
+  // when the parent re-renders with new callback references
+  const onMetricsRef = useRef(onMetrics);
+  const onDivergenceRef = useRef(onDivergence);
+  onMetricsRef.current = onMetrics;
+  onDivergenceRef.current = onDivergence;
+
   // Three.js objects refs
   const sceneRef = useRef<THREE.Scene | null>(null);
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
@@ -381,7 +388,7 @@ export function ChaosCanvas({
           : 0;
         const diverged = distance > DIVERGENCE_THRESHOLD;
 
-        onMetrics({
+        onMetricsRef.current({
           distance,
           lyapunovEstimate,
           elapsedTime,
@@ -389,7 +396,7 @@ export function ChaosCanvas({
           primaryPoints: primaryCountRef.current,
           secondaryPoints: secondaryCountRef.current,
         });
-        onDivergence(diverged);
+        onDivergenceRef.current(diverged);
       }
 
       controls.update();
@@ -429,6 +436,7 @@ export function ChaosCanvas({
       renderer.dispose();
       controls.dispose();
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- rk4Step is derived from attractorName (already in deps)
   }, [attractorName, primaryIC, secondaryIC, epsilon, running]);
 
   // Sync IC changes
