@@ -23,6 +23,7 @@ export interface ToolCatalogEntry {
 
 const CATALOG_META: Record<Capability, { category: ToolCategory; route: string; related: Capability[]; consolidates: Capability[] }> = {
   calculator: { category: 'codigo-dev', route: '/studio', related: [], consolidates: [] },
+  browser: { category: 'ia-ml', route: '/studio', related: ['reach'], consolidates: [] },
   web: { category: 'ia-ml', route: '/studio', related: ['reach'], consolidates: [] },
   image: { category: 'ia-ml', route: '/gallery', related: ['video', 'design', 'pngrender'], consolidates: [] },
   video: { category: 'video-audio', route: '/studio', related: ['image', 'music', 'design', 'video_edit'], consolidates: [] },
@@ -105,6 +106,7 @@ const CATALOG_META: Record<Capability, { category: ToolCategory; route: string; 
   'feedback-analyzer': { category: 'contenido-cms', route: '/dashboard', related: ['growth', 'topics'], consolidates: [] },
   'release-manager': { category: 'automatizacion', route: '/dashboard', related: ['security', 'batch-executor'], consolidates: [] },
   'competitive-intel': { category: 'ia-ml', route: '/dashboard', related: ['research', 'topics'], consolidates: [] },
+  cognitive: { category: 'ia-ml', route: '/dashboard', related: ['memory', 'semantic_memory', 'autolearn'], consolidates: [] },
 };
 
 
@@ -180,6 +182,7 @@ export const ES: Partial<Record<Capability, LocalizedTool>> = {
   prioritize: { name: 'Priorizador', description: 'Motor de priorizacion estilo Meta-IA: puntua experimentos por impacto, confianza, aprendizaje, urgencia y costo; detecta reglas debiles, cuellos de botella y calcula ROI.', tags: ['priorizacion','meta-ia','experimentos'] },
   orchestrator: { name: 'Orquestador de modelos', description: 'Cambia de modelo y modo con failover automatico: recomienda el modelo gratis adecuado por tarea/modo, resuelve el LanguageModel construible y lista proveedores disponibles.', tags: ['orquestador','modelos','failover'] },
   chat_memory: { name: 'Memoria de chat (graphity)', description: 'Memoria de chat persistente + grafo que preserva la consistencia al cambiar de modelo o modo: crea sesiones, append turnos y reconstruye contexto inyectable.', tags: ['memoria','grafo','contexto'] },
+  browser: { name: 'Browser Agent', description: 'Agente de navegador headless: navega, clickea, llena formularios, toma screenshots y extrae contenido.', tags: ['browser','automatizacion','web'] },
 };
 
 export const PT: Partial<Record<Capability, LocalizedTool>> = {

@@ -21,6 +21,7 @@ import { searchMemories, storeMemory } from './mem0-client';
 import { evaluate } from '../tools/calculator';
 import { fetchWebContent } from '../tools/web';
 import { generateImage } from '../tools/image';
+import { browserAgentInputSchema, executeBrowserActions } from '../tools/browser-agent';
 import { generateVideo } from '../tools/video';
 import { generateMusic } from '../tools/music';
 import { generateUiScreen } from '../tools/stitch';
@@ -3712,6 +3713,16 @@ export function chatStream(opts: {
         timeoutMs: z.number().int().min(1000).max(60000).optional(),
       }),
       execute: async ({ lang, code, timeoutMs }) => executeSandbox({ lang, code, timeoutMs }),
+    });
+  }
+
+  // --- Browser Agent: headless browser automation ---
+  if (opts.tools?.includes('browser')) {
+    tools.browser_run = tool({
+      description:
+        'Headless Browser Agent: navigate, click, fill forms, select, check, press keys, scroll, take screenshots, extract content, evaluate JS. Playwright when available; plan-only fallback. Safety validation (network/storage/file:// warnings). Use to interact with websites, scrape dynamic content, automate form fills, and capture screenshots.',
+      parameters: browserAgentInputSchema,
+      execute: async (input) => executeBrowserActions(input),
     });
   }
 
