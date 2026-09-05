@@ -1560,3 +1560,35 @@ Cada commit agrega una sección con fecha y la lista de archivos `.ts/.tsx` toca
 - [ ] packages/core/src/index.ts
 - [ ] packages/core/src/tools/qdrant-memory.test.ts
 - [ ] packages/core/src/tools/qdrant-memory.ts
+
+## 2026-09-05T21:49:19.909Z
+- [ ] .vscode-extension/src/agent.ts
+- [ ] .vscode-extension/src/extension.ts
+- [ ] apps/web/src/app/api/chat/route.ts
+- [ ] apps/web/src/app/api/metrics/ai/route.ts
+- [ ] apps/web/src/app/api/providers/status/route.ts
+
+## 2026-09-05T22:46:20.409Z
+- [ ] .vscode-extension/src/agent.ts
+
+## 2026-09-05T22:53:00.767Z
+- [ ] .vscode-extension/src/agent.ts
+
+## 2026-09-05T22:57:34.910Z
+- [ ] .vscode-extension/src/agent.ts
+
+## 2026-09-05T23:01:30.348Z
+- [ ] .vscode-extension/src/agent.ts
+
+## 2026-09-05T23:34:18.006Z
+- [ ] .vscode-extension/src/agent.ts
+- [ ] packages/core/src/ai/llm.ts
+- [ ] packages/core/src/tools/catalog.ts
+- [ ] packages/core/src/tools/index.ts
+- [ ] packages/core/src/tools/website-clone.test.ts
+- [ ] packages/core/src/tools/website-clone.ts
+- [ ] vendor/ai-website-cloner/next.config.ts
+- [ ] vendor/ai-website-cloner/src/app/layout.tsx
+- [ ] vendor/ai-website-cloner/src/app/page.tsx
+- [ ] vendor/ai-website-cloner/src/components/ui/button.tsx
+- [ ] vendor/ai-website-cloner/src/lib/utils.ts

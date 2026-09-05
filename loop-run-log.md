@@ -3559,3 +3559,10 @@ Triage PIVR:
 - **V**: typecheck ✅ → connections-catalog tests 7/7 ✅ → qwen-provider tests 3/3 ✅.
 - **R**: Commit 47ae8a9. Task #142 DONE. Enlaces.txt Instagram blocked (needs manual auth). All backlog 1-167 DONE.
 
+### Iteracion 175 — Website-clone capability + VSCode extension fixes (05/09/2026) - DONE
+
+- **P**: Integrate website cloning from JCodesMore/ai-website-cloner-template into UltraIa core. Fix VSCode extension autonomy issues (tool loop, diagnose, tool serialization). Fix `required` bool vs string[] bug for OpenAI API. Fix unused toolDefs in agent chat method.
+- **I**: Cloned vendor/ai-website-cloner (MIT, no .git). Created website-clone.ts: clone_website/extract_html/generate_clone_components tools (HTML parser, design token extraction, React component code generation). Registered capability in llm.ts/index.ts/catalog.ts. Added clone_website tool to VSCode agent.ts. Fixed extractImages regex (separate src/alt extraction for robustness). Fixed empty HTML handling in extractSections. Added diagnose tool + improved run_gates with gate=all. Fixed tool required serialization (boolean → string[]).
+- **V**: typecheck ✅ → lint ✅ → test (core 18 website-clone tests PASS + full suite 2683/2683 ✅ + runtime 250/250 ✅) → build ✅.
+- **R**: Commit bc4ad1f. Website-clone capability integrated (18 tests). VSCode extension: iterative tool loop, diagnose tool, improved gate runner, clone_website tool. All gates GREEN.
+
