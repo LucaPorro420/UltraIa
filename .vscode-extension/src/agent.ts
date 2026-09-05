@@ -545,6 +545,80 @@ function registerBuiltinTools(registry: ToolRegistry, rootPath: string): void {
       },
     },
     {
+      name: 'clone_website',
+      description: 'Clone a website: fetch its HTML, extract design tokens (colors, fonts, sections, assets), and generate Next.js component code. Use when the user wants to clone, replicate, or reverse-engineer a website.',
+      category: 'web',
+      parameters: {
+        url: { type: 'string', description: 'Target URL to clone', required: true },
+        route: { type: 'string', description: 'Destination route (default: /)' },
+      },
+      execute: async (args) => {
+        const url = args.url as string;
+        const route = (args.route as string) || '/';
+        try {
+          // Step 1: Fetch the HTML
+          const response = await fetch(url, {
+            headers: { 'User-Agent': 'UltraIa-CloneBot/1.0' },
+            signal: AbortSignal.timeout(15000),
+          });
+          if (!response.ok) return `Error: HTTP ${response.status} fetching ${url}`;
+          const html = await response.text();
+
+          // Step 2: Extract design tokens and structure
+          const colorRe = /#[0-9a-fA-F]{3,8}/g;
+          const colors = [...new Set(html.match(colorRe) || [])];
+          const fontRe = /fonts\.googleapis\.com\/css2\?family=([^&"']+)/g;
+          const fonts: string[] = [];
+          let fm;
+          while ((fm = fontRe.exec(html)) !== null) {
+            fonts.push(decodeURIComponent(fm[1]).split(':')[0].replace(/\+/g, ' '));
+          }
+          const imgRe = /<img[^>]+src=["']([^"']+)["']/gi;
+          const images: string[] = [];
+          let im;
+          while ((im = imgRe.exec(html)) !== null) {
+            let src = im[1];
+            if (src.startsWith('/')) src = new URL(src, url).href;
+            images.push(src);
+          }
+          const sectionRe = /<(header|main|footer|section|nav)[^>]*>([\s\S]*?)<\/\1>/gi;
+          const sections: string[] = [];
+          let sm;
+          while ((sm = sectionRe.exec(html)) !== null) {
+            sections.push(sm[1]);
+          }
+          const textRe = />([^<]{3,})</g;
+          const texts: string[] = [];
+          let tm;
+          while ((tm = textRe.exec(html)) !== null) {
+            const t = tm[1].trim();
+            if (t && !t.startsWith('{') && !t.startsWith('//')) texts.push(t);
+          }
+
+          const siteKey = new URL(url).hostname.replace(/[^a-z0-9]/g, '-');
+
+          return JSON.stringify({
+            status: 'extracted',
+            url,
+            route,
+            siteKey,
+            tokens: { colors: colors.slice(0, 20), fonts },
+            sections: sections.length,
+            assets: { images: images.length },
+            textBlocks: [...new Set(texts)].slice(0, 30),
+            nextSteps: [
+              'Review extracted tokens and sections above',
+              'Use write_file to create components based on the extracted structure',
+              'Create route file at the destination route',
+              'Run diagnose typecheck to verify',
+            ],
+          }, null, 2);
+        } catch (err: any) {
+          return `Error cloning ${url}: ${err.message}`;
+        }
+      },
+    },
+    {
       name: 'browser_navigate',
       description: 'Navigate to a URL and capture title/snippet (Playwright required)',
       category: 'browser',

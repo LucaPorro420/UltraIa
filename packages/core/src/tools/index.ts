@@ -457,6 +457,7 @@ export type Capability =
   | 'feedback-analyzer'
   | 'release-manager'
   | 'competitive-intel'
+  | 'website-clone'
   | 'cognitive'
   | 'browser';
 
@@ -472,6 +473,7 @@ export * as techDebtNs from './tech-debt';
 export * as feedbackAnalyzerNs from './feedback-analyzer';
 export * as releaseManagerNs from './release-manager';
 export * as competitiveIntelNs from './competitive-intel';
+export * as websiteCloneNs from './website-clone';
 export * from './emailCode';
 export * from './smtp';
 // browser-agent: headless browser automation (Playwright). Namespace import to avoid collisions.

@@ -4007,6 +4007,47 @@ export function chatStream(opts: {
     });
   }
 
+  // --- Website Clone: AI-powered website reverse-engineering ---
+  if (opts.tools?.includes('website-clone')) {
+    tools.clone_website = tool({
+      description: 'Plan a website clone operation: analyze a URL and produce a structured clone plan with sections, component specs, and Next.js code generation. Use when the user wants to clone, replicate, or reverse-engineer a website.',
+      parameters: z.object({
+        url: z.string().url(),
+        route: z.string().optional(),
+        fidelity: z.enum(['pixel-perfect', 'structural', 'layout-only']).optional(),
+      }),
+      execute: async (input) => {
+        const { cloneWebsiteTool } = await import('../tools/website-clone');
+        return cloneWebsiteTool.execute(input as any);
+      },
+    });
+    tools.extract_html = tool({
+      description: 'Extract design tokens (colors, fonts), sections, and assets from raw HTML. Use after fetching a page with webfetch or agent-browser to analyze its structure.',
+      parameters: z.object({
+        html: z.string().min(1),
+        url: z.string().url(),
+      }),
+      execute: async (input) => {
+        const { extractHtmlTool } = await import('../tools/website-clone');
+        return extractHtmlTool.execute(input as any);
+      },
+    });
+    tools.generate_clone_components = tool({
+      description: 'Generate Next.js component code from extracted sections and design tokens. Produces React components, route files, and global CSS.',
+      parameters: z.object({
+        sections: z.string().min(1),
+        tokens: z.string().min(1),
+        siteKey: z.string().min(1),
+        pageKey: z.string().min(1),
+        url: z.string().url(),
+      }),
+      execute: async (input) => {
+        const { generateComponentsTool } = await import('../tools/website-clone');
+        return generateComponentsTool.execute(input as any);
+      },
+    });
+  }
+
   // --- Cache check ---
   const lastUserMsg = [...opts.messages].reverse().find((m) => m.role === 'user');
   const cacheKey = JSON.stringify(opts.messages);

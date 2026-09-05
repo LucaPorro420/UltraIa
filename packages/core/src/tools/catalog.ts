@@ -106,6 +106,7 @@ const CATALOG_META: Record<Capability, { category: ToolCategory; route: string; 
   'feedback-analyzer': { category: 'contenido-cms', route: '/dashboard', related: ['growth', 'topics'], consolidates: [] },
   'release-manager': { category: 'automatizacion', route: '/dashboard', related: ['security', 'batch-executor'], consolidates: [] },
   'competitive-intel': { category: 'ia-ml', route: '/dashboard', related: ['research', 'topics'], consolidates: [] },
+  'website-clone': { category: 'diseno-ui', route: '/dashboard', related: ['designcompose', 'diagram'], consolidates: [] },
   cognitive: { category: 'ia-ml', route: '/dashboard', related: ['memory', 'semantic_memory', 'autolearn'], consolidates: [] },
 };
 
