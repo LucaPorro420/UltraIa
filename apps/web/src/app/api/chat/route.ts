@@ -82,6 +82,7 @@ export async function POST(req: Request) {
     const modoDirective = modo ? (MODO_DIRECTIVES[modo] ?? '') : '';
     result = chatStream({
       model: version.model,
+      db: prisma,
       system:
         version.systemPrompt +
         guardrailsBlock(guardrails) +

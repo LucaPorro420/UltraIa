@@ -49,6 +49,9 @@ export interface AgentConfig {
   maxTokens: number;
   temperature: number;
   systemPrompt: string;
+  runtimeUrl?: string;
+  email?: string;
+  password?: string;
 }
 
 export interface MemoryEntry {
@@ -334,6 +337,95 @@ function registerBuiltinTools(registry: ToolRegistry, rootPath: string): void {
         }
       },
     },
+    {
+      name: 'sandbox_execute',
+      description: 'Execute agent-generated code in a Docker-safe sandbox (simulated if Docker absent)',
+      category: 'sandbox',
+      parameters: {
+        lang: { type: 'string', description: 'python|javascript|typescript|bash', required: true },
+        code: { type: 'string', description: 'Source code to execute', required: true },
+        timeoutMs: { type: 'number', description: 'Execution timeout in ms (default 30000)' },
+      },
+      execute: async (args) => {
+        const id = `sb-${Date.now()}`;
+        const workDir = path.join(rootPath, '.ultraia', 'sandbox', id);
+        fs.mkdirSync(workDir, { recursive: true });
+        const lang = (args.lang as string) || 'python';
+        const code = args.code as string || '';
+        const timeout = (args.timeoutMs as number) || 30000;
+        const ext = lang === 'python' ? 'py' : (lang === 'bash' ? 'sh' : 'js');
+        const filePath = path.join(workDir, `script.${ext}`);
+        fs.writeFileSync(filePath, code, 'utf-8');
+
+        // Detect docker
+        try {
+          await execAsync('docker --version', { timeout: 5000 });
+        } catch {
+          // Docker absent -> simulate safe plan-only execution
+          return `[sandbox simulated] docker not available on host. script saved to ${filePath}. Length ${code.length} chars.`;
+        }
+
+        // Map language to image and run with strict limits
+        const image = lang === 'python' ? 'python:3.12-slim' : lang === 'bash' ? 'ubuntu:22.04' : 'node:20-slim';
+        const containerCmd = lang === 'python' ? `python /work/${path.relative(rootPath, filePath).replace(/\\/g,'/')}` : (lang === 'bash' ? `bash /work/${path.relative(rootPath, filePath).replace(/\\/g,'/')}` : `node /work/${path.relative(rootPath, filePath).replace(/\\/g,'/')}`);
+        const dockerCmd = `docker run --rm --cidfile=/tmp/${id}.cid --memory=512m --cpus=0.5 -v "${rootPath.replace(/\\/g,'/')}:/work" -w /work ${image} sh -c "${containerCmd}"`;
+
+        try {
+          const { stdout, stderr } = await execAsync(dockerCmd, { timeout, maxBuffer: 1024 * 1024 * 5 });
+          return `STDOUT:\n${stdout}\nSTDERR:\n${stderr || ''}`;
+        } catch (err: any) {
+          return `Sandbox execution failed: ${err.message}\n${err.stdout || ''}\n${err.stderr || ''}`;
+        }
+      },
+    },
+    {
+      name: 'request_human_approval',
+      description: 'Create a human-approval request for a critical action (writes a pending approval file)',
+      category: 'safety',
+      parameters: {
+        reason: { type: 'string', description: 'Why approval is needed', required: true },
+        payload: { type: 'string', description: 'JSON payload describing the action' },
+      },
+      execute: async (args) => {
+        const id = `approval-${Date.now()}`;
+        const approvalsDir = path.join(rootPath, '.ultraia', 'approvals');
+        fs.mkdirSync(approvalsDir, { recursive: true });
+        const file = path.join(approvalsDir, `${id}.json`);
+        const entry = { id, reason: args.reason, payload: args.payload ?? null, createdAt: Date.now(), status: 'pending' };
+        fs.writeFileSync(file, JSON.stringify(entry, null, 2));
+        return `Approval requested: ${id}. Review and approve by creating file ${file.replace(/\\/g,'/')} (set status:'approved') or use /api/orchestrator.`;
+      },
+    },
+    {
+      name: 'browser_navigate',
+      description: 'Navigate to a URL and capture title/snippet (Playwright required)',
+      category: 'browser',
+      parameters: {
+        url: { type: 'string', description: 'Target URL', required: true },
+        script: { type: 'string', description: 'Optional small script to run in page context' },
+      },
+      execute: async (args) => {
+        try {
+          // attempt to require playwright dynamically
+          // eslint-disable-next-line @typescript-eslint/no-var-requires
+          const playwright = require('playwright');
+          const browser = await playwright.chromium.launch({ headless: true });
+          const page = await browser.newPage();
+          await page.goto(args.url as string, { waitUntil: 'domcontentloaded', timeout: 30000 });
+          const title = await page.title();
+          let snippet = '';
+          if (args.script) {
+            snippet = await page.evaluate(`(function(){ ${args.script} })()`);
+          } else {
+            snippet = await page.$eval('body', (el: any) => el.innerText.substring(0, 200));
+          }
+          await browser.close();
+          return JSON.stringify({ title, snippet });
+        } catch (err: any) {
+          return `Playwright not available or navigation failed: ${err.message}`;
+        }
+      },
+    }
   ];
 
   tools.forEach(t => registry.register(t));
@@ -442,6 +534,10 @@ export class UltraIaAgent {
   private config: AgentConfig;
   private onMessageCallback?: (msg: AgentMessage) => void;
   private onSessionChangeCallback?: (sessions: ChatSession[]) => void;
+  private runtimeUrl?: string;
+  private sessionToken?: string;
+  private runtimeAvailable = false;
+  private conversationId?: string;
 
   constructor(rootPath: string, config?: Partial<AgentConfig>) {
     this.rootPath = rootPath;
@@ -453,6 +549,7 @@ export class UltraIaAgent {
       systemPrompt: config?.systemPrompt || this.getDefaultSystemPrompt(),
       ...config,
     };
+    this.runtimeUrl = config?.runtimeUrl;
 
     this.llm = new LLMClient(this.config);
     this.registry = new ToolRegistry();
@@ -465,7 +562,12 @@ export class UltraIaAgent {
     } else {
       this.session = this.createSession();
       this.sessions.push(this.session);
-      saveSessions(rootPath, this.sessions);
+      saveSessions(this.rootPath, this.sessions);
+    }
+
+    // Auto-connect to runtime if configured
+    if (this.runtimeUrl && config?.email && config?.password) {
+      this.login(config.email, config.password).catch(() => {});
     }
   }
 
@@ -519,6 +621,131 @@ When using tools, call them directly. When you need code, use read_file or grep.
 Always explain what you're doing and why. Think step by step for complex tasks.`;
   }
 
+  // ── Runtime Bridge ────────────────────────────────────────────────────────
+
+  /** Login to UltraIa web app and get session token. */
+  async login(email: string, password: string): Promise<boolean> {
+    if (!this.runtimeUrl) return false;
+    try {
+      const res = await fetch(`${this.runtimeUrl}/api/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      if (!res.ok) return false;
+      const data = await res.json() as any;
+      this.sessionToken = data.token;
+      this.runtimeAvailable = true;
+      return true;
+    } catch {
+      this.runtimeAvailable = false;
+      return false;
+    }
+  }
+
+  /** Check if the UltraIa runtime is reachable. */
+  async checkRuntime(): Promise<boolean> {
+    if (!this.runtimeUrl) return false;
+    try {
+      const res = await fetch(`${this.runtimeUrl}/api/health`, {
+        method: 'GET',
+        signal: AbortSignal.timeout(3000),
+      });
+      this.runtimeAvailable = res.ok;
+      return res.ok;
+    } catch {
+      this.runtimeAvailable = false;
+      return false;
+    }
+  }
+
+  /** Check runtime and login if needed. Returns status string. */
+  async connectRuntime(): Promise<string> {
+    if (!this.runtimeUrl) return 'No runtimeUrl configured';
+    const alive = await this.checkRuntime();
+    if (!alive) return `Runtime offline at ${this.runtimeUrl}`;
+    if (this.sessionToken) return `Connected to ${this.runtimeUrl}`;
+    // Try login
+    const email = this.config.email || 'admin@ultraia.local';
+    const password = this.config.password || 'admin';
+    const ok = await this.login(email, password);
+    return ok ? `Connected to ${this.runtimeUrl}` : `Connected to runtime but login failed (${email})`;
+  }
+
+  /** Check if runtime is currently available. */
+  isRuntimeAvailable(): boolean {
+    return this.runtimeAvailable && !!this.sessionToken;
+  }
+
+  /** Send chat through UltraIa web app API (full 58+ tools). */
+  private async chatViaBridge(userMessage: string): Promise<string> {
+    if (!this.runtimeUrl || !this.sessionToken) throw new Error('No runtime');
+
+    // Create conversation if needed
+    if (!this.conversationId) {
+      const convRes = await fetch(`${this.runtimeUrl}/api/conversations`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-ultraia-session': this.sessionToken,
+        },
+        body: JSON.stringify({ title: userMessage.substring(0, 60) }),
+      });
+      if (convRes.ok) {
+        const conv = await convRes.json() as any;
+        this.conversationId = conv.id;
+      } else {
+        throw new Error(`Failed to create conversation: ${convRes.status}`);
+      }
+    }
+
+    // Build messages array
+    const messages = this.session.messages.slice(-20).map(m => ({
+      role: m.role as 'user' | 'assistant',
+      content: m.content,
+    }));
+
+    const res = await fetch(`${this.runtimeUrl}/api/chat`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-ultraia-session': this.sessionToken,
+      },
+      body: JSON.stringify({
+        agentId: 'bp-admin-1',
+        conversationId: this.conversationId,
+        messages,
+      }),
+    });
+
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(`Runtime API error ${res.status}: ${text}`);
+    }
+
+    // Read streaming response
+    const reader = res.body?.getReader();
+    if (!reader) throw new Error('No response body');
+
+    const decoder = new TextDecoder();
+    let fullText = '';
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      const chunk = decoder.decode(value, { stream: true });
+      // Parse SSE lines
+      for (const line of chunk.split('\n')) {
+        if (line.startsWith('0:')) {
+          // Vercel AI SDK text delta
+          try {
+            fullText += JSON.parse(line.substring(2));
+          } catch { fullText += line.substring(2); }
+        }
+      }
+    }
+    return fullText || '(empty response from runtime)';
+  }
+
   /** Send a message and get a response. */
   async chat(userMessage: string): Promise<AgentMessage> {
     // Add user message
@@ -535,64 +762,77 @@ Always explain what you're doing and why. Think step by step for complex tasks.`
       this.session.title = userMessage.substring(0, 60) + (userMessage.length > 60 ? '...' : '');
     }
 
-    // Build messages for LLM
-    const messages = [
-      { role: 'system', content: this.config.systemPrompt },
-      ...this.session.messages.slice(-20).map(m => ({ role: m.role, content: m.content })),
-    ];
+    // Try runtime bridge first (full 58+ tools, memory, skills)
+    let finalContent = '';
+    let usedBridge = false;
+    if (this.runtimeAvailable && this.sessionToken) {
+      try {
+        finalContent = await this.chatViaBridge(userMessage);
+        usedBridge = true;
+      } catch (err: any) {
+        // Bridge failed, fallback to direct LLM
+        this.runtimeAvailable = false;
+      }
+    }
 
-    // Get tools for LLM (full definitions with execute)
-    const tools = this.registry.getAll();
-
-    // Call LLM
-    const response = await this.llm.chat(messages, tools);
-
-    // Parse tool calls if present
+    // Tool calls only apply in direct LLM mode (bridge handles tools server-side)
     let toolCalls: ToolCall[] = [];
     let toolResults: ToolResult[] = [];
-    let finalContent = response;
 
-    try {
-      const parsed = JSON.parse(response);
-      if (parsed.tool_calls) {
-        for (const tc of parsed.tool_calls) {
-          const toolCall: ToolCall = {
-            id: tc.id || `tc-${Date.now()}`,
-            name: tc.function?.name || tc.name,
-            args: typeof tc.function?.arguments === 'string'
-              ? JSON.parse(tc.function.arguments)
-              : tc.function?.arguments || {},
-          };
-          toolCalls.push(toolCall);
+    if (!usedBridge) {
+      // Direct LLM mode (limited to built-in tools)
+      const messages = [
+        { role: 'system', content: this.config.systemPrompt },
+        ...this.session.messages.slice(-20).map(m => ({ role: m.role, content: m.content })),
+      ];
+      const tools = this.registry.getAll();
+      const response = await this.llm.chat(messages, tools);
 
-          const tool = this.registry.get(toolCall.name);
-          if (tool) {
-            try {
-              const output = await tool.execute(toolCall.args);
-              toolResults.push({ callId: toolCall.id, success: true, output });
-            } catch (err: any) {
-              toolResults.push({ callId: toolCall.id, success: false, output: '', error: err.message });
+      // Parse tool calls if present (direct LLM mode only)
+      finalContent = response;
+
+      try {
+        const parsed = JSON.parse(response);
+        if (parsed.tool_calls) {
+          for (const tc of parsed.tool_calls) {
+            const toolCall: ToolCall = {
+              id: tc.id || `tc-${Date.now()}`,
+              name: tc.function?.name || tc.name,
+              args: typeof tc.function?.arguments === 'string'
+                ? JSON.parse(tc.function.arguments)
+                : tc.function?.arguments || {},
+            };
+            toolCalls.push(toolCall);
+
+            const tool = this.registry.get(toolCall.name);
+            if (tool) {
+              try {
+                const output = await tool.execute(toolCall.args);
+                toolResults.push({ callId: toolCall.id, success: true, output });
+              } catch (err: any) {
+                toolResults.push({ callId: toolCall.id, success: false, output: '', error: err.message });
+              }
+            } else {
+              toolResults.push({ callId: toolCall.id, success: false, output: '', error: `Unknown tool: ${toolCall.name}` });
             }
-          } else {
-            toolResults.push({ callId: toolCall.id, success: false, output: '', error: `Unknown tool: ${toolCall.name}` });
+          }
+
+          if (toolResults.length > 0) {
+            const toolMessages = [
+              ...messages,
+              { role: 'assistant', content: '', tool_calls: parsed.tool_calls },
+              ...toolResults.map(tr => ({
+                role: 'tool',
+                content: tr.success ? tr.output : `Error: ${tr.error}`,
+                tool_call_id: tr.callId,
+              })),
+            ];
+            finalContent = await this.llm.chat(toolMessages);
           }
         }
-
-        if (toolResults.length > 0) {
-          const toolMessages = [
-            ...messages,
-            { role: 'assistant', content: '', tool_calls: parsed.tool_calls },
-            ...toolResults.map(tr => ({
-              role: 'tool',
-              content: tr.success ? tr.output : `Error: ${tr.error}`,
-              tool_call_id: tr.callId,
-            })),
-          ];
-          finalContent = await this.llm.chat(toolMessages);
-        }
+      } catch {
+        // Not JSON, treat as plain text response
       }
-    } catch {
-      // Not JSON, treat as plain text response
     }
 
     // Create assistant message

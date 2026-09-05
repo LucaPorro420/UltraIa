@@ -38,7 +38,8 @@
       { "command": "ultraia.searchCode", "title": "UltraIa: Agent — Search Code" },
       { "command": "ultraia.clearSession", "title": "UltraIa: Clear Agent Session" },
       { "command": "ultraia.exportSession", "title": "UltraIa: Export Agent Session" },
-      { "command": "ultraia.projectStatus", "title": "UltraIa: Project Status" }
+      { "command": "ultraia.projectStatus", "title": "UltraIa: Project Status" },
+      { "command": "ultraia.connectRuntime", "title": "UltraIa: Connect to Runtime" }
     ],
     "viewsContainers": {
       "activitybar": [
@@ -136,6 +137,21 @@
           "type": "boolean",
           "default": true,
           "description": "Auto-connect to LLM on startup"
+        },
+        "ultraia.runtimeUrl": {
+          "type": "string",
+          "default": "http://localhost:3000",
+          "description": "UltraIa web app URL (runtime + 58 tools)"
+        },
+        "ultraia.agent.email": {
+          "type": "string",
+          "default": "admin@ultraia.local",
+          "description": "Login email for UltraIa runtime"
+        },
+        "ultraia.agent.password": {
+          "type": "string",
+          "default": "admin",
+          "description": "Login password for UltraIa runtime"
         }
       }
     },

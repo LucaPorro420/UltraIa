@@ -1490,3 +1490,73 @@ Cada commit agrega una sección con fecha y la lista de archivos `.ts/.tsx` toca
 - [ ] apps/mobile/src/api/orchestrator.ts
 - [ ] apps/web/src/app/api/orchestrator/dashboard/route.ts
 - [ ] apps/web/src/app/api/sync/route.ts
+
+## 2026-09-04T22:33:26.967Z
+- [ ] packages/core/src/tools/autopub.ts
+
+## 2026-09-04T23:23:39.048Z
+- [ ] apps/web/src/app/api/orchestrator/dashboard/route.ts
+
+## 2026-09-04T23:46:18.002Z
+- [ ] packages/core/src/tools/learning-tracker.test.ts
+- [ ] packages/core/src/tools/orchestrator-unified.test.ts
+
+## 2026-09-04T23:54:00.853Z
+- [ ] packages/core/src/tools/learning-tracker.ts
+- [ ] packages/core/src/tools/orchestrator-unified.ts
+
+
+## 2026-09-05T00:55:02.605Z
+- [ ] apps/web/src/app/(app)/dashboard/page.tsx
+- [ ] apps/web/src/app/api/sync/route.ts
+- [ ] apps/web/src/components/app-shell/orchestrator-panel.tsx
+- [ ] apps/web/src/instrumentation.ts
+- [ ] apps/web/src/lib/ws-handler.ts
+- [ ] packages/core/src/tools/cerebro.ts
+- [ ] packages/core/src/tools/learning-tracker.ts
+
+## 2026-09-05T04:45:39.652Z
+- [ ] .vscode-extension/src/agent.ts
+- [ ] .vscode-extension/src/automation.ts
+- [ ] .vscode-extension/src/chat-panel.ts
+- [ ] .vscode-extension/src/dashboard-panel.ts
+- [ ] .vscode-extension/src/extension.ts
+- [ ] .vscode-extension/src/files-provider.ts
+- [ ] .vscode-extension/src/gates-panel.ts
+- [ ] .vscode-extension/src/history-panel.ts
+- [ ] .vscode-extension/src/memory-panel.ts
+- [ ] .vscode-extension/src/skills-panel.ts
+- [ ] .vscode-extension/src/webview-utils.ts
+
+## 2026-09-05T06:13:09.148Z
+- [ ] packages/core/src/ai/llm.ts
+- [ ] packages/core/src/tools/browser-agent.test.ts
+- [ ] packages/core/src/tools/browser-agent.ts
+- [ ] packages/core/src/tools/browser-agent.wiring.test.ts
+- [ ] packages/core/src/tools/catalog.ts
+- [ ] packages/core/src/tools/index.ts
+
+## 2026-09-05T07:28:15.641Z
+- [ ] apps/web/src/components/chaos-game/ChaosCanvas.tsx
+
+## 2026-09-05T21:48:37.039Z
+- [ ] apps/web/src/app/api/providers/routing/route.ts
+- [ ] packages/core/src/ai/orchestrator.ts
+- [ ] packages/core/src/ai/provider-control.test.ts
+- [ ] packages/core/src/ai/provider-control.ts
+
+## 2026-09-05T21:49:03.289Z
+- [ ] packages/core/src/ai/contracts.ts
+- [ ] packages/core/src/ai/evaluation-cache.test.ts
+- [ ] packages/core/src/ai/evaluation-cache.ts
+- [ ] packages/core/src/ai/llm.ts
+- [ ] packages/core/src/ai/model-cache.ts
+- [ ] packages/core/src/ai/telemetry.ts
+- [ ] packages/core/src/domain/eval.test.ts
+- [ ] packages/core/src/domain/eval.ts
+- [ ] packages/core/src/domain/feedback-learning.test.ts
+- [ ] packages/core/src/domain/feedback.ts
+- [ ] packages/core/src/domain/telemetry.ts
+- [ ] packages/core/src/index.ts
+- [ ] packages/core/src/tools/qdrant-memory.test.ts
+- [ ] packages/core/src/tools/qdrant-memory.ts

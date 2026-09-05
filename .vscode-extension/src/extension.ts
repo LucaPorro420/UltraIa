@@ -61,9 +61,18 @@ export function activate(context: vscode.ExtensionContext) {
   console.log('UltraIa extension activated');
 
   const rootPath = getRootPath();
+  const cfg = vscode.workspace.getConfiguration('ultraia');
 
   // ── Core Agent ───────────────────────────────────────────────────────────
-  const agent = new UltraIaAgent(rootPath);
+  const agent = new UltraIaAgent(rootPath, {
+    llmUrl: cfg.get<string>('agent.llmUrl', 'http://localhost:11434/v1'),
+    model: cfg.get<string>('agent.model', 'qwen2.5-coder:1.5b-base'),
+    maxTokens: cfg.get<number>('agent.maxTokens', 4096),
+    temperature: cfg.get<number>('agent.temperature', 0.7),
+    runtimeUrl: cfg.get<string>('runtimeUrl', 'http://localhost:3000'),
+    email: cfg.get<string>('agent.email', 'admin@ultraia.local'),
+    password: cfg.get<string>('agent.password', 'admin'),
+  });
 
   // ── Panels ───────────────────────────────────────────────────────────────
   const chatPanel = new ChatPanel(agent);
@@ -214,22 +223,35 @@ export function activate(context: vscode.ExtensionContext) {
       }
     }),
     vscode.commands.registerCommand('ultraia.projectStatus', async () => {
+      const runtimeStatus = agent.isRuntimeAvailable() ? '🟢 Connected' : '🔴 Offline';
       const items = [
+        { label: '$(rocket) Runtime', description: runtimeStatus },
         { label: '$(check) Typecheck', description: 'tsc --noEmit' },
         { label: '$(check) Lint', description: 'next lint' },
         { label: '$(check) Tests', description: 'vitest run' },
         { label: '$(check) Build', description: 'next build' },
-        { label: '$(rocket) Capabilities', description: '58+ registered' },
+        { label: '$(rocket) Capabilities', description: agent.isRuntimeAvailable() ? '58+ (via runtime)' : '13 built-in' },
       ];
       const picked = await vscode.window.showQuickPick(items, { placeHolder: 'UltraIa Project Status' });
       if (picked) {
         vscode.window.showInformationMessage(`${picked.label}: ${picked.description}`);
       }
     }),
+    vscode.commands.registerCommand('ultraia.connectRuntime', async () => {
+      updateStatusBar('Connecting...', '$(sync~spin)');
+      const status = await agent.connectRuntime();
+      const ok = agent.isRuntimeAvailable();
+      updateStatusBar(ok ? 'Connected' : 'Offline', ok ? '$(check)' : '$(error)');
+      vscode.window.showInformationMessage(`UltraIa Runtime: ${status}`);
+    }),
   );
 
-  // Initial status
-  updateStatusBar('Ready', '$(rocket)');
+  // Auto-connect to runtime on startup
+  agent.connectRuntime().then(status => {
+    const ok = agent.isRuntimeAvailable();
+    updateStatusBar(ok ? 'Connected' : 'Offline', ok ? '$(check)' : '$(error)');
+    console.log(`UltraIa runtime: ${status}`);
+  });
 }
 
 export function deactivate() {}
