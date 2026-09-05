@@ -999,7 +999,7 @@ IMPORTANT: Execute tasks end-to-end. Do not ask for permission mid-task unless t
 
       while (round < MAX_ROUNDS) {
         round++;
-        const response = await this.llm.chat(messages, tools);
+        const response = await this.llm.chat(messages, toolDefs);
 
         // Check if response contains tool calls
         let parsed: any;
