@@ -213,11 +213,13 @@ import * as zernioNs from './zernio';
 import * as sandboxNs from './sandbox';
 import * as learnModels from './learn-models';
 import * as chaos from './chaos';
+import * as browserAgent from './browser-agent';
 
 export const tools = { web, image, video, music, stitch, reach, skills: { runSkill }, content, g0dm0d3, topics, present: presentTools, publish, enrutador, mediaScore, metrics, memoryFs: { createMemoryFs }, diagram, videoEdit, screenflow, cloud: cloudTools, harness, growth, prioritize, vfx, codevfx, travel, generative, libros, sdf, videoqa,
   motion,
   replica,
   imaging,
+  browser: browserNs.browser,
   semanticMemory,
   autolearn,
   learnModels,
@@ -367,6 +369,8 @@ export const TOOL_DESCRIPTIONS: Record<string, string> = {
     'Deterministic fractal generator via the chaos game method: 7 presets (sierpinski, pentagon, hexagon, golden-triangle, dragon, square-no-same, star) or custom polygon (3-12 sides) with 5 vertex-selection rules. Density-based anti-aliased rendering with log-scale palette mapping (neoViolet/obsidian/fire/ice/mono/rainbow). Fully seeded/deterministic, keyless, zero deps. Use to generate fractal art from pure math.',
   cognitive:
     'Cognitive Agent System: 4-layer memory (working/episodic/semantic/metacognitive), decision memory with confidence calibration, belief system with contradiction detection, HEXACO personality vector, and 5-phase cognitive cycle (PERCEIVE→ASSESS→PLAN→EXECUTE→REFLECT). Orchestrated by CognitiveAgent. Inspired by AgentOS, Nous, Draagon AI, and Agent Brain. Use to build agents with persistent memory, self-reflection, and adaptive decision-making.',
+  browser:
+    'Headless Browser Agent (Playwright, Browser Use pattern): navigate to URLs, click elements via CSS selectors, fill forms, select dropdowns, check/uncheck boxes, press keyboard keys, scroll, take screenshots (full page or element), extract page content (text/html), evaluate JavaScript, and wait for selectors or navigation. Deterministic action planning with safety validation (network/storage/file:// warnings). Playwright execution when available; plan-only fallback when not. Use to interact with websites, scrape dynamic content, fill forms, take screenshots, and automate browser workflows.',
 };
 
 export type Capability =
@@ -453,7 +457,8 @@ export type Capability =
   | 'feedback-analyzer'
   | 'release-manager'
   | 'competitive-intel'
-  | 'cognitive';
+  | 'cognitive'
+  | 'browser';
 
 export * from './observability';
 export * from './agentic';
@@ -469,4 +474,6 @@ export * as releaseManagerNs from './release-manager';
 export * as competitiveIntelNs from './competitive-intel';
 export * from './emailCode';
 export * from './smtp';
+// browser-agent: headless browser automation (Playwright). Namespace import to avoid collisions.
+import * as browserNs from './browser-agent';
 export * from './catalog';
