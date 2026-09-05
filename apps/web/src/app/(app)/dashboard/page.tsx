@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { EmptyState } from '@/components/ui/empty-state';
 import { SkillPipeline } from '@/components/app-shell/skill-pipeline';
 import { AssistantChat } from '@/components/assistant-chat';
+import { OrchestratorPanel } from '@/components/app-shell/orchestrator-panel';
 import { VirtualizedAgentList } from './VirtualizedAgentList';
 
 /** Server component — agent list with streaming via Suspense. */
@@ -99,6 +100,11 @@ export default async function DashboardPage() {
           </span>
         </div>
         <AssistantChat />
+      </section>
+
+      {/* Unified Orchestrator — live cross-app state */}
+      <section className="mt-4">
+        <OrchestratorPanel />
       </section>
 
       {/* Agent-development pipeline — streams immediately */}
