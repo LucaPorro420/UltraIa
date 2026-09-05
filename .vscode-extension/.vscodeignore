@@ -1,8 +1,6 @@
 # VS Code Extension ignore patterns
 # Dependencies
 node_modules/
-# Build output
-out/
 # Source maps (optional, can be included)
 *.map
 # Test files

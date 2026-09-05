@@ -1,103 +1,51 @@
 {
   "name": "ultraia",
-  "displayName": "UltraIa — AI Product Development Suite",
-  "description": "VS Code extension for the UltraIa monorepo: run gates, browse capabilities, manage the PIVR loop, and monitor project health.",
-  "version": "1.0.0",
+  "displayName": "UltraIa — AI Agent & Development Suite",
+  "description": "VS Code extension for UltraIa: AI agent with memory, 58+ tools, CI gates, chat, and project management.",
+  "version": "2.0.0",
   "publisher": "ultraia",
   "engines": {
-    "vscode": "^1.90.0"
+    "vscode": "^1.85.0"
   },
   "categories": [
     "Other",
     "Programming Languages",
     "Linters",
-    "Testing"
+    "Testing",
+    "AI"
   ],
   "activationEvents": [
     "onStartupFinished"
   ],
   "main": "./out/extension.js",
+  "icon": "icons/icon.png",
   "contributes": {
     "commands": [
-      {
-        "command": "ultraia.gateTypecheck",
-        "title": "UltraIa: Run Typecheck"
-      },
-      {
-        "command": "ultraia.gateLint",
-        "title": "UltraIa: Run Lint"
-      },
-      {
-        "command": "ultraia.gateTest",
-        "title": "UltraIa: Run Tests"
-      },
-      {
-        "command": "ultraia.gateBuild",
-        "title": "UltraIa: Run Build"
-      },
-      {
-        "command": "ultraia.gateAll",
-        "title": "UltraIa: Run All Gates (typecheck → lint → test → build)"
-      },
-      {
-        "command": "ultraia.projectStatus",
-        "title": "UltraIa: Project Status"
-      },
-      {
-        "command": "ultraia.openState",
-        "title": "UltraIa: Open STATE.md"
-      },
-      {
-        "command": "ultraia.openRunLog",
-        "title": "UltraIa: Open loop-run-log.md"
-      },
-      {
-        "command": "ultraia.openConstraints",
-        "title": "UltraIa: Open loop-constraints.md"
-      },
-      {
-        "command": "ultraia.browseCapabilities",
-        "title": "UltraIa: Browse Capabilities"
-      },
-      {
-        "command": "ultraia.searchTools",
-        "title": "UltraIa: Search Tools"
-      },
-      {
-        "command": "ultraia.openDashboard",
-        "title": "UltraIa: Open Dashboard (localhost:3000)"
-      },
-      {
-        "command": "ultraia.startDev",
-        "title": "UltraIa: Start Dev Server"
-      },
-      {
-        "command": "ultraia.stopDev",
-        "title": "UltraIa: Stop Dev Server"
-      },
-      {
-        "command": "ultraia.runStartPy",
-        "title": "UltraIa: Run start.py (full stack)"
-      },
-      {
-        "command": "ultraia.clearVitestCache",
-        "title": "UltraIa: Clear Vitest Cache"
-      },
-      {
-        "command": "ultraia.showRecentCommits",
-        "title": "UltraIa: Show Recent Commits"
-      },
-      {
-        "command": "ultraia.copyRepomix",
-        "title": "UltraIa: Generate Repomix (LLM context)"
-      }
+      { "command": "ultraia.openChat", "title": "UltraIa: Open Chat" },
+      { "command": "ultraia.openHistory", "title": "UltraIa: Open History" },
+      { "command": "ultraia.openMemory", "title": "UltraIa: Open Memory" },
+      { "command": "ultraia.openSkills", "title": "UltraIa: Open Skills" },
+      { "command": "ultraia.openFiles", "title": "UltraIa: Open Files" },
+      { "command": "ultraia.openGates", "title": "UltraIa: Open Gates" },
+      { "command": "ultraia.openDashboard", "title": "UltraIa: Open Dashboard" },
+      { "command": "ultraia.runGate", "title": "UltraIa: Run Gate (pick one)" },
+      { "command": "ultraia.runAllGates", "title": "UltraIa: Run All Gates" },
+      { "command": "ultraia.startDev", "title": "UltraIa: Start Dev Server" },
+      { "command": "ultraia.stopDev", "title": "UltraIa: Stop Dev Server" },
+      { "command": "ultraia.openDashboardWeb", "title": "UltraIa: Open Web Dashboard (localhost:3000)" },
+      { "command": "ultraia.explainFile", "title": "UltraIa: Agent — Explain Current File" },
+      { "command": "ultraia.fixFile", "title": "UltraIa: Agent — Review & Fix Current File" },
+      { "command": "ultraia.searchCode", "title": "UltraIa: Agent — Search Code" },
+      { "command": "ultraia.clearSession", "title": "UltraIa: Clear Agent Session" },
+      { "command": "ultraia.exportSession", "title": "UltraIa: Export Agent Session" },
+      { "command": "ultraia.projectStatus", "title": "UltraIa: Project Status" }
     ],
     "viewsContainers": {
       "activitybar": [
         {
           "id": "ultraia",
           "title": "UltraIa",
-          "icon": "$(rocket)"
+          "icon": "icons/ultraia-icon.svg"
         }
       ]
     },
@@ -105,18 +53,39 @@
       "ultraia": [
         {
           "type": "webview",
-          "id": "ultraia.dashboard",
-          "name": "Dashboard"
+          "id": "ultraia.chat",
+          "name": "Chat",
+          "visibility": "visible"
+        },
+        {
+          "type": "webview",
+          "id": "ultraia.history",
+          "name": "History"
+        },
+        {
+          "type": "webview",
+          "id": "ultraia.memory",
+          "name": "Memory"
+        },
+        {
+          "type": "webview",
+          "id": "ultraia.skills",
+          "name": "Skills"
         },
         {
           "type": "tree",
-          "id": "ultraia.capabilities",
-          "name": "Capabilities"
+          "id": "ultraia.files",
+          "name": "Files"
         },
         {
-          "type": "tree",
+          "type": "webview",
           "id": "ultraia.gates",
           "name": "Gates"
+        },
+        {
+          "type": "webview",
+          "id": "ultraia.dashboard",
+          "name": "Dashboard"
         }
       ]
     },
@@ -142,9 +111,38 @@
           "type": "boolean",
           "default": true,
           "description": "Show UltraIa status bar item"
+        },
+        "ultraia.agent.llmUrl": {
+          "type": "string",
+          "default": "http://localhost:11434/v1",
+          "description": "LLM API endpoint (Ollama, OpenAI-compatible)"
+        },
+        "ultraia.agent.model": {
+          "type": "string",
+          "default": "qwen2.5-coder:1.5b-base",
+          "description": "LLM model name"
+        },
+        "ultraia.agent.maxTokens": {
+          "type": "number",
+          "default": 4096,
+          "description": "Max tokens for LLM response"
+        },
+        "ultraia.agent.temperature": {
+          "type": "number",
+          "default": 0.7,
+          "description": "LLM temperature (0-1)"
+        },
+        "ultraia.agent.autoConnect": {
+          "type": "boolean",
+          "default": true,
+          "description": "Auto-connect to LLM on startup"
         }
       }
-    }
+    },
+    "keybindings": [
+      { "command": "ultraia.openChat", "key": "ctrl+shift+u", "mac": "cmd+shift+u" },
+      { "command": "ultraia.runAllGates", "key": "ctrl+shift+g", "mac": "cmd+shift+g" }
+    ]
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
@@ -154,7 +152,7 @@
   },
   "devDependencies": {
     "@types/node": "^20.19.43",
-    "@types/vscode": "^1.136.0",
+    "@types/vscode": "^1.85.0",
     "typescript": "^5.9.3"
   }
 }
