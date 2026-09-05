@@ -69,6 +69,7 @@ model AgentVersion {
   changeSummary String?
   createdAt     DateTime      @default(now())
   evalRuns      EvalRun[]
+  learningRuns  LearningRun[]
   conversations Conversation[]
 
   @@unique([blueprintId, versionNumber])
@@ -117,7 +118,13 @@ model EvalRun {
   status         String // RUNNING | COMPLETED | FAILED
   avgScore       Float      @default(0)
   passRate       Float      @default(0)
-  createdAt      DateTime   @default(now())
+  totalCases    Int        @default(0)
+  completedCases Int       @default(0)
+  cachedCases   Int        @default(0)
+  durationMs    Int        @default(0)
+  gateState     String     @default("PENDING") // PENDING | PASS | FAIL | INTERRUPTED
+  promotionOutcome String? // APPROVED | REJECTED | PENDING
+  createdAt     DateTime   @default(now())
   cases          EvalCase[]
 }
 
@@ -131,6 +138,76 @@ model EvalCase {
   score            Float
   verdict          String // PASS | FAIL
   notes            String
+}
+
+model LearningRun {
+  id              String       @id @default(cuid())
+  agentVersionId  String
+  agentVersion    AgentVersion @relation(fields: [agentVersionId], references: [id], onDelete: Cascade)
+  status          String       @default("RUNNING") // RUNNING | COMPLETED | FAILED | INTERRUPTED
+  totalCases      Int          @default(0)
+  completedCases  Int          @default(0)
+  cachedCases     Int          @default(0)
+  durationMs      Int          @default(0)
+  regressionScore Float?
+  gateState       String       @default("PENDING") // PENDING | PASS | FAIL | INTERRUPTED
+  promotionOutcome String?     // APPROVED | REJECTED | PENDING
+  startedAt       DateTime     @default(now())
+  completedAt     DateTime?
+  createdAt       DateTime     @default(now())
+
+  @@index([agentVersionId, createdAt])
+}
+
+model ProviderTelemetry {
+  id             String   @id @default(cuid())
+  windowStart    DateTime
+  provider       String
+  strategy       String
+  requestCount   Int      @default(0)
+  failureCount   Int      @default(0)
+  cacheHits      Int      @default(0)
+  fallbackCount  Int      @default(0)
+  totalLatencyMs Int      @default(0)
+  createdAt      DateTime @default(now())
+
+  @@unique([windowStart, provider, strategy])
+  @@index([windowStart, provider])
+}
+
+model ChatTelemetry {
+  id             String   @id @default(cuid())
+  windowStart    DateTime
+  provider       String
+  strategy       String
+  modelTier      String
+  requestCount   Int      @default(0)
+  failureCount   Int      @default(0)
+  cacheHits      Int      @default(0)
+  fallbackCount  Int      @default(0)
+  totalLatencyMs Int      @default(0)
+  createdAt      DateTime @default(now())
+
+  @@unique([windowStart, provider, strategy, modelTier])
+  @@index([windowStart, provider])
+}
+
+model LearningSignal {
+  id              String   @id @default(cuid())
+  blueprintId     String
+  fingerprint     String
+  sourceFeedbackId String?
+  source          String   @default("feedback")
+  kind            String   // positive | negative | ambiguous
+  status          String   @default("PENDING") // APPROVED | PENDING | REJECTED
+  signal          String
+  occurrenceCount Int      @default(1)
+  originalSource  String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([blueprintId, fingerprint])
+  @@index([blueprintId, status])
 }
 
 model ApiKey {

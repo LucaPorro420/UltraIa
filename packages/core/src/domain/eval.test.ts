@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { guardrailsBlock } from '../ai/llm';
-import { judgeResponse, regressionGate, weightedScore } from './eval';
+import { judgeResponse, mapWithConcurrency, regressionGate, weightedScore } from './eval';
 import type { AiGateway } from '../ai/gateway';
 
 const rubric = [
@@ -105,6 +105,22 @@ describe('regressionGate', () => {
 describe('guardrailsBlock', () => {
   it('returns empty string when there are no guardrails', () => {
     expect(guardrailsBlock([])).toBe('');
+  });
+
+  describe('bounded evaluation execution', () => {
+    it('never exceeds the configured concurrency', async () => {
+      let active = 0;
+      let peak = 0;
+      const result = await mapWithConcurrency([1, 2, 3, 4, 5], async (value) => {
+        active++;
+        peak = Math.max(peak, active);
+        await new Promise((resolve) => setTimeout(resolve, 2));
+        active--;
+        return value * 2;
+      }, 2);
+      expect(result).toEqual([2, 4, 6, 8, 10]);
+      expect(peak).toBeLessThanOrEqual(2);
+    });
   });
 
   it('formats a numbered guardrails section', () => {

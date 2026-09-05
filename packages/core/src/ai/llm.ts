@@ -179,6 +179,9 @@ import { join } from 'node:path';
 import { ModelOrchestrator } from './orchestrator';
 import { ChatSessionMemory } from './chat-memory';
 import { FREE_MODEL_CATALOG } from './model-catalog';
+import { telemetryAggregator } from './telemetry';
+import type { ProviderStrategy } from './contracts';
+import { recordChatTelemetry } from '../domain/telemetry';
 
 /** Safe JSON parse with default — never throws. Used in tool execute handlers. */
 const parseJson = <T>(s: string | undefined, d: T): T => {
@@ -640,7 +643,11 @@ export function chatStream(opts: {
   memoryFs?: MemoryFs | null;
   /** User ID for mem0 persistent memory. */
   userId?: string;
+  /** User-facing provider preference; omitted keeps legacy balanced routing. */
+  strategy?: ProviderStrategy;
 }) {
+  const telemetryStartedAt = Date.now();
+  const routing = new ModelOrchestrator().routingSummary({ model: opts.model });
   const tools: Record<string, Tool> = {};
   if (opts.tools?.includes('calculator')) {
     tools.calculator = tool({
@@ -4005,6 +4012,17 @@ export function chatStream(opts: {
   const cacheKey = JSON.stringify(opts.messages);
   const cached = responseCache.get(opts.system, cacheKey, opts.model ?? 'default');
   if (cached?.hit) {
+    const safeTelemetry = {
+      provider: routing.provider,
+      modelTier: routing.tier,
+      strategy: routing.strategy,
+      latencyMs: Date.now() - telemetryStartedAt,
+      cacheHit: true,
+      fallbackCount: routing.fallbackCount,
+      outcome: 'success',
+    } as const;
+    telemetryAggregator.record(safeTelemetry);
+    if (opts.db) void recordChatTelemetry(opts.db, safeTelemetry);
     // Return cached response as a stream
     const stream = new ReadableStream({
       start(controller) {
@@ -4045,6 +4063,17 @@ export function chatStream(opts: {
     }
     // Store in cache
     responseCache.set(opts.system, cacheKey, opts.model ?? 'default', result.text);
+    const safeTelemetry = {
+      provider: routing.provider,
+      modelTier: routing.tier,
+      strategy: routing.strategy,
+      latencyMs: Date.now() - telemetryStartedAt,
+      cacheHit: false,
+      fallbackCount: routing.fallbackCount,
+      outcome: 'success',
+    } as const;
+    telemetryAggregator.record(safeTelemetry);
+    if (opts.db) void recordChatTelemetry(opts.db, safeTelemetry);
     // Call original onFinish
     await originalOnFinish?.(result);
   };

@@ -11,28 +11,36 @@ export class ModelResponseCache {
     this.maxSize = opts.maxSize ?? Number(process.env.ULTRAIA_CACHE_MAX_SIZE || 1000);
   }
 
-  private key(system: string, messages: string, model: string): string {
+  key(system: string, messages: string, model: string): string {
     let h = 0;
     const s = `${model}:${system}:${messages}`;
     for (let i = 0; i < s.length; i++) h = ((h << 5) - h + s.charCodeAt(i)) | 0;
     return `c${Math.abs(h).toString(36)}`;
   }
 
-  get(system: string, messages: string, model: string): { response: string; hit: boolean } | null {
-    const e = this.cache.get(this.key(system, messages, model));
+  getByKey(key: string): { response: string; hit: boolean } | null {
+    const e = this.cache.get(key);
     if (!e || Date.now() - e.timestamp > this.ttlMs) {
-      if (e) this.cache.delete(this.key(system, messages, model));
+      if (e) this.cache.delete(key);
       return null;
     }
     return { response: e.response, hit: true };
   }
 
-  set(system: string, messages: string, model: string, response: string): void {
+  setByKey(key: string, response: string): void {
     if (this.cache.size >= this.maxSize) {
       const oldest = [...this.cache.entries()].sort((a, b) => a[1].timestamp - b[1].timestamp)[0];
       if (oldest) this.cache.delete(oldest[0]);
     }
-    this.cache.set(this.key(system, messages, model), { response, timestamp: Date.now() });
+    this.cache.set(key, { response, timestamp: Date.now() });
+  }
+
+  get(system: string, messages: string, model: string): { response: string; hit: boolean } | null {
+    return this.getByKey(this.key(system, messages, model));
+  }
+
+  set(system: string, messages: string, model: string, response: string): void {
+    this.setByKey(this.key(system, messages, model), response);
   }
 
   stats() { return { size: this.cache.size, maxSize: this.maxSize, ttlMs: this.ttlMs }; }

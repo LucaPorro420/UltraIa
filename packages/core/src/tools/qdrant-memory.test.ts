@@ -18,6 +18,7 @@ import {
   memorySyncSummary,
   planMemorySync,
   pointIdFor,
+  searchOptionalMemory,
   syncMemoryToQdrant,
 } from './qdrant-memory';
 import { loadTruthCorpus, type TruthDoc } from './semantic-memory';
@@ -348,6 +349,13 @@ describe('createQdrantClient / api-key (Qdrant Cloud, iter-90)', () => {
     const client = createQdrantClient(QDRANT_DEFAULT_URL, impl as unknown as typeof fetch, 5000, 'secret-key');
     await client.collectionExists();
     expect((calls[0].headers as Record<string, string>)['api-key']).toBe('secret-key');
+  });
+
+  describe('optional Qdrant facade', () => {
+    it('degrades without blocking local learning', async () => {
+      const result = await searchOptionalMemory(null, 'local query');
+      expect(result).toEqual({ status: 'degraded', data: [], reason: 'qdrant_not_configured' });
+    });
   });
 
   it('fallback a env QDRANT_API_KEY (restaurado tras el test)', async () => {

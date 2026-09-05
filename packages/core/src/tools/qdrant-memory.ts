@@ -69,6 +69,12 @@ export type QdrantResult<T = unknown> =
   | { ok: true; data: T; status?: number }
   | { ok: false; razon: string; status?: number };
 
+export type OptionalMemoryResult<T> = {
+  status: 'available' | 'degraded';
+  data: T;
+  reason?: string;
+};
+
 /** Plan de sincronizacion: diff puro entre corpus local y estado remoto. */
 export type MemorySyncPlan = {
   crear: QdrantPoint[];
@@ -387,6 +393,39 @@ export async function searchExternalMemory(
   return { ok: true, data: rescored.slice(0, k) };
 }
 
+/** Optional memory facade: local callers keep working when Qdrant is offline. */
+export async function searchOptionalMemory(
+  client: QdrantClient | null,
+  query: string,
+  k = 5,
+): Promise<OptionalMemoryResult<ExternalMemoryHit[]>> {
+  if (!client) return { status: 'degraded', data: [], reason: 'qdrant_not_configured' };
+  try {
+    const result = await searchExternalMemory(client, query, k);
+    return result.ok
+      ? { status: 'available', data: result.data }
+      : { status: 'degraded', data: [], reason: result.razon };
+  } catch (error) {
+    return { status: 'degraded', data: [], reason: error instanceof Error ? error.message : 'qdrant_unavailable' };
+  }
+}
+
+export async function syncOptionalMemory(
+  client: QdrantClient | null,
+  corpus: TruthDoc[],
+  remoteIds: number[] = [],
+): Promise<OptionalMemoryResult<MemorySyncPlan | null>> {
+  if (!client) return { status: 'degraded', data: null, reason: 'qdrant_not_configured' };
+  try {
+    const result = await syncMemoryToQdrant(client, corpus, remoteIds);
+    return result.ok
+      ? { status: 'available', data: result.data.plan }
+      : { status: 'degraded', data: null, reason: result.razon };
+  } catch (error) {
+    return { status: 'degraded', data: null, reason: error instanceof Error ? error.message : 'qdrant_unavailable' };
+  }
+}
+
 /** Estadisticas de sincronizacion legibles (para reporte/CLI). */
 export function memorySyncSummary(res: Awaited<ReturnType<typeof syncMemoryToQdrant>>): string {
   if (!res.ok) return `Qdrant NO disponible: ${res.razon}`;
@@ -406,6 +445,8 @@ export const qdrantMemory = {
   createQdrantClient,
   syncMemoryToQdrant,
   searchExternalMemory,
+  searchOptionalMemory,
+  syncOptionalMemory,
   memorySyncSummary,
   QDRANT_COLLECTION,
   QDRANT_VECTOR_SIZE,
