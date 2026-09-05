@@ -316,6 +316,75 @@ function registerBuiltinTools(registry: ToolRegistry, rootPath: string): void {
       },
     },
     {
+      name: 'write_file',
+      description: 'Write content to a file (creates or overwrites). Always explain what you are writing and why before calling this tool.',
+      category: 'files',
+      parameters: {
+        path: { type: 'string', description: 'Relative file path', required: true },
+        content: { type: 'string', description: 'Full file content to write', required: true },
+      },
+      execute: async (args) => {
+        const filePath = path.join(rootPath, args.path as string);
+        try {
+          const dir = path.dirname(filePath);
+          if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+          fs.writeFileSync(filePath, args.content as string, 'utf-8');
+          const lines = (args.content as string).split('\n').length;
+          return `Wrote ${lines} lines to ${args.path}`;
+        } catch (err: any) {
+          return `Error writing file: ${err.message}`;
+        }
+      },
+    },
+    {
+      name: 'edit_file',
+      description: 'Replace an exact string in a file with new content. The old_string must match exactly (including whitespace). Use read_file first to get the exact text.',
+      category: 'files',
+      parameters: {
+        path: { type: 'string', description: 'Relative file path', required: true },
+        old_string: { type: 'string', description: 'Exact text to find (must match exactly)', required: true },
+        new_string: { type: 'string', description: 'Replacement text', required: true },
+      },
+      execute: async (args) => {
+        const filePath = path.join(rootPath, args.path as string);
+        try {
+          if (!fs.existsSync(filePath)) return `Error: file not found: ${args.path}`;
+          const content = fs.readFileSync(filePath, 'utf-8');
+          const oldStr = args.old_string as string;
+          const newStr = args.new_string as string;
+          if (!content.includes(oldStr)) return `Error: old_string not found in ${args.path}. Use read_file to get the exact text.`;
+          const updated = content.replace(oldStr, newStr);
+          fs.writeFileSync(filePath, updated, 'utf-8');
+          const count = content.split(oldStr).length - 1;
+          return `Replaced ${count} occurrence(s) in ${args.path}`;
+        } catch (err: any) {
+          return `Error editing file: ${err.message}`;
+        }
+      },
+    },
+    {
+      name: 'project_context',
+      description: 'Load project context: AGENTS.md, STATE.md, LEARNINGS.md, loop-run-log.md, LEEME.md. Returns a summary of the project state.',
+      category: 'project',
+      parameters: {},
+      execute: async () => {
+        const files = ['AGENTS.md', 'STATE.md', 'learning/LEARNINGS.md', 'loop-run-log.md', 'LEEME.md', 'DOCS_TODO.md'];
+        const results: string[] = [];
+        for (const f of files) {
+          const fp = path.join(rootPath, f);
+          if (fs.existsSync(fp)) {
+            try {
+              const content = fs.readFileSync(fp, 'utf-8');
+              const lines = content.split('\n');
+              const preview = lines.slice(0, 50).join('\n');
+              results.push(`=== ${f} (${lines.length} lines) ===\n${preview}${lines.length > 50 ? '\n...' : ''}`);
+            } catch { /* skip */ }
+          }
+        }
+        return results.length > 0 ? results.join('\n\n') : 'No project context files found.';
+      },
+    },
+    {
       name: 'project_info',
       description: 'Get project metadata (package.json, test count, capabilities)',
       category: 'project',
@@ -397,6 +466,17 @@ function registerBuiltinTools(registry: ToolRegistry, rootPath: string): void {
       },
     },
     {
+      name: 'task_complete',
+      description: 'Signal that the current task is fully complete. Use this when you have finished all steps and verified the result.',
+      category: 'safety',
+      parameters: {
+        summary: { type: 'string', description: 'Brief summary of what was done', required: true },
+      },
+      execute: async (args) => {
+        return `TASK COMPLETE: ${args.summary}`;
+      },
+    },
+    {
       name: 'browser_navigate',
       description: 'Navigate to a URL and capture title/snippet (Playwright required)',
       category: 'browser',
@@ -440,7 +520,10 @@ class LLMClient {
     this.config = config;
   }
 
-  async chat(messages: Array<{ role: string; content: string }>, tools?: Array<{ name: string; description: string; parameters: Record<string, any> }>): Promise<string> {
+  async chat(
+    messages: Array<{ role: string; content: string; tool_calls?: any[]; tool_call_id?: string }>,
+    tools?: Array<{ name: string; description: string; parameters: Record<string, any> }> | Array<{ type: string; function: { name: string; description: string; parameters: any } }>,
+  ): Promise<string> {
     const body: any = {
       model: this.config.model,
       messages,
@@ -450,20 +533,26 @@ class LLMClient {
     };
 
     if (tools && tools.length > 0) {
-      body.tools = tools.map(t => ({
-        type: 'function',
-        function: {
-          name: t.name,
-          description: t.description,
-          parameters: {
-            type: 'object',
-            properties: t.parameters,
-            required: Object.entries(t.parameters)
-              .filter(([, v]: [string, any]) => v.required)
-              .map(([k]) => k),
+      // Detect format: if first tool has 'type' property, it's already OpenAI format
+      const first = tools[0] as any;
+      if (first.type && first.function) {
+        body.tools = tools;
+      } else {
+        body.tools = (tools as Array<{ name: string; description: string; parameters: Record<string, any> }>).map(t => ({
+          type: 'function',
+          function: {
+            name: t.name,
+            description: t.description,
+            parameters: {
+              type: 'object',
+              properties: t.parameters,
+              required: Object.entries(t.parameters)
+                .filter(([, v]: [string, any]) => v.required)
+                .map(([k]) => k),
+            },
           },
-        },
-      }));
+        }));
+      }
     }
 
     try {
@@ -583,42 +672,62 @@ export class UltraIaAgent {
   }
 
   private getDefaultSystemPrompt(): string {
-    return `You are UltraIa Agent — a world-class, multidisciplinary AI development company in one agent.
+    // Try to load project context files
+    let projectContext = '';
+    try {
+      const ctxFiles = ['AGENTS.md', 'LEEME.md'];
+      for (const f of ctxFiles) {
+        const fp = path.join(this.rootPath, f);
+        if (fs.existsSync(fp)) {
+          const content = fs.readFileSync(fp, 'utf-8');
+          // Take first 2000 chars to keep prompt manageable
+          projectContext += `\n\n## ${f}\n${content.substring(0, 2000)}${content.length > 2000 ? '\n...' : ''}`;
+        }
+      }
+    } catch { /* ignore */ }
 
-IDENTITY: You are a complete software development house. You think, decide, plan, and act like an elite team covering ALL domains: web, mobile, desktop, games, video, AI/ML, embedded, cloud, security.
+    return `You are UltraIa Agent — an autonomous, world-class software development agent. You think, decide, plan, and ACT.
 
-CORE PRINCIPLES:
-1. Ship production-ready code — never prototypes, never TODOs
-2. Security first — OWASP Top 10, input validation, least privilege
-3. Test everything — unit, integration, E2E before shipping
-4. Clean architecture — SOLID, DRY, KISS, separation of concerns
-5. Documentation — JSDoc/TSDoc, API specs, README
-6. Performance — profile before optimizing
-7. Accessibility — WCAG 2.1 AA minimum
-8. Git hygiene — conventional commits, atomic PRs, CI/CD gates
-9. User-centric — solve real problems
-10. Ship fast, iterate faster — MVP first, then polish
+IDENTITY: You are a complete autonomous development house. You can read, write, edit, search, run commands, run tests, and commit code. You act like an elite senior engineer.
 
-CAPABILITIES:
-- Read, search, navigate project files
-- Run shell commands (npm, git, tests, build)
-- Execute CI gates (typecheck, lint, test, build)
-- Store and retrieve cognitive memories
-- Open files in editor
-- Use 58+ project tools (video, image, geometry, publishing, AI, cloud, etc.)
+CORE RULES:
+1. ALWAYS read files before editing them (read_file first, then edit_file or write_file)
+2. When fixing bugs: read the file → understand the issue → apply the fix → run relevant tests
+3. When building features: plan → implement → verify → commit
+4. Be direct, technically precise, actionable. No marketing fluff.
+5. Never guess file contents — always read first
+6. When you edit a file, run the relevant tests after
+7. Never run 'npm run build' while dev server is running (kill first with taskkill)
+8. Use explicit git add (never git add .)
+9. Commit messages: feat|fix|chore(scope): description
+10. If a task requires multiple steps, do ALL steps in sequence until done
 
-PROJECT: UltraIa — monorepo with apps/web (Next.js 15), packages/core (domain logic, 58+ tools), packages/runtime (local agent runtime), apps/mobile (React Native/Expo).
+TOOL USAGE:
+- read_file: Read any file in the project (always do this before editing)
+- write_file: Create or overwrite a file (explain what you're writing first)
+- edit_file: Find-and-replace exact text in a file (use read_file to get exact text)
+- run_command: Execute any shell command (npm, git, python, etc.)
+- grep: Search for patterns in code
+- run_gates: Run typecheck/lint/test/build
+- git_status: Check git status
+- project_context: Load project state (AGENTS.md, STATE.md, LEARNINGS.md)
 
-RULES:
-- Be direct, technically precise, actionable
-- Always verify with grep/read before editing
-- Run relevant tests after changes
-- Never build while dev server running (kill first)
-- Use explicit git add (never git add .)
-- Commit: feat|fix|chore(scope): description
+AUTONOMOUS LOOP:
+When given a task, you MUST:
+1. Understand the task (read relevant files, check project context)
+2. Plan the steps (think step by step)
+3. Execute each step using tools (read → edit → test → verify)
+4. If a step fails, diagnose and retry
+5. Report what you did and the result
 
-When using tools, call them directly. When you need code, use read_file or grep.
-Always explain what you're doing and why. Think step by step for complex tasks.`;
+You are NOT a chatbot. You are an autonomous agent that EXECUTES tasks completely.
+When the user says "fix the bug in X", you: read X → find the bug → fix it → test → done.
+When the user says "add feature Y", you: plan → implement → test → done.
+
+PROJECT: UltraIa — monorepo with apps/web (Next.js 15), packages/core (58+ tools), packages/runtime, apps/mobile.
+${projectContext}
+
+IMPORTANT: Execute tasks end-to-end. Do not ask for permission mid-task unless the action is destructive (force push, drop table, etc).`;
   }
 
   // ── Runtime Bridge ────────────────────────────────────────────────────────
@@ -780,58 +889,89 @@ Always explain what you're doing and why. Think step by step for complex tasks.`
     let toolResults: ToolResult[] = [];
 
     if (!usedBridge) {
-      // Direct LLM mode (limited to built-in tools)
-      const messages = [
+      // Direct LLM mode — ITERATIVE TOOL LOOP
+      const messages: Array<{ role: string; content: string; tool_calls?: any[]; tool_call_id?: string }> = [
         { role: 'system', content: this.config.systemPrompt },
         ...this.session.messages.slice(-20).map(m => ({ role: m.role, content: m.content })),
       ];
       const tools = this.registry.getAll();
-      const response = await this.llm.chat(messages, tools);
+      const toolDefs = tools.map(t => ({
+        type: 'function' as const,
+        function: {
+          name: t.name,
+          description: t.description,
+          parameters: {
+            type: 'object',
+            properties: t.parameters,
+            required: Object.entries(t.parameters)
+              .filter(([, v]: [string, any]) => v.required)
+              .map(([k]) => k),
+          },
+        },
+      }));
 
-      // Parse tool calls if present (direct LLM mode only)
-      finalContent = response;
+      const MAX_ROUNDS = 10; // safety limit
+      let round = 0;
 
-      try {
-        const parsed = JSON.parse(response);
-        if (parsed.tool_calls) {
-          for (const tc of parsed.tool_calls) {
-            const toolCall: ToolCall = {
-              id: tc.id || `tc-${Date.now()}`,
-              name: tc.function?.name || tc.name,
-              args: typeof tc.function?.arguments === 'string'
-                ? JSON.parse(tc.function.arguments)
-                : tc.function?.arguments || {},
-            };
-            toolCalls.push(toolCall);
+      while (round < MAX_ROUNDS) {
+        round++;
+        const response = await this.llm.chat(messages, tools);
 
-            const tool = this.registry.get(toolCall.name);
-            if (tool) {
-              try {
-                const output = await tool.execute(toolCall.args);
-                toolResults.push({ callId: toolCall.id, success: true, output });
-              } catch (err: any) {
-                toolResults.push({ callId: toolCall.id, success: false, output: '', error: err.message });
-              }
-            } else {
-              toolResults.push({ callId: toolCall.id, success: false, output: '', error: `Unknown tool: ${toolCall.name}` });
+        // Check if response contains tool calls
+        let parsed: any;
+        try {
+          parsed = JSON.parse(response);
+        } catch {
+          // Not JSON — plain text response, we're done
+          finalContent = response;
+          break;
+        }
+
+        if (!parsed.tool_calls || parsed.tool_calls.length === 0) {
+          // No tool calls — plain text, done
+          finalContent = response;
+          break;
+        }
+
+        // Execute tool calls
+        const assistantMsg: any = { role: 'assistant', content: '', tool_calls: parsed.tool_calls };
+        messages.push(assistantMsg);
+
+        for (const tc of parsed.tool_calls) {
+          const toolCall: ToolCall = {
+            id: tc.id || `tc-${Date.now()}`,
+            name: tc.function?.name || tc.name,
+            args: typeof tc.function?.arguments === 'string'
+              ? JSON.parse(tc.function.arguments)
+              : tc.function?.arguments || {},
+          };
+          toolCalls.push(toolCall);
+
+          const tool = this.registry.get(toolCall.name);
+          if (tool) {
+            try {
+              const output = await tool.execute(toolCall.args);
+              toolResults.push({ callId: toolCall.id, success: true, output });
+              messages.push({ role: 'tool', content: output, tool_call_id: toolCall.id });
+            } catch (err: any) {
+              const errResult = `Error: ${err.message}`;
+              toolResults.push({ callId: toolCall.id, success: false, output: '', error: err.message });
+              messages.push({ role: 'tool', content: errResult, tool_call_id: toolCall.id });
             }
-          }
-
-          if (toolResults.length > 0) {
-            const toolMessages = [
-              ...messages,
-              { role: 'assistant', content: '', tool_calls: parsed.tool_calls },
-              ...toolResults.map(tr => ({
-                role: 'tool',
-                content: tr.success ? tr.output : `Error: ${tr.error}`,
-                tool_call_id: tr.callId,
-              })),
-            ];
-            finalContent = await this.llm.chat(toolMessages);
+          } else {
+            const errResult = `Unknown tool: ${toolCall.name}`;
+            toolResults.push({ callId: toolCall.id, success: false, output: '', error: errResult });
+            messages.push({ role: 'tool', content: errResult, tool_call_id: toolCall.id });
           }
         }
-      } catch {
-        // Not JSON, treat as plain text response
+
+        // Continue loop — LLM will see tool results and decide next action
+      }
+
+      // If we exhausted rounds, the last assistant message is the final content
+      if (!finalContent) {
+        const lastAssistant = messages.filter(m => m.role === 'assistant' && m.content).pop();
+        finalContent = lastAssistant?.content || '(max tool rounds reached)';
       }
     }
 
