@@ -177,7 +177,7 @@ export class LearningTracker {
   }
 
   /** Export for persistence. */
-  export(): { truths: TruthEntry[]; insights: LearningInsight[]; events: typeof this.eventBuffer } {
+  export(): { truths: TruthEntry[]; insights: LearningInsight[]; events: Array<{ app: string; category: string; description: string; timestamp: number }> } {
     return {
       truths: [...this.truths],
       insights: [...this.insights],
@@ -186,7 +186,7 @@ export class LearningTracker {
   }
 
   /** Import from persistence. */
-  import(data: { truths: TruthEntry[]; insights: LearningInsight[]; events: typeof this.eventBuffer }): void {
+  import(data: { truths: TruthEntry[]; insights: LearningInsight[]; events: Array<{ app: string; category: string; description: string; timestamp: number }> }): void {
     this.truths = data.truths;
     this.insights = data.insights;
     this.eventBuffer = data.events;

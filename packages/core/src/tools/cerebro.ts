@@ -18,6 +18,7 @@
 import { z } from 'zod';
 
 import { PROCVID_ANIMATIONS } from './procvid';
+import { getOrchestrator } from './orchestrator-unified';
 
 /* Configuración ----------------------------------------------------------- */
 
@@ -356,6 +357,50 @@ export interface CycleResultSummary {
   duracionMs: number;
 }
 
+/** Track cerebro cycle result into the unified orchestrator. */
+export function trackCycleToOrchestrator(plan: CerebroPlan, res: CycleResultSummary): void {
+  const orch = getOrchestrator();
+  const ts = Date.now();
+
+  // Register cerebro as runtime app
+  orch.registerApp({
+    type: 'runtime',
+    id: `cerebro-${res.cycleId}`,
+    status: 'connected',
+    lastSeen: ts,
+    version: '1.0.0',
+    capabilities: ['learning', 'metrics', 'commands'],
+  });
+
+  // Track cycle as learning event
+  orch.trackLearning({
+    id: `cerebro-cycle-${res.cycleId}`,
+    app: 'runtime',
+    timestamp: ts,
+    category: res.errores.length > 0 ? 'error' : 'improvement',
+    description: `Cerebro cycle ${res.cycleId}: ${res.artefactos} artefactos, ${res.publicaciones} publicaciones, ${res.lecciones} lecciones (${(res.duracionMs / 1000).toFixed(1)}s)`,
+    impact: res.artefactos > 3 ? 'high' : res.artefactos > 0 ? 'medium' : 'low',
+    verified: false,
+  });
+
+  // Track metrics
+  orch.recordMetric({ name: 'cerebro.artefactos', value: res.artefactos, unit: 'count', app: 'runtime', timestamp: ts });
+  orch.recordMetric({ name: 'cerebro.videos', value: res.videos, unit: 'count', app: 'runtime', timestamp: ts });
+  orch.recordMetric({ name: 'cerebro.objetos', value: res.objetos, unit: 'count', app: 'runtime', timestamp: ts });
+  orch.recordMetric({ name: 'cerebro.publicaciones', value: res.publicaciones, unit: 'count', app: 'runtime', timestamp: ts });
+  orch.recordMetric({ name: 'cerebro.duracion', value: res.duracionMs, unit: 'ms', app: 'runtime', timestamp: ts });
+
+  // Send command to all apps to sync state
+  orch.sendCommand({
+    id: `cerebro-sync-${res.cycleId}`,
+    from: 'runtime',
+    to: 'all',
+    action: 'cerebro_cycle_complete',
+    payload: { cycleId: res.cycleId, artefactos: res.artefactos, publicaciones: res.publicaciones },
+    timestamp: ts,
+  });
+}
+
 /** Reporte markdown del ciclo (para .ultraia/cerebro/<cycleId>/report.md). */
 export function buildBrainReport(plan: CerebroPlan, res: CycleResultSummary): string {
   const lineas: string[] = [];
@@ -396,4 +441,5 @@ export const cerebro = {
   buildSchtasksArgv,
   buildCronLine,
   buildBrainReport,
+  trackCycleToOrchestrator,
 };
