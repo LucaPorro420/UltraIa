@@ -1606,3 +1606,27 @@ Cada commit agrega una sección con fecha y la lista de archivos `.ts/.tsx` toca
 - [ ] packages/core/src/tools/index.ts
 - [ ] packages/core/src/tools/social-connect.test.ts
 - [ ] packages/core/src/tools/social-connect.ts
+
+## 2026-09-06T14:42:39.848Z
+- [ ] .vscode-extension/src/agent.ts
+- [ ] .vscode-extension/src/automation.ts
+- [ ] .vscode-extension/src/extension.ts
+- [ ] apps/web/next.config.ts
+- [ ] apps/web/src/app/(app)/connections/page.tsx
+- [ ] apps/web/src/app/layout.tsx
+- [ ] apps/web/src/components/landing/landing-sections.tsx
+- [ ] apps/web/src/middleware.ts
+- [ ] packages/core/src/tools/autolearn.ts
+- [ ] packages/core/src/tools/perf-optimizer.test.ts
+- [ ] packages/core/src/tools/publish.test.ts
+- [ ] packages/core/src/tools/publish.ts
+- [ ] packages/core/src/tools/social-connect.ts
+- [ ] packages/core/src/tools/whatsapp.ts
+
+## 2026-09-06T14:42:45.722Z
+- [ ] apps/web/src/app/(app)/connections/local-services.tsx
+
+## 2026-09-06T15:19:46.429Z
+- [ ] packages/core/src/tools/learning-search.test.ts
+- [ ] packages/core/src/tools/learning-search.ts
+- [ ] packages/core/src/tools/learning-search.wiring.test.ts
