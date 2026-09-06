@@ -146,6 +146,9 @@ import { createObservabilityTracer } from '../tools/observability';
 import { planAgenticGraph, planCrew, planRagPipeline, routeIntent, planLcelChain, planSandbox, planMemory } from '../tools/agentic';
 import { createZernioClient } from '../tools/zernio';
 import { executeSandbox } from '../tools/sandbox';
+import { holagptChat, holagptImage, holagptSearch, holagptAudio, holagptModels, holagptStatus } from '../tools/holagpt';
+import { contentFactoryGenerate, contentFactorySearch } from '../tools/content-factory';
+import { learningSearch } from '../tools/learning-search';
 import { createPublication, listPublications, approvePublication, rejectPublication, publishDue } from '../domain/publications';
 import { generarContenido, type ContentPackage } from '../tools/enrutador';
 import { computeChannelKpis, fetchChannelAnalytics } from '../tools/metrics';
@@ -1495,6 +1498,26 @@ export function chatStream(opts: {
         branch: z.string().optional(), // export_github
       }),
       execute: async (params) => runVaultTool(params),
+    });
+  }
+  if (opts.tools?.includes('learning_search')) {
+    tools.learning_search = tool({
+      description:
+        'Offline learning corpus search (keyless, no network): search learning/sources/, learning/truth/, learning/responses/, learning/memory/ for any term. Actions: search (query + target: all/sources/truth/responses/memory), stats (corpus overview), source (single file deep search). Deterministic, keyless, zero deps. Use to retrieve verified knowledge, lessons, and sources before proposing solutions.',
+      parameters: z.object({
+        accion: z.enum(['search', 'stats', 'source']),
+        query: z.string().optional(),
+        target: z.enum(['all', 'sources', 'truth', 'responses', 'memory']).optional(),
+        source: z.string().optional(),
+      }),
+      execute: async ({ accion, query, target, source }) => {
+        const { runLearningSearch } = await import('../tools/learning-search');
+        const result = await runLearningSearch({ action: accion, query, target, source });
+        if (!result.ok) {
+          return { accion, ok: false, error: result.error };
+        }
+        return { accion, ok: true, results: result.results, stats: result.stats };
+      },
     });
   }
   if (opts.tools?.includes('pdfsearch')) {
@@ -4101,6 +4124,100 @@ export function chatStream(opts: {
         if (!v.ok) return v;
         return { ok: true, storageState: mod.buildStorageState(v.cookies!), sessionFile: mod.BROWSER_SESSION_FILE };
       },
+    });
+  }
+
+  // --- Theatre Sequence: planificador determinista de secuencias de animación ---
+  if (opts.tools?.includes('theatre-sequence')) {
+    tools.theatre_sequence = tool({
+      description:
+        'Planificador determinista de secuencias de animación (Theatre.js core Apache-2.0): Project→Sheet→Sequence→Track→Keyframe→Easing como JSON. Reutiliza vocabulario MOTIONS de camera. Acciones: plan (crear proyecto), add-track, add-keyframe, preview (timeline CSS-ready), export (HTML autocontenido con @theatre/core CDN). Keyless, sin red.',
+      parameters: z.object({
+        accion: z.enum(['plan', 'add-track', 'add-keyframe', 'preview', 'export']),
+        name: z.string().max(200).optional(),
+        options: z.object({
+          sheets: z.array(z.any()).min(1),
+          duration: z.number().gt(0).max(600).optional(),
+          fps: z.number().int().min(1).max(120).optional(),
+        }).optional(),
+        projectName: z.string().max(200).optional(),
+        sheetName: z.string().max(120).optional(),
+        sequenceName: z.string().max(120).optional(),
+        track: z.any().optional(),
+        trackName: z.string().max(120).optional(),
+        keyframe: z.any().optional(),
+        cdnVersion: z.string().optional(),
+      }),
+      execute: async (params) => {
+        const mod = await import('../tools/theatre-sequence');
+        if (params.accion === 'plan') {
+          if (!params.name || !params.options) throw new Error('plan requiere name + options');
+          return mod.theatreSequenceHandler({ action: 'plan', name: params.name, options: params.options as any });
+        }
+        if (params.accion === 'add-track') {
+          if (!params.projectName || !params.sheetName || !params.sequenceName || !params.track) throw new Error('add-track requiere projectName, sheetName, sequenceName, track');
+          return mod.theatreSequenceHandler({ action: 'add-track', input: { projectName: params.projectName, sheetName: params.sheetName, sequenceName: params.sequenceName, track: params.track } });
+        }
+        if (params.accion === 'add-keyframe') {
+          if (!params.projectName || !params.sheetName || !params.sequenceName || !params.trackName || !params.keyframe) throw new Error('add-keyframe requiere projectName, sheetName, sequenceName, trackName, keyframe');
+          return mod.theatreSequenceHandler({ action: 'add-keyframe', input: { projectName: params.projectName, sheetName: params.sheetName, sequenceName: params.sequenceName, trackName: params.trackName, keyframe: params.keyframe } });
+        }
+        if (params.accion === 'preview') {
+          if (!params.projectName) throw new Error('preview requiere projectName');
+          return mod.theatreSequenceHandler({ action: 'preview', projectName: params.projectName });
+        }
+        if (params.accion === 'export') {
+          if (!params.projectName) throw new Error('export requiere projectName');
+          return mod.theatreSequenceHandler({ action: 'export', projectName: params.projectName, cdnVersion: params.cdnVersion });
+        }
+        throw new Error(`Unknown action: ${params.accion}`);
+      },
+    });
+  }
+
+  if (opts.tools?.includes('holagpt')) {
+    tools.holagpt_chat = tool({
+      description:
+        'HolaGPT chat (https://holagpt.com): acceso unificado a Gemini/GPT/Llama/Claude/Grok + premium gemini-3.1-pro-max/claude-opus-4.8. Env HOLAGPT_API_KEY. Keyless-first: sin key degrada a pollinations/DDG.',
+      parameters: z.object({
+        model: z.enum(['gemini-3.1-pro-max', 'claude-opus-4.8', 'gpt-5', 'gpt-4o', 'llama-3.1-405b', 'grok-3', 'gemini-2.5-flash']).optional(),
+        messages: z.array(z.object({ role: z.enum(['system', 'user', 'assistant']), content: z.string().min(1).max(20000) })).min(1).max(20),
+        temperature: z.number().min(0).max(2).optional(),
+      }),
+      execute: async ({ model, messages, temperature }) => holagptChat({ model: (model ?? 'gemini-2.5-flash') as never, messages, temperature }),
+    });
+    tools.holagpt_image = tool({
+      description: 'HolaGPT images: FLUX/GPT-Image/Recraft V3/Nano Banana. Keyless fallback: pollinations. Env HOLAGPT_API_KEY.',
+      parameters: z.object({ prompt: z.string().min(1).max(2000), model: z.enum(['flux', 'gpt-image', 'recraft-v3', 'nano-banana']).optional(), size: z.enum(['1024x1024', '1024x1792', '1792x1024', '1536x1024', '1024x1536']).optional() }),
+      execute: async ({ prompt, model, size }) => holagptImage({ prompt, model: (model as never) ?? 'flux', size: size as never }),
+    });
+    tools.holagpt_search = tool({
+      description: 'HolaGPT web search (keyless fallback: reach_search/DDG). Env HOLAGPT_API_KEY.',
+      parameters: z.object({ query: z.string().min(1).max(500), maxResults: z.number().int().min(1).max(20).optional() }),
+      execute: async ({ query, maxResults }) => holagptSearch({ query, maxResults }),
+    });
+    tools.holagpt_audio = tool({
+      description: 'HolaGPT audio TTS/STT (keyless fallback: edge-tts/Whisper). Env HOLAGPT_API_KEY.',
+      parameters: z.object({ action: z.enum(['tts', 'stt']), text: z.string().min(1).max(5000).optional(), audioUrl: z.string().url().optional(), voice: z.string().max(50).optional() }),
+      execute: async ({ action, text, audioUrl, voice }) => holagptAudio({ action, text, audioUrl, voice } as never),
+    });
+    tools.holagpt_models = tool({
+      description: 'HolaGPT status/models: lista modelos disponibles y si HOLAGPT_API_KEY está configurada. Keyless.',
+      parameters: z.object({}),
+      execute: async () => ({ ...holagptStatus(), modelsList: await holagptModels().catch(() => []) }),
+    });
+  }
+  if (opts.tools?.includes('content-factory')) {
+    tools.content_factory = tool({
+      description:
+        'Fábrica multimodal holagpt (web/video/game/app/image/audio/music): un brief → 7 outputs. Usa holagpt con key, si no keyless del repo (pollinations/edge-tts/procedural). Cada kind fail-soft. Env HOLAGPT_API_KEY opcional.',
+      parameters: z.object({ kind: z.enum(['web', 'video', 'game', 'app', 'image', 'audio', 'music']), brief: z.string().min(3).max(4000), idioma: z.enum(['es', 'ar']).optional(), style: z.string().max(100).optional(), dryRun: z.boolean().optional() }),
+      execute: async ({ kind, brief, idioma, style, dryRun }) => contentFactoryGenerate({ kind: kind as never, brief, idioma: idioma as never, style, dryRun } as never),
+    });
+    tools.content_search = tool({
+      description: 'Fábrica search unificado: holagpt search si hay key, si no sugiere reach_search.',
+      parameters: z.object({ query: z.string().min(1).max(500), maxResults: z.number().int().min(1).max(20).optional() }),
+      execute: async ({ query, maxResults }) => contentFactorySearch(query, maxResults),
     });
   }
 

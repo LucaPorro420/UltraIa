@@ -101,6 +101,7 @@ export * from './chat-bridge';
 // agent-loop: bucle de agente que conecta memoria/plan/orquestador/verificador/tester.
 export * from './agent-loop';
 export * from './pdfsearch';
+export * from './learning-search';
 export * from './netwatch';
 export * from './designcompose';
 export * from './learn-models';
@@ -207,6 +208,7 @@ import * as genesis from './genesis';
 import * as creativo from './creativo';
 import { vaultTools } from './vault';
 import { pdfsearchTools } from './pdfsearch';
+import { learningSearch } from './learning-search';
 import { qdrantMemory as qdrantMemoryTools } from './qdrant-memory';
 import { studio as studioTools } from './studio';
 import * as observabilityNs from './observability';
@@ -217,16 +219,16 @@ import * as learnModels from './learn-models';
 import * as chaos from './chaos';
 import * as browserAgent from './browser-agent';
 
-export const tools = { web, image, video, music, stitch, reach, skills: { runSkill }, content, g0dm0d3, topics, present: presentTools, publish, enrutador, mediaScore, metrics, memoryFs: { createMemoryFs }, diagram, videoEdit, screenflow, cloud: cloudTools, harness, growth, prioritize, vfx, codevfx, travel, generative, libros, sdf, videoqa,
+export const tools = { web, image, video, music, stitch, reach, skills: { runSkill }, content, g0dm0d3, topics, present: presentTools, publish, enrutador, mediaScore, metrics, memoryFs: { createMemoryFs }, diagram, videoEdit, screenflow, cloud: cloudTools, harness, growth, prioritize, vfx, codevfx, travel, generative, libros, sdf, videoqa, holagpt: holagptNs, contentFactory: contentFactoryNs.contentFactory,
   motion,
   remotion,
   replica,
   imaging,
-  browser: browserNs.browser,
-  semanticMemory,
-  autolearn,
-  learnModels,
-  chaos, genesis, creativo, vault: vaultTools, pdfsearch: pdfsearchTools, qdrantMemory: qdrantMemoryTools, kgraph, brainpage, autopub, security, codequality, deps, geom, geometry, pngrender, procvid, physics2d, cadgeo, recordly, cerebro, evo: evoDomain, evolution: evolutionDomain, studio: studioTools, observability: observabilityNs.observability, agentic: agenticNs.agentic, zernio: zernioNs.zernio, sandbox: sandboxNs.sandbox, socialConnect };
+   browser: browserNs.browser,
+   semanticMemory,
+autolearn,
+    learnModels,
+    chaos, genesis, creativo, vault: vaultTools, pdfsearch: pdfsearchTools, learningSearch, qdrantMemory: qdrantMemoryTools, kgraph, brainpage, autopub, security, codequality, deps, geom, geometry, pngrender, procvid, physics2d, cadgeo, recordly, cerebro, evo: evoDomain, evolution: evolutionDomain, studio: studioTools, observability: observabilityNs.observability, agentic: agenticNs.agentic, zernio: zernioNs.zernio, sandbox: sandboxNs.sandbox, socialConnect, theatreSequence };
 
 export const TOOL_DESCRIPTIONS: Record<string, string> = {
   calculator: 'Safely evaluate a mathematical expression (math only).',
@@ -312,6 +314,8 @@ export const TOOL_DESCRIPTIONS: Record<string, string> = {
     'Own repository (UltraIa vault): manage the local+cloud repository that stores data, files, creations, tests and prototypes (.ultraia/vault/<kind>/ with manifest). Actions: plan (classify into data/files/creations/tests/prototypes/pdfs + canonical path + mime), manifest (index with counts), search (score-based), summary (by kind/source), sync (diff vs cloud), export_github (optional, fail-soft without token). Deterministic, keyless. Use to persist what the project learns, creates and proves.',
   pdfsearch:
     'PDF search: OpenAlex (keyless, open-access papers with PDF) + DuckDuckGo filetype:pdf, dedupe by URL, direct .pdf marking; harvest hits into vault/pdfs entries (kind pdfs, meta url/query/source). Fail-soft on network errors. Use to find documents/papers as PDFs and store them in the own repository.',
+  learning_search:
+    'Offline learning corpus search (keyless, zero network): search learning/sources/, learning/truth/, learning/responses/, learning/memory/ for any term. Actions: search (query + target opcional), stats (corpus overview), source (archivo específico). Sin deps, determinista. Use para recuperar conocimiento verificado, lecciones y fuentes antes de proponer soluciones.',
   qdrant_memory:
     'External persistent memory (Qdrant, SACD/NASA FASE 4): persist and query the verified-truth corpus (learning/truth/*.json) in a real Qdrant collection (memoria_experiencial, dense-4 vectors, Cosine) so knowledge survives across sessions and machines. Actions: plan (pure diff local vs remote), sync (ensure collection + upsert + delete retired), search (top-k by meaning with score + payload), stats (corpus + collection config + reachability). Deterministic ids (djb2) = idempotent upsert; keyless; fail-soft (never throws). Complements semantic_memory (in-process recall) with persistence.',
   kgraph:
@@ -376,8 +380,14 @@ export const TOOL_DESCRIPTIONS: Record<string, string> = {
     'Cognitive Agent System: 4-layer memory (working/episodic/semantic/metacognitive), decision memory with confidence calibration, belief system with contradiction detection, HEXACO personality vector, and 5-phase cognitive cycle (PERCEIVE→ASSESS→PLAN→EXECUTE→REFLECT). Orchestrated by CognitiveAgent. Inspired by AgentOS, Nous, Draagon AI, and Agent Brain. Use to build agents with persistent memory, self-reflection, and adaptive decision-making.',
   browser:
     'Headless Browser Agent (Playwright, Browser Use pattern): navigate to URLs, click elements via CSS selectors, fill forms, select dropdowns, check/uncheck boxes, press keyboard keys, scroll, take screenshots (full page or element), extract page content (text/html), evaluate JavaScript, and wait for selectors or navigation. Deterministic action planning with safety validation (network/storage/file:// warnings). Playwright execution when available; plan-only fallback when not. Use to interact with websites, scrape dynamic content, fill forms, take screenshots, and automate browser workflows.',
+  holagpt:
+    'HolaGPT unified provider (https://holagpt.com): $20/mes, 1M tokens, trial 30d gratis — agregador OpenAI-compatible para Gemini/GPT/Llama/Claude/Grok (modelos premium gemini-3.1-pro-max, claude-opus-4.8) + imágenes FLUX/GPT-Image/Recraft V3/Nano Banana + web search + audio TTS/STT. Keyless-first: sin HOLAGPT_API_KEY degrada a pollinations/edge-tts/DDG del repo. Env: HOLAGPT_API_KEY (o HOLOGPT_API_KEY alias), HOLAGPT_BASE_URL. Uruguay: cuentas IG/FB/TikTok libres, legales, sin gasto inicial.',
+  'content-factory':
+    'Fábrica multimodal unificada (holagpt + fallbacks keyless del repo): 7 kinds — web (builder/stitch), video (OMAG storyboard), game (Three.js/codevfx+sdf), app (Expo), image (holagpt/pollinations/pngrender), audio (edge-tts/procedural), music (compose/Tunetank). Un brief → 7 outputs, cada kind fail-soft. Usa holagpt cuando hay key, si no keyless del repo.',
   'social-connect':
     'Conexiones sociales + inicio de sesión (14 redes: telegram/discord/slack/youtube/tiktok/x/instagram/threads/facebook/linkedin/reddit/pinterest/whatsapp/zernio): estado de conexión por red (qué env falta, sin exponer valores), guías de login/OAuth paso a paso, validación de cookies de sesión y construcción de storageState Playwright para navegación autenticada, y plan de login con browser_run. Los secretos los pone el humano en .env local; el agente nunca toca passwords. Usa para conectar redes y navegar libremente con sesión.',
+  'theatre-sequence':
+    'Deterministic animation sequence planner (Theatre.js core Apache-2.0 principles): Project→Sheet→Sequence→Track→Keyframe→Easing as JSON. Reuses camera MOTIONS vocabulary from director.ts. Actions: plan (create project), add-track, add-keyframe, preview (CSS-ready timeline), export (self-contained HTML with @theatre/core CDN, studio AGPL never in bundle). Keyless, no network, deterministic output. Use to plan keyframe animations for codevfx effects, video edits, 3D scenes, and UI micro-interactions.',
 };
 
 export type Capability =
@@ -426,6 +436,7 @@ export type Capability =
   | 'genesis'
   | 'vault'
   | 'pdfsearch'
+  | 'learning_search'
   | 'qdrant_memory'
   | 'kgraph'
   | 'brainpage'
@@ -468,7 +479,10 @@ export type Capability =
   | 'website-clone'
   | 'cognitive'
   | 'browser'
-  | 'social-connect';
+  | 'holagpt'
+  | 'content-factory'
+  | 'social-connect'
+  | 'theatre-sequence';
 
 export * from './observability';
 export * from './agentic';
@@ -487,7 +501,16 @@ export * from './emailCode';
 export * from './smtp';
 // browser-agent: headless browser automation (Playwright). Namespace import to avoid collisions.
 import * as browserNs from './browser-agent';
+import * as holagptNs from './holagpt';
+import * as contentFactoryNs from './content-factory';
 export * from './catalog';
+// holagpt: agregador LLM (Gemini/GPT/Claude/Llama/Grok + imágenes FLUX/Recraft + web + audio) — keyless-first.
+export * from './holagpt';
+// content-factory: fábrica multimodal unificada (web/video/game/app/image/audio/music) — orquesta holagpt + fallbacks del repo.
+export * from './content-factory';
 // social-connect: conexiones sociales + inicio de sesión (dominio puro, símbolos únicos Social*/social*/login*/planBrowser*).
 export * from './social-connect';
 import * as socialConnect from './social-connect';
+// theatre-sequence: planificador determinista de secuencias de animación (Theatre.js core Apache-2.0 principles).
+export * as theatreSequence from './theatre-sequence';
+import * as theatreSequence from './theatre-sequence';

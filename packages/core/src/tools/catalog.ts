@@ -110,6 +110,10 @@ const CATALOG_META: Record<Capability, { category: ToolCategory; route: string; 
   'website-clone': { category: 'diseno-ui', route: '/dashboard', related: ['designcompose', 'diagram'], consolidates: [] },
   cognitive: { category: 'ia-ml', route: '/dashboard', related: ['memory', 'semantic_memory', 'autolearn'], consolidates: [] },
   'social-connect': { category: 'automatizacion', route: '/connections', related: ['publish', 'browser', 'publications'], consolidates: [] },
+  'theatre-sequence': { category: 'video-audio', route: '/codevfx', related: ['codevfx', 'video_edit', 'procvid'], consolidates: [] },
+  'learning_search': { category: 'aprendizaje', route: '/dashboard', related: ['memory', 'videoqa', 'research'], consolidates: [] },
+  holagpt: { category: 'ia-ml', route: '/dashboard', related: ['reach', 'image', 'generative'], consolidates: [] },
+  'content-factory': { category: 'contenido-cms', route: '/studio', related: ['holagpt', 'present', 'autopub', 'generative', 'video', 'image', 'music'], consolidates: [] },
 };
 
 
@@ -187,6 +191,7 @@ export const ES: Partial<Record<Capability, LocalizedTool>> = {
   chat_memory: { name: 'Memoria de chat (graphity)', description: 'Memoria de chat persistente + grafo que preserva la consistencia al cambiar de modelo o modo: crea sesiones, append turnos y reconstruye contexto inyectable.', tags: ['memoria','grafo','contexto'] },
   browser: { name: 'Browser Agent', description: 'Agente de navegador headless: navega, clickea, llena formularios, toma screenshots y extrae contenido.', tags: ['browser','automatizacion','web'] },
   'social-connect': { name: 'Conexiones sociales', description: 'Estado de conexión por red, guías de login/OAuth y sesión de navegador para navegar autenticado.', tags: ['social','conexiones','login'] },
+  'theatre-sequence': { name: 'Secuencias de animación', description: 'Planificador determinista de keyframes (Project→Sheet→Sequence→Track→Keyframe→Easing) como JSON. Preview CSS-ready y export HTML autocontenido.', tags: ['animacion','keyframes','theatre','motion'] },
 };
 
 export const PT: Partial<Record<Capability, LocalizedTool>> = {
