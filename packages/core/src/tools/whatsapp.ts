@@ -53,7 +53,7 @@ export function createWhatsAppAdapter(options: WhatsAppAdapterOptions = {}): Pub
         : { messaging_product: 'whatsapp', to: dest, type: 'text', text: { body: text } };
 
       try {
-        const res = await fetchFn(`https://graph.facebook.com/v21.0/${pid}/messages`, {
+        const res = await fetchFn(`https://graph.facebook.com/v25.0/${pid}/messages`, {
           method: 'POST',
           headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),

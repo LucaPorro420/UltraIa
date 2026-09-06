@@ -98,8 +98,7 @@
   .md-body th { background: var(--color-panel-header); color: var(--color-neutral-200); }
   .md-body hr { border: none; border-top: 1px solid var(--color-border-subtle); margin: 0.8em 0; }
 
-  /* @scope — component isolation (CSS 2026, no BEM needed) */
-  /* Scoped tooltip: styles only apply inside elements with [data-tooltip] */
+  /* Tooltip styles are scoped by the data attribute selector. */
   [data-tooltip] { position: relative; }
   [data-tooltip]::after {
     content: attr(data-tooltip);
@@ -122,9 +121,4 @@
   }
   [data-tooltip]:hover::after { opacity: 1; }
 
-  /* Scoped card: styles only inside .cq-card */
-  @scope (.cq-card) to (.cq-card *) {
-    container-type: inline-size;
-    container-name: card;
-  }
 }

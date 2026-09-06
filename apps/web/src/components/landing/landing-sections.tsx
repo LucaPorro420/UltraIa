@@ -1,6 +1,7 @@
 'use client';
 
 import { LazySection } from './LazySection';
+import { LandingMotionAtlas } from './landing-motion-atlas';
 
 type LandingSectionsProps = {
   user: { name?: string | null; email: string } | null;
@@ -19,6 +20,7 @@ export function LandingSections({ user }: LandingSectionsProps) {
       <LazySection importFn={importFeatures} rootMargin="300px" />
       <LazySection importFn={importDashboard} rootMargin="300px" />
       <LazySection importFn={importEcosystem} rootMargin="300px" />
+      <LandingMotionAtlas />
       <LazySection importFn={importPillars} rootMargin="300px" />
       <LazySection importFn={() => importCta(user)} rootMargin="300px" />
     </>

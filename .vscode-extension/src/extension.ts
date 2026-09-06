@@ -62,16 +62,24 @@ export function activate(context: vscode.ExtensionContext) {
 
   const rootPath = getRootPath();
   const cfg = vscode.workspace.getConfiguration('ultraia');
+  const configuredBase44Path = cfg.get<string>('base44CoursePath', '').trim();
+  const bundledBase44Path = path.join(context.extensionPath, 'resources', 'base44-course');
+  const workspaceBase44Path = path.join(rootPath, 'vendor', 'vibe-coding-with-base44');
+  const base44CoursePath = configuredBase44Path || (
+    require('fs').existsSync(bundledBase44Path) ? bundledBase44Path : workspaceBase44Path
+  );
 
   // ── Core Agent ───────────────────────────────────────────────────────────
   const agent = new UltraIaAgent(rootPath, {
     llmUrl: cfg.get<string>('agent.llmUrl', 'http://localhost:11434/v1'),
-    model: cfg.get<string>('agent.model', 'qwen2.5-coder:1.5b-base'),
+    model: cfg.get<string>('agent.model', 'qwen2.5-coder:7b'),
     maxTokens: cfg.get<number>('agent.maxTokens', 4096),
     temperature: cfg.get<number>('agent.temperature', 0.7),
+    useRuntime: cfg.get<boolean>('agent.useRuntime', false),
     runtimeUrl: cfg.get<string>('runtimeUrl', 'http://localhost:3000'),
     email: cfg.get<string>('agent.email', 'admin@ultraia.local'),
     password: cfg.get<string>('agent.password', 'admin'),
+    base44CoursePath,
   });
 
   // ── Panels ───────────────────────────────────────────────────────────────
@@ -244,14 +252,56 @@ export function activate(context: vscode.ExtensionContext) {
       updateStatusBar(ok ? 'Connected' : 'Offline', ok ? '$(check)' : '$(error)');
       vscode.window.showInformationMessage(`UltraIa Runtime: ${status}`);
     }),
+    vscode.commands.registerCommand('ultraia.openBase44Guide', async () => {
+      const fs = require('fs') as typeof import('fs');
+      if (!fs.existsSync(base44CoursePath)) {
+        vscode.window.showErrorMessage(`Base44 course not found: ${base44CoursePath}`);
+        return;
+      }
+      const files: string[] = [];
+      const collect = (directory: string): void => {
+        for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
+          const fullPath = path.join(directory, entry.name);
+          if (entry.isDirectory()) collect(fullPath);
+          else if (entry.isFile() && fullPath.endsWith('.md')) files.push(fullPath);
+        }
+      };
+      collect(base44CoursePath);
+      const selected = await vscode.window.showQuickPick(
+        files.map((filePath) => ({
+          label: path.relative(base44CoursePath, filePath).replace(/\\/g, '/'),
+          description: 'Vibe Coding with Base44',
+          filePath,
+        })),
+        { placeHolder: 'Open a Base44 guide or starter kit' },
+      );
+      if (selected) {
+        const document = await vscode.workspace.openTextDocument(selected.filePath);
+        await vscode.window.showTextDocument(document);
+      }
+    }),
+    vscode.commands.registerCommand('ultraia.searchBase44Guide', async () => {
+      const query = await vscode.window.showInputBox({
+        prompt: 'Search the bundled Base44 course',
+        placeHolder: 'permissions, Plan mode, launch checklist...',
+      });
+      if (query) {
+        chatPanel.sendToChat(`Use the base44_guide tool to answer this question: ${query}`);
+        vscode.commands.executeCommand('ultraia.chat.focus');
+      }
+    }),
   );
 
-  // Auto-connect to runtime on startup
-  agent.connectRuntime().then(status => {
-    const ok = agent.isRuntimeAvailable();
-    updateStatusBar(ok ? 'Connected' : 'Offline', ok ? '$(check)' : '$(error)');
-    console.log(`UltraIa runtime: ${status}`);
-  });
+  // Local mode is self-contained; the runtime is an explicit optional bridge.
+  if (cfg.get<boolean>('agent.useRuntime', false)) {
+    agent.connectRuntime().then(status => {
+      const ok = agent.isRuntimeAvailable();
+      updateStatusBar(ok ? 'Connected' : 'Offline', ok ? '$(check)' : '$(error)');
+      console.log(`UltraIa runtime: ${status}`);
+    });
+  } else {
+    updateStatusBar('Local mode', '$(cpu)');
+  }
 }
 
 export function deactivate() {}

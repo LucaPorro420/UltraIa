@@ -208,3 +208,6 @@ ImplementSolutions/
 .vscode-extension/out/
 .vscode-extension/*.vsix
 .vscode-extension/node_modules/
+
+# ProyImgFold symlink (junction to Desktop/ProyImgFold)
+packages/core/assets/images/

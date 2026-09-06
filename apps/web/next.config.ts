@@ -143,7 +143,10 @@ const nextConfig: NextConfig = {
   // Cabeceras HTTP de seguridad y compresión: se aplican a todas las rutas.
   // Explicación simple: estas reglas ayudan a que los navegadores no permitan
   // ciertas cosas peligrosas (inyección de código, frames externos, etc.).
+  // NOTA (iter-180): Next.js dev (react-refresh) EXIGE 'unsafe-eval'; en producción
+  // sigue prohibido. El hub Localhost (/connections) necesita fetch a localhost:*.
   async headers() {
+    const isDev = process.env.NODE_ENV !== 'production';
     return [
       {
         source: '/(.*)',
@@ -160,39 +163,36 @@ const nextConfig: NextConfig = {
             key: 'Content-Security-Policy',
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-inline'",
+              `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ''}`,
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               // img-src permite imágenes de orígenes concretos (añade los tuyos si necesitas).
               "img-src 'self' data: https://image.pollinations.ai https://*.pollinations.ai https://images.meigen.ai https://www.meigen.ai https://i.ytimg.com https://d1s1y0ui543e5o.cloudfront.net",
               "font-src 'self' data: https://fonts.gstatic.com",
-              // connect-src incluye websockets locales y endpoints de imagen/LLM.
-              "connect-src 'self' ws://localhost:* wss://localhost:* https://image.pollinations.ai https://text.pollinations.ai https://*.pollinations.ai https://www.meigen.ai https://api.meigen.ai",
+              // connect-src incluye websockets locales, probes http del hub Localhost y endpoints de imagen/LLM.
+              "connect-src 'self' http://localhost:* http://127.0.0.1:* ws://localhost:* wss://localhost:* https://image.pollinations.ai https://text.pollinations.ai https://*.pollinations.ai https://www.meigen.ai https://api.meigen.ai",
               "frame-ancestors 'none'",
               "base-uri 'self'",
             ].join('; '),
           },
         ],
       },
-      // Compresión gzip/brotli para assets estáticos
+      // Cachea assets inmutables; Next.js gestiona la compresión y sus headers.
       {
         source: '/_next/static/:path*',
         headers: [
           { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
-          { key: 'Content-Encoding', value: 'br, gzip' },
         ],
       },
       {
         source: '/_next/image/:path*',
         headers: [
           { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
-          { key: 'Content-Encoding', value: 'br, gzip' },
         ],
       },
       {
         source: '/:path*.(js|css|woff|woff2|png|jpg|jpeg|gif|svg|ico|webp|avif)',
         headers: [
           { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
-          { key: 'Content-Encoding', value: 'br, gzip' },
         ],
       },
     ];

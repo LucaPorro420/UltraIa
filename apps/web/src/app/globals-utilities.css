@@ -178,9 +178,4 @@
   }
   [data-tooltip]:hover::after { opacity: 1; }
 
-  /* Scoped card: styles only inside .cq-card */
-  @scope (.cq-card) to (.cq-card *) {
-    container-type: inline-size;
-    container-name: card;
-  }
 }

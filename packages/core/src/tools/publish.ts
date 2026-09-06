@@ -85,19 +85,21 @@ const YOUTUBE_SCOPED_UPLOAD_URL = 'https://www.googleapis.com/upload/youtube/v3/
 const TIKTOK_INIT_URL = 'https://open.tiktokapis.com/v2/post/publish/video/init/';
 const X_MEDIA_UPLOAD_URL = 'https://upload.x.com/1.1/media/upload.json';
 const X_TWEETS_URL = 'https://api.x.com/2/tweets';
-/** Instagram Graph API v21 (Reels container flow: create → publish). */
-export const IG_MEDIA_URL = 'https://graph.instagram.com/v21.0';
+/** Instagram Graph API v25 (Reels container flow: create → publish). v21 expira 21/01/2027. */
+export const IG_MEDIA_URL = 'https://graph.instagram.com/v25.0';
 /** Threads Graph API v1.0 (container flow: threads → threads_publish). */
 export const THREADS_MEDIA_URL = 'https://graph.threads.net/v1.0';
 /** Límite de chunk del media upload de X: 5 MiB por APPEND. */
 export const X_CHUNK_BYTES = 5 * 1024 * 1024;
 
-/** LinkedIn API endpoints (Assets API + UGC Posts). */
+/** LinkedIn API (Assets API + Posts API vigente; v2/ugcPosts es Legacy y se eliminó en iter-180). */
 export const LINKEDIN_ASSETS_URL = 'https://api.linkedin.com/rest/assets?action=registerUpload';
-export const LINKEDIN_UGCP_URL = 'https://api.linkedin.com/v2/ugcPosts';
+export const LINKEDIN_POSTS_URL = 'https://api.linkedin.com/rest/posts';
+/** Versión versionada de LinkedIn Marketing API usada en headers (202508 sunset 17/08/2026). */
+export const LINKEDIN_API_VERSION = '202608';
 
-/** Facebook Graph API v21 (Pages: me/accounts → page token → {page-id}/photos|videos). */
-export const FB_GRAPH_URL = 'https://graph.facebook.com/v21.0';
+/** Facebook Graph API v25 (Pages: me/accounts → page token → {page-id}/photos|videos). v21 expira 21/01/2027. */
+export const FB_GRAPH_URL = 'https://graph.facebook.com/v25.0';
 
 /** Receta para video feedshare (LinkedIn). */
 export const LINKEDIN_VIDEO_RECIPE = 'urn:li:digitalmediaRecipe:feedshare-video';
@@ -570,11 +572,12 @@ export interface LinkedInAdapterOptions {
 }
 
 /**
- * QUÉ ES: adapter LinkedIn vía Assets API (registerUpload) + UGC Posts (v2/ugcPosts).
+ * QUÉ ES: adapter LinkedIn vía Assets API (registerUpload) + Posts API vigente (/rest/posts).
  * PARA QUÉ: AutoPub F4 — canal LinkedIn (requiere App Review + scopes w_member_social / rw_organization_admin).
  * POR QUÉ: mismo patrón fail-soft/fetch inyectable que YouTube/TikTok/X/Meta.
- * Flujo: registerUpload (asset URN) → PUT uploadUrl → ugcPosts create con asset.
+ * Flujo: registerUpload (asset URN) → PUT uploadUrl → POST /rest/posts con el asset.
  * Video: MP4, ≤5GB, ≤10 min. Token expira ~60 días (refresh no implementado).
+ * HISTORIAL: hasta iter-179 usaba v2/ugcPosts (UGC Post API = Legacy según Microsoft Learn) → migrado a Posts API en iter-180.
  */
 export function createLinkedInAdapter(options: LinkedInAdapterOptions = {}): PublisherAdapter {
   const token = () => options.accessToken ?? options.tokenFromEnv?.() ?? process.env.LINKEDIN_ACCESS_TOKEN;
@@ -605,7 +608,7 @@ export function createLinkedInAdapter(options: LinkedInAdapterOptions = {}): Pub
             Authorization: `Bearer ${accessToken}`,
             'Content-Type': 'application/json',
             'X-Restli-Protocol-Version': '2.0.0',
-            'Linkedin-Version': '202607',
+            'Linkedin-Version': LINKEDIN_API_VERSION,
           },
           body: JSON.stringify({
             registerUploadRequest: {
@@ -646,32 +649,30 @@ export function createLinkedInAdapter(options: LinkedInAdapterOptions = {}): Pub
           return { platform: 'linkedin', ok: false, error: `LinkedIn upload falló: HTTP ${up.status}` };
         }
 
-        // Paso 3: crear UGC Post con el asset
-        const ugc = await fetchFn(LINKEDIN_UGCP_URL, {
+        // Paso 3: crear Post (Posts API vigente) con el asset
+        const post = await fetchFn(LINKEDIN_POSTS_URL, {
           method: 'POST',
           headers: {
             Authorization: `Bearer ${accessToken}`,
             'Content-Type': 'application/json',
             'X-Restli-Protocol-Version': '2.0.0',
+            'LinkedIn-Version': LINKEDIN_API_VERSION,
           },
           body: JSON.stringify({
             author,
+            commentary,
+            visibility: 'PUBLIC',
+            distribution: { feedDistribution: 'MAIN_FEED', targetEntities: [], thirdPartyDistributionChannels: [] },
+            content: { video: { id: assetUrn, title: meta.title.slice(0, 200) } },
             lifecycleState: 'PUBLISHED',
-            specificContent: {
-              'com.linkedin.ugc.ShareContent': {
-                shareCommentary: { text: commentary },
-                shareMediaCategory: 'VIDEO',
-                media: [{ status: 'READY', media: assetUrn, title: { text: meta.title.slice(0, 200) } }],
-              },
-            },
-            visibility: { 'com.linkedin.ugc.MemberNetworkVisibility': 'PUBLIC' },
+            isReshareDisabledByAuthor: false,
           }),
         });
-        const ugcId = ugc.headers.get('x-restli-id');
-        if (!ugc.ok || !ugcId) {
-          return { platform: 'linkedin', ok: false, error: `LinkedIn ugcPosts falló: HTTP ${ugc.status}` };
+        const postId = post.headers.get('x-restli-id');
+        if (!post.ok || !postId) {
+          return { platform: 'linkedin', ok: false, error: `LinkedIn posts falló: HTTP ${post.status}` };
         }
-        return { platform: 'linkedin', ok: true, id: ugcId, url: `https://www.linkedin.com/feed/update/${encodeURIComponent(ugcId)}/` };
+        return { platform: 'linkedin', ok: true, id: postId, url: `https://www.linkedin.com/feed/update/${encodeURIComponent(postId)}/` };
       } catch (err) {
         return { platform: 'linkedin', ok: false, error: `LinkedIn error: ${(err as Error).message}` };
       }
@@ -807,4 +808,4 @@ export function createDefaultPublishers(opts: {
   return base;
 }
 
-export const publish = { createYouTubeAdapter, createTikTokAdapter, createXAdapter, createInstagramAdapter, createThreadsAdapter, createFacebookAdapter, createTelegramAdapter, createDiscordAdapter, createSlackAdapter, createLinkedInAdapter, createRedditAdapter, createPinterestAdapter, createWhatsAppAdapter, createZernioAdapter, createDefaultPublishers, publishToAll, buildBilingualMetadata, buildXPostText, xAppendMultipartBody, formBody, IG_MEDIA_URL, THREADS_MEDIA_URL, LINKEDIN_ASSETS_URL, LINKEDIN_UGCP_URL, LINKEDIN_VIDEO_RECIPE, FB_GRAPH_URL };
+export const publish = { createYouTubeAdapter, createTikTokAdapter, createXAdapter, createInstagramAdapter, createThreadsAdapter, createFacebookAdapter, createTelegramAdapter, createDiscordAdapter, createSlackAdapter, createLinkedInAdapter, createRedditAdapter, createPinterestAdapter, createWhatsAppAdapter, createZernioAdapter, createDefaultPublishers, publishToAll, buildBilingualMetadata, buildXPostText, xAppendMultipartBody, formBody, IG_MEDIA_URL, THREADS_MEDIA_URL, LINKEDIN_ASSETS_URL, LINKEDIN_POSTS_URL, LINKEDIN_API_VERSION, LINKEDIN_VIDEO_RECIPE, FB_GRAPH_URL };

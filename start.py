@@ -12,6 +12,7 @@ Usage:
     python start.py --check-connections  # env keys, tools and ports report
     python start.py --gen-engine  # only the local Gen-Engine (http://localhost:8100)
     python start.py --host 0.0.0.0     # listen on all interfaces (LAN/mobile)
+    python start.py --lan          # shortcut for --host 0.0.0.0
     python start.py --browser brave    # open Brave (or chrome) when web is UP
     python start.py --no-open          # do NOT auto-open the browser
 
@@ -32,6 +33,7 @@ from __future__ import annotations
 
 import argparse
 import functools
+import ipaddress
 import os
 import re
 import shutil
@@ -318,6 +320,7 @@ def preflight_ports(ports: list[tuple[int, str]]) -> None:
 # --- Auto-heal de puertos (--clean) -----------------------------------------
 # Flag global activado desde main(); evita pasar `clean` por todas las capas.
 AUTO_CLEAN_PORTS = False
+CURRENT_HOST = "127.0.0.1"
 
 # Tokens que identifican un proceso como servicio UltraIa conocido. La lista
 # es DELIBERADAMENTE corta: el auto-heal NUNCA mata dueÃ±os desconocidos.
@@ -736,9 +739,27 @@ def public_url(name: str) -> str:
     return f"http://localhost:{HOOKS_PORT}"
 
 
+def lan_addresses() -> list[str]:
+    """Return this machine's non-loopback IPv4 addresses, without network I/O."""
+    addresses: list[str] = []
+    try:
+        candidates = socket.gethostbyname_ex(socket.gethostname())[2]
+    except OSError:
+        candidates = []
+    for raw in candidates:
+        try:
+            address = ipaddress.ip_address(raw)
+        except ValueError:
+            continue
+        if address.version == 4 and not address.is_loopback and not address.is_link_local:
+            value = str(address)
+            if value not in addresses:
+                addresses.append(value)
+    return addresses
+
+
 def print_urls() -> None:
-    """Tell the user both URL forms â€” Chrome/Brave usually resolves localhost,
-    but 127.0.0.1 always works even when IPv6 resolution misbehaves."""
+    """Print local URLs and LAN URLs when services listen beyond loopback."""
     log(
         f"Web lista: {public_url('web')}  "
         f"(alternativa si falla: http://127.0.0.1:{WEB_PORT})"
@@ -750,6 +771,21 @@ def print_urls() -> None:
         )
     if GEN_ENGINE_DIR.exists():
         log(f"Gen-Engine: {public_url('gen-engine')}")
+    if CURRENT_HOST not in ("127.0.0.1", "localhost", "::1"):
+        addresses = lan_addresses()
+        if addresses:
+            log("URLs para otros equipos de la red:")
+            for address in addresses:
+                log(f"  Web:      http://{address}:{WEB_PORT}")
+                if WEBHOOK_SERVER.exists():
+                    log(f"  Webhooks: http://{address}:{HOOKS_PORT}")
+                if GEN_ENGINE_DIR.exists():
+                    log(
+                        f"  Gen-Engine: http://{address}:"
+                        f"{gen_engine_port(gen_engine_url())}/health"
+                    )
+        else:
+            log("No se detectó una IPv4 LAN; consulta ipconfig y usa la IP del adaptador activo.")
 
 
 # ----------------------------------------------------------------- browser
@@ -1128,6 +1164,11 @@ def main() -> None:
         "0.0.0.0 (LAN/mÃ³vil) o :: (IPv6 dual-stack)",
     )
     parser.add_argument(
+        "--lan",
+        action="store_true",
+        help="atajo para escuchar en 0.0.0.0 y permitir acceso desde la red local",
+    )
+    parser.add_argument(
         "--browser",
         default="default",
         choices=["chrome", "brave", "default"],
@@ -1163,7 +1204,9 @@ def main() -> None:
     browser: str | None = None if args.browser == "default" else args.browser
     open_web = not args.no_open
     global AUTO_CLEAN_PORTS  # pylint: disable=global-statement
+    global CURRENT_HOST  # pylint: disable=global-statement
     AUTO_CLEAN_PORTS = bool(args.clean)
+    CURRENT_HOST = "0.0.0.0" if args.lan else args.host
 
     if args.check_connections:
         check_connections()
@@ -1183,9 +1226,9 @@ def main() -> None:
         apply_lite_env(args.ram_mb)
     if args.web or args.hooks or args.gen_engine:
         flag = "--web" if args.web else ("--hooks" if args.hooks else "--gen-engine")
-        cmd_single(flag, args.host, browser, open_web)
+        cmd_single(flag, CURRENT_HOST, browser, open_web)
         return
-    cmd_full(args.host, browser, open_web, lite=args.lite, ram_mb=args.ram_mb)
+    cmd_full(CURRENT_HOST, browser, open_web, lite=args.lite, ram_mb=args.ram_mb)
 
 
 if __name__ == "__main__":

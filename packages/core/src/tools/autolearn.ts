@@ -635,6 +635,7 @@ const MEJORAS_PP: readonly string[] = Object.freeze([
   'Investigación obligatoria de nuevas fuentes (web/arXiv/GitHub/PDFs via research + pdfsearch)',
   'Búsquedas de PDFs/repositorios disponibles como tools (pdfsearch_search, research_search)',
   'Repositorio propio disponible para guardar datos/creaciones/pruebas/prototipos (vault_manage)',
+  'Búsqueda offline de corpus de aprendizaje: tool search_learning para consultas completas offline sobre learning/sources/, learning/truth/, learning/responses/ y learning/memory/',
 ]);
 
 const MEJORAS_PB: readonly string[] = Object.freeze([
@@ -642,10 +643,11 @@ const MEJORAS_PB: readonly string[] = Object.freeze([
   'Guarda evidencias, creaciones y prototipos en el vault propio al finalizar cada fase',
   'Verificación = proyecto completo (gates FULL en orden CI + cuarentena de WIP ajeno)',
   'Export opcional del vault a GitHub (fail-soft sin token)',
+  'Búsqueda de evidencia en learning/ corpus post-ciclo (tool search_learning para validar gaps y lecciones)',
 ]);
 
-const ESTRATEGIA_PP = 'Plan file completo (plantilla ampliada) + [P] en run-log + predicción; criterios scoped por fase y FULL al final';
-const ESTRATEGIA_PB = 'Gates FULL en orden CI (typecheck→lint→test→build) con gates GREEN antes de cada commit pathspec';
+const ESTRATEGIA_PP = 'Plan file completo (plantilla ampliada) + [P] en run-log + predicción; criterios scoped por fase y FULL al final; integración tool search_learning para investigación offline';
+const ESTRATEGIA_PB = 'Gates FULL en orden CI (typecheck→lint→test→build) con gates GREEN antes de cada commit pathspec; verificación learning/ corpus post-commit';
 
 /**
  * Genera el plan de un modo de operación del harness (P-P/P-B/L-T/S-D).

@@ -302,15 +302,18 @@ export function middleware(request: NextRequest) {
   // code is allowed to run on this page.
   // [ES] El header de seguridad más importante. Le dice al navegador EXACTAMENTE
   // qué código está permitido ejecutar en esta página.
+  // NOTA (iter-180): Next.js dev (react-refresh) evalúa strings como JS y EXIGE
+  // 'unsafe-eval'. En producción sigue prohibido: el eval solo se permite en dev.
+  const allowEval = process.env.NODE_ENV === 'production' ? '' : " 'unsafe-eval'";
   response.headers.set(
     'Content-Security-Policy',
     [
       "default-src 'self'",  // [EN] By default, only load from our own site / [ES] Por defecto, solo cargar de nuestro sitio
-      `script-src 'self' 'nonce-${nonce}' 'unsafe-inline'`,  // [EN] Scripts: only with our nonce / [ES] Scripts: solo con nuestro nonce
+      `script-src 'self' 'nonce-${nonce}' 'unsafe-inline'${allowEval}`,  // [EN] Scripts: only with our nonce (+eval in dev for react-refresh) / [ES] Scripts: solo con nuestro nonce (+eval en dev para react-refresh)
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",  // [EN] CSS: our site + Google Fonts / [ES] CSS: nuestro sitio + Google Fonts
       "img-src 'self' data: https://image.pollinations.ai https://*.pollinations.ai https://images.meigen.ai https://www.meigen.ai https://i.ytimg.com https://d1s1y0ui543e5o.cloudfront.net",  // [EN] Images: allowed sources / [ES] Imágenes: fuentes permitidas
       "font-src 'self' data: https://fonts.gstatic.com",  // [EN] Fonts: our site + Google Fonts / [ES] Fuentes: nuestro sitio + Google Fonts
-      "connect-src 'self' ws://localhost:* wss://localhost:* https://image.pollinations.ai https://text.pollinations.ai https://*.pollinations.ai https://www.meigen.ai https://api.meigen.ai",  // [EN] Network connections: allowed / [ES] Conexiones de red: permitidas
+      "connect-src 'self' http://localhost:* http://127.0.0.1:* ws://localhost:* wss://localhost:* https://image.pollinations.ai https://text.pollinations.ai https://*.pollinations.ai https://www.meigen.ai https://api.meigen.ai",  // [EN] Network connections: allowed (localhost http for Localhost hub probes) / [ES] Conexiones de red: permitidas (localhost http para probes del hub Localhost)
       "frame-ancestors 'none'",  // [EN] No one can put us in a frame / [ES] Nadie puede ponernos en un frame
       "base-uri 'self'",  // [EN] Base URL must be our site / [ES] URL base debe ser nuestro sitio
       "form-action 'self'",  // [EN] Forms can only submit to our site / [ES] Formularios solo pueden enviar a nuestro sitio

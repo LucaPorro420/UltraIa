@@ -30,7 +30,8 @@ npm run db:migrate                      # creates packages/core/prisma/dev.db
 npm run dev                             # http://localhost:3000
 ```
 
-See `QUICKSTART.md` for the full checklist (prereqs, API keys, verification).
+See `QUICKSTART.md` for the full checklist (prereqs, API keys, verification) and
+`docs/SERVIDOR-LOCAL-Y-RED.md` for the zero-cost Windows LAN server setup.
 
 All API keys are optional — without them, the system uses keyless fallbacks (Ollama local, Pollinations images, Tunetank music, edge-tts voice).
 

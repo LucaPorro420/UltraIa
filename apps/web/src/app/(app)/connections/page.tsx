@@ -2,6 +2,7 @@ import { listConnections, buildConnectionCatalog, groupCatalogByCategory } from 
 import { prisma } from '@ultraia/core';
 import { requireUser } from '@/lib/server/context';
 import { ConnectionsClient } from './connections-client';
+import { LocalServices } from './local-services';
 
 export const metadata = {
   title: 'Conexiones · UltraIa',
@@ -19,7 +20,9 @@ export default async function ConnectionsPage() {
   });
   const groups = groupCatalogByCategory(catalog);
   return (
-    <ConnectionsClient
+    <div className="flex flex-col gap-6">
+      <LocalServices />
+      <ConnectionsClient
       groups={groups}
       initialConnections={connections.map((c) => ({
         ...c,
@@ -28,6 +31,7 @@ export default async function ConnectionsPage() {
       }))}
       isAdmin={user.role === 'ADMIN'}
       ephemeral={!process.env.CONNECTIONS_SECRET}
-    />
+      />
+    </div>
   );
 }

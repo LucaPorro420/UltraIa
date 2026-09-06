@@ -49,9 +49,11 @@ export interface AgentConfig {
   maxTokens: number;
   temperature: number;
   systemPrompt: string;
+  useRuntime?: boolean;
   runtimeUrl?: string;
   email?: string;
   password?: string;
+  base44CoursePath?: string;
 }
 
 export interface MemoryEntry {
@@ -109,7 +111,60 @@ export class ToolRegistry {
 
 // ── Built-in Tools ───────────────────────────────────────────────────────────
 
-function registerBuiltinTools(registry: ToolRegistry, rootPath: string): void {
+function registerBase44Tool(registry: ToolRegistry, courseRoot: string): void {
+  registry.register({
+    name: 'base44_guide',
+    description: 'Search the bundled Vibe Coding with Base44 course and return relevant guidance',
+    category: 'guides',
+    parameters: {
+      query: { type: 'string', description: 'Question or keywords to search for', required: true },
+      topic: { type: 'string', description: 'Optional relative document path, for example docs/03-data-auth-security.md' },
+    },
+    execute: async (args) => {
+      await Promise.resolve();
+      const originalQuery = typeof args.query === 'string' ? args.query : '';
+      const query = originalQuery.trim().toLowerCase();
+      if (!query) return 'Error: query is required';
+      if (!fs.existsSync(courseRoot)) return 'Base44 course is not installed in this extension';
+
+      const requestedTopic = typeof args.topic === 'string' ? args.topic.trim() : '';
+      const files: string[] = [];
+      const collect = (directory: string): void => {
+        for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
+          const fullPath = path.join(directory, entry.name);
+          if (entry.isDirectory()) collect(fullPath);
+          else if (entry.isFile() && fullPath.endsWith('.md')) files.push(fullPath);
+        }
+      };
+      collect(courseRoot);
+
+      const matches = files
+        .filter((filePath) => {
+          const relative = path.relative(courseRoot, filePath).replace(/\\/g, '/');
+          return !requestedTopic || relative.toLowerCase() === requestedTopic.toLowerCase();
+        })
+        .map((filePath) => {
+          const relative = path.relative(courseRoot, filePath).replace(/\\/g, '/');
+          const content = fs.readFileSync(filePath, 'utf8');
+          const lines = content.split(/\r?\n/);
+          const relevant = lines
+            .map((line, index) => ({ line, index }))
+            .filter(({ line }) => line.toLowerCase().includes(query))
+            .slice(0, 8)
+            .map(({ line, index }) => `${relative}:${index + 1}: ${line.trim()}`);
+          return relevant.length > 0 ? relevant.join('\n') : '';
+        })
+        .filter(Boolean)
+        .slice(0, 20);
+
+      return matches.length > 0
+        ? matches.join('\n')
+        : `No Base44 guidance found for "${originalQuery}". Try Plan mode, permissions, testing, or launch.`;
+    },
+  });
+}
+
+function registerBuiltinTools(registry: ToolRegistry, rootPath: string, base44CoursePath?: string): void {
   const tools: ToolDefinition[] = [
     {
       name: 'read_file',
@@ -651,15 +706,25 @@ function registerBuiltinTools(registry: ToolRegistry, rootPath: string): void {
   ];
 
   tools.forEach(t => registry.register(t));
+  if (base44CoursePath) registerBase44Tool(registry, base44CoursePath);
 }
 
 // ── LLM Client ───────────────────────────────────────────────────────────────
 
 class LLMClient {
   private config: AgentConfig;
+  private modelsWithoutTools = new Set<string>();
 
   constructor(config: AgentConfig) {
     this.config = config;
+    if (LLMClient.isKnownModelWithoutTools(config.model)) {
+      this.modelsWithoutTools.add(config.model);
+    }
+  }
+
+  private static isKnownModelWithoutTools(model: string): boolean {
+    const normalized = model.trim().toLowerCase();
+    return normalized.includes(':base') || normalized.includes('embed');
   }
 
   async chat(
@@ -674,9 +739,10 @@ class LLMClient {
       stream: false,
     };
 
-    if (tools && tools.length > 0) {
+    const canUseTools = Boolean(tools && tools.length > 0 && !this.modelsWithoutTools.has(this.config.model));
+    if (canUseTools) {
       // Detect format: if first tool has 'type' property, it's already OpenAI format
-      const first = tools[0] as any;
+      const first = tools![0] as any;
       if (first.type && first.function) {
         body.tools = tools;
       } else {
@@ -699,16 +765,33 @@ class LLMClient {
       }
     }
 
-    try {
-      const response = await fetch(`${this.config.llmUrl}/chat/completions`, {
+    const request = async (includeTools: boolean): Promise<Response> => fetch(`${this.config.llmUrl}/chat/completions`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
+        body: JSON.stringify(includeTools || !body.tools ? body : { ...body, tools: undefined }),
       });
+    try {
+      let response = await request(canUseTools);
 
       if (!response.ok) {
-        const text = await response.text();
-        throw new Error(`LLM API error ${response.status}: ${text}`);
+        let errorText = await response.text();
+        const unsupportedTools =
+          response.status === 400 &&
+          /does not support tools|tool use|tool_calls|unsupported.*tools/i.test(errorText);
+        if (unsupportedTools && canUseTools) {
+          this.modelsWithoutTools.add(this.config.model);
+          response = await request(false);
+        }
+        if (response.ok) {
+          const data = await response.json() as any;
+          const choice = data.choices?.[0];
+          if (!choice) throw new Error('No choices in response after disabling tools');
+          return choice.message?.content || '';
+        }
+        if (unsupportedTools && canUseTools) {
+          errorText = 'El modelo no admite tools y el reintento sin tools también falló.';
+        }
+        throw new Error(`LLM API error ${response.status}: ${errorText}`);
       }
 
       const data = await response.json() as any;
@@ -776,9 +859,10 @@ export class UltraIaAgent {
     this.rootPath = rootPath;
     this.config = {
       llmUrl: config?.llmUrl || 'http://localhost:11434/v1',
-      model: config?.model || 'qwen2.5-coder:1.5b-base',
+      model: config?.model || 'qwen2.5-coder:7b',
       maxTokens: config?.maxTokens || 4096,
       temperature: config?.temperature || 0.7,
+      useRuntime: config?.useRuntime ?? false,
       systemPrompt: config?.systemPrompt || this.getDefaultSystemPrompt(),
       ...config,
     };
@@ -786,7 +870,7 @@ export class UltraIaAgent {
 
     this.llm = new LLMClient(this.config);
     this.registry = new ToolRegistry();
-    registerBuiltinTools(this.registry, rootPath);
+    registerBuiltinTools(this.registry, rootPath, config?.base44CoursePath);
 
     // Load persisted sessions
     this.sessions = loadSessions(rootPath);
@@ -799,7 +883,7 @@ export class UltraIaAgent {
     }
 
     // Auto-connect to runtime if configured
-    if (this.runtimeUrl && config?.email && config?.password) {
+    if (this.config.useRuntime && this.runtimeUrl && config?.email && config?.password) {
       this.login(config.email, config.password).catch(() => {});
     }
   }
@@ -830,7 +914,7 @@ export class UltraIaAgent {
       }
     } catch { /* ignore */ }
 
-    return `You are UltraIa Agent — an autonomous, world-class software development agent. You think, decide, plan, and ACT.
+    const basePrompt = `You are UltraIa Agent — an autonomous, world-class software development agent. You think, decide, plan, and ACT.
 
 IDENTITY: You are a complete autonomous development house. You can read, write, edit, search, run commands, run tests, and commit code. You act like an elite senior engineer.
 
@@ -884,6 +968,59 @@ PROJECT: UltraIa — monorepo with apps/web (Next.js 15), packages/core (58+ too
 ${projectContext}
 
 IMPORTANT: Execute tasks end-to-end. Do not ask for permission mid-task unless the action is destructive (force push, drop table, etc).`;
+    return `${basePrompt}
+
+LOCAL AUTONOMOUS EXECUTION PROTOCOL:
+- You are running inside the VS Code extension with local tools and local memory. Do not depend on another agent, web runtime, cloud service, or external orchestrator.
+- Analyze the request, choose the smallest safe sequence of actions, execute it, inspect the result, and continue until the task is complete.
+- When a tool is needed, emit ONLY this JSON object and nothing else:
+  {"tool_calls":[{"name":"tool_name","arguments":{"key":"value"}}]}
+- Use one or more calls only when they are independent. After results arrive, reassess and continue or answer.
+- Never invent tool output. If an action fails, diagnose the exact error and try a safer correction.
+- Use task_complete only after the requested work and verification are finished.
+- For ordinary conversation, answer normally without JSON.
+
+AVAILABLE LOCAL TOOLS:
+The local tool catalog is injected at runtime before each task.`;
+  }
+
+  private registryDescriptionForPrompt(): string {
+    return this.registry.getAll()
+      .map((tool) => {
+        const parameters = Object.entries(tool.parameters)
+          .map(([name, definition]) => `${name}${definition.required ? '*' : ''}: ${definition.description}`)
+          .join('; ');
+        return `- ${tool.name}: ${tool.description}${parameters ? ` (${parameters})` : ''}`;
+      })
+      .join('\n');
+  }
+
+  private parseLocalToolCalls(response: string): { calls: Array<{ name: string; arguments: Record<string, unknown>; id?: string }>; native: boolean } | null {
+    const candidates = [response.trim()];
+    const fenced = response.match(/```(?:json)?\s*([\s\S]*?)```/i)?.[1];
+    const tagged = response.match(/<tool_call>\s*([\s\S]*?)\s*<\/tool_call>/i)?.[1];
+    const embedded = response.match(/\{[\s\S]*"tool_calls"\s*:\s*\[[\s\S]*\]\s*\}/)?.[0];
+    if (fenced) candidates.push(fenced.trim());
+    if (tagged) candidates.push(tagged.trim());
+    if (embedded) candidates.push(embedded.trim());
+    for (const candidate of candidates) {
+      try {
+        const parsed = JSON.parse(candidate) as {
+          tool_calls?: Array<{ id?: string; name?: string; arguments?: Record<string, unknown>; function?: { name?: string; arguments?: string | Record<string, unknown> } }>;
+        };
+        if (!Array.isArray(parsed.tool_calls) || parsed.tool_calls.length === 0) continue;
+        const calls = parsed.tool_calls.map((call) => {
+          const name = call.name ?? call.function?.name ?? '';
+          const rawArgs = call.arguments ?? call.function?.arguments ?? {};
+          const argumentsValue = typeof rawArgs === 'string' ? JSON.parse(rawArgs) : rawArgs;
+          return { id: call.id, name, arguments: argumentsValue ?? {} };
+        }).filter((call) => call.name);
+        if (calls.length) return { calls, native: Boolean(parsed.tool_calls[0]?.function) };
+      } catch {
+        // Ordinary text is a valid final answer; keep looking for a protocol block.
+      }
+    }
+    return null;
   }
 
   // ── Runtime Bridge ────────────────────────────────────────────────────────
@@ -1027,10 +1164,10 @@ IMPORTANT: Execute tasks end-to-end. Do not ask for permission mid-task unless t
       this.session.title = userMessage.substring(0, 60) + (userMessage.length > 60 ? '...' : '');
     }
 
-    // Try runtime bridge first (full 58+ tools, memory, skills)
+    // Runtime is optional. The extension owns the local chat, memory and tools by default.
     let finalContent = '';
     let usedBridge = false;
-    if (this.runtimeAvailable && this.sessionToken) {
+    if (this.config.useRuntime && this.runtimeAvailable && this.sessionToken) {
       try {
         finalContent = await this.chatViaBridge(userMessage);
         usedBridge = true;
@@ -1047,7 +1184,7 @@ IMPORTANT: Execute tasks end-to-end. Do not ask for permission mid-task unless t
     if (!usedBridge) {
       // Direct LLM mode — ITERATIVE TOOL LOOP
       const messages: Array<{ role: string; content: string; tool_calls?: any[]; tool_call_id?: string }> = [
-        { role: 'system', content: this.config.systemPrompt },
+        { role: 'system', content: this.buildLocalSystemPrompt(userMessage) },
         ...this.session.messages.slice(-20).map(m => ({ role: m.role, content: m.content })),
       ];
       const tools = this.registry.getAll();
@@ -1075,33 +1212,26 @@ IMPORTANT: Execute tasks end-to-end. Do not ask for permission mid-task unless t
         round++;
         const response = await this.llm.chat(messages, toolDefs);
 
-        // Check if response contains tool calls
-        let parsed: any;
-        try {
-          parsed = JSON.parse(response);
-        } catch {
-          // Not JSON — plain text response, we're done
+        const parsed = this.parseLocalToolCalls(response);
+        if (!parsed) {
           finalContent = response;
           break;
         }
 
-        if (!parsed.tool_calls || parsed.tool_calls.length === 0) {
-          // No tool calls — plain text, done
-          finalContent = response;
-          break;
-        }
-
-        // Execute tool calls
-        const assistantMsg: any = { role: 'assistant', content: '', tool_calls: parsed.tool_calls };
+        // Execute native or text-protocol tool calls with the same local registry.
+        const assistantMsg: any = {
+          role: 'assistant',
+          content: parsed.native ? '' : response,
+          ...(parsed.native ? { tool_calls: parsed.calls } : {}),
+        };
         messages.push(assistantMsg);
 
-        for (const tc of parsed.tool_calls) {
+        const resultLines: string[] = [];
+        for (const tc of parsed.calls) {
           const toolCall: ToolCall = {
-            id: tc.id || `tc-${Date.now()}`,
-            name: tc.function?.name || tc.name,
-            args: typeof tc.function?.arguments === 'string'
-              ? JSON.parse(tc.function.arguments)
-              : tc.function?.arguments || {},
+            id: tc.id || `tc-${Date.now()}-${toolCalls.length}`,
+            name: tc.name,
+            args: tc.arguments,
           };
           toolCalls.push(toolCall);
 
@@ -1110,20 +1240,39 @@ IMPORTANT: Execute tasks end-to-end. Do not ask for permission mid-task unless t
             try {
               const output = await tool.execute(toolCall.args);
               toolResults.push({ callId: toolCall.id, success: true, output });
-              messages.push({ role: 'tool', content: output, tool_call_id: toolCall.id });
+              resultLines.push(`[${toolCall.name} OK]\n${output}`);
+              messages.push(
+                parsed.native
+                  ? { role: 'tool', content: output, tool_call_id: toolCall.id }
+                  : { role: 'user', content: `[RESULTADO DE ${toolCall.name}]\n${output}` },
+              );
             } catch (err: any) {
               const errResult = `Error: ${err.message}`;
               toolResults.push({ callId: toolCall.id, success: false, output: '', error: err.message });
-              messages.push({ role: 'tool', content: errResult, tool_call_id: toolCall.id });
+              resultLines.push(`[${toolCall.name} ERROR]\n${errResult}`);
+              messages.push(
+                parsed.native
+                  ? { role: 'tool', content: errResult, tool_call_id: toolCall.id }
+                  : { role: 'user', content: `[RESULTADO DE ${toolCall.name}]\n${errResult}` },
+              );
             }
           } else {
             const errResult = `Unknown tool: ${toolCall.name}`;
             toolResults.push({ callId: toolCall.id, success: false, output: '', error: errResult });
-            messages.push({ role: 'tool', content: errResult, tool_call_id: toolCall.id });
+            resultLines.push(`[${toolCall.name} ERROR]\n${errResult}`);
+            messages.push(
+              parsed.native
+                ? { role: 'tool', content: errResult, tool_call_id: toolCall.id }
+                : { role: 'user', content: `[RESULTADO DE ${toolCall.name}]\n${errResult}` },
+            );
           }
         }
-
-        // Continue loop — LLM will see tool results and decide next action
+        if (!parsed.native && resultLines.length > 0) {
+          messages.push({
+            role: 'user',
+            content: `Analiza estos resultados. Si falta una acción, emite el siguiente JSON de herramienta. Si la tarea terminó, responde con el resultado final:\n${resultLines.join('\n\n')}`,
+          });
+        }
       }
 
       // If we exhausted rounds, the last assistant message is the final content
@@ -1145,6 +1294,7 @@ IMPORTANT: Execute tasks end-to-end. Do not ask for permission mid-task unless t
 
     this.session.messages.push(assistantMsg);
     this.session.lastActivityAt = Date.now();
+    this.rememberExchange(userMessage, finalContent);
 
     // Persist
     saveSessions(this.rootPath, this.sessions);
@@ -1152,6 +1302,48 @@ IMPORTANT: Execute tasks end-to-end. Do not ask for permission mid-task unless t
     this.onMessageCallback?.(assistantMsg);
 
     return assistantMsg;
+  }
+
+  private buildLocalSystemPrompt(userMessage: string): string {
+    const memories = this.getMemories()
+      .map((memory) => ({ memory, score: this.memoryScore(memory, userMessage) }))
+      .filter(({ score }) => score > 0)
+      .sort((a, b) => b.score - a.score || b.memory.createdAt - a.memory.createdAt)
+      .slice(0, 8)
+      .map(({ memory }) => `- [${memory.layer}] ${memory.content}`)
+      .join('\n');
+    return memories
+      ? `${this.config.systemPrompt}\n\n## Memoria local de UltraIa\n${memories}\nUsa esta memoria solo como contexto y corrige cualquier contradicción con el mensaje actual.\n\n## Catálogo de herramientas locales\n${this.registryDescriptionForPrompt()}`
+      : `${this.config.systemPrompt}\n\n## Catálogo de herramientas locales\n${this.registryDescriptionForPrompt()}`;
+  }
+
+  private memoryScore(memory: MemoryEntry, query: string): number {
+    const terms = new Set((query.toLowerCase().match(/[a-záéíóúñ0-9]{3,}/gi) || []));
+    const haystack = `${memory.content} ${memory.tags.join(' ')}`.toLowerCase();
+    return [...terms].reduce((score, term) => score + (haystack.includes(term) ? 1 : 0), 0);
+  }
+
+  private rememberExchange(userMessage: string, assistantMessage: string): void {
+    const content = `Usuario: ${userMessage.slice(0, 600)}\nUltraIa: ${assistantMessage.slice(0, 1000)}`;
+    const memPath = path.join(this.rootPath, '.ultraia', 'agent-memory.json');
+    try {
+      const memories = this.getMemories();
+      const normalized = content.toLowerCase();
+      if (memories.some((memory) => memory.content.toLowerCase() === normalized)) return;
+      memories.push({
+        id: `mem-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+        content,
+        layer: 'episodic',
+        tags: ['chat', this.session.id],
+        createdAt: Date.now(),
+        importance: 0.5,
+      });
+      const retained = memories.slice(-500);
+      fs.mkdirSync(path.dirname(memPath), { recursive: true });
+      fs.writeFileSync(memPath, JSON.stringify(retained, null, 2), 'utf8');
+    } catch {
+      // The chat must remain usable if memory persistence is unavailable.
+    }
   }
 
   /** Create a new chat session. */

@@ -1592,3 +1592,17 @@ Cada commit agrega una sección con fecha y la lista de archivos `.ts/.tsx` toca
 - [ ] vendor/ai-website-cloner/src/app/page.tsx
 - [ ] vendor/ai-website-cloner/src/components/ui/button.tsx
 - [ ] vendor/ai-website-cloner/src/lib/utils.ts
+
+## 2026-09-06T02:52:55.035Z
+- [ ] packages/core/src/ai/llm.ts
+- [ ] packages/core/src/tools/catalog.ts
+- [ ] packages/core/src/tools/index.ts
+- [ ] packages/core/src/tools/remotion.test.ts
+- [ ] packages/core/src/tools/remotion.ts
+
+## 2026-09-06T11:42:59.870Z
+- [ ] packages/core/src/ai/llm.ts
+- [ ] packages/core/src/tools/catalog.ts
+- [ ] packages/core/src/tools/index.ts
+- [ ] packages/core/src/tools/social-connect.test.ts
+- [ ] packages/core/src/tools/social-connect.ts

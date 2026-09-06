@@ -27,20 +27,20 @@ describe('perf-optimizer', () => {
       expect(report.summary).toContain('Found');
     });
 
-    it('detects sync fs calls', () => {
-      const result = perfOptimizerTool({
+    it('detects sync fs calls', async () => {
+      const result = await perfOptimizerTool({
         action: 'suggest',
         fileContent: 'const data = readFileSync("file.txt");',
       });
-      expect(result).resolves.toMatchObject({ findings: expect.arrayContaining([expect.objectContaining({ rule: 'sync_fs_in_handler' })]) });
+      expect(result).toMatchObject({ findings: expect.arrayContaining([expect.objectContaining({ rule: 'sync_fs_in_handler' })]) });
     });
 
-    it('detects serial awaits', () => {
-      const result = perfOptimizerTool({
+    it('detects serial awaits', async () => {
+      const result = await perfOptimizerTool({
         action: 'suggest',
         fileContent: 'for (const item of items) { await fetch(item.url); }',
       });
-      expect(result).resolves.toMatchObject({ findings: expect.arrayContaining([expect.objectContaining({ rule: 'serial_await' })]) });
+      expect(result).toMatchObject({ findings: expect.arrayContaining([expect.objectContaining({ rule: 'serial_await' })]) });
     });
   });
 

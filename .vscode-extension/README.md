@@ -10,6 +10,7 @@ Connect to UltraIa runtime for autonomous coding, chat-to-code bridge, and real-
 - **Task Monitoring**: View active tasks with progress in the side panel
 - **Conversation History**: Persisted across sessions in workspace state
 - **Syntax Highlighting**: Agent responses with code blocks and edit previews
+- **Base44 Guide**: Bundled Vibe Coding with Base44 course, searchable from the agent and openable from the command palette
 
 ## Installation
 
@@ -51,6 +52,8 @@ code --install-extension ultraia-0.1.0.vsix
 | `UltraIa: Trigger Autonomous Task` | `Ctrl+Shift+T` | Execute a task via trigger endpoint |
 | `UltraIa: Show Runtime Status` | - | Show connection status |
 | `UltraIa: Connect to Runtime` | - | Connect to WebSocket |
+| `UltraIa: Open Base44 Guide` | - | Open a bundled Base44 course document |
+| `UltraIa: Search Base44 Guide` | - | Ask the agent to search the Base44 course |
 | `UltraIa: Disconnect from Runtime` | - | Disconnect |
 
 ## Usage
@@ -108,6 +111,7 @@ The extension listens to these WebSocket topics:
 - Token stored in VS Code Secret Storage (not plaintext settings)
 - WebSocket connection to localhost only by default
 - CSP enforced on webview (no inline scripts without nonce)
+- The Base44 course is bundled under `resources/base44-course` and remains local; no external request is made by the guide integration.
 
 ## Development
 

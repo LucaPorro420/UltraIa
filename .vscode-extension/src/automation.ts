@@ -16,7 +16,7 @@ export function registerAutomationCommands(context: vscode.ExtensionContext, roo
       if (!task) return;
       
       const model = await vscode.window.showQuickPick(
-        ['qwen2.5-coder:1.5b-base', 'qwen2.5-coder:7b', 'llama3:8b', 'deepseek-coder:6.7b'],
+        ['qwen2.5-coder:7b', 'qwen2.5-coder:1.5b-base', 'llama3:8b', 'deepseek-coder:6.7b'],
         { placeHolder: 'Select LLM model' }
       );
       
@@ -25,7 +25,7 @@ export function registerAutomationCommands(context: vscode.ExtensionContext, roo
       // Run automation via terminal
       const terminal = vscode.window.createTerminal('UltraIa Automation');
       terminal.show();
-      terminal.sendText(`cd "${rootPath}" && npx tsx automation/orchestrator.ts --model ${model || 'qwen2.5-coder:1.5b-base'} "${task}"`);
+      terminal.sendText(`cd "${rootPath}" && npx tsx automation/orchestrator.ts --model ${model || 'qwen2.5-coder:7b'} "${task}"`);
     })
   );
 

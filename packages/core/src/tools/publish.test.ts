@@ -22,7 +22,8 @@ import {
   IG_MEDIA_URL,
   THREADS_MEDIA_URL,
   LINKEDIN_ASSETS_URL,
-  LINKEDIN_UGCP_URL,
+  LINKEDIN_POSTS_URL,
+  LINKEDIN_API_VERSION,
   LINKEDIN_VIDEO_RECIPE,
   FB_GRAPH_URL,
   X_CHUNK_BYTES,
@@ -1023,7 +1024,7 @@ describe('createLinkedInAdapter', () => {
       expect(r.error).toContain('500');
     });
 
-    it('ugcPosts falló → ok:false con HTTP status', async () => {
+    it('posts falló → ok:false con HTTP status', async () => {
       const adapter = createLinkedInAdapter({
         accessToken: 'tok',
         authorUrn: 'urn:li:org:1',
@@ -1044,11 +1045,11 @@ describe('createLinkedInAdapter', () => {
       });
       const r = await adapter.publish(VALID_INPUT);
       expect(r.ok).toBe(false);
-      expect(r.error).toContain('ugcPosts');
+      expect(r.error).toContain('posts');
       expect(r.error).toContain('400');
     });
 
-    it('éxito → ok:true con ugcId del header x-restli-id', async () => {
+    it('éxito → ok:true con post id del header x-restli-id', async () => {
       const adapter = createLinkedInAdapter({
         accessToken: 'tok',
         authorUrn: 'urn:li:org:1',
@@ -1064,13 +1065,35 @@ describe('createLinkedInAdapter', () => {
             },
           }),
           okJson({}, 200),
-          okJsonHeaders({}, { 'x-restli-id': 'ugc:789' }),
+          okJsonHeaders({}, { 'x-restli-id': 'urn:li:post:789' }),
         ]),
       });
       const r = await adapter.publish(VALID_INPUT);
       expect(r.ok).toBe(true);
-      expect(r.id).toBe('ugc:789');
-      expect(r.url).toContain('ugc');
+      expect(r.id).toBe('urn:li:post:789');
+      expect(r.url).toContain('linkedin.com');
+    });
+
+    it('publica contra /rest/posts con LinkedIn-Version vigente', async () => {
+      const calls: Array<{ url: string; headers: Record<string, string> }> = [];
+      const adapter = createLinkedInAdapter({
+        accessToken: 'tok',
+        authorUrn: 'urn:li:org:1',
+        fetchFn: (async (url: any, init: any) => {
+          calls.push({ url: String(url), headers: init?.headers ?? {} });
+          if (String(url).includes('registerUpload')) {
+            return new Response(JSON.stringify({ value: { asset: 'urn:li:asset:1', uploadMechanism: { 'com.linkedin.digitalmedia.uploading.MediaUploadHttpRequest': { uploadUrl: 'https://upload.li.com/9' } } } }), { status: 200 });
+          }
+          if (String(url).startsWith('https://upload.li.com')) return new Response('', { status: 201 });
+          return new Response('{}', { status: 201, headers: { 'x-restli-id': 'urn:li:post:1' } });
+        }) as any,
+      });
+      const r = await adapter.publish(VALID_INPUT);
+      expect(r.ok).toBe(true);
+      const postCall = calls.find((c) => c.url === LINKEDIN_POSTS_URL);
+      expect(postCall).toBeDefined();
+      expect(postCall!.headers['LinkedIn-Version']).toBe(LINKEDIN_API_VERSION);
+      expect(calls.some((c) => c.url.includes('ugcPosts'))).toBe(false);
     });
 
     it('fetch lanza → ok:false con mensaje de error', async () => {
@@ -1094,7 +1117,7 @@ describe('createLinkedInAdapter', () => {
       expect(r.ok).toBe(false);
     });
 
-    it('ugcPosts sin x-restli-id header → ok:false', async () => {
+    it('posts sin x-restli-id header → ok:false', async () => {
       const adapter = createLinkedInAdapter({
         accessToken: 'tok',
         authorUrn: 'urn:li:org:1',
@@ -1425,21 +1448,22 @@ describe('DEFAULT_METADATA', () => {
 
 /* =================================================== constantes exportadas */
 describe('constantes exportadas', () => {
-  it('IG_MEDIA_URL apunta a Graph API v21', () => {
-    expect(IG_MEDIA_URL).toContain('v21.0');
+  it('IG_MEDIA_URL apunta a Graph API v25 (v21 expira 21/01/2027)', () => {
+    expect(IG_MEDIA_URL).toContain('v25.0');
   });
 
   it('THREADS_MEDIA_URL apunta a Graph API v1.0', () => {
     expect(THREADS_MEDIA_URL).toContain('v1.0');
   });
 
-  it('LINKEDIN_ASSETS_URL y LINKEDIN_UGCP_URL son válidos', () => {
+  it('LINKEDIN_ASSETS_URL y LINKEDIN_POSTS_URL son válidos (ugcPosts Legacy eliminado)', () => {
     expect(LINKEDIN_ASSETS_URL).toContain('linkedin.com');
-    expect(LINKEDIN_UGCP_URL).toContain('linkedin.com');
+    expect(LINKEDIN_POSTS_URL).toContain('/rest/posts');
+    expect(LINKEDIN_API_VERSION).toMatch(/^\d{6}$/);
   });
 
-  it('FB_GRAPH_URL apunta a Graph API v21', () => {
-    expect(FB_GRAPH_URL).toContain('v21.0');
+  it('FB_GRAPH_URL apunta a Graph API v25 (v21 expira 21/01/2027)', () => {
+    expect(FB_GRAPH_URL).toContain('v25.0');
   });
 
   it('X_CHUNK_BYTES es 5 MiB', () => {

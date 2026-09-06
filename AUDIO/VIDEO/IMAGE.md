@@ -116,10 +116,10 @@ El cerebro ya sabe:
 
 Entonces:
 
-* el motor visual representa la mujer;
-* el motor acústico representa lluvia/tráfico/piano;
-* el motor temporal decide cuándo ocurre cada evento;
-* el motor de vídeo convierte todo eso en continuidad espacial y temporal.
+- el motor visual representa la mujer;
+- el motor acústico representa lluvia/tráfico/piano;
+- el motor temporal decide cuándo ocurre cada evento;
+- el motor de vídeo convierte todo eso en continuidad espacial y temporal.
 
 ---
 
@@ -144,7 +144,6 @@ WORLD:
   time: night
 
 ENTITIES:
-
   woman_001:
     position: [12.4, 0.0, 4.2]
     emotion: sadness
@@ -157,7 +156,6 @@ ENTITIES:
     direction: left_to_right
 
 EVENTS:
-
   rain:
     start: 0
     duration: 30
@@ -174,8 +172,7 @@ CAMERA:
   lens: ...
   movement: ...
 
-STYLE:
-  cinematic
+STYLE: cinematic
   realistic
   night
   blue_hour
@@ -236,12 +233,12 @@ La moto no aparece solamente en vídeo.
 
 Su existencia provoca:
 
-* movimiento;
-* sonido;
-* sombra;
-* reflejo;
-* interacción espacial;
-* posible reacción de personajes.
+- movimiento;
+- sonido;
+- sombra;
+- reflejo;
+- interacción espacial;
+- posible reacción de personajes.
 
 Eso es mucho más potente que intentar obligar a tres generadores independientes a producir resultados compatibles.
 
@@ -255,11 +252,11 @@ Aquí propondría algo experimentalmente diferente:
 
 No dependería conceptualmente de:
 
-* difusión tradicional;
-* autoregresión pura;
-* transformer como cerebro único;
-* GAN;
-* pipeline independiente de modelos.
+- difusión tradicional;
+- autoregresión pura;
+- transformer como cerebro único;
+- GAN;
+- pipeline independiente de modelos.
 
 El proceso sería:
 
@@ -508,9 +505,9 @@ W(t+1)=F(W(t),A(t),E(t))
 
 donde:
 
-* (W(t)) = estado del mundo;
-* (A(t)) = acciones;
-* (E(t)) = eventos.
+- (W(t)) = estado del mundo;
+- (A(t)) = acciones;
+- (E(t)) = eventos.
 
 Después:
 
@@ -520,10 +517,10 @@ V(t)=R_v(W(t),C(t),S)
 
 donde:
 
-* (V(t)) = frame;
-* (R_v) = renderer visual;
-* (C(t)) = cámara;
-* (S) = estilo.
+- (V(t)) = frame;
+- (R_v) = renderer visual;
+- (C(t)) = cámara;
+- (S) = estilo.
 
 Y el audio:
 
@@ -676,15 +673,15 @@ Lo dividiría en fases.
 
 Datos:
 
-* imágenes;
-* vídeos;
-* audio;
-* texto;
-* 3D;
-* profundidad;
-* movimiento;
-* escenas;
-* acciones.
+- imágenes;
+- vídeos;
+- audio;
+- texto;
+- 3D;
+- profundidad;
+- movimiento;
+- escenas;
+- acciones.
 
 Objetivo:
 
@@ -1196,13 +1193,13 @@ w_pP
 
 donde:
 
-* (S) = calidad semántica;
-* (T) = coherencia temporal;
-* (V) = calidad visual;
-* (A) = calidad acústica;
-* (C) = coherencia cruzada;
-* (N) = coherencia narrativa;
-* (P) = plausibilidad física.
+- (S) = calidad semántica;
+- (T) = coherencia temporal;
+- (V) = calidad visual;
+- (A) = calidad acústica;
+- (C) = coherencia cruzada;
+- (N) = coherencia narrativa;
+- (P) = plausibilidad física.
 
 ---
 
@@ -1212,35 +1209,35 @@ donde:
 
 Evaluar:
 
-* composición;
-* identidad;
-* anatomía;
-* textura;
-* iluminación;
-* fidelidad al prompt;
-* consistencia de estilo.
+- composición;
+- identidad;
+- anatomía;
+- textura;
+- iluminación;
+- fidelidad al prompt;
+- consistencia de estilo.
 
 ## Audio
 
 Evaluar:
 
-* calidad espectral;
-* inteligibilidad;
-* sincronización;
-* espacialidad;
-* continuidad;
-* naturalidad.
+- calidad espectral;
+- inteligibilidad;
+- sincronización;
+- espacialidad;
+- continuidad;
+- naturalidad.
 
 ## Vídeo
 
 Evaluar:
 
-* estabilidad temporal;
-* movimiento;
-* identidad;
-* física;
-* cámara;
-* continuidad.
+- estabilidad temporal;
+- movimiento;
+- identidad;
+- física;
+- cámara;
+- continuidad.
 
 ## Multimodal
 
@@ -1379,15 +1376,15 @@ Vídeo + audio + mundo + memoria + evaluación es extremadamente caro.
 
 **Solución:**
 
-* representación latente;
-* sparse activation;
-* jerarquía temporal;
-* generación por eventos;
-* caching;
-* distillation;
-* quantization;
-* mixture-of-experts;
-* inferencia adaptativa.
+- representación latente;
+- sparse activation;
+- jerarquía temporal;
+- generación por eventos;
+- caching;
+- distillation;
+- quantization;
+- mixture-of-experts;
+- inferencia adaptativa.
 
 ---
 
@@ -1486,13 +1483,13 @@ EXPORT
 
 Y añadiría:
 
-* provenance;
-* watermarking opcional;
-* metadata;
-* dataset tracking;
-* model lineage;
-* copyright/licensing tracking;
-* contenido sintético identificable.
+- provenance;
+- watermarking opcional;
+- metadata;
+- dataset tracking;
+- model lineage;
+- copyright/licensing tracking;
+- contenido sintético identificable.
 
 La seguridad no debería estar mezclada con el generador.
 
@@ -1868,9 +1865,12 @@ La resumiría así:
 
 **OMAG no sería una IA que “dibuja, escucha y hace vídeos”. Sería una IA que construye y mantiene un mundo virtual causal, y aprende a manifestar ese mundo simultáneamente como imagen, sonido y vídeo.**
 
-Y eso permite una segunda etapa todavía más interesante: convertir esta arquitectura conceptual en una **especificación técnica implementable**, con **módulos Python/PyTorch, esquemas de tensores, formato del `Media Field`, protocolos entre agentes, sistema de memoria, pipeline de datasets, entrenamiento, GPU/VRAM estimada, API, estructura de repositorio y un MVP que pueda ejecutarse realmente**, utilizando tus repositorios como *benchmarks/adaptadores* sin convertirlos en la arquitectura del modelo.
+Y eso permite una segunda etapa todavía más interesante: convertir esta arquitectura conceptual en una **especificación técnica implementable**, con **módulos Python/PyTorch, esquemas de tensores, formato del `Media Field`, protocolos entre agentes, sistema de memoria, pipeline de datasets, entrenamiento, GPU/VRAM estimada, API, estructura de repositorio y un MVP que pueda ejecutarse realmente**, utilizando tus repositorios como _benchmarks/adaptadores_ sin convertirlos en la arquitectura del modelo.
 
 [1]: https://github.com/anil-matcha/open-generative-ai?utm_source=chatgpt.com "GitHub - Anil-matcha/Open-Generative-AI: Open-source alternative to AI video platforms — Free AI image & video generation studio with 200+ models (Flux, Midjourney, Kling, Sora, Veo). No content filters. Self-hosted, MIT licensed. · GitHub"
+
 [2]: https://github.com/hkuds/vimax?utm_source=chatgpt.com "GitHub - HKUDS/ViMax: \"ViMax: Agentic Video Generation (Director, Screenwriter, Producer, and Video Generator All-in-One)\" · GitHub"
 [3]: https://github.com/comfyanonymous/ComfyUI?utm_source=chatgpt.com "GitHub - Comfy-Org/ComfyUI: The most powerful and modular diffusion model GUI, api and backend with a graph/nodes interface. · GitHub"
 [4]: https://github.com/hpcaitech/Open-sora?utm_source=chatgpt.com "GitHub - hpcaitech/Open-Sora: Open-Sora: Democratizing Efficient Video Production for All · GitHub"
+
+![alt text](image.png)
