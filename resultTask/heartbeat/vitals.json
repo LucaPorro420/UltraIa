@@ -1,8 +1,8 @@
 {
-  "fecha": "2026-09-05",
+  "fecha": "2026-09-06",
   "entorno": "github-actions",
   "vitals": {
-    "puntuacion": 48,
+    "puntuacion": 49,
     "estado": "ROJO",
     "signos": [
       {
@@ -21,17 +21,17 @@
       },
       {
         "nombre": "backlog",
-        "valor": 0.97,
+        "valor": 0.98,
         "peso": 0.15,
         "ok": false,
-        "nota": "153/157 accionables cerradas, 4 pendientes, 1 bloqueadas"
+        "nota": "156/160 accionables cerradas, 4 pendientes, 1 bloqueadas"
       },
       {
         "nombre": "gaps",
         "valor": 0,
         "peso": 0.15,
         "ok": false,
-        "nota": "19 gaps abiertos"
+        "nota": "21 gaps abiertos"
       },
       {
         "nombre": "memoria",
@@ -45,14 +45,14 @@
         "valor": 1,
         "peso": 0.05,
         "ok": true,
-        "nota": "141 commits + 0 lecciones"
+        "nota": "183 commits + 0 lecciones"
       }
     ],
     "razones": [
       "gates: 3/4 verdes (ROJO: build)",
       "tests: 0/0 tests",
-      "backlog: 153/157 accionables cerradas, 4 pendientes, 1 bloqueadas",
-      "gaps: 19 gaps abiertos"
+      "backlog: 156/160 accionables cerradas, 4 pendientes, 1 bloqueadas",
+      "gaps: 21 gaps abiertos"
     ]
   },
   "input": {
@@ -61,6 +61,12 @@
       "total": 0
     },
     "gaps": [
+      {
+        "kind": "source_sin_analizar"
+      },
+      {
+        "kind": "source_sin_analizar"
+      },
       {
         "kind": "source_sin_analizar"
       },
@@ -124,13 +130,13 @@
       "fuentes": 8
     },
     "backlog": {
-      "total": 158,
-      "done": 153,
+      "total": 161,
+      "done": 156,
       "bloqueadas": 1,
       "pendientes": 4
     },
     "actividad": {
-      "commits": 141,
+      "commits": 183,
       "lecciones": 0
     },
     "gates": {

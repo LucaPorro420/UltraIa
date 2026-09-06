@@ -1,14 +1,16 @@
 # PLAN AUTOGENERADO (scripts/autolearn.py)
 
-**Fecha**: 2026-09-05 · **Prioridad**: P1
+**Fecha**: 2026-09-06 · **Prioridad**: P1
 
 ## Objetivo
-Cerrar 1 gaps de aprendizaje priorizados (gap_0)
+Cerrar 2 gaps de aprendizaje priorizados (gap_1, gap_0)
 
 ## Pasos
 1. [A] Tarea del backlog en estado pendiente (score 1.6, Ejecutar inmediatamente)
+2. [A] Fuente "instagram-Dc8wV8KE7Lv.md" descargada sin analisis RAZONAMIENTO (score 1.2, Ejecutar inmediatamente)
 
 ## Archivos a tocar (inferidos de la evidencia)
+- instagram-Dc8wV8KE7Lv.md
 - STATE.md
 
 ## Criterios de verificacion
@@ -33,8 +35,9 @@ Ciclo diario:
 ¿Qué experimento tiene la mayor probabilidad de mejorar el ecosistema completo o generar nuevo conocimiento valioso al menor costo? (no "¿qué puedo hacer?")
 
 ## Gaps detectados (top 10)
+- `source_sin_analizar` — Fuente "instagram-Dc8wV8KE7Lv.md" descargada sin analisis RAZONAMIENTO (learning/sources/instagram-Dc8wV8KE7Lv.md)
 - `backlog_pendiente` — Tarea del backlog en estado pendiente (STATE.md)
 
 ---
-KPIs: lecciones=131 (recientes 0) truth=54 gaps=1 fuentes=27 tasaMejora=0.292
-enlaces.txt: 5 URLs pendientes de procesar
+KPIs: lecciones=131 (recientes 0) truth=54 gaps=2 fuentes=30 tasaMejora=0.292
+enlaces.txt: 10 URLs pendientes de procesar
