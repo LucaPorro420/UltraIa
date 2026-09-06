@@ -244,4 +244,6 @@ Esa única regla suele producir una evolución mucho más rápida de los sistema
 
 
 
-https://github.com/webadderallorg/Recordly :: aDICIONARSSS 
+https://github.com/webadderallorg/Recordly :: aDICIONARSSS
+
+https://www.instagram.com/p/Dc8wV8KE7Lv/?stkn=NTc4MTIwNjQ2YQ== // 06/09/2026 iter-177: post IG con token stkn. Intentos keyless: webfetch=solo skeleton+placeholders, oEmbed=403, embed=404 httpErrorPage logged-out, websearch=sin indice. Evidencia en learning/sources/instagram-Dc8wV8KE7Lv.md. BLOQUEADO sin sesion: se pidio al humano pegar caption/enlaces o autorizar sesion (instaloader/cookies). NO inventar contenido. 

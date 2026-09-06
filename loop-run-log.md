@@ -3574,4 +3574,14 @@ Triage PIVR:
 - **R**: Commit docs(replanteo) con pathspec (plan + REPLANTEO.md + run-log + STATE fila 176). Sin push (gate humano).
 ```json
 {"pattern":"pivr","iter":["176"],"gates":{"verifier":"APPROVE","utf8":"ok","npm":"docs-only-skip"},"note":"replanteo maestro + diagnostico P0 + higiene orphans, sin push"}
+```
+
+### Iteracion 177 — Enlace IG Dc8wV8KE7Lv (06/09/2026) - BLOQUEADO sin sesion
+
+- **P**: pedido usuario "lee la url, analiza imagenes, obtiene texto y toma enlaces para adicionarlos". Protocolo enlaces.txt (intake + fuente cruda + analisis + implementar o escalar).
+- **I**: push aprobado `341ea71..1add3d2` a origin/master OK. Intake en enlaces.txt. Intentos: webfetch markdown (skeleton + 2 placeholders), oEmbed oficial (403), embed/captioned 617KB analizado por explore (cero og:/caption/media, flags `httpErrorPage` + `is_logged_out_user`), websearch (sin indice). Evidencia en `learning/sources/instagram-Dc8wV8KE7Lv.md`.
+- **V**: veredicto: post inaccesible logged-out (privado/eliminado o stkn solo en sesion). Nada que implementar sin contenido real; inventarlo violaria la regla. Precedentes IG DcL0G4MDiKV / FB 807.
+- **R**: escalado a HUMANO (pegar caption/enlaces, autorizar sesion, o capturas) + fila en High Priority STATE.md. Commit docs-only pathspec, sin push.
+```json
+{"pattern":"pivr","iter":["177"],"gates":{"fetch":"4-intentos-keyless","inventado":"nada"},"note":"IG bloqueado sin sesion, escalado a humano"}
 
