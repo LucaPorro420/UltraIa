@@ -133,6 +133,23 @@ Reportes de cada ciclo: `.ultraia/autopub/ciclo-<fecha>.json|.md` (gitignored). 
 configurados el ciclo igual genera y encola; los canales sin credenciales fallan soft recién al
 aprobar/publicar, con la razón exacta en `resultadoJson`.
 
+## Conexión e inicio de sesión (iter-179, tool `social_connect`)
+
+- **Estado**: `social_connect` acción `status` → por red `{connected, missing[]}` (nombres de
+  vars, jamás valores) + `listasParaPublicar`. Sin nada configurado todo da `connected:false`;
+  es el diagnóstico antes de publicar.
+- **Guías**: acción `guide` + `red` (p.ej. `instagram`) → pasos del humano + `loginUrl` +
+  scopes. Orden fácil→difícil: telegram (BotFather) → discord (webhook) → slack/x →
+  youtube/tiktok/linkedin/reddit/pinterest (OAuth) → instagram/threads/facebook (Meta) →
+  whatsapp (Cloud API) → zernio (1 key, 16 plataformas).
+- **Navegación autenticada ("navegar libremente")**: el HUMANO inicia sesión en su navegador y
+  exporta cookies a `.ultraia/browser/session.json` (gitignored); acción `validate-cookies` las
+  valida y `storage-state` construye el storageState Playwright; `login-plan` da los pasos para
+  `browser_run`. El agente NUNCA pide ni guarda passwords.
+- **Regla anti-secretos**: tokens solo en `.env` LOCAL o DB cifrada (`connections.ts`);
+  prohibido pegarlos en chat archivado, issues o commits (denylist: `.env*`, `auth/`,
+  `payments/`, `secrets/`, `credentials/`).
+
 ## Pendientes documentados
 
 - X Free tier: 17 posts/24h por app — programar con el calendario teniéndolo en cuenta.

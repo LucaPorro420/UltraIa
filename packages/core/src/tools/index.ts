@@ -226,7 +226,7 @@ export const tools = { web, image, video, music, stitch, reach, skills: { runSki
   semanticMemory,
   autolearn,
   learnModels,
-  chaos, genesis, creativo, vault: vaultTools, pdfsearch: pdfsearchTools, qdrantMemory: qdrantMemoryTools, kgraph, brainpage, autopub, security, codequality, deps, geom, geometry, pngrender, procvid, physics2d, cadgeo, recordly, cerebro, evo: evoDomain, evolution: evolutionDomain, studio: studioTools, observability: observabilityNs.observability, agentic: agenticNs.agentic, zernio: zernioNs.zernio, sandbox: sandboxNs.sandbox };
+  chaos, genesis, creativo, vault: vaultTools, pdfsearch: pdfsearchTools, qdrantMemory: qdrantMemoryTools, kgraph, brainpage, autopub, security, codequality, deps, geom, geometry, pngrender, procvid, physics2d, cadgeo, recordly, cerebro, evo: evoDomain, evolution: evolutionDomain, studio: studioTools, observability: observabilityNs.observability, agentic: agenticNs.agentic, zernio: zernioNs.zernio, sandbox: sandboxNs.sandbox, socialConnect };
 
 export const TOOL_DESCRIPTIONS: Record<string, string> = {
   calculator: 'Safely evaluate a mathematical expression (math only).',
@@ -376,6 +376,8 @@ export const TOOL_DESCRIPTIONS: Record<string, string> = {
     'Cognitive Agent System: 4-layer memory (working/episodic/semantic/metacognitive), decision memory with confidence calibration, belief system with contradiction detection, HEXACO personality vector, and 5-phase cognitive cycle (PERCEIVE→ASSESS→PLAN→EXECUTE→REFLECT). Orchestrated by CognitiveAgent. Inspired by AgentOS, Nous, Draagon AI, and Agent Brain. Use to build agents with persistent memory, self-reflection, and adaptive decision-making.',
   browser:
     'Headless Browser Agent (Playwright, Browser Use pattern): navigate to URLs, click elements via CSS selectors, fill forms, select dropdowns, check/uncheck boxes, press keyboard keys, scroll, take screenshots (full page or element), extract page content (text/html), evaluate JavaScript, and wait for selectors or navigation. Deterministic action planning with safety validation (network/storage/file:// warnings). Playwright execution when available; plan-only fallback when not. Use to interact with websites, scrape dynamic content, fill forms, take screenshots, and automate browser workflows.',
+  'social-connect':
+    'Conexiones sociales + inicio de sesión (14 redes: telegram/discord/slack/youtube/tiktok/x/instagram/threads/facebook/linkedin/reddit/pinterest/whatsapp/zernio): estado de conexión por red (qué env falta, sin exponer valores), guías de login/OAuth paso a paso, validación de cookies de sesión y construcción de storageState Playwright para navegación autenticada, y plan de login con browser_run. Los secretos los pone el humano en .env local; el agente nunca toca passwords. Usa para conectar redes y navegar libremente con sesión.',
 };
 
 export type Capability =
@@ -465,7 +467,8 @@ export type Capability =
   | 'competitive-intel'
   | 'website-clone'
   | 'cognitive'
-  | 'browser';
+  | 'browser'
+  | 'social-connect';
 
 export * from './observability';
 export * from './agentic';
@@ -485,3 +488,6 @@ export * from './smtp';
 // browser-agent: headless browser automation (Playwright). Namespace import to avoid collisions.
 import * as browserNs from './browser-agent';
 export * from './catalog';
+// social-connect: conexiones sociales + inicio de sesión (dominio puro, símbolos únicos Social*/social*/login*/planBrowser*).
+export * from './social-connect';
+import * as socialConnect from './social-connect';

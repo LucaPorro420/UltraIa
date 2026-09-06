@@ -4073,6 +4073,37 @@ export function chatStream(opts: {
     });
   }
 
+  // --- Social Connect: conexiones sociales + inicio de sesión ---
+  if (opts.tools?.includes('social-connect')) {
+    tools.social_connect = tool({
+      description:
+        'Conexiones sociales + inicio de sesión (14 redes): estado de conexión (qué env falta), guías de login/OAuth, validación de cookies de sesión, storageState Playwright para navegación autenticada y plan de login con browser_run. Secretos solo en .env local del humano.',
+      parameters: z.object({
+        accion: z.enum(['status', 'guide', 'validate-cookies', 'storage-state', 'login-plan']),
+        red: z.string().max(50).optional(),
+        cookiesJson: z.string().max(20000).optional(),
+      }),
+      execute: async ({ accion, red, cookiesJson }) => {
+        const mod = await import('../tools/social-connect');
+        if (accion === 'status') return mod.socialStatus();
+        if (accion === 'guide') {
+          if (!red) throw new Error('guide requiere red');
+          return mod.loginGuide(red);
+        }
+        if (accion === 'login-plan') {
+          if (!red) throw new Error('login-plan requiere red');
+          return mod.planBrowserLogin(red);
+        }
+        if (!cookiesJson) throw new Error(`${accion} requiere cookiesJson`);
+        const parsed = parseJson(cookiesJson, undefined);
+        const v = mod.validateSessionCookies(parsed);
+        if (accion === 'validate-cookies') return v;
+        if (!v.ok) return v;
+        return { ok: true, storageState: mod.buildStorageState(v.cookies!), sessionFile: mod.BROWSER_SESSION_FILE };
+      },
+    });
+  }
+
   // --- Cache check ---
   const lastUserMsg = [...opts.messages].reverse().find((m) => m.role === 'user');
   const cacheKey = JSON.stringify(opts.messages);

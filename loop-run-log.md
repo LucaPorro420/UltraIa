@@ -3594,4 +3594,14 @@ Triage PIVR:
 - **R**: commit pathspec docs-only, sin push.
 ```json
 {"pattern":"pivr","iter":["178"],"gates":{"npm":"docs-only-skip"},"note":"web3d-motion analizado, decisiones y backlog"}
+```
+
+### Iteracion 179 — Conexiones sociales + inicio de sesión (06/09/2026) - DONE
+
+- **P**: pedido usuario (conexion instagram/tiktok/facebook/linkedin/otras + login para navegar libre + subir automatizaciones). Sensado: 14 adapters publish YA + connections.ts AES + browser-agent Playwright. Plan `.opencode/plans/loop-179-social-connect.md`.
+- **I**: `tools/social-connect.ts` NUEVO (SOCIAL_NETWORKS 14 redes con envVars/loginUrl/scopes, socialStatus sin exponer valores, loginGuide, validateSessionCookies, buildStorageState Playwright determinista, planBrowserLogin con espera-humana) + 22 tests + wiring `social_connect` en llm.ts (5 acciones) + index.ts (export/namespace/tools/descriptor/Capability 'social-connect') + catalog.ts (meta + ES) + sección en CANALES-CONFIG-2026.md. Fixes propios: catalog Record (2 intentos: meta + clave hyphen).
+- **V**: scoped 22/22 + catalog 3/3; tsc core 0; FULL con quarantine stash (15 M ajenos intactos tras pop): typecheck 0 / lint 0 / test 2689 core + 250 runtime / build ok (.next limpio).
+- **R**: commit pathspec 8 archivos, sin push. Uso: `social_connect status` → `guide` → humano pone tokens en .env local → `publish_submit`; navegación libre: humano exporta cookies a `.ultraia/browser/session.json` → `storage-state` → `browser_run`.
+```json
+{"pattern":"pivr","iter":["179"],"gates":{"typecheck":"ok","lint":"0","test":"2689+250","build":"ok"},"note":"social-connect 22 tests, FULL verde con quarantine"}
 

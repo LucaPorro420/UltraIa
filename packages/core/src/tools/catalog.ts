@@ -109,6 +109,7 @@ const CATALOG_META: Record<Capability, { category: ToolCategory; route: string; 
   'competitive-intel': { category: 'ia-ml', route: '/dashboard', related: ['research', 'topics'], consolidates: [] },
   'website-clone': { category: 'diseno-ui', route: '/dashboard', related: ['designcompose', 'diagram'], consolidates: [] },
   cognitive: { category: 'ia-ml', route: '/dashboard', related: ['memory', 'semantic_memory', 'autolearn'], consolidates: [] },
+  'social-connect': { category: 'automatizacion', route: '/connections', related: ['publish', 'browser', 'publications'], consolidates: [] },
 };
 
 
@@ -185,6 +186,7 @@ export const ES: Partial<Record<Capability, LocalizedTool>> = {
   orchestrator: { name: 'Orquestador de modelos', description: 'Cambia de modelo y modo con failover automatico: recomienda el modelo gratis adecuado por tarea/modo, resuelve el LanguageModel construible y lista proveedores disponibles.', tags: ['orquestador','modelos','failover'] },
   chat_memory: { name: 'Memoria de chat (graphity)', description: 'Memoria de chat persistente + grafo que preserva la consistencia al cambiar de modelo o modo: crea sesiones, append turnos y reconstruye contexto inyectable.', tags: ['memoria','grafo','contexto'] },
   browser: { name: 'Browser Agent', description: 'Agente de navegador headless: navega, clickea, llena formularios, toma screenshots y extrae contenido.', tags: ['browser','automatizacion','web'] },
+  'social-connect': { name: 'Conexiones sociales', description: 'Estado de conexión por red, guías de login/OAuth y sesión de navegador para navegar autenticado.', tags: ['social','conexiones','login'] },
 };
 
 export const PT: Partial<Record<Capability, LocalizedTool>> = {
