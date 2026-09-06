@@ -82,7 +82,7 @@ restart() → stop() + start() (idempotente)
 | A | `packages/runtime` (infraestructura pura TS + tests) | ✅ Implementada (132/132) |
 | B | Local API HTTP/WS en 127.0.0.1 + token (contrato en `docs/IPC.md`) | ✅ Implementada (15/08/2026, 152/152) |
 | C | Adaptadores a `@ultraia/core` (Db, AiGateway, tools, omag) | ✅ Implementada (15/08/2026, 186/186): `adapters/ports.ts` + `db.ts` + `ai.ts` + `tools.ts` + `omag.ts` + `core.ts` (CorePorts completo). Wiring `system-core` en UltraRuntime ✅ (15/08/2026, 191/191): factory `corePorts` lazy + comandos `core.*` + health check |
-| D | Shell Desktop — **decisión tomada** (`SHELL_DECISION.md`): MVP WebView2 puro en Windows + Local API; upgrade path Tauri 2 si Fase E lo exige | **Spike del launcher ✅ (15/08/2026, 192/192)**: `desktopFase/launcher/launcher.mjs` (Node, cero deps) compila runtime+core a CJS (`dist/`), arranca `UltraRuntime` + Local API + proxy UI (token inyectado, nunca al renderer) y abre `msedge --app` (WebView2 Runtime); `--check --no-window` verifica system/core y sale 0. Falta: ventana real (paso 3) |
+| D | Shell Desktop — **decisión tomada** (`SHELL_DECISION.md`): MVP WebView2 puro en Windows + Local API; upgrade path Tauri 2 si Fase E lo exige | **Implementada (15/08/2026 + validada 06/09/2026)**: `desktopFase/launcher/launcher.mjs` (Node, cero deps) compila runtime+core a CJS (`dist/`), arranca `UltraRuntime` + Local API + proxy UI (token inyectado, nunca al renderer) y abre ventana **WebView2 nativa** (`webview2-host.cs` WinForms + `Microsoft.Web.WebView2`); `--host-check --no-window` verifica end-to-end (exit 0, WebView2 152.0.4191.66). MVP WebView2 ✅. Upgrade path Tauri 2 si Fase E lo exige |
 | E | Instalador real (NSIS/MSI) + actualizador + firma | Pendiente |
 
 ## Verificación

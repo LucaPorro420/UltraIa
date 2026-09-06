@@ -16,4 +16,12 @@
 - **R**: commit pathspec 11 archivos, sin push.
 ```json
 {"pattern":"pivr","iter":["180"],"gates":{"typecheck":"ok","lint":"0","test":"2690+250","build":"ok"},"note":"localhost estable + LinkedIn Posts API + Meta v25 + hub Localhost, FULL verde con quarantine"}
-```
+```### Iteracion 181 — Fase D WebView2 real window validada (06/09/2026) - DONE
+
+- **P**: validar end-to-end la ventana WebView2 nativa (Fase D paso 3). Código ya implementado: webview2-host.cs (WinForms + WebView2), launcher.mjs usa WebView2 host como primera opción, --host-check flag para test end-to-end.
+- **I**: 
+ode desktopFase/launcher/launcher.mjs --host-check --no-build ejecutado → exit 0, JSON {"ok":true,"webview2":"152.0.4191.66","exit":0,"built":true,"error":null}. Ventana WebView2 nativa abre, navega al dashboard del proxy UI, completa NavigationCompleted, cierra y sale 0.
+- **V**: host-check PASS; repo gates FULL verdes (typecheck/lint/test/build previos). Fase D paso 3 validada end-to-end.
+- **R**: DESKTOP_ARCHITECTURE.md actualizado (Fase D paso 3 → ✅ Implementada). Commit pathspec docs.
+`json
+{"pattern":"pivr","iter":["181"],"gates":{"host-check":"PASS","repo":"FULL"},"note":"Fase D WebView2 real window validada end-to-end"}
