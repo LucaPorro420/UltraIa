@@ -3566,3 +3566,12 @@ Triage PIVR:
 - **V**: typecheck ✅ → lint ✅ → test (core 18 website-clone tests PASS + full suite 2683/2683 ✅ + runtime 250/250 ✅) → build ✅.
 - **R**: Commit bc4ad1f. Website-clone capability integrated (18 tests). VSCode extension: iterative tool loop, diagnose tool, improved gate runner, clone_website tool. All gates GREEN.
 
+### Iteracion 176 — Replanteo maestro + diagnostico P0 localhost/web (06/09/2026) - DONE
+
+- **P**: pedido usuario "replantea el proyecto en un md nuevo + busca recursos opensource e implementalos + mejora total". Aclarado: alcance con riesgos sin romper + automatizacion + localhost/web; objetivo producto comercial ya; restriccion $0 keyless-first. Plan `.opencode/plans/loop-176-replanteo-estabilizacion.md` (loop_verifier APPROVE).
+- **I**: `docs/REPLANTEO-ULTRAIA-2026.md` NUEVO (inventario ~140 capabilities, diagnostico D1-D8, vendor 10 + TECH-LIBRARY 12 + sources 29, plan P0-P5, comercial $0, roadmap 177-185). Higiene: 3 procesos `next dev` huerfanos terminados (PIDs 5896/16416/8976), 0 restantes. Hallazgo: crash web = brand icons lucide YA resuelto en HEAD 031dc75 (dev.log stale); fix Content-Encoding en WIP ajeno pendiente (backlog 177).
+- **V**: loop_verifier APPROVE; UTF-8 sin BOM en ambos .md; `git diff --cached` = solo los 4 archivos del plan. Docs-only (precedente loop-44/56): sin gates npm, cero .ts tocados.
+- **R**: Commit docs(replanteo) con pathspec (plan + REPLANTEO.md + run-log + STATE fila 176). Sin push (gate humano).
+```json
+{"pattern":"pivr","iter":["176"],"gates":{"verifier":"APPROVE","utf8":"ok","npm":"docs-only-skip"},"note":"replanteo maestro + diagnostico P0 + higiene orphans, sin push"}
+
