@@ -61,6 +61,7 @@ export * from './pngrender';
 export * as recordly from './recordly';
 export * as cerebro from './cerebro';
 export * from './procvid';
+export * from './remotion';
 // studio (loop-104): media hub del Studio — save plans, WAV keyless, derive plans,
 // catálogo OSS. Símbolos prefijados Studio*/STUDIO_* + studio (namespace const): sin colisiones.
 export * from './studio';
@@ -191,6 +192,7 @@ import { geom } from './geom';
 import { geometry } from './geometry';
 import * as pngrender from './pngrender';
 import * as procvid from './procvid';
+import * as remotion from './remotion';
 import * as physics2d from './physics2d';
 import * as cadgeo from './cadgeo';
 import * as evoDomain from './evo';
@@ -217,6 +219,7 @@ import * as browserAgent from './browser-agent';
 
 export const tools = { web, image, video, music, stitch, reach, skills: { runSkill }, content, g0dm0d3, topics, present: presentTools, publish, enrutador, mediaScore, metrics, memoryFs: { createMemoryFs }, diagram, videoEdit, screenflow, cloud: cloudTools, harness, growth, prioritize, vfx, codevfx, travel, generative, libros, sdf, videoqa,
   motion,
+  remotion,
   replica,
   imaging,
   browser: browserNs.browser,
@@ -329,6 +332,8 @@ export const TOOL_DESCRIPTIONS: Record<string, string> = {
     'Procedural PNG renderer: real PNG encoder in pure TypeScript (node:zlib deflate level fixed -> byte-identical outputs). renderImage/renderImagePng turn any pixel(x,y)->RGB math function into an actual image; valuesToRgba maps generative fields (perlin/simplex/mandelbrot) through palettes (obsidian, neoViolet, fire, ice, mono); hslToRgb helper; atomic writes via tmp+rename. Deterministic, keyless. Use when images must come from code/math instead of an AI provider.',
   procvid:
     'Procedural video library: deterministic animations (plasma/waves/orbits/noise-flow/fractal-zoom/shape-morph) rendered frame-by-frame to real PNGs and assembled by a planned ffmpeg argv (libx264 yuv420p crf18 faststart; optional GIF palettegen/paletteuse). planProcVid validates guards (even dims <=1280, fps<=60, <=60s, <=1800 frames); renderFrames+writeManifest are idempotent; native animated GIF via renderGifBytes (pure TypeScript, no ffmpeg); nothing executes inside tests. Use to produce loops/backgrounds/videos from pure code without generative AI.',
+  remotion:
+    'Remotion video framework: validates vertical/landscape/square composition specs, converts scene seconds to frames, accounts for TransitionSeries overlap, emits a typed Root.tsx + composition starter driven by useCurrentFrame/interpolate, and creates a deterministic manifest with the production rules for assets, audio, captions, timing, sequencing, transitions, media metadata and render safety. Planning only; actual Remotion rendering stays in the app runner.',
   physics2d:
     'Deterministic 2D physics (Motor Evolutivo M1): Verlet positional particles (implicit velocity, fixed substeps gravity->integrate->container->links->collisions, radius-weighted stick links) + rigid circle/box bodies with sequential impulses (restitution + Coulomb friction, multi-iteration solver stable for stacks/pyramids), energy and momentum probes, self-contained Dark Obsidian HTML canvas render. Pure functions over serializable zod-validated JSON states; byte-exact determinism, keyless, zero deps.',
   cadgeo:
@@ -429,6 +434,7 @@ export type Capability =
   | 'geometry'
   | 'pngrender'
   | 'procvid'
+  | 'remotion'
   | 'physics2d'
   | 'cadgeo'
   | 'evo'

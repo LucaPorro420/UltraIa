@@ -133,6 +133,7 @@ import * as brainpage from '../tools/brainpage';
 import * as geometry from '../tools/geometry';
 import * as pngrender from '../tools/pngrender';
 import * as procvid from '../tools/procvid';
+import * as remotion from '../tools/remotion';
 import * as security from '../tools/security';
 import * as codequality from '../tools/codequality';
 import * as deps from '../tools/deps';
@@ -3240,6 +3241,30 @@ export function chatStream(opts: {
           manifestPath: `${plan.outDir}/${plan.outName}.manifest.json`,
           nextStep: manifest.gif ? plan.gifArgv : plan.ffmpegArgv,
           script: sh,
+        };
+      },
+    });
+  }
+
+  if (opts.tools?.includes('remotion')) {
+    tools.remotion_plan = tool({
+      description:
+        'Plan a production Remotion composition from JSON. Validates scene ids and durations, applies vertical/landscape/square dimensions, converts seconds to frames, subtracts TransitionSeries overlap exactly once, and returns a typed Root.tsx starter plus a deterministic manifest. Planning only: do not execute rendering here.',
+      parameters: z.object({
+        projectJson: z.string().min(1).max(100000),
+      }),
+      execute: async ({ projectJson }) => {
+        let project: remotion.RemotionProjectInput;
+        try {
+          project = JSON.parse(projectJson) as remotion.RemotionProjectInput;
+        } catch {
+          throw new Error('projectJson no es JSON válido');
+        }
+        const plan = remotion.planRemotionProject(project);
+        return {
+          plan,
+          starter: remotion.buildRemotionStarter(plan),
+          manifest: remotion.buildRemotionManifest(plan),
         };
       },
     });

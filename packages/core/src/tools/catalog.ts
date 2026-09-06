@@ -79,6 +79,7 @@ const CATALOG_META: Record<Capability, { category: ToolCategory; route: string; 
   geometry: { category: 'codigo-dev', route: '/studio', related: ['geom', 'cadgeo', 'pngrender', 'sdf'], consolidates: ['geom'] },
   pngrender: { category: 'codigo-dev', route: '/studio', related: ['geometry', 'procvid', 'generative'], consolidates: [] },
   procvid: { category: 'video-audio', route: '/studio', related: ['pngrender', 'generative', 'physics2d'], consolidates: [] },
+  remotion: { category: 'video-audio', route: '/studio', related: ['video', 'video_edit', 'procvid', 'motion'], consolidates: [] },
   physics2d: { category: 'codigo-dev', route: '/studio', related: ['creativo', 'generative', 'procvid'], consolidates: [] },
   cadgeo: { category: 'codigo-dev', route: '/studio', related: ['geometry', 'geom', 'pngrender'], consolidates: ['geometry'] },
   evo: { category: 'codigo-dev', route: '/studio', related: ['evolution', 'generative'], consolidates: [] },
