@@ -3584,4 +3584,14 @@ Triage PIVR:
 - **R**: escalado a HUMANO (pegar caption/enlaces, autorizar sesion, o capturas) + fila en High Priority STATE.md. Commit docs-only pathspec, sin push.
 ```json
 {"pattern":"pivr","iter":["177"],"gates":{"fetch":"4-intentos-keyless","inventado":"nada"},"note":"IG bloqueado sin sesion, escalado a humano"}
+```
+
+### Iteracion 178 — Fuentes web3D-motion (06/09/2026) - DONE
+
+- **P**: pedido usuario (peachweb.io, threlte.xyz, theatre.js, spline.design). Protocolo enlaces.txt.
+- **I**: intake en enlaces.txt + `learning/sources/web3d-motion.md` (4 homepages + licencias/stars: Theatre core Apache-2.0/studio AGPL dev-only 12.6k stars; Threlte MIT 3.3k; Spline SaaS viewer 1.9.82; PeachWeb SaaS cerrado) + `docs/RAZONAMIENTO-WEB3D-MOTION.md` (mapeo vs casa + 5 decisiones: theatre-sequence backlog, Threlte no-adoptar salvo Rapier/CLI-gltf, Spline sin runtime, PeachWeb solo UX).
+- **V**: docs-only, cero .ts tocados, UTF-8 sin BOM. Sin gates npm (precedente loop-44/56).
+- **R**: commit pathspec docs-only, sin push.
+```json
+{"pattern":"pivr","iter":["178"],"gates":{"npm":"docs-only-skip"},"note":"web3d-motion analizado, decisiones y backlog"}
 
