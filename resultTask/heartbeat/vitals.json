@@ -1,16 +1,16 @@
 {
-  "fecha": "2026-09-06",
+  "fecha": "2026-09-07",
   "entorno": "github-actions",
   "vitals": {
-    "puntuacion": 49,
+    "puntuacion": 40,
     "estado": "ROJO",
     "signos": [
       {
         "nombre": "gates",
-        "valor": 0.75,
+        "valor": 0.5,
         "peso": 0.35,
         "ok": false,
-        "nota": "3/4 verdes (ROJO: build)"
+        "nota": "2/4 verdes (ROJO: typecheck, build)"
       },
       {
         "nombre": "tests",
@@ -21,10 +21,10 @@
       },
       {
         "nombre": "backlog",
-        "valor": 0.98,
+        "valor": 0.97,
         "peso": 0.15,
         "ok": false,
-        "nota": "156/160 accionables cerradas, 4 pendientes, 1 bloqueadas"
+        "nota": "156/161 accionables cerradas, 5 pendientes, 1 bloqueadas"
       },
       {
         "nombre": "gaps",
@@ -45,13 +45,13 @@
         "valor": 1,
         "peso": 0.05,
         "ok": true,
-        "nota": "183 commits + 0 lecciones"
+        "nota": "155 commits + 0 lecciones"
       }
     ],
     "razones": [
-      "gates: 3/4 verdes (ROJO: build)",
+      "gates: 2/4 verdes (ROJO: typecheck, build)",
       "tests: 0/0 tests",
-      "backlog: 156/160 accionables cerradas, 4 pendientes, 1 bloqueadas",
+      "backlog: 156/161 accionables cerradas, 5 pendientes, 1 bloqueadas",
       "gaps: 21 gaps abiertos"
     ]
   },
@@ -130,17 +130,17 @@
       "fuentes": 8
     },
     "backlog": {
-      "total": 161,
+      "total": 162,
       "done": 156,
       "bloqueadas": 1,
-      "pendientes": 4
+      "pendientes": 5
     },
     "actividad": {
-      "commits": 183,
+      "commits": 155,
       "lecciones": 0
     },
     "gates": {
-      "typecheck": true,
+      "typecheck": false,
       "lint": true,
       "test": true,
       "build": false
@@ -149,9 +149,9 @@
   "regresiones": [],
   "accion": {
     "modo": "reparar",
-    "objetivo": "gates en rojo: build",
+    "objetivo": "gates en rojo: typecheck, build",
     "razon": "el organismo se esta degradando: reparar antes que avanzar (regla: no commitear con gates rojos)",
     "prioridad": "P0",
-    "comando": "npm run build"
+    "comando": "npm run typecheck"
   }
 }
