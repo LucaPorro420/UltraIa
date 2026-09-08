@@ -8,19 +8,28 @@ datasource db {
 }
 
 model User {
-  id            String             @id @default(cuid())
-  email         String             @unique
-  name          String?
-  passwordHash  String
-  role          String             @default("USER") // USER | ADMIN
-  createdAt     DateTime           @default(now())
-  sessions      Session[]
-  workspaces    Workspace[]
-  favorites     FavoritePrompt[]
-  generated     GeneratedAsset[]
-  prompts       PromptLibrary[]    @relation("SubmittedPrompts")
-  publications  Publication[]      @relation("CreatedPublications")
-  annotations   PageAnnotation[]   @relation("PageAnnotationAuthor")
+  id                       String                   @id @default(cuid())
+  email                    String                   @unique
+  name                     String?
+  passwordHash             String
+  role                     String                   @default("USER") // USER | ADMIN
+  createdAt                DateTime                 @default(now())
+  sessions                 Session[]
+  workspaces               Workspace[]
+  favorites                FavoritePrompt[]
+  generated                GeneratedAsset[]
+  prompts                  PromptLibrary[]          @relation("SubmittedPrompts")
+  publications             Publication[]            @relation("CreatedPublications")
+  annotations              PageAnnotation[]         @relation("PageAnnotationAuthor")
+  learningProgresses       LearningProgress[]
+  learningModuleProgresses LearningModuleProgress[]
+  learningLessonProgresses LearningLessonProgress[]
+  bilingualUserPrefs       BilingualUserPref[]
+  studyDecks               StudyDeck[]
+  studySessions            StudySession[]
+  studyChatSessions        StudyChatSession[]
+  syncQueues               SyncQueue[]
+  deviceSyncs              DeviceSync[]
 }
 
 model Session {
@@ -42,21 +51,21 @@ model Workspace {
 }
 
 model AgentBlueprint {
-  id                String          @id @default(cuid())
-  workspaceId       String
-  workspace         Workspace       @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  name              String
-  taskDescription   String
-  evalInputs        String          @default("[]")
-  isPublic          Boolean         @default(false)
-  createdAt         DateTime        @default(now())
-  versions          AgentVersion[]
-  conversations     Conversation[]
-  apiKeys           ApiKey[]
+  id              String         @id @default(cuid())
+  workspaceId     String
+  workspace       Workspace      @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  name            String
+  taskDescription String
+  evalInputs      String         @default("[]")
+  isPublic        Boolean        @default(false)
+  createdAt       DateTime       @default(now())
+  versions        AgentVersion[]
+  conversations   Conversation[]
+  apiKeys         ApiKey[]
 }
 
 model AgentVersion {
-  id            String        @id @default(cuid())
+  id            String         @id @default(cuid())
   blueprintId   String
   blueprint     AgentBlueprint @relation(fields: [blueprintId], references: [id], onDelete: Cascade)
   versionNumber Int
@@ -67,7 +76,7 @@ model AgentVersion {
   guardrails    String
   status        String // ACTIVE | PENDING | REJECTED | SUPERSEDED
   changeSummary String?
-  createdAt     DateTime      @default(now())
+  createdAt     DateTime       @default(now())
   evalRuns      EvalRun[]
   learningRuns  LearningRun[]
   conversations Conversation[]
@@ -76,56 +85,56 @@ model AgentVersion {
 }
 
 model Conversation {
-  id            String       @id @default(cuid())
-  blueprintId   String
-  blueprint     AgentBlueprint @relation(fields: [blueprintId], references: [id], onDelete: Cascade)
+  id             String         @id @default(cuid())
+  blueprintId    String
+  blueprint      AgentBlueprint @relation(fields: [blueprintId], references: [id], onDelete: Cascade)
   agentVersionId String
-  agentVersion  AgentVersion @relation(fields: [agentVersionId], references: [id])
-  title         String
-  createdAt     DateTime     @default(now())
-  messages      Message[]
-  feedbacks     Feedback[]
+  agentVersion   AgentVersion   @relation(fields: [agentVersionId], references: [id])
+  title          String
+  createdAt      DateTime       @default(now())
+  messages       Message[]
+  feedbacks      Feedback[]
 }
 
 model Message {
-  id             String      @id @default(cuid())
+  id             String       @id @default(cuid())
   conversationId String
   conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
   sequence       Int
   role           String // user | assistant | system
   content        String
-  createdAt      DateTime    @default(now())
+  createdAt      DateTime     @default(now())
 
   @@unique([conversationId, sequence])
 }
 
 model Feedback {
-  id             String      @id @default(cuid())
+  id             String       @id @default(cuid())
   conversationId String
   conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
   messageSeq     Int
   rating         String // GOOD | BAD
   critique       String?
-  createdAt      DateTime    @default(now())
+  createdAt      DateTime     @default(now())
 
   @@unique([conversationId, messageSeq])
 }
 
 model EvalRun {
-  id             String     @id @default(cuid())
-  agentVersionId String
-  agentVersion   AgentVersion @relation(fields: [agentVersionId], references: [id], onDelete: Cascade)
-  status         String // RUNNING | COMPLETED | FAILED
-  avgScore       Float      @default(0)
-  passRate       Float      @default(0)
-  totalCases    Int        @default(0)
-  completedCases Int       @default(0)
-  cachedCases   Int        @default(0)
-  durationMs    Int        @default(0)
-  gateState     String     @default("PENDING") // PENDING | PASS | FAIL | INTERRUPTED
+  id               String       @id @default(cuid())
+  agentVersionId   String
+  agentVersion     AgentVersion @relation(fields: [agentVersionId], references: [id], onDelete: Cascade)
+  status           String // RUNNING | COMPLETED | FAILED
+  avgScore         Float        @default(0)
+  passRate         Float        @default(0)
+  totalCases       Int          @default(0)
+  completedCases   Int          @default(0)
+  cachedCases      Int          @default(0)
+  durationMs       Int          @default(0)
+  gateState        String       @default("PENDING") // PENDING | PASS | FAIL | INTERRUPTED
   promotionOutcome String? // APPROVED | REJECTED | PENDING
-  createdAt     DateTime   @default(now())
-  cases          EvalCase[]
+  createdAt        DateTime     @default(now())
+  cases            EvalCase[]
 }
 
 model EvalCase {
@@ -141,20 +150,20 @@ model EvalCase {
 }
 
 model LearningRun {
-  id              String       @id @default(cuid())
-  agentVersionId  String
-  agentVersion    AgentVersion @relation(fields: [agentVersionId], references: [id], onDelete: Cascade)
-  status          String       @default("RUNNING") // RUNNING | COMPLETED | FAILED | INTERRUPTED
-  totalCases      Int          @default(0)
-  completedCases  Int          @default(0)
-  cachedCases     Int          @default(0)
-  durationMs      Int          @default(0)
-  regressionScore Float?
-  gateState       String       @default("PENDING") // PENDING | PASS | FAIL | INTERRUPTED
-  promotionOutcome String?     // APPROVED | REJECTED | PENDING
-  startedAt       DateTime     @default(now())
-  completedAt     DateTime?
-  createdAt       DateTime     @default(now())
+  id               String       @id @default(cuid())
+  agentVersionId   String
+  agentVersion     AgentVersion @relation(fields: [agentVersionId], references: [id], onDelete: Cascade)
+  status           String       @default("RUNNING") // RUNNING | COMPLETED | FAILED | INTERRUPTED
+  totalCases       Int          @default(0)
+  completedCases   Int          @default(0)
+  cachedCases      Int          @default(0)
+  durationMs       Int          @default(0)
+  regressionScore  Float?
+  gateState        String       @default("PENDING") // PENDING | PASS | FAIL | INTERRUPTED
+  promotionOutcome String? // APPROVED | REJECTED | PENDING
+  startedAt        DateTime     @default(now())
+  completedAt      DateTime?
+  createdAt        DateTime     @default(now())
 
   @@index([agentVersionId, createdAt])
 }
@@ -193,31 +202,31 @@ model ChatTelemetry {
 }
 
 model LearningSignal {
-  id              String   @id @default(cuid())
-  blueprintId     String
-  fingerprint     String
+  id               String   @id @default(cuid())
+  blueprintId      String
+  fingerprint      String
   sourceFeedbackId String?
-  source          String   @default("feedback")
-  kind            String   // positive | negative | ambiguous
-  status          String   @default("PENDING") // APPROVED | PENDING | REJECTED
-  signal          String
-  occurrenceCount Int      @default(1)
-  originalSource  String?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  source           String   @default("feedback")
+  kind             String // positive | negative | ambiguous
+  status           String   @default("PENDING") // APPROVED | PENDING | REJECTED
+  signal           String
+  occurrenceCount  Int      @default(1)
+  originalSource   String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
   @@unique([blueprintId, fingerprint])
   @@index([blueprintId, status])
 }
 
 model ApiKey {
-  id          String    @id @default(cuid())
+  id          String         @id @default(cuid())
   blueprintId String
   blueprint   AgentBlueprint @relation(fields: [blueprintId], references: [id], onDelete: Cascade)
   name        String
-  keyHash     String    @unique
+  keyHash     String         @unique
   lastUsedAt  DateTime?
-  createdAt   DateTime  @default(now())
+  createdAt   DateTime       @default(now())
 }
 
 //! TechRadar: tabla de inventario de tecnologias del proyecto (roadmap grafico).
@@ -240,21 +249,21 @@ model TechRadar {
 //! Libreria de prompts de imagen/video (MeiGEN style). Seed desde
 //! jau123/nanobanana-trending-prompts; los usuarios pueden aportar los propios.
 model PromptLibrary {
-  id              String             @id @default(cuid())
-  slug            String             @unique
+  id              String           @id @default(cuid())
+  slug            String           @unique
   prompt          String
   category        String // Portrait | Ads & Product | Poster | Illustration & 3D | UI Design | Video | Wallpaper | Branding | Custom
-  tags            String             @default("[]") // JSON string[]
-  models          String             @default("[]") // JSON string[] (gpt-image-2, nanobanana, midjourney...)
-  aspectRatio     String             @default("1:1")
+  tags            String           @default("[]") // JSON string[]
+  models          String           @default("[]") // JSON string[] (gpt-image-2, nanobanana, midjourney...)
+  aspectRatio     String           @default("1:1")
   imageUrl        String? // imagen de referencia / resultado
   sourceUrl       String? // post original (X/Twitter) o fuente
-  engagementRank  Int                @default(0) // ranking por engagement (0 = sin ranking)
-  isUserSubmitted Boolean            @default(false)
-  submitter       User?              @relation("SubmittedPrompts", fields: [submitterId], references: [id], onDelete: SetNull)
+  engagementRank  Int              @default(0) // ranking por engagement (0 = sin ranking)
+  isUserSubmitted Boolean          @default(false)
+  submitter       User?            @relation("SubmittedPrompts", fields: [submitterId], references: [id], onDelete: SetNull)
   submitterId     String?
-  useCount        Int                @default(0)
-  createdAt       DateTime           @default(now())
+  useCount        Int              @default(0)
+  createdAt       DateTime         @default(now())
   favorites       FavoritePrompt[]
 }
 
@@ -271,26 +280,26 @@ model FavoritePrompt {
 
 //! Historial de generaciones del Studio (galeria "Mis creaciones" multi-media).
 model GeneratedAsset {
-  id             String   @id @default(cuid())
+  id             String           @id @default(cuid())
   userId         String
-  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   prompt         String
   provider       String // pollinations | meigen | local | edge-tts | storyboard | composition | composition-synth | tunetank | stitch | web-reader
   model          String
   seed           Int?
-  mediaType      String   @default("image") // image | audio | video | music | tts | design | text
+  mediaType      String           @default("image") // image | audio | video | music | tts | design | text
   url            String
-  width          Int      @default(1024)
-  height         Int      @default(1024)
+  width          Int              @default(1024)
+  height         Int              @default(1024)
   sourcePromptId String? // si vino de "Usar idea" en la libreria
   //! Studio v2 (loop-104): persistencia durable + derivados + metadata flexible.
-  storage        String   @default("external") // external (URL remota) | cloud (binario en CloudService)
+  storage        String           @default("external") // external (URL remota) | cloud (binario en CloudService)
   cloudPath      String? // path canonico en el cloud cuando storage = "cloud" (media/images/..., media/audio/...)
   parentId       String? // asset del que deriva (re-roll, resintesis, render) -> cadena de versiones
-  parent         GeneratedAsset? @relation("AssetDerivations", fields: [parentId], references: [id], onDelete: SetNull)
+  parent         GeneratedAsset?  @relation("AssetDerivations", fields: [parentId], references: [id], onDelete: SetNull)
   children       GeneratedAsset[] @relation("AssetDerivations")
   metaJson       String? // JSON flexible: filters CSS, frames de storyboard, composicion musical, htmlUrl diseno...
-  createdAt      DateTime @default(now())
+  createdAt      DateTime         @default(now())
 
   @@index([userId, mediaType])
   @@index([parentId])
@@ -299,25 +308,25 @@ model GeneratedAsset {
 //! Cola de publicaciones AutoPub (F4): un paquete por canal, con aprobacion humana
 //! hibrida (texto auto; video/imagen requieren aprobacion) y programacion.
 model Publication {
-  id           String    @id @default(cuid())
-  briefId      String? // brief de F1 (topics) que origino el paquete
-  tema         String
-  canal        String // youtube_shorts | tiktok | instagram | blog | telegram | discord | slack
-  paqueteJson  String // PublicationPackage serializado (F3 present)
-  caption      String // caption final para el canal (de captionsByChannel)
-  hashtags     String    @default("[]") // JSON string[]
-  estado       String    @default("DRAFT") // DRAFT | APPROVED | REJECTED | PUBLISHED | FAILED
-  requiereAprobacion Boolean @default(true) // video/imagen → true; texto/blog → false
-  scheduledAt  DateTime? // programacion (calendario de la tarea 4)
-  publishedAt  DateTime?
-  resultadoJson String? // resultado de publicacion (por plataforma)
-  error        String?
-  mediaScore   Int? // 0-100 calidad pre-publicacion (AutoPub F5, port media_score.py)
-  feedbackJson String? // JSON string[] de senales post-pub: {rating, critique, ts} (F5)
-  creadoPorId  String?
-  creadoPor    User?     @relation("CreatedPublications", fields: [creadoPorId], references: [id], onDelete: SetNull)
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  id                 String    @id @default(cuid())
+  briefId            String? // brief de F1 (topics) que origino el paquete
+  tema               String
+  canal              String // youtube_shorts | tiktok | instagram | blog | telegram | discord | slack
+  paqueteJson        String // PublicationPackage serializado (F3 present)
+  caption            String // caption final para el canal (de captionsByChannel)
+  hashtags           String    @default("[]") // JSON string[]
+  estado             String    @default("DRAFT") // DRAFT | APPROVED | REJECTED | PUBLISHED | FAILED
+  requiereAprobacion Boolean   @default(true) // video/imagen → true; texto/blog → false
+  scheduledAt        DateTime? // programacion (calendario de la tarea 4)
+  publishedAt        DateTime?
+  resultadoJson      String? // resultado de publicacion (por plataforma)
+  error              String?
+  mediaScore         Int? // 0-100 calidad pre-publicacion (AutoPub F5, port media_score.py)
+  feedbackJson       String? // JSON string[] de senales post-pub: {rating, critique, ts} (F5)
+  creadoPorId        String?
+  creadoPor          User?     @relation("CreatedPublications", fields: [creadoPorId], references: [id], onDelete: SetNull)
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
 
   @@index([estado, scheduledAt])
 }
@@ -325,32 +334,32 @@ model Publication {
 // Conexiones por canal (AutoPub F6): tokens OAuth/bot encriptados en DB con fallback a .env.
 // Clave de cifrado: CONNECTIONS_SECRET (AES-256-GCM). Sin clave → modo efímero (tokens no sobreviven reinicio).
 model ChannelConnection {
-  id                 String    @id @default(cuid())
-  canal              String    @unique // youtube_shorts | tiktok | x | instagram | threads | facebook | linkedin | telegram | discord | slack
-  tokenCifrado       String    // access token encriptado (AES-256-GCM)
-  refreshTokenCifrado String?   // refresh token encriptado (opcional)
-  expiresAt          DateTime? // expiración del access token
-  metaJson           String?   // JSON: {userId, authorUrn, pageId, channelName, ...}
-  estado             String    @default("CONNECTED") // CONNECTED | ERROR | EXPIRED
-  ultimoTestAt       DateTime?
-  ultimoError        String?
-  createdAt          DateTime  @default(now())
-  updatedAt          DateTime  @updatedAt
+  id                  String    @id @default(cuid())
+  canal               String    @unique // youtube_shorts | tiktok | x | instagram | threads | facebook | linkedin | telegram | discord | slack
+  tokenCifrado        String // access token encriptado (AES-256-GCM)
+  refreshTokenCifrado String? // refresh token encriptado (opcional)
+  expiresAt           DateTime? // expiración del access token
+  metaJson            String? // JSON: {userId, authorUrn, pageId, channelName, ...}
+  estado              String    @default("CONNECTED") // CONNECTED | ERROR | EXPIRED
+  ultimoTestAt        DateTime?
+  ultimoError         String?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
 }
 
 // Cola de briefs persistente (AutoPub F1 tarea 4): el motor de ideas alimenta la fábrica.
 model TopicBrief {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   tema        String
   canal       String // youtube_shorts | tiktok | instagram | blog | telegram | discord | slack
   formato     String // 9:16 video | 1:1 imagen | 16:9 articulo
   tono        String // informativo | educativo | entretenido | inspirador | analitico | noticia
   angulo      String
-  fuentesJson String   @default("[]") // JSON string[]
-  score       Float    @default(0)
+  fuentesJson String    @default("[]") // JSON string[]
+  score       Float     @default(0)
   pubDate     String?
-  estado      String   @default("NUEVO") // NUEVO | PROCESADO | DESCARTADO
-  creadoEn    DateTime @default(now())
+  estado      String    @default("NUEVO") // NUEVO | PROCESADO | DESCARTADO
+  creadoEn    DateTime  @default(now())
   procesadoEn DateTime?
 
   @@index([estado, score])
@@ -359,20 +368,362 @@ model TopicBrief {
 // Editor Visual no-code (loop-120): anotaciones/notas/peticiones sobre paginas del shell (app),
 // mas reemplazo de texto por selector (kind=texto, solo ADMIN) para editar la UI como un CMS ligero.
 model PageAnnotation {
-  id           String    @id @default(cuid())
-  page         String // ruta de la pagina, p.ej. '/dashboard'
-  selector     String? // selector CSS deterministico (uniqueSelectorPath) para anclar el nodo
-  anchorText   String? // texto ancla como pista si el selector falla
-  kind         String    @default("nota") // nota | peticion | texto
-  body         String // contenido de la nota/peticion, o descripcion del cambio
-  nuevoTexto   String? // para kind=texto: texto que reemplaza el del selector
-  estado       String    @default("abierta") // abierta | resuelta
-  visible      Boolean   @default(true)
-  creadoPorId  String?
-  creadoPor    User?     @relation("PageAnnotationAuthor", fields: [creadoPorId], references: [id], onDelete: SetNull)
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  id          String   @id @default(cuid())
+  page        String // ruta de la pagina, p.ej. '/dashboard'
+  selector    String? // selector CSS deterministico (uniqueSelectorPath) para anclar el nodo
+  anchorText  String? // texto ancla como pista si el selector falla
+  kind        String   @default("nota") // nota | peticion | texto
+  body        String // contenido de la nota/peticion, o descripcion del cambio
+  nuevoTexto  String? // para kind=texto: texto que reemplaza el del selector
+  estado      String   @default("abierta") // abierta | resuelta
+  visible     Boolean  @default(true)
+  creadoPorId String?
+  creadoPor   User?    @relation("PageAnnotationAuthor", fields: [creadoPorId], references: [id], onDelete: SetNull)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   @@index([page, estado])
   @@index([page, visible])
+}
+
+model LearningCourse {
+  id           String             @id @default(cuid())
+  slug         String             @unique
+  title        String
+  description  String?
+  icon         String?
+  category     String // 'fundamentals', 'typescript', 'react', 'backend', 'database', 'ai', 'agents', 'omag', 'multimedia', 'autopub', 'cerebro', 'runtime', 'devops', 'markdown', 'conclusion'
+  order        Int                @default(0)
+  isPublished  Boolean            @default(true)
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+  modules      LearningModule[]
+  userProgress LearningProgress[]
+
+  @@index([category, order])
+}
+
+model LearningModule {
+  id           String                   @id @default(cuid())
+  courseId     String
+  course       LearningCourse           @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  slug         String
+  title        String
+  description  String?
+  icon         String?
+  order        Int                      @default(0)
+  isPublished  Boolean                  @default(true)
+  lessons      LearningLesson[]
+  userProgress LearningModuleProgress[]
+  createdAt    DateTime                 @default(now())
+  updatedAt    DateTime                 @updatedAt
+
+  @@unique([courseId, slug])
+  @@index([courseId, order])
+}
+
+model LearningLesson {
+  id               String                   @id @default(cuid())
+  moduleId         String
+  module           LearningModule           @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  slug             String
+  title            String
+  content          String // HTML/Markdown contenido renderizado
+  contentMarkdown  String? // Markdown original para edición
+  order            Int                      @default(0)
+  durationMin      Int                      @default(10)
+  difficulty       String                   @default("basic") // basic, intermediate, advanced
+  isPublished      Boolean                  @default(true)
+  quiz             Json? // { question, options, correct, explanation }
+  exercise         String?
+  tags             String                   @default("[]")
+  prerequisites    String                   @default("[]") // lesson slugs requeridos
+  bilingualContent Json? // { es: "...", ar: "...", en: "..." } para panel bilingüe
+  createdAt        DateTime                 @default(now())
+  updatedAt        DateTime                 @updatedAt
+  userProgress     LearningLessonProgress[]
+  resources        LearningResource[]
+
+  @@unique([moduleId, slug])
+  @@index([moduleId, order])
+}
+
+model LearningResource {
+  id        String         @id @default(cuid())
+  lessonId  String
+  lesson    LearningLesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  type      String // 'pdf', 'video', 'audio', 'code', 'link', 'document', 'glossary'
+  title     String
+  url       String?
+  content   String? // contenido inline (para glossary, code snippets)
+  metadata  Json? // { size, duration, language, etc }
+  order     Int            @default(0)
+  isOffline Boolean        @default(false) // disponible offline
+  createdAt DateTime       @default(now())
+
+  @@index([lessonId, type])
+}
+
+// ==================== USER PROGRESS ====================
+
+model LearningProgress {
+  id               String         @id @default(cuid())
+  userId           String
+  user             User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseId         String
+  course           LearningCourse @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  completedLessons String         @default("[]") // lesson slugs completados
+  currentLessonId  String? // slug de lección actual
+  lastAccessedAt   DateTime       @default(now())
+  startedAt        DateTime       @default(now())
+  completedAt      DateTime?
+  totalTimeMinutes Int            @default(0)
+  streakDays       Int            @default(0)
+  lastStreakDate   DateTime?
+  settings         String         @default("{}") // { fontSize, theme, contrast, lineHeight, language }
+
+  @@unique([userId, courseId])
+  @@index([userId])
+}
+
+model LearningModuleProgress {
+  id               String         @id @default(cuid())
+  userId           String
+  user             User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  moduleId         String
+  module           LearningModule @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  progress         Float          @default(0) // 0-1
+  completedLessons String         @default("[]")
+  startedAt        DateTime       @default(now())
+  completedAt      DateTime?
+
+  @@unique([userId, moduleId])
+  @@index([userId])
+}
+
+model LearningLessonProgress {
+  id           String         @id @default(cuid())
+  userId       String
+  user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lessonId     String
+  lesson       LearningLesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  status       String         @default("not_started") // not_started, in_progress, completed, skipped
+  score        Float? // 0-1 para quiz
+  attempts     Int            @default(0)
+  timeSpentMin Int            @default(0)
+  startedAt    DateTime?
+  completedAt  DateTime?
+  answers      Json? // respuestas del quiz
+  notes        String? // notas personales del usuario
+  bookmarked   Boolean        @default(false)
+
+  @@unique([userId, lessonId])
+  @@index([userId, status])
+}
+
+// ==================== BILINGUAL READING ====================
+
+model BilingualDocument {
+  id              String              @id @default(cuid())
+  title           String
+  slug            String              @unique
+  description     String?
+  sourceType      String // 'lesson', 'documentation', 'article', 'paper', 'custom'
+  sourceId        String? // lesson slug o document id
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  versions        BilingualVersion[]
+  userPreferences BilingualUserPref[]
+
+  @@index([sourceType, sourceId])
+}
+
+model BilingualVersion {
+  id                String            @id @default(cuid())
+  documentId        String
+  document          BilingualDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  language          String // 'es', 'ar', 'en', 'fr', 'pt', 'zh', etc.
+  content           String // HTML/Markdown
+  contentHash       String // para detectar cambios
+  isPrimary         Boolean           @default(false) // idioma principal
+  translationSource String? // 'human', 'machine', 'ai'
+  translator        String? // userId o 'auto'
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  @@unique([documentId, language])
+}
+
+model BilingualUserPref {
+  id            String            @id @default(cuid())
+  userId        String
+  user          User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  documentId    String
+  document      BilingualDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  leftLanguage  String            @default("es")
+  rightLanguage String            @default("ar")
+  leftWidth     Int               @default(50) // porcentaje 0-100
+  rightWidth    Int               @default(50)
+  preset        String? // '50-50', '60-40', '70-30', '30-70', 'full-left', 'full-right'
+  syncScroll    Boolean           @default(true)
+  showDiff      Boolean           @default(false)
+  fontSize      Int               @default(16)
+  lineHeight    Float             @default(1.6)
+  theme         String            @default("dark")
+
+  @@unique([userId, documentId])
+}
+
+// ==================== STUDY METHODS / SRS ====================
+
+model StudyDeck {
+  id          String         @id @default(cuid())
+  userId      String
+  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String
+  description String?
+  sourceType  String // 'lesson', 'custom', 'imported'
+  sourceId    String?
+  tags        String         @default("[]")
+  isPublic    Boolean        @default(false)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  cards       StudyCard[]
+  sessions    StudySession[]
+
+  @@index([userId])
+}
+
+model StudyCard {
+  id           String        @id @default(cuid())
+  deckId       String
+  deck         StudyDeck     @relation(fields: [deckId], references: [id], onDelete: Cascade)
+  front        String // pregunta / concepto
+  back         String // respuesta / explicación
+  frontLang    String        @default("es")
+  backLang     String        @default("es")
+  tags         String        @default("[]")
+  difficulty   Int           @default(0) // 0-5
+  // SRS State (SM-2 / FSRS)
+  easeFactor   Float         @default(2.5)
+  intervalDays Int           @default(0)
+  repetitions  Int           @default(0)
+  nextReview   DateTime      @default(now())
+  lastReviewed DateTime?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  reviews      StudyReview[]
+
+  @@index([deckId, nextReview])
+}
+
+model StudyReview {
+  id                  String    @id @default(cuid())
+  cardId              String
+  card                StudyCard @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  quality             Int // 0-5 (SM-2 recall quality)
+  previousEase        Float
+  previousInterval    Int
+  previousRepetitions Int
+  reviewedAt          DateTime  @default(now())
+
+  @@index([cardId, reviewedAt])
+}
+
+model StudySession {
+  id            String     @id @default(cuid())
+  userId        String
+  user          User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  deckId        String?
+  deck          StudyDeck? @relation(fields: [deckId], references: [id], onDelete: SetNull)
+  type          String     @default("review") // review, learn, cram, test
+  cardsReviewed Int        @default(0)
+  correctCount  Int        @default(0)
+  timeSpentMin  Int        @default(0)
+  startedAt     DateTime   @default(now())
+  completedAt   DateTime?
+
+  @@index([userId, startedAt])
+}
+
+// ==================== AI ASSISTANT / SEARCH ====================
+
+model StudyChatSession {
+  id          String             @id @default(cuid())
+  userId      String
+  user        User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title       String?
+  contextType String // 'course', 'lesson', 'deck', 'general'
+  contextId   String? // course/module/lesson/deck slug
+  messages    StudyChatMessage[]
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+
+  @@index([userId, updatedAt])
+}
+
+model StudyChatMessage {
+  id          String           @id @default(cuid())
+  sessionId   String
+  session     StudyChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  role        String // 'user', 'assistant', 'system', 'tool'
+  content     String
+  toolCalls   Json?
+  toolResults Json?
+  metadata    Json? // { tokens, model, latency, citations }
+  createdAt   DateTime         @default(now())
+
+  @@index([sessionId, createdAt])
+}
+
+model SearchIndex {
+  id        String   @id @default(cuid())
+  type      String // 'lesson', 'glossary', 'document', 'code', 'chat'
+  sourceId  String
+  title     String
+  content   String // texto plano para búsqueda
+  embedding Bytes? // vector embedding (opcional, para búsqueda semántica)
+  metadata  Json? // { module, lesson, tags, language }
+  language  String   @default("es")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([type, sourceId])
+  @@index([language])
+}
+
+// ==================== OFFLINE SYNC ====================
+
+model SyncQueue {
+  id         String    @id @default(cuid())
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  entityType String // 'LearningLessonProgress', 'StudyCard', 'StudyReview', 'StudyChatSession', etc.
+  entityId   String
+  operation  String // 'create', 'update', 'delete'
+  payload    Json // datos completos de la entidad
+  status     String    @default("pending") // pending, syncing, completed, failed, conflict
+  retryCount Int       @default(0)
+  lastError  String?
+  createdAt  DateTime  @default(now())
+  syncedAt   DateTime?
+
+  @@index([userId, status])
+  @@index([entityType, entityId])
+}
+
+model DeviceSync {
+  id             String    @id @default(cuid())
+  userId         String
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  deviceId       String // hash único del dispositivo
+  deviceName     String?
+  platform       String // 'web', 'mobile', 'desktop'
+  lastSyncAt     DateTime?
+  pendingChanges Int       @default(0)
+  isActive       Boolean   @default(true)
+  createdAt      DateTime  @default(now())
+
+  @@unique([userId, deviceId])
+  @@index([userId])
 }

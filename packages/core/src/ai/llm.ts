@@ -147,6 +147,7 @@ import { planAgenticGraph, planCrew, planRagPipeline, routeIntent, planLcelChain
 import { createZernioClient } from '../tools/zernio';
 import { executeSandbox } from '../tools/sandbox';
 import { holagptChat, holagptImage, holagptSearch, holagptAudio, holagptModels, holagptStatus } from '../tools/holagpt';
+import { learningSystemHandler } from '../tools/learning-system';
 import { contentFactoryGenerate, contentFactorySearch } from '../tools/content-factory';
 import { learningSearch } from '../tools/learning-search';
 import { createPublication, listPublications, approvePublication, rejectPublication, publishDue } from '../domain/publications';
@@ -4124,6 +4125,24 @@ export function chatStream(opts: {
         if (!v.ok) return v;
         return { ok: true, storageState: mod.buildStorageState(v.cookies!), sessionFile: mod.BROWSER_SESSION_FILE };
       },
+    });
+  }
+
+
+  // --- Learning System (Prisma SQLite, SM-2) ---
+  if (opts.tools?.includes('learning-system')) {
+    tools.learning_manage = tool({
+      description:
+        'Learning System: cursos/modulos/lecciones + progreso SRS (SM-2) + bilingue. Acciones: create_course (slug/title/category), list_courses (category), create_module (courseId/slug/title), create_lesson (moduleId/slug/title/content), review_card (cardId/quality 0-5). DB inyectada via opts.db, fail-soft, SQLite String JSON.',
+      parameters: z.object({
+        action: z.enum(['create_course', 'list_courses', 'create_module', 'create_lesson', 'review_card']),
+        course: z.object({ slug: z.string(), title: z.string(), category: z.string(), description: z.string().optional(), icon: z.string().optional() }).optional(),
+        module: z.object({ courseId: z.string(), slug: z.string(), title: z.string() }).optional(),
+        lesson: z.object({ moduleId: z.string(), slug: z.string(), title: z.string(), content: z.string() }).optional(),
+        review: z.object({ cardId: z.string(), quality: z.number().min(0).max(5), easeFactor: z.number().optional(), intervalDays: z.number().optional(), repetitions: z.number().optional() }).optional(),
+        category: z.string().optional(),
+      }),
+      execute: async (params) => learningSystemHandler(params as any, { db: (opts as any).db }),
     });
   }
 

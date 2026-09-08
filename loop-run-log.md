@@ -28,3 +28,27 @@ ode desktopFase/launcher/launcher.mjs --host-check --no-build ejecutado → exit
 ```json
 {"pattern":"pivr","iter":["181"],"gates":{"host-check":"PASS","repo":"FULL"},"note":"Fase D WebView2 real window validada end-to-end"}
 ```
+
+## 2026-09-08 04:56
+- State-doctor: **issues** (exit 1)
+- Salida:
+
+
+
+## 2026-09-08 05:03
+- State-doctor: **issues** (exit 1)
+- Salida:
+STATE.md integrity: 3 issue(s)
+- orphan-row: fila huerfana: #180 (fuera de tabla)
+- orphan-row: fila huerfana: #181 (fuera de tabla)
+- lock: activo (task 182)
+
+
+
+### Iteracion 183 — Prisma Learning System + C1 FutureMindMy (P) - 08/09/2026
+
+- [P] Plan `.opencode/plans/loop-183-prisma-learning-migracion.md` (tarea #183 P1) — Migracion Prisma 16 modelos (LearningCourse/Module/Lesson/Resource, Progress triada, Bilingual 3, SRS Deck/Card/Review/Session, Chat, Search/Sync/Device) + SM-2 SRS + bilingue es/ar/en + tool `learning_manage` 7 acciones + C1 Clean Arch slice de FutureMindMy. Sensado: #6 Gen-Engine pendiente pero bloqueado GPU (se cede), lock 182 STALE 81min recuperable, budget <5% tokens, git status 4M+13?? (<50), FutureMindMy no iniciado, prisma-learning-extensions.prisma 401 lineas untracked. SPEC/DESIGN/LEARN/TEST/MEJORAS/TECNOLOGIAS evaluadas (pdfsearch SM-2, Prisma String[], Turborepo draft, enlaces.txt sin nuevo intake, MCP/Docker no adoptados).
+- **PREDICCIÓN:** 34 nuevos tests (8 domain SM-2 + 20 tool fake db + 6 repo SQLite memory) => total repo **2974 PASS** (2724 core + 250 runtime) con cuarentena holagpt/theatre; scoped `prisma validate 0` + `vitest 34/34 GREEN`; FULL `typecheck 0 -> lint 0 -> test 2974 -> build 44+ paginas GREEN` (withPWA intacto, next-pwa disable dev); migration.sql 16 CREATE TABLE 0 DROP; wire `learning_manage` en llm.ts/index.ts + `GET /api/learning/courses` 200. Top riesgo: `String[]` en SQLite cause validate fail => mitigacion 1 retry a `Json` con test roundtrip. Que podria salir mal: `DATABASE_URL` interactivo => fallback `file:./dev.db`; holagpt WIP TS errors => cuarentena mas agresiva; `withPWA` missing dep => escalar.
+```json
+{"pattern":"pivr","iter":["183"],"phase":"P","plan":".opencode/plans/loop-183-prisma-learning-migracion.md","pred":{"new_tests":34,"total_tests":2974,"gates":{"typecheck":"ok","lint":"0","test":"34/34","build":"44+ paginas","prisma_validate":"0","migration_tables":16},"top_risk":"String[] SQLite validate fail -> Json fallback 1 retry","budget":{"tokens":"45k/100k (45%)","time":"3.5h/6h (58%)"}}}
+```

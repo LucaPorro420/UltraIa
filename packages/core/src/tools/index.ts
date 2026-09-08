@@ -219,7 +219,8 @@ import * as learnModels from './learn-models';
 import * as chaos from './chaos';
 import * as browserAgent from './browser-agent';
 
-export const tools = { web, image, video, music, stitch, reach, skills: { runSkill }, content, g0dm0d3, topics, present: presentTools, publish, enrutador, mediaScore, metrics, memoryFs: { createMemoryFs }, diagram, videoEdit, screenflow, cloud: cloudTools, harness, growth, prioritize, vfx, codevfx, travel, generative, libros, sdf, videoqa, holagpt: holagptNs, contentFactory: contentFactoryNs.contentFactory,
+export const tools = { web, image, video, music, stitch, reach, skills: { runSkill }, content, g0dm0d3, topics, present: presentTools, publish, enrutador, mediaScore, metrics, memoryFs: { createMemoryFs }, diagram, videoEdit, screenflow, cloud: cloudTools, harness, growth, prioritize, vfx, codevfx, travel, generative, libros, sdf, videoqa, holagpt: holagptNs,
+  learningSystem: learningSystemNs, contentFactory: contentFactoryNs.contentFactory,
   motion,
   remotion,
   replica,
@@ -386,6 +387,8 @@ export const TOOL_DESCRIPTIONS: Record<string, string> = {
     'Fábrica multimodal unificada (holagpt + fallbacks keyless del repo): 7 kinds — web (builder/stitch), video (OMAG storyboard), game (Three.js/codevfx+sdf), app (Expo), image (holagpt/pollinations/pngrender), audio (edge-tts/procedural), music (compose/Tunetank). Un brief → 7 outputs, cada kind fail-soft. Usa holagpt cuando hay key, si no keyless del repo.',
   'social-connect':
     'Conexiones sociales + inicio de sesión (14 redes: telegram/discord/slack/youtube/tiktok/x/instagram/threads/facebook/linkedin/reddit/pinterest/whatsapp/zernio): estado de conexión por red (qué env falta, sin exponer valores), guías de login/OAuth paso a paso, validación de cookies de sesión y construcción de storageState Playwright para navegación autenticada, y plan de login con browser_run. Los secretos los pone el humano en .env local; el agente nunca toca passwords. Usa para conectar redes y navegar libremente con sesión.',
+  'learning-system':
+    'Learning System (Prisma SQLite): cursos/modulos/lecciones + progreso SRS SM-2 + bilingue es/ar + sync offline. Cursos 16 modelos (LearningCourse/Module/Lesson/Resource, Progress triada, Bilingual, SRS, Chat, Search/Sync). Acciones: create_course/list_courses/create_module/create_lesson/review_card. DB inyectada, fail-soft, usa SM-2 determinista.',
   'theatre-sequence':
     'Deterministic animation sequence planner (Theatre.js core Apache-2.0 principles): Project→Sheet→Sequence→Track→Keyframe→Easing as JSON. Reuses camera MOTIONS vocabulary from director.ts. Actions: plan (create project), add-track, add-keyframe, preview (CSS-ready timeline), export (self-contained HTML with @theatre/core CDN, studio AGPL never in bundle). Keyless, no network, deterministic output. Use to plan keyframe animations for codevfx effects, video edits, 3D scenes, and UI micro-interactions.',
 };
@@ -482,7 +485,8 @@ export type Capability =
   | 'holagpt'
   | 'content-factory'
   | 'social-connect'
-  | 'theatre-sequence';
+  | 'theatre-sequence'
+  | 'learning-system';
 
 export * from './observability';
 export * from './agentic';
@@ -502,10 +506,12 @@ export * from './smtp';
 // browser-agent: headless browser automation (Playwright). Namespace import to avoid collisions.
 import * as browserNs from './browser-agent';
 import * as holagptNs from './holagpt';
+import * as learningSystemNs from './learning-system';
 import * as contentFactoryNs from './content-factory';
 export * from './catalog';
 // holagpt: agregador LLM (Gemini/GPT/Claude/Llama/Grok + imágenes FLUX/Recraft + web + audio) — keyless-first.
 export * from './holagpt';
+export * from './learning-system';
 // content-factory: fábrica multimodal unificada (web/video/game/app/image/audio/music) — orquesta holagpt + fallbacks del repo.
 export * from './content-factory';
 // social-connect: conexiones sociales + inicio de sesión (dominio puro, símbolos únicos Social*/social*/login*/planBrowser*).

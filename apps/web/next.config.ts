@@ -2,7 +2,7 @@
   Archivo: apps/web/next.config.ts
   Propósito (explicado para un adolescente):
   - Este archivo configura cómo Next.js (la parte web) se construye y se ejecuta.
-  - No es la app en sí; es la «configuración» que le dice a Next.js qué comportamientos usar
+  - No es la app en sí; es la "configuración" que le dice a Next.js qué comportamientos usar
     (por ejemplo, qué paquetes transpilar, límites de memoria, reglas de seguridad en headers).
 
   Qué tocar si quieres cambiar algo concreto:
@@ -14,6 +14,7 @@
 */
 
 import type { NextConfig } from 'next';
+import withPWA from 'next-pwa';
 
 // Configuración principal de Next.js.
 // Explicación simple: Next.js lee esto al arrancar para saber cómo compilar y cómo servir la app.
@@ -199,4 +200,40 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+// PWA (Progressive Web App) configuration using next-pwa.
+// Habilita Service Worker con estrategias de cacheo y el manifest automatico.
+// Se usa withPWA() para envolver la config (Next.js no reconoce la key pwa directa).
+export default (withPWA as any)({
+  // Desactiva PWA en modo desarrollo para evitar SW registration ruidoso.
+  // En produccion (Vercel/Netlify) se activa automaticamente.
+  disable: process.env.NODE_ENV === 'development',
+  runtimeCaching: [
+    {
+      urlPattern: /^https?:\/\/.*/,
+      handler: 'NetworkFirst',
+      options: {
+        cacheName: 'ultraia-dynamic-v1',
+        expiration: {
+          maxEntries: 50,
+          maxAgeSeconds: 60 * 60 * 24 * 30, // 30 dias
+        },
+        cacheableResponse: {
+          statuses: [0, 200],
+        },
+      },
+    },
+    {
+      urlPattern: '/api/:path*',
+      handler: 'StaleWhileRevalidate',
+      options: {
+        cacheName: 'ultraia-ai-responses-v1',
+        expiration: {
+          maxEntries: 100,
+          maxAgeSeconds: 60 * 60 * 24, // 24 horas
+        },
+      },
+    },
+  ],
+  skipWaiting: true,
+  clientsClaim: true,
+})(nextConfig);

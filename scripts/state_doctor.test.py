@@ -164,7 +164,7 @@ class RunlogDriftTests(unittest.TestCase):
 
 class PlanCollisionTests(unittest.TestCase):
     def test_collision(self):
-        git_fn = fake_git(reply_ls=".opencode/plans/loop-12-a.md\n.opencode/plans/loop-12-b.md\n")
+        git_fn = fake_git(reply_ls=".opencode/plans/loop-12-a.md\n.other/plans/loop-12-a.md\n")
         out = sd.check_plan_collision(Path("/tmp"), git_fn)
         self.assertEqual(len(out), 1)
         self.assertIn("task 12", out[0])
