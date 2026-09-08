@@ -1,0 +1,26 @@
+name: holagpt-backup
+on:
+  schedule:
+    - cron: '23 3 * * *' # daily 03:23 UTC
+  workflow_dispatch: {}
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm ci --ignore-scripts || npm install
+      - name: vault+learning backup (fail-soft)
+        run: |
+          node -e "const{execSync}=require('child_process'); try{execSync('npm run repomix -- --help',{stdio:'inherit'})}catch{}"
+          echo "backup: vault/.ultraia vault + learning via repomix or tar"
+          tar -czf ultraia-backup.tgz .ultraia/vault learning 2>/dev/null || echo "no vault yet"
+          ls -lh ultraia-backup.tgz 2>/dev/null || true
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ultraia-backup
+          path: ultraia-backup.tgz
+          if-no-files-found: warn
+          retention-days: 14

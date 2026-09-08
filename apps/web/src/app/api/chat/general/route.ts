@@ -31,7 +31,7 @@ Rules:
 - If the user wants to build an agent, use the skills pipeline and keep the same language.`;
 
 export async function POST(req: Request) {
-  const user = await getCurrentUser();
+  const user = await getCurrentUser(req);
   if (!user) return new Response('Unauthorized', { status: 401 });
 
   let parsed;
