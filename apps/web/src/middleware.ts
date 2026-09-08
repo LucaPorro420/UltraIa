@@ -305,11 +305,15 @@ export function middleware(request: NextRequest) {
   // NOTA (iter-180): Next.js dev (react-refresh) evalúa strings como JS y EXIGE
   // 'unsafe-eval'. En producción sigue prohibido: el eval solo se permite en dev.
   const allowEval = process.env.NODE_ENV === 'production' ? '' : " 'unsafe-eval'";
+  // CSP: dev needs unsafe-inline without nonce (Next.js dev overlay uses inline scripts without nonce), prod uses nonce
+  const scriptSrc = process.env.NODE_ENV === 'production'
+    ? `script-src 'self' 'nonce-${nonce}'`
+    : `script-src 'self' 'unsafe-inline'${allowEval}`;
   response.headers.set(
     'Content-Security-Policy',
     [
-      "default-src 'self'",  // [EN] By default, only load from our own site / [ES] Por defecto, solo cargar de nuestro sitio
-      `script-src 'self' 'nonce-${nonce}' 'unsafe-inline'${allowEval}`,  // [EN] Scripts: only with our nonce (+eval in dev for react-refresh) / [ES] Scripts: solo con nuestro nonce (+eval en dev para react-refresh)
+      "default-src 'self'",
+      scriptSrc,
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",  // [EN] CSS: our site + Google Fonts / [ES] CSS: nuestro sitio + Google Fonts
       "img-src 'self' data: https://image.pollinations.ai https://*.pollinations.ai https://images.meigen.ai https://www.meigen.ai https://i.ytimg.com https://d1s1y0ui543e5o.cloudfront.net",  // [EN] Images: allowed sources / [ES] Imágenes: fuentes permitidas
       "font-src 'self' data: https://fonts.gstatic.com",  // [EN] Fonts: our site + Google Fonts / [ES] Fuentes: nuestro sitio + Google Fonts
