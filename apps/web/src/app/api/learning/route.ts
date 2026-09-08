@@ -1,28 +1,37 @@
 /**
- * ============================================================================
- * LEARNING OVERVIEW — Vista general del sistema de aprendizaje
- * ============================================================================
- *
- * [EN] Provides an overview of the learning system state.
- * [ES] Proporciona una visión general del estado del sistema de aprendizaje.
+ * LEARNING OVERVIEW — Vista general del sistema de aprendizaje (REAL con Prisma)
+ * GET /api/learning?type=overview
  */
+import { prisma } from '@ultraia/core';
+
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const type = searchParams.get('type') || 'overview';
 
-  // Learning system overview
+  const [courses, modules, lessons, decks, cards, searchIndex] = await Promise.all([
+    prisma.learningCourse.count({ where: { isPublished: true } }),
+    prisma.learningModule.count({ where: { isPublished: true } }),
+    prisma.learningLesson.count({ where: { isPublished: true } }),
+    prisma.studyDeck.count(),
+    prisma.studyCard.count(),
+    prisma.searchIndex.count(),
+  ]);
+
+  const dueCards = await prisma.studyCard.count({ where: { nextReview: { lte: new Date() } } });
+
   const overview = {
     type,
-    totalCourses: 0,
-    completedLessons: 0,
-    studyStreak: 0,
-    nextReview: new Date().toISOString(),
-    activeDecks: 0,
+    totalCourses: courses,
+    totalModules: modules,
+    totalLessons: lessons,
+    decks,
+    cards,
+    dueCards,
+    searchIndex,
+    generatedAt: new Date().toISOString(),
   };
 
-  return new Response(JSON.stringify(overview), {
-    headers: { 'Content-Type': 'application/json' },
-  });
+  return Response.json(overview, { headers: { 'Cache-Control': 'no-store' } });
 }
