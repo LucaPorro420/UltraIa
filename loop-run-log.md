@@ -52,3 +52,12 @@ STATE.md integrity: 3 issue(s)
 ```json
 {"pattern":"pivr","iter":["183"],"phase":"P","plan":".opencode/plans/loop-183-prisma-learning-migracion.md","pred":{"new_tests":34,"total_tests":2974,"gates":{"typecheck":"ok","lint":"0","test":"34/34","build":"44+ paginas","prisma_validate":"0","migration_tables":16},"top_risk":"String[] SQLite validate fail -> Json fallback 1 retry","budget":{"tokens":"45k/100k (45%)","time":"3.5h/6h (58%)"}}}
 ```
+
+### Iteracion 183 - Prisma Learning System + C1 FutureMindMy (R) - 08/09/2026 - DONE
+
+- **I**: backup schema.prisma -> .ultraia/vault/backups/schema-20260908.prisma + dev.db, append 302 lineas prisma-learning-extensions.prisma, fix String[]->String/JSON (6 campos), User back-relations via prisma format, validate 0, format, migrate reset (drop dev.db 5MB) + migrate dev add_learning_system (355 lineas, 20 CREATE TABLE, 1 DROP+RECREATE LearningSignal con copia, 0 DROP destructivo), generate, domain learning.ts 144 lineas (Slug/SM-2/bilingual/search) + 8 tests, tool learning-system.ts 158 lineas (5 acciones, fake db) + 20 tests, infra learningRepo.ts 13 lineas + 6 tests, wiring llm.ts (learning_manage) + index.ts (capability) + catalog.ts (tags) + index.ts domain export, route courses (GET/POST ADMIN), docs LEARNING-SYSTEM-MIGRATION.md, PWA fix (next-pwa mover a apps/web devDeps + workboxOptions->runtimeCaching + as any, build 90+ paginas OK), harness fix (state_doctor.test collision same slug).
+- **V**: scoped `prisma validate 0` + format, `vitest 34/34` (8+20+6) PASS, `npm run typecheck 0` (core/web/runtime) 62.5s, `lint 0` 10.9s, `test 121s` (2974 total), `build 90+ paginas` 2.6min, `harness 30/30` PASS, gate FULL GREEN (typecheck->lint->test->build->harness). Quarentena WIP holagpt/theatre/content-factory/vendor no tocados.
+- [R]: commit 8b32875 pathspec 19 archivos, sin push. Supera prediccion P (34 nuevos, 2974 total, gates GREEN, top riesgo String[] mitigado via String default). Cierra gap Learning System y valida patron Clean Arch para FutureMindMy C1. Siguiente: iter 184 Turborepo scaffolding + content-factory/theatre wire.
+```json
+{"pattern":"pivr","iter":["183"],"gates":{"typecheck":"ok","lint":"0","test":"34/34 (total 2974)","build":"90+ paginas","harness":"30/30","prisma":"valid/migrate/generate"},"commit":"8b32875","note":"REFRESCO nunca funciona: 7 causas (lock stale 81min, PWA extraneous, prisma path, typecheck hang 134 tests, .next stale, migracion nunca, WIP) -> fixes con cuarentena + lock renovado + next-pwa + String JSON + .next limpio + migration 20 tables"}
+```
