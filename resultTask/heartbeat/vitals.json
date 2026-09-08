@@ -1,16 +1,16 @@
 {
-  "fecha": "2026-09-07",
+  "fecha": "2026-09-08",
   "entorno": "github-actions",
   "vitals": {
-    "puntuacion": 40,
+    "puntuacion": 31,
     "estado": "ROJO",
     "signos": [
       {
         "nombre": "gates",
-        "valor": 0.5,
+        "valor": 0.25,
         "peso": 0.35,
         "ok": false,
-        "nota": "2/4 verdes (ROJO: typecheck, build)"
+        "nota": "1/4 verdes (ROJO: typecheck, test, build)"
       },
       {
         "nombre": "tests",
@@ -21,10 +21,10 @@
       },
       {
         "nombre": "backlog",
-        "valor": 0.97,
+        "valor": 0.98,
         "peso": 0.15,
         "ok": false,
-        "nota": "156/161 accionables cerradas, 5 pendientes, 1 bloqueadas"
+        "nota": "109/111 accionables cerradas, 2 pendientes, 1 bloqueadas"
       },
       {
         "nombre": "gaps",
@@ -45,13 +45,13 @@
         "valor": 1,
         "peso": 0.05,
         "ok": true,
-        "nota": "155 commits + 0 lecciones"
+        "nota": "139 commits + 0 lecciones"
       }
     ],
     "razones": [
-      "gates: 2/4 verdes (ROJO: typecheck, build)",
+      "gates: 1/4 verdes (ROJO: typecheck, test, build)",
       "tests: 0/0 tests",
-      "backlog: 156/161 accionables cerradas, 5 pendientes, 1 bloqueadas",
+      "backlog: 109/111 accionables cerradas, 2 pendientes, 1 bloqueadas",
       "gaps: 21 gaps abiertos"
     ]
   },
@@ -130,26 +130,26 @@
       "fuentes": 8
     },
     "backlog": {
-      "total": 162,
-      "done": 156,
+      "total": 112,
+      "done": 109,
       "bloqueadas": 1,
-      "pendientes": 5
+      "pendientes": 2
     },
     "actividad": {
-      "commits": 155,
+      "commits": 139,
       "lecciones": 0
     },
     "gates": {
       "typecheck": false,
       "lint": true,
-      "test": true,
+      "test": false,
       "build": false
     }
   },
   "regresiones": [],
   "accion": {
     "modo": "reparar",
-    "objetivo": "gates en rojo: typecheck, build",
+    "objetivo": "gates en rojo: typecheck, test, build",
     "razon": "el organismo se esta degradando: reparar antes que avanzar (regla: no commitear con gates rojos)",
     "prioridad": "P0",
     "comando": "npm run typecheck"
