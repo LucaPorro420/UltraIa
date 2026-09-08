@@ -2,6 +2,7 @@
   "name": "ultraia",
   "version": "1.5.0",
   "private": true,
+  "packageManager": "npm@11.16.0",
   "description": "UltraIa — AI that creates AI and learns from AI. Generate purpose-built agents from a task description and improve them from usage feedback.",
   "workspaces": [
     "apps/*",
@@ -36,6 +37,7 @@
   "devDependencies": {
     "prisma": "^6.7.0",
     "repomix": "^1.18.0",
+    "turbo": "^2.10.12",
     "typescript": "^5.8.2"
   },
   "allowScripts": {
