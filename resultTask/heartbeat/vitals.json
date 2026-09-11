@@ -1,5 +1,5 @@
 {
-  "fecha": "2026-09-10",
+  "fecha": "2026-09-11",
   "entorno": "github-actions",
   "vitals": {
     "puntuacion": 31,
@@ -45,7 +45,7 @@
         "valor": 1,
         "peso": 0.05,
         "ok": true,
-        "nota": "118 commits + 0 lecciones"
+        "nota": "67 commits + 0 lecciones"
       }
     ],
     "razones": [
@@ -136,7 +136,7 @@
       "pendientes": 2
     },
     "actividad": {
-      "commits": 118,
+      "commits": 67,
       "lecciones": 0
     },
     "gates": {
