@@ -1,8 +1,8 @@
 {
-  "fecha": "2026-09-14",
+  "fecha": "2026-09-15",
   "entorno": "github-actions",
   "vitals": {
-    "puntuacion": 30,
+    "puntuacion": 29,
     "estado": "ROJO",
     "signos": [
       {
@@ -42,10 +42,10 @@
       },
       {
         "nombre": "actividad",
-        "valor": 0.8,
+        "valor": 0.6,
         "peso": 0.05,
         "ok": true,
-        "nota": "8 commits + 0 lecciones"
+        "nota": "6 commits + 0 lecciones"
       }
     ],
     "razones": [
@@ -136,7 +136,7 @@
       "pendientes": 2
     },
     "actividad": {
-      "commits": 8,
+      "commits": 6,
       "lecciones": 0
     },
     "gates": {
