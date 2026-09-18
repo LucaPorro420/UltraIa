@@ -1,0 +1,63 @@
+{
+  "mix": "tips + novedades + motivacion dev (mix completo elegido)",
+  "slots": ["09:00", "14:00", "19:00"],
+  "rotacion": "diaria por dia_del_anio mod 7 (determinista, sin estado)",
+  "pilares": [
+    {
+      "id": "tip",
+      "titulo": "Tip de hoy",
+      "gancho": "Esto te ahorra 30 minutos",
+      "temas_ejemplo": ["use() en React 19 en vez de useContext", "migrate Prisma sin miedo", "zod + infer sin .default() roto"],
+      "cta": "Guárdalo y compártelo con tu equipo",
+      "hashtags_base": ["#Programacion", "#TipsDev", "#TechLibrary", "#AprendeACodear"]
+    },
+    {
+      "id": "snippet",
+      "titulo": "Snippet copiable",
+      "gancho": "Copia, pega y funciona",
+      "temas_ejemplo": ["fetch con timeout y AbortController", "debounce en 10 líneas", "formato de fecha ES sin libs"],
+      "cta": "Pruébalo en tu repo y me cuentas",
+      "hashtags_base": ["#Codigo", "#Snippet", "#JavaScript", "#TechLibrary"]
+    },
+    {
+      "id": "paradigma",
+      "titulo": "Paradigma en 60 segundos",
+      "gancho": "Entiéndelo de una vez",
+      "temas_ejemplo": ["Event loop sin mito", "Inmutabilidad pragmática", "Composición vs herencia"],
+      "cta": "¿Lo explicas con tus palabras en comentarios?",
+      "hashtags_base": ["#Fundamentos", "#Programacion", "#AprenderProgramacion"]
+    },
+    {
+      "id": "recurso",
+      "titulo": "Recurso de la biblioteca",
+      "gancho": "De la biblioteca offline",
+      "temas_ejemplo": ["Next.js 15 App Router (Goncy)", "Prisma Full Course (PedroTech)", "GSAP ScrollTrigger oficial"],
+      "cta": "Link en la bio + ficha completa en la biblioteca",
+      "hashtags_base": ["#Recursos", "#CursosGratis", "#TechLibrary"]
+    },
+    {
+      "id": "novedad",
+      "titulo": "Novedad TECH-LIBRARY",
+      "gancho": "Nuevo en la biblioteca",
+      "temas_ejemplo": ["Nueva ficha: Playwright E2E", "Nuevo mapa: libros por tech", "Nuevo quiz: TypeScript 5"],
+      "cta": "Abre la biblioteca y marca tu favorito",
+      "hashtags_base": ["#Novedad", "#TechLibrary", "#EstudiaOffline"]
+    },
+    {
+      "id": "motivacion",
+      "titulo": "Motivación dev",
+      "gancho": "Para días de bugs",
+      "temas_ejemplo": ["El bug también enseña", "Constancia > intensidad", "Un commit al día"],
+      "cta": "Etiqueta a quien lo necesite hoy",
+      "hashtags_base": ["#Motivacion", "#DevLife", "#Programadores"]
+    },
+    {
+      "id": "behind",
+      "titulo": "Behind the scenes",
+      "gancho": "Así se construye",
+      "temas_ejemplo": ["Cómo verifico un recurso (200 + oEmbed)", "Cómo armo un quiz SM-2", "Mi setup offline"],
+      "cta": "¿Quieres el tutorial completo?",
+      "hashtags_base": ["#BehindTheScenes", "#BuildInPublic", "#TechLibrary"]
+    }
+  ]
+}

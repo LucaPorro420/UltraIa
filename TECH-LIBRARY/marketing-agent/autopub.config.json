@@ -1,0 +1,28 @@
+{
+  "marca": "TECH-LIBRARY",
+  "tagline": "Aprende cualquier stack sin internet, con ejemplos reales",
+  "idioma": "es",
+  "modo": "auto-directo",
+  "nota_modo": "Con token -> READY y publica directo. Sin token -> DRAFT (fail-soft, nunca falla).",
+  "imagen": {
+    "provider": "pollinations-flux-keyless",
+    "url_base": "https://image.pollinations.ai/prompt/{prompt}?width={w}&height={h}&model=flux&nologo=true&seed={seed}",
+    "firma": "small badge TECH-LIBRARY"
+  },
+  "channels": {
+    "web": { "url": "https://TU-SITIO-TUTORIALES.example.com/recursos", "formato": "16:9", "w": 1280, "h": 720 },
+    "instagram": { "url": "https://www.instagram.com/TU_USUARIO/", "formato": "9:16", "w": 1080, "h": 1920 },
+    "tiktok": { "url": "https://www.tiktok.com/@TU_USUARIO", "formato": "9:16", "w": 1080, "h": 1920 },
+    "linkedin": { "url": "https://www.linkedin.com/company/TU_EMPRESA/", "formato": "1.91:1", "w": 1200, "h": 627 },
+    "youtube_shorts": { "url": "https://www.youtube.com/@TU_CANAL", "formato": "9:16", "w": 1080, "h": 1920 }
+  },
+  "ritmo": { "slots_diarios": ["09:00", "14:00", "19:00"], "posts_por_dia": 3 },
+  "tono": { "idioma": "es", "max_emojis_ig_tiktok": 2, "max_emojis_linkedin": 0, "firma": "— TECH-LIBRARY · aprende offline" },
+  "compat_motor": {
+    "nota": "Mapa 1:1 con packages/core AutoPub (solo lectura, sin duplicar).",
+    "topics": "briefs desde content-calendar.json + INDEX.md/RECURSOS.md",
+    "present": "caption/hashtags por canal con mismos caps (IG 2200, LinkedIn pro, TikTok gancho 150)",
+    "publish": "publishDue con 5 plataformas; sin token -> DRAFT",
+    "metrics": "manifiesto con media_score pendiente de feedback real"
+  }
+}
