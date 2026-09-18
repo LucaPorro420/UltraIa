@@ -412,3 +412,21 @@ Implementacion: capability vfx (tools/vfx.ts: planReframe / planUpscale / planLu
   `learning/memory/ultraia_memory.zip` (skill `learning-memory`). El zip se regenera con
   `python learning/scripts/bundle_memory.py build` e incluye ahora `CODEMAP.md` + `LEARNINGS.md` (hasta loop-134)
   + `truth/` + `responses/` + `scripts/` + `verdicts.jsonl`.
+
+## Leccion 187 (18/09/2026, agente marketing TECH-LIBRARY)
+
+- **Producto concreto sobre motor generico**: el pedido "agente que publique solo en 5 redes" NO necesito
+  tocar `packages/core` (AutoPub F1-F5 ya resolvia topics/present/publish/metrics). La capa fina correcta es
+  config + calendario + runner stdlib en la carpeta del producto (`TECH-LIBRARY/marketing-agent/`), 7 archivos,
+  cero `.ts`. Regla: ante "automatiza X", auditar capabilities con `git log --grep` antes de codificar.
+- **Maniobra simetrica de quarantine con WIP roto ajeno**: typecheck RED por untracked de otra sesion
+  (`musica-proteccion.ts` con 12 errores) + wiring sucio en `llm.ts`/`index.ts` que lo referenciaba. Secuencia
+  verificada: (1) SHA256 + copia de los 5 archivos a `%TEMP%/wip-quarantine-<fecha>`; (2) `Move-Item` de los
+  untracked fuera del arbol + `git checkout HEAD --` de los 3 tracked sucios; (3) gates FULL GREEN
+  (typecheck 0 / lint 0 / test 2793+250 / build 197p exit 0); (4) restore + SHA256 5/5 iguales. El WIP ajeno
+  queda intacto y el commit propio lleva evidencia valida del arbol que realmente se commiteo.
+- **Fail-soft a DRAFT sin tokens es testeable sin red**: `generate.py` construye URLs Pollinations por
+  plantilla (sin descargar) y marca cada pieza READY/DRAFT por presencia de env vars. `--dry-run` genera
+  3 paquetes offline con exit 0; el test real es "5 piezas x 3 ejemplos todas DRAFT sin tokens".
+- **`out/` bajo `.gitignore` hereda ignorado**: el runner puede escribir artefactos sin ensuciar `git status`
+  (verificado: `git add` aviso ignored). Patron reutilizable para cualquier generador de contenido.

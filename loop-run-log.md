@@ -61,3 +61,24 @@ STATE.md integrity: 3 issue(s)
 ```json
 {"pattern":"pivr","iter":["183"],"gates":{"typecheck":"ok","lint":"0","test":"34/34 (total 2974)","build":"90+ paginas","harness":"30/30","prisma":"valid/migrate/generate"},"commit":"8b32875","note":"REFRESCO nunca funciona: 7 causas (lock stale 81min, PWA extraneous, prisma path, typecheck hang 134 tests, .next stale, migracion nunca, WIP) -> fixes con cuarentena + lock renovado + next-pwa + String JSON + .next limpio + migration 20 tables"}
 ```
+
+### Iteracion 187 — Agente marketing TECH-LIBRARY 5 canales (P) - 18/09/2026
+
+- [P] Plan `.opencode/plans/loop-187-techlibrary-marketing-agent.md` (tarea #187 P1, pedido usuario: sitio + IG/TikTok/LinkedIn/YouTube, todo automatizado). Sensado: STATE hasta #186 DONE, sin lock activo, budget <10%, arbol sucio ajeno ~36 entradas (incl. WIP musica-proteccion loop-65 + wiring llm/index). Decision: capa fina sobre motor AutoPub existente (topics/present/publish F1-F5) sin duplicar; runner Python stdlib; placeholders; auto-directo con fail-soft DRAFT; mix completo 7 pilares.
+- **PREDICCION:** 7 archivos nuevos aislados (cero .ts) => gates FULL GREEN sobre arbol con quarantine del WIP ajeno; `generate.py --dry-run` 3 ejemplos con 5 piezas DRAFT; commit unico pathspec.
+```json
+{"pattern":"pivr","iter":["187"],"phase":"P","plan":".opencode/plans/loop-187-techlibrary-marketing-agent.md","pred":{"new_files":7,"new_ts_tests":0,"gates":{"typecheck":"0","lint":"0","test":"sin regresion","build":"197 paginas"},"top_risk":"WIP ajeno rompe gates -> quarantine SHA256 + restore","budget":{"tokens":"12k/100k (12%)","time":"1h/6h (17%)"}}}
+```
+
+### Iteracion 187 - Agente marketing TECH-LIBRARY 5 canales (R) - 18/09/2026 - DONE
+
+- **I**: `TECH-LIBRARY/marketing-agent/` 7 archivos (README/BRANDING/CHANNELS + autopub.config.json + content-calendar.json + generate.py + schedule.ps1). Staging explicito, sin `git add .`.
+- **V**: scoped `generate.py --check` OK + `--dry-run` 3 paquetes (5 piezas DRAFT cada uno, fail-soft sin tokens verificado). FULL en orden CI sobre arbol aislado: typecheck 0 / lint 0 / test 2793 core + 250 runtime / build exit 0 (197 paginas). Quarantine: WIP ajeno (musica-proteccion.ts/.test.ts untracked + llm.ts/index.ts/catalog.ts sucios) a `%TEMP%/wip-quarantine-20260918-187` con SHA256 + checkout HEAD temporal + restore byte-exacto verificado (5/5 hashes iguales). Sin dev servers activos (ningun node.exe).
+- [R]: commit 8cc1d86 pathspec 7 archivos, sin push. Supera prediccion P (FULL GREEN al primer intento tras quarantine). Siguiente sugerido: ciclo 188 (narracion edge-tts + slideshow ffmpeg para video real 9:16).
+```json
+{"pattern":"pivr","iter":["187"],"gates":{"typecheck":"0","lint":"0","test":"2793+250","build":"197 paginas exit 0"},"commit":"8cc1d86","note":"typecheck RED inicial por WIP ajeno (musica-proteccion) -> maniobra simetrica quarantine+HEAD+gates+restore; WIP ajeno intacto 5/5 SHA256"}
+```
+
+```json
+{"run_id":"2026-09-18T22:45:00Z","pattern":"pivr-techlibrary-187","duration_s":2700,"time_cap_s":21600,"items_found":1,"actions_taken":1,"escalations":0,"tokens_estimate":11000,"outcome":"fix-proposed"}
+```
