@@ -430,3 +430,23 @@ Implementacion: capability vfx (tools/vfx.ts: planReframe / planUpscale / planLu
   3 paquetes offline con exit 0; el test real es "5 piezas x 3 ejemplos todas DRAFT sin tokens".
 - **`out/` bajo `.gitignore` hereda ignorado**: el runner puede escribir artefactos sin ensuciar `git status`
   (verificado: `git add` aviso ignored). Patron reutilizable para cualquier generador de contenido.
+
+## Leccion 188 (18/09/2026, fabrica local TECH-LIBRARY)
+
+- **drawtext + letra de unidad**: el parser de filtros parte en `:` AUNQUE se escape (`C\:`) cuando
+  va tras la letra de unidad (error `No option name near '/Windows/...'` medido). Solucion robusta:
+  `cwd=<dir-fuentes>` + `fontfile=arial.ttf` (copia local) + `textfile=<base>.txt` (nombres relativos,
+  sin comillas internas — las comillas simples anidadas tambien rompen el parse). Texto via textfile
+  UTF-8 sin BOM (acentos OK). Leccion gemela a "PS quoting -> archivo".
+- **Dos interpretes `py` en el mismo PC**: scripts con shebang `#!/usr/bin/env python3` corren en
+  `AppData/Local/Python/pythoncore-3.14-64` (3.14.5, CON PIL) mientras `py -c` usa
+  `C:/Program Files/Python314` (3.14.7t, SIN PIL). Regla: `doctor.py` registra `sys.executable`;
+  verificar siempre con el MISMO modo de invocacion que el script (`py script.py`, no `py -c`).
+  No depender de PIL aunque aparezca: stdlib + ffmpeg es determinista en ambos.
+- **Restore colgado != restore fallido**: un comando restore con timeout puede haber COMPLETADO las
+  operaciones (moves/copies rapidos) y colgarse en la verificacion. Protocolo: comprobar existencia +
+  `musica in llm.ts` + SHA256 uno por uno con timeout corto, nunca re-ejecutar el restore a ciegas
+  (un segundo restore sobre archivos ya restaurados es inocuo aqui, pero en general puede duplicar).
+- **SAPI offline lista para produccion**: `Microsoft Helena Desktop (es-ES)` narra sin red via .ps1
+  temporal (nunca argv). Voz por defecto si no hay ES + motivo en manifiesto. Narracion ~140 chars
+  calza en video 8s con `-shortest` (medido: mp4 7.2s).
