@@ -1,6 +1,6 @@
 # PLAN AUTOGENERADO (scripts/autolearn.py)
 
-**Fecha**: 2026-09-18 · **Prioridad**: P1
+**Fecha**: 2026-09-19 · **Prioridad**: P1
 
 ## Objetivo
 Cerrar 2 gaps de aprendizaje priorizados (gap_1, gap_0)
