@@ -2,8 +2,20 @@
   "marca": "TECH-LIBRARY",
   "tagline": "Aprende cualquier stack sin internet, con ejemplos reales",
   "idioma": "es",
-  "modo": "auto-directo",
-  "nota_modo": "Con token -> READY y publica directo. Sin token -> DRAFT (fail-soft, nunca falla).",
+  "modo": "local-cero",
+  "nota_modo": "Produce bytes reales en el PC sin telefono ni cuentas. Con token -> READY y publica directo. Sin token -> DRAFT (fail-soft, nunca falla).",
+  "fabrica_local": {
+    "telefono_requerido": false,
+    "cuentas_requeridas": false,
+    "recursos_detectados_2026_09_18": {
+      "pc": "Windows 10, 4 CPU, 8.5 GB RAM, 103.8 GB libres",
+      "ffmpeg": "9.0-full_build-www.gyan.dev",
+      "voz_offline": "Microsoft Helena Desktop (es-ES)",
+      "fuente": "arial.ttf",
+      "nivel": "FULL (portada + reel.mp4 9:16 + narracion.wav)"
+    },
+    "niveles": "FULL (ffmpeg+SAPI) / SOLO-IMAGEN (PNG stdlib) / SOLO-TEXTO (manifiesto)"
+  },
   "imagen": {
     "provider": "pollinations-flux-keyless",
     "url_base": "https://image.pollinations.ai/prompt/{prompt}?width={w}&height={h}&model=flux&nologo=true&seed={seed}",

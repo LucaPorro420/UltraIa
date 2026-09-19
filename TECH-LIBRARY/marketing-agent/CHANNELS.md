@@ -1,8 +1,6 @@
-# CANALES — placeholders + cómo conectar
+# CANALES — placeholders + cómo conectar (sin teléfono)
 
-> Hoy todo funciona con placeholders (pedido del usuario). Cuando quieras publicar de verdad,
-> reemplaza la columna `placeholder` por tu URL/handle real y pega el token SOLO en tu entorno
-> (nunca en el repo). Sin token, el agente deja `DRAFT` (no falla).
+> **Phone-free**: ningún canal necesita celular para PRODUCIR (la fábrica deja `portada.png` + `reel.mp4` + `narracion.wav` en tu PC). Las cuentas/tokens se adicionan después, desde tu PC, y van SOLO a tu `.env` local (nunca al repo). Sin token, cada pieza queda en `DRAFT` (no falla).
 
 ## Tabla de canales
 
@@ -24,6 +22,10 @@
 | `YOUTUBE_ACCESS_TOKEN` | YouTube Data v3 | idem |
 
 Con las 4 vacías → modo `DRAFT` (recomendado para empezar). Con alguna presente → ese canal pasa a `READY` y `publishDue` lo publica directo (modo auto-directo elegido).
+
+## Cuentas después (sin celular)
+
+Cuando crees cada cuenta desde tu PC, avísame *"conecta Instagram"* y te guío con los enlaces oficiales + verificación `READY`/`DRAFT` sin mostrar secretos. Orden sugerido: Instagram → LinkedIn personal (directos el mismo día) → TikTok / LinkedIn empresa / YouTube (requieren aprobación de plataforma, días).
 
 ## Dónde reemplazar
 
