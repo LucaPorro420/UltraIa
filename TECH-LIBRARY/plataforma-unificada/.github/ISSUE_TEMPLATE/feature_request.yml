@@ -1,0 +1,79 @@
+name: "Feature Request"
+description: "Solicita una nueva funcionalidad o mejora"
+title: "[FEATURE] "
+labels: ["feature"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Descripción de la Feature
+        Describe claramente qué funcionalidad quieres agregar y por qué es valiosa.
+  - type: textarea
+    id: problem
+    attributes:
+      label: "Problema a resolver"
+      description: "¿Qué problema resuelve esta feature? ¿Qué dolor alivia?"
+      placeholder: "Los usuarios actualmente no pueden..."
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: "Solución propuesta"
+      description: "Describe la solución que tienes en mente"
+      placeholder: "Me gustaría que se implemente..."
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: "Alternativas consideradas"
+      description: "¿Qué otras soluciones consideraste?"
+      placeholder: "También consideré..."
+  - type: dropdown
+    id: priority
+    attributes:
+      label: "Prioridad"
+      options:
+        - "🔴 Must Have (Q4 2026)"
+        - "🟡 Should Have (Q1-Q2 2027)"
+        - "🟢 Could Have (Q3-Q4 2027)"
+        - "⚪ Won't Have (2028+)"
+      default: 1
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: "Área/Componente"
+      options:
+        - "Gamificación (XP, Badges, Rachas, Leaderboards)"
+        - "IA Assistant (Tutor, Code Review, Quiz Gen)"
+        - "Cursos/Contenido"
+        - "IDE/Editor"
+        - "Desktop App (Electron)"
+        - "Web App (Astro)"
+        - "API/BFF"
+        - "Database/Schema"
+        - "DevOps/Infra"
+        - "Documentación"
+      default: 0
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: "Criterios de aceptación"
+      description: "Define criterios medibles para considerar la feature completa"
+      placeholder: |
+        - [ ] Criterio 1
+        - [ ] Criterio 2
+        - [ ] Tests pasan
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: "Contexto adicional"
+      description: "Cualquier información adicional, mockups, referencias, etc."
+      placeholder: "Referencias, mockups, links..."

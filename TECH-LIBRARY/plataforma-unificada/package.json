@@ -1,0 +1,65 @@
+{
+  "name": "@plataforma-unificada/monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Plataforma Total Unificada - FreeLLMAPI + Plataforma Total + Agent Orchestration",
+  "workspaces": [
+    "packages/*",
+    "apps/*",
+    "services/*"
+  ],
+  "scripts": {
+    "dev": "concurrently --kill-others-on-fail --names web,desktop,api \"npm run dev -w apps/web\" \"npm run dev -w apps/desktop\" \"npm run dev -w services/api\"",
+    "dev:web": "npm run dev -w apps/web",
+    "dev:desktop": "npm run dev -w apps/desktop",
+    "dev:api": "npm run dev -w services/api",
+    "dev:gateway": "cd ../../../freellmapi && npm run dev",
+    "build": "npm run build --workspaces --if-present",
+    "build:web": "npm run build -w apps/web",
+    "build:desktop": "npm run build -w apps/desktop",
+    "build:mobile": "npm run build -w apps/mobile",
+    "build:api": "npm run build -w services/api",
+    "build:gateway": "npm run build -w services/gateway",
+    "test": "npm run test --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "db:migrate": "npm run db:migrate -w packages/db",
+    "db:seed": "npm run db:seed -w packages/db",
+    "start:all": "concurrently \"npm run start -w services/gateway\" \"npm run start -w services/api\" \"npm run start -w apps/web\"",
+    "docker:build": "docker-compose -f infra/docker/docker-compose.yml build",
+    "docker:up": "docker-compose -f infra/docker/docker-compose.yml up -d",
+    "docker:down": "docker-compose -f infra/docker/docker-compose.yml down",
+    "docker:logs": "docker-compose -f infra/docker/docker-compose.yml logs -f",
+    "deploy:vercel": "npm run build:web && vercel --prod apps/web",
+    "deploy:cloudflare": "npm run build:web && wrangler pages deploy apps/web/dist",
+    "import:courses": "npm run import:platforma-total -w packages/learning",
+    "desktop:dist": "npm run build:desktop && npm run build:desktop -w apps/desktop -- --win --mac --linux",
+
+    "gamification:xp:init": "tsx packages/learning/src/scripts/init-xp-system.ts",
+    "gamification:badges:seed": "tsx packages/learning/src/scripts/seed-badges.ts",
+    "gamification:leaderboard:recalc": "tsx packages/learning/src/scripts/recalc-leaderboards.ts",
+    "gamification:streaks:check": "tsx packages/learning/src/scripts/check-streaks.ts",
+    "gamification:stats": "tsx packages/learning/src/scripts/gamification-stats.ts",
+
+    "gamification:dev": "concurrently \"npm run gamification:xp:init\" \"npm run gamification:badges:seed\"",
+    "gamification:prod": "npm run gamification:xp:init && npm run gamification:badges:seed && npm run gamification:leaderboard:recalc"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2",
+    "typescript": "^5.8.3",
+    "eslint": "^9.39.4",
+    "prettier": "^3.5.3",
+    "@typescript-eslint/eslint-plugin": "^8.58.0",
+    "@typescript-eslint/parser": "^8.58.0"
+  },
+  "engines": {
+    "node": ">=20.18.0 <25.0.0",
+    "npm": ">=10.0.0"
+  },
+  "packageManager": "npm@10.9.0",
+  "allowScripts": {
+    "better-sqlite3@12.10.0": true,
+    "esbuild@0.28.2": true,
+    "msw@2.14.6": true
+  }
+}

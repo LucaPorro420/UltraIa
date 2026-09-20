@@ -1,0 +1,84 @@
+name: "Task/Sub-task"
+description: "Crea una tarea técnica o sub-tarea"
+title: "[TASK] "
+labels: ["task"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Descripción de la Tarea
+        Describe la tarea técnica a realizar.
+  - type: textarea
+    id: description
+    attributes:
+      label: "Descripción técnica"
+      description: "Detalle qué se debe implementar, refactorizar, o investigar"
+      placeholder: "Implementar endpoint POST /api/v1/xp/earn que..."
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: "Criterios de aceptación"
+      description: "Criterios medibles para considerar la tarea completa"
+      placeholder: |
+        - [ ] Endpoint responde 201 con XP ganada
+        - [ ] Valida usuario existe
+        - [ ] Tests unitarios > 80% coverage
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: "Área/Componente"
+      options:
+        - "Gamificación (XP, Badges, Rachas, Leaderboards)"
+        - "IA Assistant (Tutor, Code Review, Quiz Gen)"
+        - "Cursos/Contenido"
+        - "IDE/Editor"
+        - "Desktop App (Electron)"
+        - "Web App (Astro)"
+        - "API/BFF"
+        - "Database/Schema"
+        - "DevOps/Infra"
+        - "Testing/QA"
+        - "Documentación"
+      default: 0
+    validations:
+      required: true
+  - type: dropdown
+    id: priority
+    attributes:
+      label: "Prioridad"
+      options:
+        - "🔴 P0 - Critical (Esta sprint)"
+        - "🟠 P1 - High (Próximas 2 sprints)"
+        - "🟡 P2 - Medium (Próximo mes)"
+        - "🟢 P3 - Low (Backlog)"
+      default: 1
+    validations:
+      required: true
+  - type: input
+    id: estimate
+    attributes:
+      label: "Estimación (Story Points / Horas)"
+      description: "Estimación de esfuerzo"
+      placeholder: "3 SP / 4h"
+    validations:
+      required: false
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: "Dependencias"
+      description: "Otras issues/PRs de las que depende esta tarea"
+      placeholder: "Depende de #123, bloquea #456"
+    validations:
+      required: false
+  - type: textarea
+    id: notes
+    attributes:
+      label: "Notas técnicas"
+      description: "Consideraciones técnicas, edge cases, referencias"
+      placeholder: "Ver RFC #123, considerar edge case X..."
+    validations:
+      required: false

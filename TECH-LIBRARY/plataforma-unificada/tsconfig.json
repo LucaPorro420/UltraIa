@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "lib": ["ES2022"],
+    "strict": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "baseUrl": ".",
+    "paths": {
+      "@plataforma-unificada/*": ["packages/*/src"]
+    }
+  },
+  "include": ["packages/**/src/**/*", "apps/**/src/**/*", "services/**/src/**/*"],
+  "exclude": ["node_modules", "dist", "**/*.test.ts"]
+}

@@ -1,0 +1,87 @@
+{
+  "appId": "com.plataforma.unificada",
+  "productName": "Plataforma Total Unificada",
+  "copyright": "Copyright © 2024 Plataforma Total Unificada",
+  "directories": {
+    "output": "dist-electron",
+    "buildResources": "public"
+  },
+  "files": [
+    "dist/main/**/*",
+    "dist/renderer/**/*",
+    "public/**/*"
+  ],
+  "extraResources": [
+    {
+      "from": "../../packages/learning/data",
+      "to": "learning-data",
+      "filter": ["**/*"]
+    }
+  ],
+  "win": {
+    "target": [
+      {
+        "target": "nsis",
+        "arch": ["x64"]
+      }
+    ],
+    "icon": "public/icon.ico",
+    "requestedExecutionLevel": "asInvoker"
+  },
+  "nsis": {
+    "oneClick": false,
+    "allowToChangeInstallationDirectory": true,
+    "createDesktopShortcut": true,
+    "createStartMenuShortcut": true,
+    "shortcutName": "Plataforma Total Unificada",
+    "uninstallDisplayName": "Plataforma Total Unificada",
+    "license": "LICENSE",
+    "installerIcon": "public/icon.ico",
+    "uninstallerIcon": "public/icon.ico",
+    "include": "installer.nsh"
+  },
+  "mac": {
+    "target": [
+      {
+        "target": "dmg",
+        "arch": ["x64", "arm64"]
+      }
+    ],
+    "icon": "public/icon.icns",
+    "category": "public.app-category.education",
+    "hardenedRuntime": true,
+    "gatekeeperAssess": false,
+    "entitlements": "entitlements.mac.plist",
+    "entitlementsInherit": "entitlements.mac.plist"
+  },
+  "dmg": {
+    "contents": [
+      { "x": 130, "y": 220, "type": "link", "path": "/Applications" },
+      { "x": 410, "y": 220, "type": "file" }
+    ],
+    "window": { "width": 540, "height": 380 },
+    "icon": "public/icon.icns"
+  },
+  "linux": {
+    "target": [
+      { "target": "AppImage", "arch": ["x64"] },
+      { "target": "deb", "arch": ["x64"] }
+    ],
+    "icon": "public/icon.png",
+    "category": "Education",
+    "maintainer": "Plataforma Total <info@plataforma-total.dev>",
+    "description": "Plataforma Total Unificada - Aprende, construye, despliega con IA"
+  },
+  "appImage": {
+    "runtime": "fuse"
+  },
+  "deb": {
+    "depends": ["libgtk-3-0", "libwebkit2gtk-4.0-37", "libayatana-appindicator3-1", "librsvg2-common"]
+  },
+  "publish": {
+    "provider": "github",
+    "owner": "SoftEngAi-dev",
+    "repo": "plataforma-unificada"
+  },
+  "afterSign": "scripts/notarize.js"
+}

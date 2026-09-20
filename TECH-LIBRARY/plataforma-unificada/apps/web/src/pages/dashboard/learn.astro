@@ -1,0 +1,390 @@
+---
+import MainLayout from '../../layouts/MainLayout.astro';
+---
+
+<MainLayout title="Aprender" description="Explora cursos y rutas de aprendizaje - Plataforma Total Unificada">
+  <div class="min-h-screen bg-canvas">
+    <!-- Top Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-canvas/95 backdrop-blur-sm border-b border-border">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+          <div class="flex items-center gap-8">
+            <a href="/" class="flex items-center gap-2">
+              <span class="text-2xl">🎓</span>
+              <span class="font-display font-bold text-xl text-primary">Plataforma Total</span>
+            </a>
+            <div class="hidden md:flex items-center gap-6">
+              <a href="/dashboard/learn" class="text-primary font-medium">Aprender</a>
+              <a href="/dashboard/projects" class="text-text-secondary hover:text-text-primary transition-colors font-medium">Proyectos</a>
+              <a href="/dashboard/agents" class="text-text-secondary hover:text-text-primary transition-colors font-medium">Agentes</a>
+              <a href="/dashboard/ide" class="text-text-secondary hover:text-text-primary transition-colors font-medium">IDE</a>
+              <a href="/dashboard/chat" class="text-text-secondary hover:text-text-primary transition-colors font-medium">Chat IA</a>
+            </div>
+          </div>
+          <div class="flex items-center gap-4">
+            <button id="theme-toggle" class="p-2 bg-panel border border-border rounded-lg hover:bg-border transition-colors">
+              <svg class="w-5 h-5 text-text-primary dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+              <svg class="w-5 h-5 text-text-primary hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+            </button>
+            <div class="relative">
+              <button id="user-menu-btn" class="flex items-center gap-2 p-2 bg-panel border border-border rounded-lg hover:bg-border transition-colors">
+                <div class="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+                  <span class="text-primary font-semibold">JD</span>
+                </div>
+                <span class="hidden sm:block font-medium">Juan Dev</span>
+                <svg class="w-4 h-4 text-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+              </button>
+              <div id="user-menu" class="hidden absolute right-0 mt-2 w-48 bg-panel border border-border rounded-lg shadow-lg py-1">
+                <a href="/dashboard/profile" class="block px-4 py-2 text-text-secondary hover:text-text-primary hover:bg-border">Perfil</a>
+                <a href="/dashboard/settings" class="block px-4 py-2 text-text-secondary hover:text-text-primary hover:bg-border">Configuración</a>
+                <hr class="my-1 border-border" />
+                <button id="logout-btn" class="block w-full text-left px-4 py-2 text-text-secondary hover:text-text-primary hover:bg-border">Cerrar sesión</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <main class="pt-20 pb-8">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="mb-8 animate-fade-in">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+            <div>
+              <h1 class="text-3xl font-display font-bold">Catálogo de Cursos</h1>
+              <p class="text-text-secondary mt-1">47 cursos · 269 lecciones · 538 quizzes · Certificaciones verificables</p>
+            </div>
+            <div class="flex items-center gap-3">
+              <select id="level-filter" class="bg-panel border border-border rounded-lg px-4 py-2 text-text-primary focus:ring-2 focus:ring-primary focus:border-transparent">
+                <option value="">Todos los niveles</option>
+                <option value="explorer">🌱 Explorador (Nivel 0)</option>
+                <option value="beginner">🌿 Principiante (Nivel 1)</option>
+                <option value="intermediate">🌳 Intermedio (Nivel 2)</option>
+                <option value="advanced">🌲 Avanzado (Nivel 3)</option>
+                <option value="professional">🏔️ Profesional (Nivel 4)</option>
+                <option value="architect">🏔️ Arquitecto (Nivel 5)</option>
+              </select>
+              <select id="category-filter" class="bg-panel border border-border rounded-lg px-4 py-2 text-text-primary focus:ring-2 focus:ring-primary focus:border-transparent">
+                <option value="">Todas las categorías</option>
+                <option value="fundamentals">Fundamentos</option>
+                <option value="web-core">Web Core</option>
+                <option value="backend">Backend</option>
+                <option value="mobile">Móvil</option>
+                <option value="frameworks">Frameworks</option>
+                <option value="data-ai">Datos & IA</option>
+                <option value="professional">Profesional</option>
+                <option value="devops">DevOps</option>
+                <option value="security">Seguridad</option>
+                <option value="architecture">Arquitectura</option>
+              </select>
+              <input type="text" id="search-input" placeholder="Buscar cursos..." class="bg-panel border border-border rounded-lg px-4 py-2 text-text-primary placeholder:text-text-muted focus:ring-2 focus:ring-primary focus:border-transparent w-64" />
+            </div>
+          </div>
+
+          <!-- Learning Paths -->
+          <div class="bg-gradient-to-r from-primary/10 to-accent-code/10 border border-primary/20 rounded-2xl p-6">
+            <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+              <div>
+                <h2 class="text-xl font-display font-bold flex items-center gap-2">
+                  <span class="text-primary">🛤️</span>
+                  Rutas de Aprendizaje Guiadas
+                </h2>
+                <p class="text-text-secondary mt-1">Rutas estructuradas de principiante a profesional con certificaciones</p>
+              </div>
+              <div class="flex flex-wrap gap-2">
+                <LearningPathBadge title="Full Stack Developer" courses="12" duration="6 meses" color="primary" />
+                <LearningPathBadge title="AI/ML Engineer" courses="10" duration="5 meses" color="accent-video" />
+                <LearningPathBadge title="DevOps & Cloud" courses="8" duration="4 meses" color="accent-code" />
+                <LearningPathBadge title="Software Architect" courses="9" duration="5 meses" color="accent-text" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Course Grid -->
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" id="courses-grid">
+          <!-- Courses will be rendered by JS -->
+        </div>
+
+        <!-- Pagination -->
+        <div class="mt-8 flex items-center justify-center gap-2" id="pagination"></div>
+      </div>
+    </main>
+  </div>
+</MainLayout>
+
+<!-- Learning Path Badge Component -->
+<LearningPathBadge title="Full Stack Developer" courses="12" duration="6 meses" color="primary" />
+<LearningPathBadge title="AI/ML Engineer" courses="10" duration="5 meses" color="accent-video" />
+<LearningPathBadge title="DevOps & Cloud" courses="8" duration="4 meses" color="accent-code" />
+<LearningPathBadge title="Software Architect" courses="9" duration="5 meses" color="accent-text" />
+
+<script>
+  // Course Data (in production, this would come from API)
+  const courses = [
+    // Fundamentals (Free)
+    { id: 'logic', title: 'Lógica Computacional', level: 'explorer', category: 'fundamentals', lessons: 8, quizzes: 16, hours: 12, progress: 100, free: true, color: 'primary' },
+    { id: 'algorithms', title: 'Algoritmos y Estructuras de Datos', level: 'explorer', category: 'fundamentals', lessons: 12, quizzes: 24, hours: 20, progress: 80, free: true, color: 'accent-text' },
+    { id: 'git', title: 'Git & GitHub', level: 'beginner', category: 'fundamentals', lessons: 10, quizzes: 20, hours: 15, progress: 100, free: true, color: 'accent-code' },
+    { id: 'terminal', title: 'Terminal & Bash', level: 'beginner', category: 'fundamentals', lessons: 8, quizzes: 16, hours: 10, progress: 60, free: true, color: 'accent-video' },
+    
+    // Web Core
+    { id: 'html-css', title: 'HTML Semántico & CSS Moderno', level: 'beginner', category: 'web-core', lessons: 14, quizzes: 28, hours: 25, progress: 100, free: true, color: 'primary' },
+    { id: 'javascript', title: 'JavaScript Moderno (ES6+)', level: 'beginner', category: 'web-core', lessons: 16, quizzes: 32, hours: 30, progress: 75, free: true, color: 'accent-text' },
+    { id: 'typescript', title: 'TypeScript Avanzado', level: 'intermediate', category: 'web-core', lessons: 18, quizzes: 36, hours: 35, progress: 45, free: true, color: 'primary' },
+    { id: 'react', title: 'React + Next.js 14', level: 'intermediate', category: 'frameworks', lessons: 22, quizzes: 44, hours: 45, progress: 30, free: false, color: 'accent-code' },
+    { id: 'angular', title: 'Angular 17+', level: 'intermediate', category: 'frameworks', lessons: 20, quizzes: 40, hours: 40, progress: 0, free: false, color: 'accent-video' },
+    { id: 'svelte', title: 'Svelte & SvelteKit', level: 'intermediate', category: 'frameworks', lessons: 15, quizzes: 30, hours: 30, progress: 0, free: false, color: 'accent-text' },
+    
+    // Backend
+    { id: 'python', title: 'Python para Backend', level: 'beginner', category: 'backend', lessons: 16, quizzes: 32, hours: 30, progress: 60, free: true, color: 'accent-video' },
+    { id: 'fastapi', title: 'FastAPI + SQLAlchemy', level: 'intermediate', category: 'backend', lessons: 18, quizzes: 36, hours: 35, progress: 20, free: false, color: 'primary' },
+    { id: 'django', title: 'Django REST Framework', level: 'intermediate', category: 'backend', lessons: 20, quizzes: 40, hours: 40, progress: 0, free: false, color: 'accent-code' },
+    { id: 'nodejs', title: 'Node.js + Express', level: 'intermediate', category: 'backend', lessons: 16, quizzes: 32, hours: 30, progress: 0, free: false, color: 'accent-text' },
+    { id: 'go', title: 'Go para Microservicios', level: 'advanced', category: 'backend', lessons: 18, quizzes: 36, hours: 40, progress: 0, free: false, color: 'accent-video' },
+    { id: 'rust', title: 'Rust para Sistemas', level: 'advanced', category: 'backend', lessons: 20, quizzes: 40, hours: 50, progress: 0, free: false, color: 'primary' },
+    
+    // Database
+    { id: 'sql', title: 'SQL & PostgreSQL', level: 'intermediate', category: 'backend', lessons: 14, quizzes: 28, hours: 25, progress: 40, free: true, color: 'accent-code' },
+    { id: 'mongodb', title: 'MongoDB & NoSQL', level: 'intermediate', category: 'backend', lessons: 12, quizzes: 24, hours: 20, progress: 0, free: false, color: 'accent-text' },
+    { id: 'redis', title: 'Redis & Caching', level: 'advanced', category: 'backend', lessons: 10, quizzes: 20, hours: 15, progress: 0, free: false, color: 'accent-video' },
+    
+    // DevOps
+    { id: 'docker', title: 'Docker & Contenedores', level: 'intermediate', category: 'devops', lessons: 14, quizzes: 28, hours: 25, progress: 50, free: true, color: 'primary' },
+    { id: 'kubernetes', title: 'Kubernetes', level: 'advanced', category: 'devops', lessons: 18, quizzes: 36, hours: 40, progress: 0, free: false, color: 'accent-code' },
+    { id: 'ci-cd', title: 'CI/CD con GitHub Actions', level: 'intermediate', category: 'devops', lessons: 12, quizzes: 24, hours: 20, progress: 30, free: true, color: 'accent-text' },
+    { id: 'terraform', title: 'Terraform & IaC', level: 'advanced', category: 'devops', lessons: 14, quizzes: 28, hours: 30, progress: 0, free: false, color: 'accent-video' },
+    { id: 'aws', title: 'AWS Fundamentals', level: 'advanced', category: 'devops', lessons: 16, quizzes: 32, hours: 35, progress: 0, free: false, color: 'primary' },
+    
+    // Data & AI
+    { id: 'ml-basics', title: 'Machine Learning Básico', level: 'intermediate', category: 'data-ai', lessons: 16, quizzes: 32, hours: 35, progress: 25, free: true, color: 'accent-video' },
+    { id: 'deep-learning', title: 'Deep Learning con PyTorch', level: 'advanced', category: 'data-ai', lessons: 20, quizzes: 40, hours: 50, progress: 0, free: false, color: 'primary' },
+    { id: 'llms', title: 'LLMs & RAG', level: 'advanced', category: 'data-ai', lessons: 18, quizzes: 36, hours: 40, progress: 10, free: false, color: 'accent-video' },
+    { id: 'agents', title: 'Agentes IA Autónomos', level: 'architect', category: 'data-ai', lessons: 15, quizzes: 30, hours: 45, progress: 0, free: false, color: 'accent-code' },
+    { id: 'mlops', title: 'MLOps', level: 'advanced', category: 'data-ai', lessons: 14, quizzes: 28, hours: 35, progress: 0, free: false, color: 'accent-text' },
+    
+    // Professional
+    { id: 'testing', title: 'Testing Automatizado', level: 'intermediate', category: 'professional', lessons: 14, quizzes: 28, hours: 25, progress: 0, free: true, color: 'accent-code' },
+    { id: 'security', title: 'Seguridad Web', level: 'advanced', category: 'security', lessons: 16, quizzes: 32, hours: 35, progress: 0, free: false, color: 'accent-video' },
+    { id: 'architecture', title: 'Arquitectura de Software', level: 'advanced', category: 'architecture', lessons: 18, quizzes: 36, hours: 40, progress: 0, free: false, color: 'primary' },
+    { id: 'system-design', title: 'System Design', level: 'architect', category: 'architecture', lessons: 15, quizzes: 30, hours: 45, progress: 0, free: false, color: 'accent-text' },
+    { id: 'career', title: 'Carrera & Portafolio', level: 'professional', category: 'professional', lessons: 10, quizzes: 20, hours: 15, progress: 0, free: true, color: 'accent-code' },
+    
+    // Mobile
+    { id: 'flutter', title: 'Flutter & Dart', level: 'intermediate', category: 'mobile', lessons: 18, quizzes: 36, hours: 40, progress: 0, free: false, color: 'accent-text' },
+    { id: 'react-native', title: 'React Native', level: 'intermediate', category: 'mobile', lessons: 16, quizzes: 32, hours: 35, progress: 0, free: false, color: 'primary' },
+    { id: 'kotlin', title: 'Kotlin & Android', level: 'intermediate', category: 'mobile', lessons: 16, quizzes: 32, hours: 35, progress: 0, free: false, color: 'accent-video' },
+    { id: 'swift', title: 'Swift & iOS', level: 'intermediate', category: 'mobile', lessons: 16, quizzes: 32, hours: 35, progress: 0, free: false, color: 'accent-code' },
+  ];
+
+  const levelOrder = { explorer: 0, beginner: 1, intermediate: 2, advanced: 3, professional: 4, architect: 5 };
+  const levelLabels: Record<string, string> = {
+    explorer: '🌱 Explorador',
+    beginner: '🌿 Principiante',
+    intermediate: '🌳 Intermedio',
+    advanced: '🌲 Avanzado',
+    professional: '🏔️ Profesional',
+    architect: '🏔️ Arquitecto',
+  };
+  
+  const categoryLabels: Record<string, string> = {
+    fundamentals: 'Fundamentos',
+    'web-core': 'Web Core',
+    backend: 'Backend',
+    mobile: 'Móvil',
+    frameworks: 'Frameworks',
+    'data-ai': 'Datos & IA',
+    professional: 'Profesional',
+    devops: 'DevOps',
+    security: 'Seguridad',
+    architecture: 'Arquitectura',
+  };
+
+  const colorClasses: Record<string, { badge: string; progress: string; icon: string }> = {
+    primary: { badge: 'bg-primary/10 text-primary border-primary/20', progress: 'bg-primary', icon: '🔷' },
+    'accent-text': { badge: 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20', progress: 'bg-yellow-500', icon: '🟡' },
+    'accent-code': { badge: 'bg-green-500/10 text-green-500 border-green-500/20', progress: 'bg-green-500', icon: '🟢' },
+    'accent-video': { badge: 'bg-red-500/10 text-red-500 border-red-500/20', progress: 'bg-red-500', icon: '🔴' },
+  };
+
+  let currentPage = 1;
+  const coursesPerPage = 12;
+  let filteredCourses = [...courses];
+
+  function renderCourses() {
+    const grid = document.getElementById('courses-grid');
+    if (!grid) return;
+    
+    const start = (currentPage - 1) * coursesPerPage;
+    const end = start + coursesPerPage;
+    const pageCourses = filteredCourses.slice(start, end);
+    
+    grid.innerHTML = pageCourses.map(course => {
+      const colors = colorClasses[course.color];
+      const levelLabel = levelLabels[course.level] || course.level;
+      const categoryLabel = categoryLabels[course.category] || course.category;
+      
+      return `
+        <article class="course-card bg-panel border border-border rounded-2xl p-5 hover:border-primary/50 transition-all duration-300 group flex flex-col" data-level="${course.level}" data-category="${course.category}" data-id="${course.id}">
+          <div class="flex items-start justify-between mb-3">
+            <span class="text-3xl">${colors.icon}</span>
+            ${!course.free ? '<span class="px-2 py-0.5 text-xs font-medium bg-accent-text/10 text-accent-text border border-accent-text/20 rounded">PRO</span>' : '<span class="px-2 py-0.5 text-xs font-medium bg-green-500/10 text-green-500 border border-green-500/20 rounded">GRATIS</span>'}
+          </div>
+          <h3 class="font-semibold text-text-primary mb-2 group-hover:text-primary transition-colors line-clamp-2">${course.title}</h3>
+          <div class="flex items-center gap-2 text-xs mb-3">
+            <span class="px-2 py-0.5 bg-canvas rounded text-text-muted">${levelLabel}</span>
+            <span class="px-2 py-0.5 bg-canvas rounded text-text-muted">${categoryLabel}</span>
+          </div>
+          <div class="flex items-center justify-between text-sm text-text-muted mb-3">
+            <span>${course.lessons} lecciones</span>
+            <span>${course.quizzes} quizzes</span>
+            <span>${course.hours}h</span>
+          </div>
+          <div class="h-2 bg-border rounded-full overflow-hidden mb-4 flex-1">
+            <div class="h-full ${colors.progress} rounded-full transition-all duration-500" style="width: ${course.progress}%"></div>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-sm font-medium ${colors.badge.replace('bg-', '').replace('border-', '').replace('text-', 'text-')} px-3 py-1 rounded-full">${course.progress}%</span>
+            <a href="/dashboard/learn/${course.id}" class="text-sm font-medium text-primary hover:text-primary-light transition-colors flex items-center gap-1">
+              ${course.progress === 100 ? '✅ Completado' : course.progress > 0 ? 'Continuar →' : 'Empezar →'}
+            </a>
+          </div>
+        </article>
+      `;
+    }).join('');
+    
+    renderPagination();
+  }
+
+  function renderPagination() {
+    const pagination = document.getElementById('pagination');
+    if (!pagination) return;
+    
+    const totalPages = Math.ceil(filteredCourses.length / coursesPerPage);
+    if (totalPages <= 1) {
+      pagination.innerHTML = '';
+      return;
+    }
+    
+    let html = '';
+    if (currentPage > 1) {
+      html += `<button class="px-3 py-1 bg-panel border border-border rounded-lg hover:bg-border transition-colors" data-page="${currentPage - 1}">Anterior</button>`;
+    }
+    
+    for (let i = 1; i <= totalPages; i++) {
+      if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
+        html += `<button class="w-10 h-10 rounded-lg ${i === currentPage ? 'bg-primary text-white' : 'bg-panel border border-border hover:bg-border transition-colors'}" data-page="${i}">${i}</button>`;
+      } else if (i === currentPage - 2 || i === currentPage + 2) {
+        html += `<span class="w-10 h-10 flex items-center justify-center text-text-muted">...</span>`;
+      }
+    }
+    
+    if (currentPage < totalPages) {
+      html += `<button class="px-3 py-1 bg-panel border border-border rounded-lg hover:bg-border transition-colors" data-page="${currentPage + 1}">Siguiente</button>`;
+    }
+    
+    pagination.innerHTML = html;
+    
+    pagination.querySelectorAll('button[data-page]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        currentPage = parseInt(btn.dataset.page || '1');
+        renderCourses();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    });
+  }
+
+  function filterCourses() {
+    const level = document.getElementById('level-filter')?.value || '';
+    const category = document.getElementById('category-filter')?.value || '';
+    const search = document.getElementById('search-input')?.value.toLowerCase() || '';
+    
+    filteredCourses = courses.filter(course => {
+      const matchLevel = !level || course.level === level;
+      const matchCategory = !category || course.category === category;
+      const matchSearch = !search || course.title.toLowerCase().includes(search);
+      return matchLevel && matchCategory && matchSearch;
+    });
+    
+    // Sort by level order, then by progress descending
+    filteredCourses.sort((a, b) => {
+      const levelDiff = levelOrder[a.level] - levelOrder[b.level];
+      if (levelDiff !== 0) return levelDiff;
+      return b.progress - a.progress;
+    });
+    
+    currentPage = 1;
+    renderCourses();
+  }
+
+  // Learning Path Badge Component
+  class LearningPathBadge extends HTMLElement {
+    connectedCallback() {
+      const title = this.getAttribute('title') || '';
+      const courses = this.getAttribute('courses') || '';
+      const duration = this.getAttribute('duration') || '';
+      const color = this.getAttribute('color') || 'primary';
+      
+      const colorClasses: Record<string, string> = {
+        primary: 'bg-primary/10 text-primary border-primary/20',
+        'accent-text': 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20',
+        'accent-code': 'bg-green-500/10 text-green-500 border-green-500/20',
+        'accent-video': 'bg-red-500/10 text-red-500 border-red-500/20',
+      };
+      
+      this.innerHTML = `
+        <a href="/dashboard/learn/path/${title.toLowerCase().replace(/\s+/g, '-')}" class="flex items-center gap-3 p-3 bg-panel border border-border rounded-xl hover:border-primary/50 transition-colors group ${colorClasses[color]}">
+          <span class="text-2xl">🛤️</span>
+          <div>
+            <p class="font-semibold text-text-primary group-hover:text-primary transition-colors">${title}</p>
+            <p class="text-xs text-text-muted">${courses} cursos · ${duration}</p>
+          </div>
+          <svg class="w-5 h-5 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4-4 4m-6-8l4 4-4 4"></path></svg>
+        </a>
+      `;
+    }
+  }
+  customElements.define('learning-path-badge', LearningPathBadge);
+
+  // Event Listeners
+  document.getElementById('level-filter')?.addEventListener('change', filterCourses);
+  document.getElementById('category-filter')?.addEventListener('change', filterCourses);
+  document.getElementById('search-input')?.addEventListener('input', (e) => {
+    const target = e.target as HTMLInputElement;
+    clearTimeout((target as any).debounce);
+    (target as any).debounce = setTimeout(filterCourses, 300);
+  });
+
+  // Theme Toggle
+  document.getElementById('theme-toggle')?.addEventListener('click', () => {
+    document.documentElement.classList.toggle('dark');
+    localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+  });
+
+  // User Menu Toggle
+  document.getElementById('user-menu-btn')?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    document.getElementById('user-menu')?.classList.toggle('hidden');
+  });
+  document.addEventListener('click', () => {
+    document.getElementById('user-menu')?.classList.add('hidden');
+  });
+
+  // Initial Render
+  renderCourses();
+</script>
+
+<style>
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+</style>

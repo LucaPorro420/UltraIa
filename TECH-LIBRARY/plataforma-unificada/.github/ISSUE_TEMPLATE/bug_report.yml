@@ -1,0 +1,98 @@
+name: "Bug Report"
+description: "Reporta un error o comportamiento inesperado"
+title: "[BUG] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Reporte de Bug
+        Por favor, proporciona información detallada para ayudarnos a reproducir y corregir el bug.
+  - type: textarea
+    id: description
+    attributes:
+      label: "Descripción del bug"
+      description: "¿Qué sucede? ¿Qué esperabas que sucediera?"
+      placeholder: "Cuando hago X, ocurre Y, pero esperaba Z..."
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: "Pasos para reproducir"
+      description: "Pasos mínimos para reproducir el bug"
+      placeholder: |
+        1. Ve a '...'
+        2. Haz clic en '...'
+        3. Desplázate hasta '...'
+        4. Ve el error
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: "Comportamiento esperado"
+      description: "¿Qué deberías ver si funcionara correctamente?"
+      placeholder: "Debería mostrar..."
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: "Comportamiento actual"
+      description: "¿Qué ves realmente?"
+      placeholder: "En realidad muestra..."
+    validations:
+      required: true
+  - type: dropdown
+    id: severity
+    attributes:
+      label: "Severidad"
+      options:
+        - "🔴 Critical (Bloquea funcionalidad principal, data loss, security)"
+        - "🟠 High (Funcionalidad importante rota, workaround difícil)"
+        - "🟡 Medium (Funcionalidad menor rota, workaround existe)"
+        - "🟢 Low (Cosmético, typo, UX menor)"
+      default: 2
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: "Área afectada"
+      options:
+        - "Gamificación (XP, Badges, Rachas, Leaderboards)"
+        - "IA Assistant (Tutor, Code Review, Quiz Gen)"
+        - "Cursos/Contenido"
+        - "IDE/Editor"
+        - "Desktop App (Electron)"
+        - "Web App (Astro)"
+        - "API/BFF"
+        - "Database/Schema"
+        - "DevOps/Infra"
+        - "Documentación"
+        - "Otro"
+      default: 0
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: "Entorno"
+      description: "OS, Browser, Versión de Node/Electron, etc."
+      placeholder: "Windows 11, Chrome 120, Node 20.10, Electron 30"
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: "Logs/Stack trace"
+      description: "Pega aquí cualquier log relevante, stack trace, o captura de pantalla"
+      placeholder: "Error: ..."
+      render: shell
+  - type: textarea
+    id: additional
+    attributes:
+      label: "Información adicional"
+      description: "Cualquier contexto adicional, workarounds, configuración, etc."
+      placeholder: "Contexto adicional..."

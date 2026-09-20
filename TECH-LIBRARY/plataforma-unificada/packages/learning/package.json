@@ -1,0 +1,35 @@
+{
+  "name": "@plataforma-unificada/learning",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "test": "vitest run",
+    "lint": "eslint src --ext .ts",
+    "import:platforma-total": "tsx src/scripts/import-platforma-total.ts"
+  },
+  "dependencies": {
+    "@plataforma-unificada/core": "*",
+    "@plataforma-unificada/gateway": "*",
+    "@plataforma-unificada/agents": "*",
+    "better-sqlite3": "^12.10.0",
+    "zod": "^3.24.4"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "^22.15.3",
+    "tsx": "^4.19.4",
+    "typescript": "^5.8.3",
+    "vitest": "^3.1.3"
+  }
+}

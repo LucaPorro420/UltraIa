@@ -1,0 +1,88 @@
+version: '3.8'
+
+services:
+  # FreeLLMAPI Gateway
+  gateway:
+    build:
+      context: ../../freellmapi
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
+      - DATABASE_URL=sqlite:///data/freeapi.db
+    volumes:
+      - gateway_data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Plataforma Unificada API
+  api:
+    build:
+      context: .
+      dockerfile: infra/docker/Dockerfile.api
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=sqlite:///data/plataforma.db
+      - GATEWAY_URL=http://gateway:3001
+      - JWT_SECRET=${JWT_SECRET}
+      - GATEWAY_API_KEY=${GATEWAY_API_KEY}
+    volumes:
+      - api_data:/data
+    depends_on:
+      - gateway
+    restart: unless-stopped
+
+  # Web Frontend (Astro)
+  web:
+    build:
+      context: .
+      dockerfile: infra/docker/Dockerfile.web
+    ports:
+      - "4321:4321"
+    environment:
+      - NODE_ENV=production
+      - PUBLIC_API_BASE=http://localhost:3000
+      - PUBLIC_GATEWAY_BASE=http://localhost:3001
+    depends_on:
+      - api
+    restart: unless-stopped
+
+  # PostgreSQL (optional, for production)
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_DB=plataforma
+      - POSTGRES_USER=plataforma
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+    profiles:
+      - postgres
+
+  # Redis (for caching/sessions)
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    profiles:
+      - redis
+
+volumes:
+  gateway_data:
+  api_data:
+  postgres_data:
+  redis_data:

@@ -1,0 +1,568 @@
+---
+import MainLayout from '../layouts/MainLayout.astro';
+---
+
+<MainLayout title="Dashboard" description="Tu panel de control - Plataforma Total Unificada">
+  <div class="min-h-screen bg-canvas">
+    <!-- Top Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-canvas/95 backdrop-blur-sm border-b border-border">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+          <div class="flex items-center gap-8">
+            <a href="/" class="flex items-center gap-2">
+              <span class="text-2xl">🎓</span>
+              <span class="font-display font-bold text-xl text-primary">Plataforma Total</span>
+            </a>
+            <div class="hidden md:flex items-center gap-6">
+              <a href="/dashboard/learn" class="text-text-secondary hover:text-text-primary transition-colors font-medium">Aprender</a>
+              <a href="/dashboard/projects" class="text-text-secondary hover:text-text-primary transition-colors font-medium">Proyectos</a>
+              <a href="/dashboard/agents" class="text-text-secondary hover:text-text-primary transition-colors font-medium">Agentes</a>
+              <a href="/dashboard/ide" class="text-text-secondary hover:text-text-primary transition-colors font-medium">IDE</a>
+              <a href="/dashboard/chat" class="text-text-secondary hover:text-text-primary transition-colors font-medium">Chat IA</a>
+            </div>
+          </div>
+          <div class="flex items-center gap-4">
+            <button id="theme-toggle" class="p-2 bg-panel border border-border rounded-lg hover:bg-border transition-colors" aria-label="Cambiar tema">
+              <svg class="w-5 h-5 text-text-primary dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+              <svg class="w-5 h-5 text-text-primary hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+            </button>
+            <div class="relative">
+              <button id="user-menu-btn" class="flex items-center gap-2 p-2 bg-panel border border-border rounded-lg hover:bg-border transition-colors">
+                <div class="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+                  <span class="text-primary font-semibold">JD</span>
+                </div>
+                <span class="hidden sm:block font-medium">Juan Dev</span>
+                <svg class="w-4 h-4 text-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+              </button>
+              <div id="user-menu" class="hidden absolute right-0 mt-2 w-48 bg-panel border border-border rounded-lg shadow-lg py-1">
+                <a href="/dashboard/profile" class="block px-4 py-2 text-text-secondary hover:text-text-primary hover:bg-border">Perfil</a>
+                <a href="/dashboard/settings" class="block px-4 py-2 text-text-secondary hover:text-text-primary hover:bg-border">Configuración</a>
+                <hr class="my-1 border-border" />
+                <button id="logout-btn" class="block w-full text-left px-4 py-2 text-text-secondary hover:text-text-primary hover:bg-border">Cerrar sesión</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="pt-20 pb-8">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Welcome Header -->
+        <div class="mb-8 animate-fade-in">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <h1 class="text-3xl font-display font-bold">Bienvenido, <span class="text-primary">Juan</span> 👋</h1>
+              <p class="text-text-secondary mt-1">Continúa tu viaje de aprendizaje. Racha actual: <span class="font-bold text-accent-text">🔥 12 días</span></p>
+            </div>
+            <div class="flex items-center gap-3">
+              <div class="flex items-center gap-2 bg-panel border border-border rounded-lg px-4 py-2">
+                <span class="text-accent-text">🔥</span>
+                <span class="font-mono font-bold text-lg">12</span>
+                <span class="text-text-muted">días</span>
+              </div>
+              <div class="flex items-center gap-2 bg-panel border border-border rounded-lg px-4 py-2">
+                <span class="text-primary">⭐</span>
+                <span class="font-mono font-bold text-lg">2,847</span>
+                <span class="text-text-muted">XP</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 animate-slide-up">
+          <StatCard 
+            label="Lecciones Completadas"
+            value="87"
+            total="269"
+            icon="book-open"
+            color="primary"
+          />
+          <StatCard 
+            label="Quizzes Perfectos"
+            value="42"
+            total="538"
+            icon="award"
+            color="accent-text"
+          />
+          <StatCard 
+            label="Proyectos Construidos"
+            value="8"
+            total=""
+            icon="folder-git"
+            color="accent-code"
+          />
+          <StatCard 
+            label="Certificados"
+            value="5"
+            total=""
+            icon="graduation-cap"
+            color="accent-video"
+          />
+        </div>
+
+        <!-- Main Grid -->
+        <div class="grid lg:grid-cols-3 gap-6">
+          <!-- Left Column - Continue Learning -->
+          <section class="lg:col-span-2 space-y-6">
+            <div class="flex items-center justify-between">
+              <h2 class="text-xl font-display font-bold">Continuar Aprendiendo</h2>
+              <a href="/dashboard/learn" class="text-sm text-primary hover:underline">Ver todos →</a>
+            </div>
+            
+            <div class="grid md:grid-cols-2 gap-4">
+              <CourseProgressCard 
+                title="JavaScript Moderno (ES6+)"
+                progress={75}
+                currentLesson="Async/Await y Promesas"
+                lessons="12/16"
+                color="accent-text"
+                href="/dashboard/learn/javascript"
+              />
+              <CourseProgressCard 
+                title="TypeScript Avanzado"
+                progress={45}
+                currentLesson="Generics y Utility Types"
+                lessons="7/18"
+                color="primary"
+                href="/dashboard/learn/typescript"
+              />
+              <CourseProgressCard 
+                title="React + Next.js 14"
+                progress={30}
+                currentLesson="Server Components"
+                lessons="5/22"
+                color="accent-code"
+                href="/dashboard/learn/react"
+              />
+              <CourseProgressCard 
+                title="Python para Backend"
+                progress={60}
+                currentLesson="FastAPI + SQLAlchemy"
+                lessons="9/15"
+                color="accent-video"
+                href="/dashboard/learn/python"
+              />
+            </div>
+
+            <!-- Recommended Next Steps -->
+            <div class="bg-panel border border-border rounded-2xl p-6">
+              <h3 class="text-lg font-semibold mb-4 flex items-center gap-2">
+                <span class="text-primary">🤖</span>
+                Recomendado por tu IA Tutor
+              </h3>
+              <div class="space-y-3">
+                <RecommendationItem 
+                  title="Repasar: Closures en JavaScript"
+                  reason="Fallaste 2 preguntas en el quiz anterior"
+                  action="Hacer quiz de repaso"
+                  priority="high"
+                />
+                <RecommendationItem 
+                  title="Iniciar: Testing con Vitest"
+                  reason="Prerrequisito para el proyecto Final del módulo React"
+                  action="Empezar curso"
+                  priority="medium"
+                />
+                <RecommendationItem 
+                  title="Proyecto: API REST con FastAPI"
+                  reason="Consolida Python + BD + Testing + Deploy"
+                  action="Ver proyecto"
+                  priority="high"
+                />
+              </div>
+            </div>
+          </section>
+
+          <!-- Right Column - Sidebar -->
+          <aside class="space-y-6">
+            <!-- Pomodoro Timer -->
+            <div class="bg-panel border border-border rounded-2xl p-6">
+              <h3 class="font-semibold mb-4 flex items-center gap-2">
+                <span class="text-accent-video">🍅</span>
+                Pomodoro
+              </h3>
+              <div id="pomodoro-timer" class="text-center mb-4">
+                <div class="text-5xl font-mono font-bold text-text-primary" id="pomo-time">25:00</div>
+                <div class="text-sm text-text-muted mt-1" id="pomo-phase">Enfoque</div>
+              </div>
+              <div class="flex gap-2">
+                <button id="pomo-start" class="flex-1 bg-primary text-white py-2 rounded-lg font-medium hover:bg-primary-light transition-colors">▶ Iniciar</button>
+                <button id="pomo-reset" class="px-4 bg-panel border border-border text-text-secondary rounded-lg hover:bg-border transition-colors">↺</button>
+              </div>
+              <div class="mt-4 pt-4 border-t border-border">
+                <div class="flex justify-between text-sm">
+                  <span class="text-text-muted">Hoy</span>
+                  <span class="font-bold" id="pomo-count">3 🍅</span>
+                </div>
+                <div class="h-2 bg-border rounded-full mt-2 overflow-hidden">
+                  <div class="h-full bg-primary rounded-full transition-all" id="pomo-week-progress" style="width: 45%"></div>
+                </div>
+                <div class="text-xs text-text-muted mt-1 text-right">Meta semanal: 28/28 🍅</div>
+              </div>
+            </div>
+
+            <!-- AI Chat Quick Access -->
+            <div class="bg-panel border border-border rounded-2xl p-6">
+              <h3 class="font-semibold mb-4 flex items-center gap-2">
+                <span class="text-primary">🤖</span>
+                Chat IA Rápido
+              </h3>
+              <div class="space-y-2">
+                <QuickChatBtn icon="💡" label="Explicar concepto" prompt="Explícame..." />
+                <QuickChatBtn icon="🛠️" label="Debuggear código" prompt="Ayúdame a debuggear..." />
+                <QuickChatBtn icon="📝" label="Generar quiz" prompt="Crea un quiz sobre..." />
+                <QuickChatBtn icon="🚀" label="Iniciar proyecto" prompt="Quiero construir..." />
+                <a href="/dashboard/chat" class="block w-full text-center text-primary hover:underline text-sm mt-2">Abrir chat completo →</a>
+              </div>
+            </div>
+
+            <!-- Active Agents -->
+            <div class="bg-panel border border-border rounded-2xl p-6">
+              <h3 class="font-semibold mb-4 flex items-center gap-2">
+                <span class="text-accent-code">⚡</span>
+                Agentes Activos
+              </h3>
+              <div class="space-y-2">
+                <AgentStatus name="Tutor" status="active" task="Explicando closures JS" />
+                <AgentStatus name="Coder" status="idle" task="Esperando tarea" />
+                <AgentStatus name="Architect" status="working" task="Diseñando API REST" />
+                <AgentStatus name="Tester" status="idle" task="Esperando código" />
+              </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="bg-panel border border-border rounded-2xl p-6">
+              <h3 class="font-semibold mb-4">Acciones Rápidas</h3>
+              <div class="grid grid-cols-2 gap-2">
+                <QuickActionBtn icon="➕" label="Nuevo Proyecto" href="/dashboard/projects/new" />
+                <QuickActionBtn icon="📚" label="Explorar Cursos" href="/dashboard/learn" />
+                <QuickActionBtn icon="🤖" label="Crear Agente" href="/dashboard/agents/new" />
+                <QuickActionBtn icon="🔧" label="Abrir IDE" href="/dashboard/ide" />
+              </div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-border py-6">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-text-muted text-sm">
+        Plataforma Total Unificada v1.0.0-beta · <a href="/docs" class="hover:underline">Docs</a> · <a href="/api" class="hover:underline">API</a> · <a href="/status" class="hover:underline">Estado</a>
+      </div>
+    </footer>
+  </div>
+</MainLayout>
+
+<!-- Components -->
+<StatCard 
+  label="Lecciones Completadas"
+  value="87"
+  total="269"
+  icon="book-open"
+  color="primary"
+/>
+
+<CourseProgressCard 
+  title="JavaScript Moderno (ES6+)"
+  progress={75}
+  currentLesson="Async/Await y Promesas"
+  lessons="12/16"
+  color="primary"
+  href="/dashboard/learn/javascript"
+/>
+
+<RecommendationItem 
+  title="Repasar: Closures en JavaScript"
+  reason="Fallaste 2 preguntas en el quiz anterior"
+  action="Hacer quiz de repaso"
+  priority="high"
+/>
+
+<QuickChatBtn icon="💡" label="Explicar concepto" prompt="Explícame..." />
+<AgentStatus name="Tutor" status="active" task="Explicando closures JS" />
+<QuickActionBtn icon="➕" label="Nuevo Proyecto" href="/dashboard/projects/new" />
+
+<script>
+  // Stat Card Component
+  class StatCard extends HTMLElement {
+    connectedCallback() {
+      const label = this.getAttribute('label') || '';
+      const value = this.getAttribute('value') || '0';
+      const total = this.getAttribute('total') || '';
+      const icon = this.getAttribute('icon') || 'chart';
+      const color = this.getAttribute('color') || 'primary';
+      
+      const icons: Record<string, string> = {
+        'book-open': '📖',
+        'award': '🏆',
+        'folder-git': '📁',
+        'graduation-cap': '🎓',
+        'chart': '📊',
+      };
+      
+      const colors: Record<string, string> = {
+        'primary': 'bg-primary/10 border-primary/20 text-primary',
+        'accent-text': 'bg-yellow-500/10 border-yellow-500/20 text-yellow-500',
+        'accent-code': 'bg-green-500/10 border-green-500/20 text-green-500',
+        'accent-video': 'bg-red-500/10 border-red-500/20 text-red-500',
+      };
+      
+      this.innerHTML = `
+        <div class="bg-panel border border-border rounded-2xl p-5 ${colors[color]}">
+          <div class="flex items-start justify-between">
+            <div>
+              <p class="text-sm text-text-muted">${label}</p>
+              <div class="flex items-baseline gap-1 mt-1">
+                <span class="text-2xl font-display font-bold">${value}</span>
+                ${total ? `<span class="text-text-muted">/${total}</span>` : ''}
+              </div>
+            </div>
+            <span class="text-3xl">${icons[icon]}</span>
+          </div>
+        </div>
+      `;
+    }
+  }
+  customElements.define('stat-card', StatCard);
+
+  // Course Progress Card Component
+  class CourseProgressCard extends HTMLElement {
+    connectedCallback() {
+      const title = this.getAttribute('title') || '';
+      const progress = parseInt(this.getAttribute('progress') || '0');
+      const currentLesson = this.getAttribute('currentLesson') || '';
+      const lessons = this.getAttribute('lessons') || '';
+      const color = this.getAttribute('color') || 'primary';
+      const href = this.getAttribute('href') || '#';
+      
+      const colors: Record<string, string> = {
+        'primary': 'bg-primary/10 border-primary/20',
+        'accent-text': 'bg-yellow-500/10 border-yellow-500/20',
+        'accent-code': 'bg-green-500/10 border-green-500/20',
+        'accent-video': 'bg-red-500/10 border-red-500/20',
+      };
+      
+      const colorText: Record<string, string> = {
+        'primary': 'text-primary',
+        'accent-text': 'text-yellow-500',
+        'accent-code': 'text-green-500',
+        'accent-video': 'text-red-500',
+      };
+      
+      this.innerHTML = `
+        <a href="${href}" class="block bg-panel border border-border rounded-2xl p-5 hover:border-primary/50 transition-all duration-300 group">
+          <div class="flex items-start justify-between mb-3">
+            <h4 class="font-semibold text-text-primary group-hover:text-primary transition-colors">${title}</h4>
+            <span class="text-2xl font-display font-bold ${colorText[color]}">${progress}%</span>
+          </div>
+          <div class="h-2 bg-border rounded-full overflow-hidden mb-3">
+            <div class="h-full ${colors[color].replace('bg-', 'bg-').replace('border-', '')} rounded-full transition-all duration-500" style="width: ${progress}%"></div>
+          </div>
+          <div class="flex items-center justify-between text-sm">
+            <span class="text-text-muted">${lessons}</span>
+            <span class="text-text-secondary">${currentLesson}</span>
+          </div>
+        </a>
+      `;
+    }
+  }
+  customElements.define('course-progress-card', CourseProgressCard);
+
+  // Recommendation Item Component
+  class RecommendationItem extends HTMLElement {
+    connectedCallback() {
+      const title = this.getAttribute('title') || '';
+      const reason = this.getAttribute('reason') || '';
+      const action = this.getAttribute('action') || '';
+      const priority = this.getAttribute('priority') || 'medium';
+      
+      const priorityColors: Record<string, string> = {
+        'high': 'bg-red-500/10 text-red-500 border-red-500/20',
+        'medium': 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20',
+        'low': 'bg-green-500/10 text-green-500 border-green-500/20',
+      };
+      
+      this.innerHTML = `
+        <div class="bg-panel border border-border rounded-xl p-4">
+          <div class="flex items-start justify-between gap-4">
+            <div class="flex-1">
+              <p class="font-medium text-text-primary">${title}</p>
+              <p class="text-sm text-text-muted mt-1">${reason}</p>
+            </div>
+            <span class="px-2 py-1 text-xs font-medium rounded-full ${priorityColors[priority]} whitespace-nowrap">${priority.toUpperCase()}</span>
+          </div>
+          <button class="mt-3 w-full text-left text-sm ${priority === 'high' ? 'text-red-500 hover:text-red-400' : 'text-primary hover:text-primary-light'} font-medium transition-colors">${action} →</button>
+        </div>
+      `;
+    }
+  }
+  customElements.define('recommendation-item', RecommendationItem);
+
+  // Quick Chat Button Component
+  class QuickChatBtn extends HTMLElement {
+    connectedCallback() {
+      const icon = this.getAttribute('icon') || '💬';
+      const label = this.getAttribute('label') || '';
+      const prompt = this.getAttribute('prompt') || '';
+      
+      this.innerHTML = `
+        <button class="w-full text-left px-3 py-2 bg-canvas border border-border rounded-lg hover:border-primary/50 hover:bg-panel transition-all text-sm flex items-center gap-2" data-prompt="${prompt}">
+          <span class="text-lg">${icon}</span>
+          <span>${label}</span>
+        </button>
+      `;
+      
+      this.querySelector('button')?.addEventListener('click', () => {
+        window.location.href = `/dashboard/chat?prompt=${encodeURIComponent(prompt)}`;
+      });
+    }
+  }
+  customElements.define('quick-chat-btn', QuickChatBtn);
+
+  // Agent Status Component
+  class AgentStatus extends HTMLElement {
+    connectedCallback() {
+      const name = this.getAttribute('name') || '';
+      const status = this.getAttribute('status') || 'idle';
+      const task = this.getAttribute('task') || '';
+      
+      const statusConfig: Record<string, { dot: string; label: string; color: string }> = {
+        'active': { dot: 'bg-primary', label: 'Activo', color: 'text-primary' },
+        'working': { dot: 'bg-yellow-500 animate-pulse', label: 'Trabajando', color: 'text-yellow-500' },
+        'idle': { dot: 'bg-text-muted', label: 'Inactivo', color: 'text-text-muted' },
+        'error': { dot: 'bg-red-500', label: 'Error', color: 'text-red-500' },
+      };
+      
+      const config = statusConfig[status] || statusConfig.idle;
+      
+      this.innerHTML = `
+        <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-canvas transition-colors">
+          <div class="w-2 h-2 rounded-full ${config.dot}"></div>
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-medium text-text-primary truncate">${name}</p>
+            <p class="text-xs ${config.color} truncate">${task}</p>
+          </div>
+          <span class="text-xs px-2 py-0.5 bg-canvas rounded ${config.color}">${config.label}</span>
+        </div>
+      `;
+    }
+  }
+  customElements.define('agent-status', AgentStatus);
+
+  // Quick Action Button Component
+  class QuickActionBtn extends HTMLElement {
+    connectedCallback() {
+      const icon = this.getAttribute('icon') || '+';
+      const label = this.getAttribute('label') || '';
+      const href = this.getAttribute('href') || '#';
+      
+      this.innerHTML = `
+        <a href="${href}" class="flex flex-col items-center gap-2 p-4 bg-canvas border border-border rounded-xl hover:border-primary/50 hover:bg-panel transition-all group">
+          <span class="text-2xl">${icon}</span>
+          <span class="text-sm font-medium text-text-primary group-hover:text-primary transition-colors">${label}</span>
+        </a>
+      `;
+    }
+  }
+  customElements.define('quick-action-btn', QuickActionBtn);
+
+  // Pomodoro Timer Logic
+  let pomoTime = 25 * 60;
+  let pomoActive = false;
+  let pomoPhase = 'work';
+  let pomoInterval: number;
+  let pomoToday = 3;
+  
+  function updatePomoDisplay() {
+    const m = Math.floor(pomoTime / 60);
+    const s = pomoTime % 60;
+    const timeEl = document.getElementById('pomo-time');
+    const phaseEl = document.getElementById('pomo-phase');
+    const countEl = document.getElementById('pomo-count');
+    const progressEl = document.getElementById('pomo-week-progress');
+    const startBtn = document.getElementById('pomo-start');
+    
+    if (timeEl) timeEl.textContent = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+    if (phaseEl) phaseEl.textContent = pomoPhase === 'work' ? 'Enfoque' : 'Descanso';
+    if (countEl) countEl.textContent = `${pomoToday} 🍅`;
+    if (progressEl) progressEl.style.width = `${Math.min(100, (pomoToday / 28) * 100)}%`;
+    if (startBtn) startBtn.textContent = pomoActive ? '⏸ Pausar' : '▶ Iniciar';
+  }
+  
+  function pomoTick() {
+    if (!pomoActive) return;
+    pomoTime--;
+    if (pomoTime <= 0) {
+      if (pomoPhase === 'work') {
+        pomoPhase = 'break';
+        pomoTime = 5 * 60;
+        pomoToday++;
+        // Save to localStorage
+        localStorage.setItem('pomoToday', pomoToday.toString());
+        localStorage.setItem('pomoStreak', '12');
+      } else {
+        pomoPhase = 'work';
+        pomoTime = 25 * 60;
+      }
+      // Play notification sound
+      new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmGgU7k9n1unEiBC13yO/eizEIHWq+8+OWT').play().catch(()=>{});
+    }
+    updatePomoDisplay();
+  }
+  
+  document.getElementById('pomo-start')?.addEventListener('click', () => {
+    pomoActive = !pomoActive;
+    if (pomoActive) {
+      pomoInterval = window.setInterval(pomoTick, 1000);
+    } else {
+      clearInterval(pomoInterval);
+    }
+    updatePomoDisplay();
+  });
+  
+  document.getElementById('pomo-reset')?.addEventListener('click', () => {
+    pomoActive = false;
+    clearInterval(pomoInterval);
+    pomoPhase = 'work';
+    pomoTime = 25 * 60;
+    updatePomoDisplay();
+  });
+  
+  // Load saved state
+  const savedToday = localStorage.getItem('pomoToday');
+  if (savedToday) pomoToday = parseInt(savedToday);
+  updatePomoDisplay();
+  
+  // User Menu Toggle
+  document.getElementById('user-menu-btn')?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    document.getElementById('user-menu')?.classList.toggle('hidden');
+  });
+  
+  document.addEventListener('click', () => {
+    document.getElementById('user-menu')?.classList.add('hidden');
+  });
+  
+  // Theme Toggle
+  document.getElementById('theme-toggle')?.addEventListener('click', () => {
+    document.documentElement.classList.toggle('dark');
+    localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+  });
+</script>
+
+<style>
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
+  .animate-slide-up { animation: slideUp 0.5s ease-out forwards; opacity: 0; }
+</style>

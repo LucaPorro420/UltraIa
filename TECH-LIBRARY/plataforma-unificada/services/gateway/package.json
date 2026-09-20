@@ -1,0 +1,11 @@
+{
+  "name": "@plataforma-unificada/gateway-service",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "cd ../../../freellmapi && npm run dev",
+    "build": "cd ../../../freellmapi && npm run build",
+    "start": "cd ../../../freellmapi && npm run start"
+  }
+}
