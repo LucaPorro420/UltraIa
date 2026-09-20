@@ -1,16 +1,16 @@
 {
-  "fecha": "2026-09-19",
+  "fecha": "2026-09-20",
   "entorno": "github-actions",
   "vitals": {
-    "puntuacion": 29,
+    "puntuacion": 49,
     "estado": "ROJO",
     "signos": [
       {
         "nombre": "gates",
-        "valor": 0.25,
+        "valor": 0.75,
         "peso": 0.35,
         "ok": false,
-        "nota": "1/4 verdes (ROJO: typecheck, test, build)"
+        "nota": "3/4 verdes (ROJO: build)"
       },
       {
         "nombre": "tests",
@@ -21,17 +21,17 @@
       },
       {
         "nombre": "backlog",
-        "valor": 0.98,
+        "valor": 0.99,
         "peso": 0.15,
         "ok": false,
-        "nota": "109/111 accionables cerradas, 2 pendientes, 1 bloqueadas"
+        "nota": "117/118 accionables cerradas, 1 pendientes, 1 bloqueadas"
       },
       {
         "nombre": "gaps",
         "valor": 0,
         "peso": 0.15,
         "ok": false,
-        "nota": "21 gaps abiertos"
+        "nota": "22 gaps abiertos"
       },
       {
         "nombre": "memoria",
@@ -42,17 +42,17 @@
       },
       {
         "nombre": "actividad",
-        "valor": 0.6,
+        "valor": 1,
         "peso": 0.05,
         "ok": true,
-        "nota": "6 commits + 0 lecciones"
+        "nota": "19 commits + 2 lecciones"
       }
     ],
     "razones": [
-      "gates: 1/4 verdes (ROJO: typecheck, test, build)",
+      "gates: 3/4 verdes (ROJO: build)",
       "tests: 0/0 tests",
-      "backlog: 109/111 accionables cerradas, 2 pendientes, 1 bloqueadas",
-      "gaps: 21 gaps abiertos"
+      "backlog: 117/118 accionables cerradas, 1 pendientes, 1 bloqueadas",
+      "gaps: 22 gaps abiertos"
     ]
   },
   "input": {
@@ -61,6 +61,9 @@
       "total": 0
     },
     "gaps": [
+      {
+        "kind": "source_sin_analizar"
+      },
       {
         "kind": "source_sin_analizar"
       },
@@ -130,28 +133,28 @@
       "fuentes": 8
     },
     "backlog": {
-      "total": 112,
-      "done": 109,
+      "total": 119,
+      "done": 117,
       "bloqueadas": 1,
-      "pendientes": 2
+      "pendientes": 1
     },
     "actividad": {
-      "commits": 6,
-      "lecciones": 0
+      "commits": 19,
+      "lecciones": 2
     },
     "gates": {
-      "typecheck": false,
+      "typecheck": true,
       "lint": true,
-      "test": false,
+      "test": true,
       "build": false
     }
   },
   "regresiones": [],
   "accion": {
     "modo": "reparar",
-    "objetivo": "gates en rojo: typecheck, test, build",
+    "objetivo": "gates en rojo: build",
     "razon": "el organismo se esta degradando: reparar antes que avanzar (regla: no commitear con gates rojos)",
     "prioridad": "P0",
-    "comando": "npm run typecheck"
+    "comando": "npm run build"
   }
 }
