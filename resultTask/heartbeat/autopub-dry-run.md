@@ -1,4 +1,4 @@
-[autopub] inicio 2026-09-27T14:27:34.202Z (DRY-RUN: no escribe cola)
+[autopub] inicio 2026-09-28T17:13:50.184Z (DRY-RUN: no escribe cola)
 [autopub] config: max=2 idioma=es tts=false publishDue=false canales=youtube_shorts,tiktok,instagram,blog,telegram,discord,slack,facebook
 [autopub] plan F1: descubrir temas (red keyless, sin guardar)
 [autopub] plan F2-F4: generar contenido y encolar en modo DRY (sin escribir cola ni disco)
@@ -11,8 +11,8 @@ Invalid `db.topicBrief.findMany()` invocation in
   73   const take = Math.min(Math.max(opts.take ?? 20, 1), 100);
 → 74   const items = await db.topicBrief.findMany(
 The table `main.TopicBrief` does not exist in the current database.
-[autopub] reporte: /home/runner/work/UltraIa/UltraIa/.ultraia/autopub/ciclo-2026-09-27T14-27-34-623Z.md
-# AutoPub ciclo 2026-09-27T14:27:34.623Z
+[autopub] reporte: /home/runner/work/UltraIa/UltraIa/.ultraia/autopub/ciclo-2026-09-28T17-13-52-673Z.md
+# AutoPub ciclo 2026-09-28T17:13:52.673Z
 
 - Estado: CON ERRORES · briefs nuevos 0 (dup 0, descubiertos 12)
 - Procesados: 0 · APPROVED auto: 0 · DRAFT humano: 0
