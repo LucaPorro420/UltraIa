@@ -18,6 +18,7 @@ A continuación, se detalla el ecosistema de recursos 100% gratuitos (u opciones
 GitHub aloja la infraestructura lógica, las plantillas de pensamiento de IA y los scripts necesarios para automatizar la programación de tus videojuegos. [4]
 
 - [simoninithomas/awesome-ai-tools-for-game-dev](https://github.com/simoninithomas/awesome-ai-tools-for-game-dev): Un directorio especializado que recopila exclusivamente herramientas de IA destinadas al desarrollo de videojuegos, cubriendo desde generación de texturas en 2D hasta mallas complejas en 3D. [5]
+- [RespawnStack](https://respawnstack.com): Directorio curado de herramientas de IA para desarrollo de videojuegos (arte, audio, código, 3D y más).
 - [gamedev-skills/awesome-gamedev-agent-skills](https://github.com/gamedev-skills/awesome-gamedev-agent-skills): Este repositorio proporciona 67 habilidades de desarrollo de videojuegos para agentes de IA de código (como Cursor o Copilot). Detecta automáticamente si estás usando Godot, Unity, Unreal o Pygame y carga la lógica exacta para programar la tarea requerida. [4]
 - [lappemic/awesome-ai-built-games](https://github.com/lappemic/awesome-ai-built-games): Repositorio que reúne juegos comerciales y experimentales (desde Tetris 3D hasta shooters en primera persona) creados enteramente con IA. Es excelente para estudiar sus códigos fuente y comprender "formas de pensamiento" aplicadas al prompting de videojuegos. [6]
 
